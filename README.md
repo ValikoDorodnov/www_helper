@@ -52,6 +52,21 @@ JS Основы
 Git 
 
 [Запись изменений Основы](https://githowto.com/ru)
+```git
+$ git add README
+
+$ git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+
+    new file:   README
+
+$ git commit -m "test commit"
+
+$ git push -u origin master
+```
 ***
 Language  
 
@@ -113,7 +128,30 @@ Frontend
 ***
 Git  
 [Метки](https://git-scm.com/book/ru/v2/%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D1%8B-Git-%D0%A0%D0%B0%D0%B1%D0%BE%D1%82%D0%B0-%D1%81-%D0%BC%D0%B5%D1%82%D0%BA%D0%B0%D0%BC%D0%B8)  
+```git
+$ git tag
+
+#Аннотированные метки
+$ git tag -a v1.4 -m 'my version 1.4'
+```
 [Работа с удалёнными репозиториями](https://git-scm.com/book/ru/v2/%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D1%8B-Git-%D0%A0%D0%B0%D0%B1%D0%BE%D1%82%D0%B0-%D1%81-%D1%83%D0%B4%D0%B0%D0%BB%D1%91%D0%BD%D0%BD%D1%8B%D0%BC%D0%B8-%D1%80%D0%B5%D0%BF%D0%BE%D0%B7%D0%B8%D1%82%D0%BE%D1%80%D0%B8%D1%8F%D0%BC%D0%B8)  
+```git
+$ git remote -v
+
+origin	https://github.com/schacon/ticgit (fetch)
+origin	https://github.com/schacon/ticgit (push)
+
+#git remote add <shortname> <url>
+$ git remote add pb https://github.com/paulboone/ticgit
+
+#Для получения данных из удалённых проектов, следует выполнить
+$ git fetch [remote-name]
+
+#git pull, как правило, извлекает (fetch) данные с сервера, 
+#с которого вы изначально склонировали, 
+#и автоматически пытается слить (merge) 
+#их с кодом, над которым вы в данный момент работаете.
+```
 
 ***
 Language  
