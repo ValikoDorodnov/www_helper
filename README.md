@@ -28,7 +28,7 @@
  
 ## Грейды
 
-### Грейды 1-5
+### Грейды 1-5 **[⬆ вернуться к началу](#Разделы)**
 
 #### Грейд 1
 ***
@@ -349,7 +349,7 @@ Theory
 
 ***
 ***
-### Грейды 6-10
+### Грейды 6-10 **[⬆ вернуться к началу](#Разделы)**
 
 #### Грейд 6
 
@@ -643,7 +643,7 @@ Theory
 
 ***
 ***
-### Грейды 11-16
+### Грейды 11-16 **[⬆ вернуться к началу](#Разделы)**
 
 #### Грейд 11
 
@@ -877,7 +877,7 @@ Theory
 Многопоточность  
 Сравнение языков программирования  
 
-### GoLang
+### GoLang **[⬆ вернуться к началу](#Разделы)**
 
 [Official web page](https://golang.org/)  
 [GoLang developer roadmap](https://github.com/Alikhll/golang-developer-roadmap)  
@@ -885,7 +885,7 @@ Theory
 [Go-lang book](http://golang-book.ru/)  
 [Введение в язык Go](https://metanit.com/go/tutorial/1.1.php)  
 
-### Общие полезности
+### Общие полезности **[⬆ вернуться к началу](#Разделы)**
 
 [Чистый код на PHP](https://github.com/peter-gribanov/clean-code-php/blob/ru/README.md)  
 
