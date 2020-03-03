@@ -462,8 +462,19 @@ Frontend
 ***
 Git   
 [Cherry-pick](https://git-scm.com/book/ru/v2/Appendix-C%3A-%D0%9A%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B-Git-%D0%92%D0%BD%D0%B5%D1%81%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B8%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B9)  
+```git
+$ git cherry-pick e43a6
+Finished one cherry-pick.
+[master]: created a0a41a9: "More friendly message when locking the index fails."
+ 3 files changed, 17 insertions(+), 3 deletions(-)
+```
 [Rebase](https://git-scm.com/book/ru/v2/%D0%92%D0%B5%D1%82%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2-Git-%D0%9F%D0%B5%D1%80%D0%B5%D0%B1%D0%B0%D0%B7%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5#r_rebasing)  
-
+```git
+$ git checkout experiment
+$ git rebase master
+First, rewinding head to replay your work on top of it...
+Applying: added staged command
+```
 ***
 Language  
 [PHP Исключения](https://www.php.net/manual/ru/language.exceptions.php)  
@@ -593,10 +604,15 @@ AJAX
 [Hard JS](https://www.youtube.com/playlist?list=PLqKQF2ojwm3l4oPjsB9chrJmlhZ-zOzWT)  
 
 ***
-Git 
+Git  
 [Выбор ревизии](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%92%D1%8B%D0%B1%D0%BE%D1%80-%D1%80%D0%B5%D0%B2%D0%B8%D0%B7%D0%B8%D0%B8)  
 [Откат](https://git-scm.com/docs/git-reset)  
-
+```git
+git reset [-q] [<tree-ish>] [--] <pathspec>…​
+git reset [-q] [--pathspec-from-file=<file> [--pathspec-file-nul]] [<tree-ish>]
+git reset (--patch | -p) [<tree-ish>] [--] [<pathspec>…​]
+git reset [--soft | --mixed [-N] | --hard | --merge | --keep] [-q] [<commit>]
+```
 ***
 Language  
 [PHP Генераторы](https://www.php.net/manual/ru/language.generators.php)  
@@ -660,6 +676,10 @@ Frontend
 ***
 Git  
 [Отмена слияний](https://riptutorial.com/ru/git/example/1477/%D0%BE%D1%82%D0%BC%D0%B5%D0%BD%D0%B0-%D1%81%D0%BB%D0%B8%D1%8F%D0%BD%D0%B8%D1%8F)  
+```git
+#Если не было push на удаленный репозиторий
+$ git reset --hard <last commit from the branch you are on>
+```
 [Продвинутое слияние](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%9F%D1%80%D0%BE%D0%B4%D0%B2%D0%B8%D0%BD%D1%83%D1%82%D0%BE%D0%B5-%D1%81%D0%BB%D0%B8%D1%8F%D0%BD%D0%B8%D0%B5)  
 
 ***
