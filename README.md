@@ -357,7 +357,7 @@ Theory
 
 DB  
 [PostgreSQL Первичные ключи и индексы](https://postgrespro.ru/docs/postgrespro/9.6/indexes)  
-PostgreSQL Связывание  
+[PostgreSQL Связывание ](https://postgrespro.ru/docs/postgrespro/9.5/tutorial-join)  
 
 ***
 DevOps  
@@ -376,14 +376,37 @@ Frontend
 
 ***
 Git   
-Выборочное применение  
-Перебазирование  
+[Cherry-pick](https://git-scm.com/book/ru/v2/Appendix-C%3A-%D0%9A%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B-Git-%D0%92%D0%BD%D0%B5%D1%81%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B8%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B9)  
+[Rebase](https://git-scm.com/book/ru/v2/%D0%92%D0%B5%D1%82%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2-Git-%D0%9F%D0%B5%D1%80%D0%B5%D0%B1%D0%B0%D0%B7%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5#r_rebasing)  
 
 ***
 Language  
 [PHP Исключения](https://www.php.net/manual/ru/language.exceptions.php)  
 [ООП в PHP Свойства и методы](https://www.php.net/manual/ru/language.oop5.basic.php)  
-ООП в PHP Статические свойства и методы  
+```php
+<?php
+
+namespace app\example;
+
+Class Example
+{
+    public int $appleCount; // публичное свойство               | this->water
+    public static string $name; // публичное статичное свойство | self::$iron
+    public const MONEY = 100; // константа                      | self::MONEY
+
+    public function getAppleCount(): int
+    {
+        return $this->appleCount;
+    }
+
+    public static function sayMyName(): string
+    {
+        self::MONEY - 50;
+        return self::$iron;
+        
+    }
+}
+```
 [Ключевое слово static](https://www.php.net/manual/ru/language.oop5.static.php#language.oop5.static)  
 [Готовимся к собеседованию по PHP: ключевое слово «static»](https://habr.com/ru/post/259627/)  
 [Exception, try ... catch ... finally](https://www.php.net/manual/ru/language.exceptions.php)  
@@ -393,6 +416,7 @@ Misc
 [Менеджер зависимостей Composer](https://habr.com/ru/post/145946/)  
 [Модель OSI](https://ru.wikipedia.org/wiki/%D0%A1%D0%B5%D1%82%D0%B5%D0%B2%D0%B0%D1%8F_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C_OSI)  
 Профайлеры  
+[Liveprof покажет, когда и почему менялась производительность вашего PHP-приложения](https://habr.com/ru/company/badoo/blog/436364/)  
 
 ***
 Storage   
@@ -409,6 +433,41 @@ Testing
 ***
 Theory  
 [Docker - обзор](https://www.youtube.com/watch?v=QF4ZF857m44)  
+```yaml
+version: "3.1"
+
+services:
+  php:
+    build: php
+    container_name: EXAMPLE_PHP
+    restart: always
+    volumes:
+      - ${APPLICATION_DIR}:/var/www/backend
+      - ./php/php.ini:/usr/local/etc/php/php.ini
+    environment:
+      PHP_IDE_CONFIG: "serverName=Docker"
+    depends_on:
+      - EXAMPLE_NGINX
+    networks:
+      - example
+
+  nginx:
+    build: nginx
+    container_name: EXAMPLE_NGINX
+    restart: always
+    volumes:
+      - ./nginx/config/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/config/default.conf:/etc/nginx/conf.d/default.conf
+      - ${APPLICATION_DIR}:/var/www/backend
+    ports:
+      - 127.0.0.1:${NGINX_PORT}
+    networks:
+      - example
+
+networks:
+   example:
+    driver: bridge
+```
 [docker](https://www.8host.com/blog/ustanovka-i-ispolzovanie-docker-v-ubuntu-18-04/)  
 [удаление контейнеров докер](https://www.8host.com/blog/udalenie-obrazov-kontejnerov-i-tomov-docker/)  
 [docker xdebug](https://blog.denisbondar.com/post/phpstorm_docker_xdebug)  
