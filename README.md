@@ -209,8 +209,28 @@ Frontend
 ***
 Git  
 [История коммитов](https://git-scm.com/book/ru/v2/%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D1%8B-Git-%D0%9F%D1%80%D0%BE%D1%81%D0%BC%D0%BE%D1%82%D1%80-%D0%B8%D1%81%D1%82%D0%BE%D1%80%D0%B8%D0%B8-%D0%BA%D0%BE%D0%BC%D0%BC%D0%B8%D1%82%D0%BE%D0%B2)  
-[Операции отмены](https://git-scm.com/book/ru/v2/%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D1%8B-Git-%D0%9E%D0%BF%D0%B5%D1%80%D0%B0%D1%86%D0%B8%D0%B8-%D0%BE%D1%82%D0%BC%D0%B5%D0%BD%D1%8B)  
+```git
+$ git log
+commit ca82a6dff817ec66f44342007202690a93763949
+Author: Scott Chacon <schacon@gee-mail.com>
+Date:   Mon Mar 17 21:52:11 2008 -0700
 
+    changed the version number
+
+```
+[Операции отмены](https://git-scm.com/book/ru/v2/%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D1%8B-Git-%D0%9E%D0%BF%D0%B5%D1%80%D0%B0%D1%86%D0%B8%D0%B8-%D0%BE%D1%82%D0%BC%D0%B5%D0%BD%D1%8B)  
+```git
+#--amend
+$ git commit -m 'initial commit'
+$ git add forgotten_file
+$ git commit --amend
+
+#Если вы сделали commit в git, но поняли, что он достаточно плох, то можно сделать и так:
+$ git reset --soft HEAD^
+
+#Если последний коммит отвратителен, то можно вообще его удалить
+$ git reset --hard HEAD^
+```
 ***
 Language  
 PHP Встроенные функции для безопасной работы с данными  
@@ -346,9 +366,36 @@ Frontend
 ***
 Git  
 [Поиск](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%9F%D0%BE%D0%B8%D1%81%D0%BA)  
-[Просмотр разницы](https://git-scm.com/docs/git-diff)  
-[Спрятать и достать изменения](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%9F%D1%80%D0%B8%D0%B1%D0%B5%D1%80%D0%B5%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B8-%D0%BE%D1%87%D0%B8%D1%81%D1%82%D0%BA%D0%B0)  
+```git
+$ git grep -n gmtime_r
 
+compat/gmtime.c:3:#undef gmtime_r
+compat/gmtime.c:8:      return git_gmtime_r(timep, &result);
+
+```
+[Просмотр разницы](https://git-scm.com/docs/git-diff)  
+```git
+$ git diff [<options>] [<commit>] [--] [<path>…​]
+$ git diff [<options>] --cached [<commit>] [--] [<path>…​]
+$ git diff [<options>] <commit> <commit> [--] [<path>…​]
+$ git diff [<options>] <blob> <blob>
+$ git diff [<options>] --no-index [--] <path> <path>
+```
+[Спрятать и достать изменения](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%9F%D1%80%D0%B8%D0%B1%D0%B5%D1%80%D0%B5%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B8-%D0%BE%D1%87%D0%B8%D1%81%D1%82%D0%BA%D0%B0)  
+```git
+$ git stash
+Saved working directory and index state \
+  "WIP on master: 049d078 added the index file"
+HEAD is now at 049d078 added the index file
+(To restore them type "git stash apply")
+
+$ git stash list
+stash@{0}: WIP on master: 049d078 added the index file
+stash@{1}: WIP on master: c264051 Revert "added file_size"
+stash@{2}: WIP on master: 21d80a5 added number to log
+
+$ git stash apply stash@{2}.
+```
 ***
 Language  
 [PHP Curl](https://www.php.net/manual/ru/book.curl.php)  
