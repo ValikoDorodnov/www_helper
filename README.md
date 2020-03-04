@@ -644,7 +644,6 @@ Docker - подробно
 ***
 RESTful API требования и подход к проектированию и разработке  
 [Что такое API](https://habr.com/ru/post/464261/)  
-[json api](https://habr.com/ru/company/oleg-bunin/blog/433322/)  
 [Postman](https://www.youtube.com/watch?v=hGmJMeE_ok0)  
 Отладка кода  
 [codesniffer](https://epages.su/blog/setting-php-code-sniffer-in-phpstorm-using-composer.html)  
@@ -924,6 +923,8 @@ TDD Двухфакторная аутентификация
 
 DB  
 PostgreSQL Оконные функции  
+[3.5. Оконные функции](https://postgrespro.ru/docs/postgrespro/9.5/tutorial-window)  
+[9.21. Оконные функции](https://postgrespro.ru/docs/postgrespro/9.6/functions-window)  
 
 ***
 Framework  
@@ -932,42 +933,53 @@ Yii2 Примеры реализации паттернов проектиров
 ***
 Frontend  
 JS Асинхронность  
+[Async/await](https://learn.javascript.ru/async-await)  
+[JavaScript. Как работает Async, Await. Работа с сервером c fetch](https://www.youtube.com/watch?v=SHiUyM_fFME)  
 
 ***
 Language  
-Паттерны проектирования: "наблюдатель"  
-Паттерны проектирования: "стратегия"  
-Реализация SOLID  
+[Паттерны проектирования: "наблюдатель"](https://refactoring.guru/ru/design-patterns/observer/php/example)  
+[Паттерны проектирования: "стратегия"](https://refactoring.guru/ru/design-patterns/strategy/php/example)  
+[Реализация SOLID ](https://github.com/peter-gribanov/clean-code-php/blob/ru/README.md#solid)  
 
 ***
 Misc  
 Проектирование микросервисной архитектуры  
+[Просто о микросервисах](https://habr.com/ru/company/raiffeisenbank/blog/346380/)  
+[Микросервисные паттерны проектирования](https://habr.com/ru/company/piter/blog/275633/)  
 
 ***
 Storage  
-Механизм транзакций  
+[Механизм транзакций](https://studopedia.org/4-181613.html)  
 
 ***
 Theory  
-GraphQL  
-JSON API  
-Микросервисная архитектура  
-Принципы разработки: SOLID  
+[GraphQL](https://graphql.org/)  
+[Что же такое этот GraphQL?](https://habr.com/ru/post/326986/)  
+[Подробности о GraphQL: что, как и почему](https://habr.com/ru/company/ruvds/blog/445268/)  
+[JSON API](https://jsonapi.org/)  
+[json api](https://habr.com/ru/company/oleg-bunin/blog/433322/)  
+[Микросервисная архитектура](https://habr.com/ru/post/249183/)  
+[Принципы разработки: SOLID](https://web-creator.ru/articles/solid)  
 
 ***
 ***
 #### Грейд 14
 
 DB  
-PostgreSQL CTE  
+[PostgreSQL CTE](https://postgrespro.ru/docs/postgrespro/9.5/queries-with)  
 
 ***
 Framework  
 Yii2 Реализация DI  
+[Контейнер внедрения зависимостей](https://www.yiiframework.com/doc/guide/2.0/ru/concept-di-container)  
+[Inversion of Control Containers and the Dependency Injection pattern](https://martinfowler.com/articles/injection.html)  
 
 ***
 Frontend  
 node.js  
+[Всё что вам нужно знать о Node.js](https://habr.com/ru/post/460661/)  
+[Что такое Node JS. Начало работы](https://metanit.com/web/nodejs/1.1.php)  
 
 ***
 Language  
@@ -978,15 +990,22 @@ Value Object DTO POCO
 ***
 Misc  
 Полнотекстовый поиск  
+[Полнотекстовый поиск и его возможности](https://habr.com/ru/post/40218/)  
+[6.8 Полнотекстовый поиск в MySQL](http://www.mysql.ru/docs/man/Fulltext_Search.html)  
+[Готовим полнотекстовый поиск в Postgres. Часть 1](https://habr.com/ru/post/442170/)  
+[Глава 12. Полнотекстовый поиск Postgres](https://postgrespro.ru/docs/postgrespro/9.5/textsearch)  
 
 ***
 Storage  
 Хранимые процедуры  
+[Хранимая процедура](https://ru.wikipedia.org/wiki/%D0%A5%D1%80%D0%B0%D0%BD%D0%B8%D0%BC%D0%B0%D1%8F_%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D0%B4%D1%83%D1%80%D0%B0)  
+[CREATE FUNCTION Postgres](https://postgrespro.ru/docs/postgrespro/9.5/sql-createfunction)  
 
 ***
 Theory  
 DDD Inversion of Control Domain Driven Design  
 Принципы разработки: GRASP  
+[GRASP паттерны проектирования](https://habr.com/ru/post/92570/)  
 
 ***
 ***
