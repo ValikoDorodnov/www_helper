@@ -664,7 +664,7 @@ DevOps
 
 ***
 Framework  
-[Yii2 Виджеты] (https://www.yiiframework.com/doc/guide/2.0/ru/structure-widgets)  
+[Yii2 Виджеты](https://www.yiiframework.com/doc/guide/2.0/ru/structure-widgets)  
 [Yii2 Поведения](https://www.yiiframework.com/doc/guide/2.0/ru/concept-behaviors)  
 [Yii2 Работа с БД - DAO Yii2 Ресурсы](https://www.yiiframework.com/doc/guide/2.0/ru/db-dao)  
 
@@ -695,6 +695,10 @@ Misc
 [Модели работы сетевого сервера](https://life-prog.ru/2_8495_setevie-modeli-protokoli-i-arhitektura-klient--server.html)  
 [Клиент‑серверная архитектура](https://tproger.ru/articles/web-api/amp/)  
 [Состав и механизм работы веб‑сервера](https://developer.mozilla.org/ru/docs/Learn/%D0%A7%D1%82%D0%BE_%D1%82%D0%B0%D0%BA%D0%BE%D0%B5_%D0%B2%D0%B5%D0%B1_%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80Storage)  
+
+***
+Storage  
+Оптимизация  
 
 ***
 Testing  
