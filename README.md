@@ -32,24 +32,23 @@
 **[⬆ вернуться к началу](#Разделы)**
 
 #### Грейд 1
-***
+
 DevOps 
 
 [nano](https://losst.ru/tekstovyj-redaktor-nano-v-linux-dlya-novichkov)  
 [vi(m)](https://losst.ru/kak-polzovatsya-tekstovym-redaktorom-vim)  
 [Командные оболочки shell: обзор](https://habr.com/ru/post/157283/)  
 
+***
 Frontend
 
 [CSS Основы  HTML Основы  HTML Разметка текста](https://htmlacademy.ru/courses/basic-html-css)  
 [Блог верстальщика](http://webmasters.teamdev.com/)  
-***
-JS Основы
-
 [Базовый JS](https://htmlacademy.ru/courses/basic-javascript)  
 [Учебник JS](https://learn.javascript.ru/)
+
 ***
-Git 
+Git  
 
 [Запись изменений Основы](https://githowto.com/ru)
 ```git
