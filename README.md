@@ -708,6 +708,8 @@ Theory
 [Кэширование](https://ruhighload.com/%D0%9A%D1%8D%D1%88%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5+%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85)  
 [Паттерны проектирования: порождающие](https://refactoring.guru/ru/design-patterns/creational-patterns)  
 [ООП MVC, MVP, MVVM](https://habr.com/ru/post/321050/)  
+[M в MVC: почему модели непоняты и недооценены (перевод)](https://habr.com/ru/post/175465/)  
+[Создание архитектуры программы или как проектировать табуретку](https://habr.com/ru/post/276593/)  
 [Как проводить Code Review по версии Google](https://habr.com/ru/post/473308/)  
 [git-flow](https://danielkummer.github.io/git-flow-cheatsheet/index.ru_RU.html)  
 
@@ -961,6 +963,9 @@ Theory
 [json api](https://habr.com/ru/company/oleg-bunin/blog/433322/)  
 [Микросервисная архитектура](https://habr.com/ru/post/249183/)  
 [Принципы разработки: SOLID](https://web-creator.ru/articles/solid)  
+[Хороший дизайн должен быть SOLID: TOP-5 архитектурных принципов](http://igor.quatrocode.com/2008/09/solid-top-5.html)  
+[Принципы проектирования классов (S.O.L.I.D.)](https://blog.byndyu.ru/2009/10/solid.html)  
+[Шпаргалка по SOLID принципам](http://sergeyteplyakov.blogspot.com/2014/10/solid.html)  
 
 ***
 ***
