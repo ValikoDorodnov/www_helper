@@ -683,9 +683,11 @@ $ git reset --hard <last commit from the branch you are on>
 ***
 Language  
 PHP и проблема памяти  
+[Работа с памятью (и всё же она есть)](https://habr.com/ru/post/134784/)  
 [PHP Паттерны проектирования: "одиночка"](https://refactoring.guru/ru/design-patterns/singleton)  
 [ООП в PHP Абстрактные классы](https://www.php.net/manual/ru/language.oop5.abstract.php)  
 [ООП в PHP Интерфейсы](https://www.php.net/manual/ru/language.oop5.interfaces.php)  
+[Отличия абстрактного класса от интерфейса (abstract class and interface)](https://ru.stackoverflow.com/questions/235352/%D0%9E%D1%82%D0%BB%D0%B8%D1%87%D0%B8%D1%8F-%D0%B0%D0%B1%D1%81%D1%82%D1%80%D0%B0%D0%BA%D1%82%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BA%D0%BB%D0%B0%D1%81%D1%81%D0%B0-%D0%BE%D1%82-%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81%D0%B0-abstract-class-and-interface)  
 
 ***
 Misc  
