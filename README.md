@@ -664,7 +664,8 @@ DevOps
 Framework  
 [Yii2 Виджеты](https://www.yiiframework.com/doc/guide/2.0/ru/structure-widgets)  
 [Yii2 Поведения](https://www.yiiframework.com/doc/guide/2.0/ru/concept-behaviors)  
-[Yii2 Работа с БД - DAO Yii2 Ресурсы](https://www.yiiframework.com/doc/guide/2.0/ru/db-dao)  
+[Yii2 Ресурсы](https://www.yiiframework.com/doc/guide/2.0/ru/structure-assets)  
+[Yii2 Работа с БД - DAO](https://www.yiiframework.com/doc/guide/2.0/ru/db-dao)  
 
 ***
 Frontend  
