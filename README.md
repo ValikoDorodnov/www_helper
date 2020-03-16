@@ -260,7 +260,6 @@ PHP
 Misc  
 [Клиент/web-серверная архитектура](https://developer.mozilla.org/ru/docs/Learn/Server-side/First_steps/Client-Server_overview)  
 [Методы и средства обеспечения информационной защиты](https://searchinform.ru/informatsionnaya-bezopasnost/zaschita-informatsii/sposoby-zaschity-informatsii/)   
-[Простым языком об HTTP](https://habr.com/ru/post/215117/)  
 [RFC 2616](https://tools.ietf.org/html/rfc2616#section-10)  
 про http заголовки  
 [нужные](https://habr.com/ru/post/413205/)  
@@ -692,6 +691,7 @@ PHP и проблема памяти
 
 ***
 Misc  
+[Простым языком об HTTP](https://habr.com/ru/post/215117/)  
 [UML диаграммы](https://prog-cpp.ru/uml-classes/)  
 [Модели работы сетевого сервера](https://life-prog.ru/2_8495_setevie-modeli-protokoli-i-arhitektura-klient--server.html)  
 [Клиент‑серверная архитектура](https://tproger.ru/articles/web-api/amp/)  
@@ -700,11 +700,14 @@ Misc
 ***
 Storage  
 Оптимизация  
+[Оптимизация производительности Yii2](https://www.yiiframework.com/doc/guide/2.0/ru/tutorial-performance-tuning)  
 
 ***
 Testing  
 [Mock-объекты](https://codeception.com/docs/reference/Mock)  
-[Функциональное тестирование](https://codeception.com/docs/04-FunctionalTests)  
+[Mock-объект](https://ru.wikipedia.org/wiki/Mock-%D0%BE%D0%B1%D1%8A%D0%B5%D0%BA%D1%82)  
+[Функциональное тестирование Codeception](https://codeception.com/docs/04-FunctionalTests)  
+[Функциональное тестирование](http://aplana.ru/services/testing/functionalnoe-testirovanie)  
 
 ***
 Theory  
