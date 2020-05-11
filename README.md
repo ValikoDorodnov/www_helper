@@ -857,7 +857,8 @@ Misc
 [Пять простых шагов для понимания JSON Web Tokens (JWT)](https://habr.com/ru/post/340146/)  
 [Зачем нужен Refresh Token, если есть Access Token?](https://habr.com/ru/company/voximplant/blog/323160/)  
 [Добавляем Refresh Token](https://habr.com/ru/post/466929/)  
-
+[Про токены, JSON Web Tokens, аутентификацию и авторизацию. Token-Based Authentication](https://gist.github.com/zmts/802dc9c3510d79fd40f9dc38a12bccfc)  
+[Authentication best practices for Vue](https://blog.sqreen.com/authentication-best-practices-vue/)  
 ***
 Storage  
 Представления  
