@@ -441,6 +441,7 @@ Theory
 DB  
 [PostgreSQL Первичные ключи и индексы](https://postgrespro.ru/docs/postgrespro/9.6/indexes)  
 [PostgreSQL Связывание ](https://postgrespro.ru/docs/postgrespro/9.5/tutorial-join)  
+[A Visual Explanation of SQL Joins](https://blog.codinghorror.com/a-visual-explanation-of-sql-joins/)  
 
 ***
 DevOps  
