@@ -504,7 +504,6 @@ Class Example
 ```
 [Ключевое слово static](https://www.php.net/manual/ru/language.oop5.static.php#language.oop5.static)  
 [Готовимся к собеседованию по PHP: ключевое слово «static»](https://habr.com/ru/post/259627/)  
-[Exception, try ... catch ... finally](https://www.php.net/manual/ru/language.exceptions.php)  
 
 ***
 Misc  
