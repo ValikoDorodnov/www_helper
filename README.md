@@ -98,7 +98,7 @@ $ git push -u origin master
 
 ***
 
-Misc
+Misc  
 [Кодировки](https://habr.com/ru/post/158639/)  
 [Назначение и синтаксис регулярных выражений](https://m.habr.com/ru/company/badoo/blog/343310)  
 [Как новичку разобраться в регулярных выражениях](https://netpeak.net/ru/blog/kak-novichku-razobratsya-v-regulyarnyh-vyrazheniyah/)  
