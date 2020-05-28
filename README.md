@@ -33,23 +33,60 @@
 
 #### Грейд 1
 
-DevOps 
+***
 
-[nano](https://losst.ru/tekstovyj-redaktor-nano-v-linux-dlya-novichkov)  
-[vi(m)](https://losst.ru/kak-polzovatsya-tekstovym-redaktorom-vim)  
-[Командные оболочки shell: обзор](https://habr.com/ru/post/157283/)  
+Theory  
+[Понятие о логике](https://ru.wikipedia.org/wiki/%D0%9B%D0%BE%D0%B3%D0%B8%D0%BA%D0%B0)  
+[Алгебра логики](http://ya-znau.ru/znaniya/zn/132)  
+[Понятие об алгоритмах](https://www.yaklass.ru/materiali?mode=cht&chtid=474)  
+[Побитовые операторы](https://www.php.net/manual/ru/language.operators.bitwise.php)  
+Понятие о множествах  
+**Мно́жество** — одно из ключевых понятий математики; это математический объект, сам являющийся набором, совокупностью, собранием каких-либо объектов, которые называются элементами этого множества и обладают общим для всех их характеристическим свойством.  
 
 ***
-Frontend
 
+Language  
+[PHP Встроенные функции обработки переменных](https://www.php.net/manual/ru/functions.internal.php)  
+[PHP Встроенные функции работы со строками](https://www.php.net/manual/ru/ref.strings.php)  
+[PHP Основы языка PHP Особенности языка](https://www.php.net/manual/ru/language.basic-syntax.php)  
+[PHP Предопределённые переменные](https://www.php.net/manual/ru/reserved.variables.php)  
+[PHP Ссылки](https://www.php.net/manual/ru/language.references.whatare.php)  
+
+***
+
+***
+
+Storage  
+Понятие об уникальности  
+**Уникальность** — это состояние, при котором некто или нечто не похожи ни на кого либо ни на что другое в сравнительном контексте.  
+Ключевое значение  
+**Ключевое поле** - это одно или несколько полей, комбинация значений которых однозначно определяет каждую запись в таблице.  
+Понятия о данных  
+**Данные** — поддающееся многократной интерпретации представление информации в формализованном виде, пригодном для передачи, связи или обработки.   
+**Данные** — формы представления информации, с которыми имеют дело информационные системы и их пользователи.  
+
+***
+
+***
+
+Frontend
 [CSS Основы  HTML Основы  HTML Разметка текста](https://htmlacademy.ru/courses/basic-html-css)  
 [Блог верстальщика](http://webmasters.teamdev.com/)  
 [Базовый JS](https://htmlacademy.ru/courses/basic-javascript)  
 [Учебник JS](https://learn.javascript.ru/)
 
 ***
-Git  
 
+DevOps 
+[nano](https://losst.ru/tekstovyj-redaktor-nano-v-linux-dlya-novichkov)  
+[vi(m)](https://losst.ru/kak-polzovatsya-tekstovym-redaktorom-vim)  
+[Командные оболочки shell: обзор](https://habr.com/ru/post/157283/)  
+
+***
+
+***
+
+Git  
 [Запись изменений Основы](https://githowto.com/ru)
 ```git
 $ git add README
@@ -66,40 +103,14 @@ $ git commit -m "test commit"
 
 $ git push -u origin master
 ```
-***
-Language  
 
-[PHP Встроенные функции обработки переменных](https://www.php.net/manual/ru/functions.internal.php)  
-[PHP Встроенные функции работы со строками](https://www.php.net/manual/ru/ref.strings.php)  
-[PHP Основы языка PHP Особенности языка](https://www.php.net/manual/ru/language.basic-syntax.php)  
-[PHP Предопределённые переменные](https://www.php.net/manual/ru/reserved.variables.php)  
-[PHP Ссылки](https://www.php.net/manual/ru/language.references.whatare.php)  
 ***
+
 Misc
- 
 [Кодировки](https://habr.com/ru/post/158639/)  
 [Назначение и синтаксис регулярных выражений](https://m.habr.com/ru/company/badoo/blog/343310)  
 [Как новичку разобраться в регулярных выражениях](https://netpeak.net/ru/blog/kak-novichku-razobratsya-v-regulyarnyh-vyrazheniyah/)  
 [Функции для работы с регулярными выражениями](https://www.php.net/manual/ru/ref.pcre.php)  
-
-***
-Storage  
-Понятие об уникальности  
-**Уникальность** — это состояние, при котором некто или нечто не похожи ни на кого либо ни на что другое в сравнительном контексте.  
-Ключевое значение  
-**Ключевое поле** - это одно или несколько полей, комбинация значений которых однозначно определяет каждую запись в таблице.  
-Понятия о данных  
-**Данные** — поддающееся многократной интерпретации представление информации в формализованном виде, пригодном для передачи, связи или обработки.   
-**Данные** — формы представления информации, с которыми имеют дело информационные системы и их пользователи.  
-
-***
-Theory  
-[Понятие о логике](https://ru.wikipedia.org/wiki/%D0%9B%D0%BE%D0%B3%D0%B8%D0%BA%D0%B0)  
-[Алгебра логики](http://ya-znau.ru/znaniya/zn/132)  
-[Понятие об алгоритмах](https://www.yaklass.ru/materiali?mode=cht&chtid=474)  
-[Побитовые операторы](https://www.php.net/manual/ru/language.operators.bitwise.php)  
-Понятие о множествах  
-**Мно́жество** — одно из ключевых понятий математики; это математический объект, сам являющийся набором, совокупностью, собранием каких-либо объектов, которые называются элементами этого множества и обладают общим для всех их характеристическим свойством.  
 
 ***
 ***
