@@ -508,6 +508,7 @@ Class Example
 ***
 Misc  
 [Менеджер зависимостей Composer](https://habr.com/ru/post/145946/)  
+[vendor versions](https://getcomposer.org/doc/articles/versions.md)  
 [Модель OSI](https://ru.wikipedia.org/wiki/%D0%A1%D0%B5%D1%82%D0%B5%D0%B2%D0%B0%D1%8F_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C_OSI)  
 Профайлеры  
 [Liveprof покажет, когда и почему менялась производительность вашего PHP-приложения](https://habr.com/ru/company/badoo/blog/436364/)  
