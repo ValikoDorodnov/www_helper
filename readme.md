@@ -13,6 +13,8 @@
 
 ### Общие полезности 
 
+[«Архитектура сложных веб-приложений. С примерами на Laravel»](https://github.com/adelf/acwa_book_ru)  
+
 [Чистый код на PHP](https://github.com/peter-gribanov/clean-code-php/blob/ru/README.md)  
 
 [краткое руководство по markDown](https://paulradzkov.com/2014/markdown_cheatsheet/)  
@@ -35,3 +37,5 @@
 [часть 2](https://habr.com/ru/post/487064/)  
 
 [Основы компьютерных сетей. Тема №1. Основные сетевые термины и сетевые модели](https://habr.com/ru/post/307252/)  
+
+[Джоел Спольски: Как правильно задавать вопросы более опытным программистам](https://habr.com/ru/company/skillfactory/blog/504760/)  

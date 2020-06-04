@@ -432,6 +432,7 @@ http
 ***
 
 Git  
+[Сравнение 5 команд Git: revert, checkout, reset, merge и rebase](https://proglib.io/p/sravnenie-5-komand-git-revert-checkout-reset-merge-i-rebase-2020-05-25)  
 [Поиск](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%9F%D0%BE%D0%B8%D1%81%D0%BA)  
 ```git
 $ git grep -n gmtime_r
@@ -924,6 +925,7 @@ JWT
 [Добавляем Refresh Token](https://habr.com/ru/post/466929/)  
 [Про токены, JSON Web Tokens, аутентификацию и авторизацию. Token-Based Authentication](https://gist.github.com/zmts/802dc9c3510d79fd40f9dc38a12bccfc)  
 [Authentication best practices for Vue](https://blog.sqreen.com/authentication-best-practices-vue/)  
+[О хранении JWT токенов в браузерах](https://habr.com/ru/post/502702/)  
 Oauth  
 OpenID  
 
