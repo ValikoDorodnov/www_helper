@@ -28,43 +28,43 @@
 **[⬆ вернуться к началу](#Разделы)**
 
 #### Грейд 1
-Теория и общая практика  
+Теория и общая практика
 
-кодировки текста  
-относительные и абсолютные адреса ресурсов  
-понятия вектора и растра  
+[Кодировки текста](https://habr.com/ru/post/478636/)
+[Относительные (relative) и абсолютные (absolute) адреса ресурсов](https://habr.com/ru/post/310286/) + [Мнение Google об относительных и абсолютных адресах](https://www.searchengines.ru/google-absolute.html)
+[Понятия вектора и растра](https://htmlacademy.ru/blog/boost/graphics/rastr-vector)
 
 ***
 
-HTML  
+HTML
 
-DOCTYPE  
-базовая структура документа  
-валидация разметки  
-базовая структура форм  
-теги атрибуты  
+[DOCTYPE](https://htmlacademy.ru/blog/boost/frontend/doctype)
+[Базовая структура документа](https://developer.mozilla.org/ru/docs/Learn/HTML/%D0%92%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5_%D0%B2_HTML/%D0%A1%D1%82%D1%80%D1%83%D0%BA%D1%82%D1%83%D1%80%D0%B0_%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0_%D0%B8_%D0%B2%D0%B5%D0%B1-%D1%81%D0%B0%D0%B9%D1%82%D0%B0)
+[Валидация разметки](https://htmlacademy.ru/blog/boost/frontend/html-validation)
+[Базовая структура форм](https://developer.mozilla.org/ru/docs/Learn/HTML/Forms/How_to_structure_an_HTML_form)
+[Теги атрибуты](https://ru.hexlet.io/courses/html/lessons/html_terms/theory_unit)
 
 ***
 
 CSS
 
-виды селекторов  
-основные псевдоклассы и псевдоэлементы  
-наследование каскадность вес important  
-блочная модель документа  
-виды и назначение единиц измерения  
-позиционирование  
-сетки  
-растровые спрайты  
-вендорные префиксы  
-источники стилей элемента  
+[Виды селекторов](https://html5book.ru/osnovy-css/#part2)
+[Основные псевдоклассы и псевдоэлементы](https://medium.com/@ABatickaya/%D0%B8%D1%81%D1%87%D0%B5%D1%80%D0%BF%D1%8B%D0%B2%D0%B0%D1%8E%D1%89%D0%B5%D0%B5-%D1%80%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE-%D0%BF%D0%BE-%D0%BF%D1%81%D0%B5%D0%B2%D0%B4%D0%BE%D1%8D%D0%BB%D0%B5%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D0%BC-%D0%B8-%D0%BF%D1%81%D0%B5%D0%B2%D0%B4%D0%BE%D0%BA%D0%BB%D0%B0%D1%81%D1%81%D0%B0%D0%BC-%D0%B2-css-3282b5ea029)
+[Наследование, каскадность, вес important](https://developer.mozilla.org/ru/docs/Web/CSS/Specificity),(https://developer.mozilla.org/ru/docs/Web/Guide/CSS/Getting_started/Cascading_and_inheritance)
+[Блочная модель документа](https://tproger.ru/translations/css-box-model/)
+[Виды и назначение единиц измерения](https://www.w3.org/Style/Examples/007/units.en.html)
+[Позиционирование](https://itchief.ru/html-and-css/css-positioning-elements)
+[Сетки](https://medium.com/fafnur/css-%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D1%8F-%D1%81%D0%BE%D0%B7%D0%B4%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D0%B5%D1%82%D0%BA%D0%B8-%D0%BA%D0%BE%D0%BB%D0%BE%D0%BD%D0%BE%D0%BA-%D0%B8-%D0%B3%D1%80%D0%B8%D0%B4%D0%BE%D0%B2-b849d800bffa)
+[Растровые спрайты](https://learn.javascript.ru/css-sprite)
+[Вендорные префиксы](https://web-standards.ru/articles/prefix-or-posthack/)
+Источники стилей элемента
 
 ***
 
-Инструментарий  
+Инструментарий
 
-графические редакторы  
-работа с изображениями в редакторе  
+Графические редакторы (Photoshop, Sketch, Figma, Avocode, Zepplin)
+Работа с изображениями в редакторе (Вытащить изображения из макета, пережать (прогрессивный jpg + качество 60%), сохранить в нужном размере, обрезать)
 
 ***
 ***
