@@ -79,7 +79,7 @@ CSS
 [CSS-фреймворки](https://geekbrains.ru/posts/5_css_frameworks)  
 [Понятие UI/UX](https://habr.com/ru/post/321312/)  
 [Понимание работы веб-сервера](https://developer.mozilla.org/ru/docs/Learn/%D0%A7%D1%82%D0%BE_%D1%82%D0%B0%D0%BA%D0%BE%D0%B5_%D0%B2%D0%B5%D0%B1_%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80)  
-[Оптимизация вектора](https://webformyself.com/optimizaciya-svg-dlya-veb/), (сервис для сжатия SVGOMG](https://jakearchibald.github.io/svgomg/)  
+[Оптимизация вектора](https://webformyself.com/optimizaciya-svg-dlya-veb/), [сервис для сжатия SVGOMG](https://jakearchibald.github.io/svgomg/)  
 [Оптимизация растра](https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/image-optimization?hl=ru#%D0%9E%D0%BF%D1%82%D0%B8%D0%BC%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F_%D1%80%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B2%D1%8B%D1%85_%D0%B8%D0%B7%D0%BE%D0%B1%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D0%B8%D0%B9)  
 [DNS](https://www.reg.ru/support/dns/obschaja-informatsija-o-dns-serverah/printsipy-raboty-dns-i-pochemu-domeny-nachinayut-rabotat-ne-srazu)  
 
@@ -88,7 +88,7 @@ CSS
 HTML  
 
 [Особенности подготовки текста](http://www.benran.ru/SEM/Sb_17/sbornik/164.pdf) + [Типограф](https://www.artlebedev.ru/typograf/)  
-[Мнемоники(спецсимволы)](https://html5book.ru/specsimvoly-html/) + [Максимально полный список](https://dev.w3.org/html5/html-author/charref)  
+[Мнемоники (спецсимволы)](https://html5book.ru/specsimvoly-html/) + [Максимально полный список](https://dev.w3.org/html5/html-author/charref)  
 [Полная структура форм](https://developer.mozilla.org/ru/docs/Learn/HTML/Forms/How_to_structure_an_HTML_form)  
 [Особенности SEO-оптимизации разметки](https://pixelplus.ru/samostoyatelno/stati/indeksatsiya/seo-i-razrabotka-sayta.html)  
 [Способы использования векторной графики](https://idbi.ru/blogs/blog/polnoe-rukovodstvo-po-svg)  
@@ -108,7 +108,7 @@ CSS
 [Анимации](https://learn.javascript.ru/css-transitions)  
 [Градиенты](http://css.yoksel.ru/linear-gradients/)  
 [@support](https://medium.com/web-standards/supports-92dba6de7ae7)  
-Фоллбеки
+Фоллбеки  
 [Все псевдоклассы и псевдоэлементы](https://medium.com/@ABatickaya/%D0%B8%D1%81%D1%87%D0%B5%D1%80%D0%BF%D1%8B%D0%B2%D0%B0%D1%8E%D1%89%D0%B5%D0%B5-%D1%80%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE-%D0%BF%D0%BE-%D0%BF%D1%81%D0%B5%D0%B2%D0%B4%D0%BE%D1%8D%D0%BB%D0%B5%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D0%BC-%D0%B8-%D0%BF%D1%81%D0%B5%D0%B2%D0%B4%D0%BE%D0%BA%D0%BB%D0%B0%D1%81%D1%81%D0%B0%D0%BC-%D0%B2-css-3282b5ea029)  
 [Flexbox](https://medium.com/@stasonmars/%D0%B2%D0%B5%CC%88%D1%80%D1%81%D1%82%D0%BA%D0%B0-%D0%BD%D0%B0-flexbox-%D0%B2-css-%D0%BF%D0%BE%D0%BB%D0%BD%D1%8B%D0%B8%CC%86-%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%BE%D1%87%D0%BD%D0%B8%D0%BA-e26662cf87e0)  
 [Pixel-perfect](https://zaurmag.ru/html5-css3/chto-takoe-pixel-perfect-v-verstke.html)  
@@ -131,71 +131,62 @@ CSS
 [.gitignore](https://git-scm.com/docs/gitignore)  
 
 ***
-Другое (это не вопрос грейда, а просто ссылочки на полезности)  
-
-[First Aid Git //помощь с гитом](http://firstaidgit.ru/#/)
-[Типограф //оттипографировать текст](https://www.artlebedev.ru/typograf/)
-[SVGOMG //сжать SVG и удалить лишнее](https://jakearchibald.github.io/svgomg/)
-[Can I use //посмотреть поддержку](https://caniuse.com/)
-[Tiny png //сжать изображения в браузере](https://tinypng.com/)
-
-***
 ***
 
 #### Грейд 3
 
 Теория и общая практика  
 
-способы получения данных для вывода  
-существующие браузерные движки отличия  
-HTTP HTTP2 HTTPS FTP  
-URL  
+Cпособы получения данных для вывода  
+[Cуществующие браузерные движки отличия](https://habr.com/ru/post/349512/)  
+[HTTP, HTTP2](https://habr.com/ru/post/308846/), [HTTPS](https://support.google.com/webmasters/answer/6073543?hl=ru), [FTP](https://ru.wikipedia.org/wiki/FTP)  
+[URL](https://developer.mozilla.org/ru/docs/Learn/Understanding_URLs)  
 Basic-auth  
-localhost  
+[localhost](https://www.hostinger.ru/rukovodstva/shto-takoje-localhost/)  
 
 ***
 
 HTML  
 
-aria-атрибуты  
-разница DOM-дерева и дерева доступности  
-микроразметка  
-sitemap.xml  
-robots.txt  
-особенности краулинга поисковых ботов  
-особенности подготовки favicon  
-назначение дата-атрибутов  
-ретинизация изображений  
-доступность  
+[ARIA-атрибуты](https://developer.mozilla.org/ru/docs/Web/Accessibility/ARIA)  
+Разница [DOM-дерева (Document Object Model)](https://learn.javascript.ru/dom-nodes) и [дерева доступности (Accessibility tree)](https://developers.google.com/web/fundamentals/accessibility/semantics-builtin/the-accessibility-tree)  
+[Микроразметка](http://seotuition.ru/%D0%9F%D0%BE%D0%B8%D1%81%D0%BA%D0%BE%D0%B2%D0%BE%D0%B5%D0%BF%D1%80%D0%BE%D0%B4%D0%B2%D0%B8%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5/%D0%9C%D0%B8%D0%BA%D1%80%D0%BE%D1%80%D0%B0%D0%B7%D0%BC%D0%B5%D1%82%D0%BA%D0%B0.aspx)  
+[sitemap.xml](https://support.google.com/webmasters/answer/183668?hl=ru)  
+[robots.txt](https://yandex.ru/support/webmaster/controlling-robot/robots-txt.html)  
+(Особенности краулинга поисковых ботов)[https://netpeak.net/ru/blog/chto-takoye-krauling-i-kak-upravlyat-robotami/]  
+[Особенности подготовки favicon](https://htmlacademy.ru/blog/boost/graphics/short-18)  
+[Назначение дата-атрибутов](https://developer.mozilla.org/ru/docs/Web/Guide/HTML/Using_data_attributes)  
+[Ретинизация изображений](https://developer.mozilla.org/ru/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images)  
+[Доступность](https://medium.com/@ABatickaya/%D0%BF%D0%B8%D1%88%D0%B5%D0%BC-html-%D0%BD%D0%B5-%D0%B7%D0%B0%D0%B1%D1%8B%D0%B2%D0%B0%D1%8F-%D0%BE-%D0%B4%D0%BE%D1%81%D1%82%D1%83%D0%BF%D0%BD%D0%BE%D1%81%D1%82%D0%B8-9ffbf97ecbe7)  
 
 ***
 
 CSS  
 
-grid  
-стили для печати  
-no-js решения  
-БЭМ  
-сложные селекторы  
-reset.css  
-normalize.css  
-atomic.css  
-CSS-фреймворки  
+[Grid](https://medium.com/@stasonmars/%D0%B2%D0%B5%CC%88%D1%80%D1%81%D1%82%D0%BA%D0%B0-%D0%BD%D0%B0-grid-%D0%B2-css-%D0%BF%D0%BE%D0%BB%D0%BD%D0%BE%D0%B5-%D1%80%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE-%D0%B8-%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%BE%D1%87%D0%BD%D0%B8%D0%BA-220508316f8b)  
+[Стили для печати](https://vc.ru/flood/23660-print-style-sheets)  
+no-js решения (аккордеоны/слайдеры/свитчеры на чистом CSS)  
+[БЭМ](https://ru.bem.info/methodology/quick-start/)  
+[Cложные (комплексные) селекторы](https://webref.ru/layout/advanced-html-css/complex-selectors)  
+[reset.css](https://habr.com/ru/post/45296/)  
+[normalize.css](https://htmlacademy.ru/blog/boost/frontend/about-normalize-css)  
+[Atomic css](https://habr.com/ru/post/432586/)  
+[CSS-фреймворки](https://geekbrains.ru/posts/5_css_frameworks)  
 
 ***
 
 Инструментарий  
 
-основы работы в терминале  
-понимание файловой системы unix  
-понимание cli  
+Основы работы в терминале  
+[Понимание файловой системы unix](https://ru.wikipedia.org/wiki/Unix_File_System)  
+[Понимание cli](https://ru.wikipedia.org/wiki/%D0%98%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81_%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D0%BD%D0%BE%D0%B9_%D1%81%D1%82%D1%80%D0%BE%D0%BA%D0%B8)  
 [git] реквесты  
 [git] отличие распределенной и не расп.  
-понимание назначения таск-раннеров  
-возможности консоли в браузере  
-caniuse  
-emmet  
-простая сборка на gulp  
+Понимание назначения таск-раннеров  
+Возможности консоли в браузере  
+[caniuse //посмотреть поддержку браузерами](https://caniuse.com/)  
+[emmet](https://ru.wikipedia.org/wiki/Emmet)  
+Простая сборка на gulp  
 
 ***
 ***
@@ -204,24 +195,33 @@ emmet
 Теория и общая практика  
 
 Progressive Enhancement / Graceful Degradation  
-markdown
-блок-схемы  
+[Markdown](https://ru.wikipedia.org/wiki/Markdown)
+[Блок-схемы](https://oaipbfek.wordpress.com/%D1%81%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B1%D0%BB%D0%BE%D0%BA-%D1%81%D1%85%D0%B5%D0%BC-%D0%B0%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC%D0%BE%D0%B2/)  
 
 ***
 
 HTML  
 
-pug  
-способы вставки видео в разметку  
+[Pug](https://gist.github.com/neretin-trike/53aff5afb76153f050c958b82abd9228)  
+Способы вставки видео в разметку. Тег html5 [<video>](https://developer.mozilla.org/ru/docs/Web/HTML/Element/video). Чаще всего используемые видео-форматы: webp, mp4 (кодек H264) или ogv (для устаревших браузеров), пожать можно в [браузере](https://www.online-convert.com/ru).  
+```
+    <video id="promo-video" class="video-promo desktop" poster="" muted="" autoplay="" loop="" playsinline>
+        <source src="/interface/collections/trendbook-ss-2020/video/1.mp4" type="video/mp4">
+        <source src="/interface/collections/trendbook-ss-2020/video/1.webm" type="video/webm">
+        <source src="/interface/collections/trendbook-ss-2020/video/1.ogv" type="video/ogg">
+    </video> //способ добавления видео через тег
+
+    <iframe width="100%" src="https://www.youtube.com/embed/JZm6E9Hu7D4?controls=1&amp;autoplay=1&amp;loop=1&amp;rel=0&showinfo=0&vq=hd1080" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> //способ вставки iframe через Youtube
+```
 
 ***
 
 CSS
 
-назначение и виды препроцессоров  
-синтаксис и возможности препроцессоров  
-custom properties  
-PostCSS  
+[Назначение и виды препроцессоров](https://mrmlnc.gitbooks.io/less-guidebook-for-beginners/content/chapter_1/css-reprocessors.html)  
+[Cинтаксис и возможности препроцессоров](https://medium.com/oceanize-geeks/6-reasons-you-should-use-a-css-preprocessor-51766ca130a8)  
+[Custom properties](https://developer.mozilla.org/ru/docs/Web/CSS/Using_CSS_custom_properties)  
+[PostCSS](https://webformyself.com/vvedenie-v-postcss/)  
 
 ***
 
@@ -274,7 +274,7 @@ web sockets
 
 HTML  
 
-возможности анимации SVG  
+[Возможности анимации SVG](https://habr.com/ru/post/450924/)  
 
 ***
 
@@ -308,13 +308,13 @@ iife
 
 Прочее  
 
-базовый синтаксис php или иного  
+[Базовый синтаксис php или иного](https://www.php.net/manual/ru/)  
 
 ***
 
 Тестирование  
 
-принципы ручного тестирования  
+[Принципы ручного тестирования](https://habr.com/ru/post/279535/)  
 
 ***
 ***
@@ -414,8 +414,8 @@ canvas
 
 Прочее  
 
-реляционные и нереляционные БД  
-основы синтаксиса SQL  
+[Реляционные и нереляционные БД](https://habr.com/ru/company/ruvds/blog/324936/)  
+[Основы синтаксиса SQL](https://www.w3schools.com/sql/sql_syntax.asp)  
 SQL: выборка данных  
 
 ***
@@ -630,3 +630,12 @@ TS: защитники типов
 
 ***
 ***
+
+
+***
+Просто ссылочки на полезности  
+
+[First Aid Git //помощь с гитом](http://firstaidgit.ru/#/)  
+[Tiny png //сжать png в браузере (c jpg он делает страшное)](https://tinypng.com/)
+[Image Optim //ставим на Mac и жмём изображения кучей](https://imageoptim.com/mac)
+[Расширение Pixel perfect для Chrome](https://chrome.google.com/webstore/detail/perfectpixel-by-welldonec/dkaagdgjmgdmbnecmcefdhjekcoceebi?hl=ru)
