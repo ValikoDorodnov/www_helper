@@ -124,7 +124,7 @@ CSS
 
 [Работа в photoshop](https://habr.com/ru/post/272649/)  
 [[git] Понятие системы контроля версий](https://htmlacademy.ru/blog/education/all/version-control-system)  
-[git] Сервер, [ветка](https://git-scm.com/book/ru/v2/%D0%92%D0%B5%D1%82%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2-Git-%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D1%8B-%D0%B2%D0%B5%D1%82%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F-%D0%B8-%D1%81%D0%BB%D0%B8%D1%8F%D0%BD%D0%B8%D1%8F), [коммит](https://githowto.com/ru/commiting_changes), [конфликт](https://githowto.com/ru/resolving_conflicts)
+[git] Сервер, [ветка](https://git-scm.com/book/ru/v2/%D0%92%D0%B5%D1%82%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2-Git-%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D1%8B-%D0%B2%D0%B5%D1%82%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F-%D0%B8-%D1%81%D0%BB%D0%B8%D1%8F%D0%BD%D0%B8%D1%8F), [коммит](https://githowto.com/ru/commiting_changes), [конфликт](https://githowto.com/ru/resolving_conflicts)  
 [[git] Индексация и добавление в индекс](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%98%D0%BD%D1%82%D0%B5%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D0%B5-%D0%B8%D0%BD%D0%B4%D0%B5%D0%BA%D1%81%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5)  
 [git] push, pull, remote
 ```
@@ -162,7 +162,7 @@ HTML
 [Микроразметка](http://seotuition.ru/%D0%9F%D0%BE%D0%B8%D1%81%D0%BA%D0%BE%D0%B2%D0%BE%D0%B5%D0%BF%D1%80%D0%BE%D0%B4%D0%B2%D0%B8%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5/%D0%9C%D0%B8%D0%BA%D1%80%D0%BE%D1%80%D0%B0%D0%B7%D0%BC%D0%B5%D1%82%D0%BA%D0%B0.aspx)  
 [sitemap.xml](https://support.google.com/webmasters/answer/183668?hl=ru)  
 [robots.txt](https://yandex.ru/support/webmaster/controlling-robot/robots-txt.html)  
-(Особенности краулинга поисковых ботов)[https://netpeak.net/ru/blog/chto-takoye-krauling-i-kak-upravlyat-robotami/]  
+[Особенности краулинга поисковых ботов](https://netpeak.net/ru/blog/chto-takoye-krauling-i-kak-upravlyat-robotami/)  
 [Особенности подготовки favicon](https://htmlacademy.ru/blog/boost/graphics/short-18)  
 [Назначение дата-атрибутов](https://developer.mozilla.org/ru/docs/Web/Guide/HTML/Using_data_attributes)  
 [Ретинизация изображений](https://developer.mozilla.org/ru/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images)  
