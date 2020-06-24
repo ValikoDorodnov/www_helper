@@ -4,21 +4,23 @@
 [frontend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/frontend.md)  
 
 ### GoLang 
-
 [Official web page](https://golang.org/)  
 [GoLang developer roadmap](https://github.com/Alikhll/golang-developer-roadmap)  
 [Web go skeleton](https://github.com/windstep/go-web-skeleton)  
 [Go-lang book](http://golang-book.ru/)  
 [Введение в язык Go](https://metanit.com/go/tutorial/1.1.php)  
 
-### Общие полезности 
+### Каналы по IT
+[Сайт подкаста о разработке ПО и его окрестностях](https://sdcast.ksdaemon.ru/faq/)  
+[Пятиминутка php](https://5minphp.ru/)  
 
+### Книги
 [«Архитектура сложных веб-приложений. С примерами на Laravel»](https://github.com/adelf/acwa_book_ru)  
-
 [Чистый код на PHP](https://github.com/peter-gribanov/clean-code-php/blob/ru/README.md)  
+[Адитъя Бхаргава Грокаем алгоритмы](https://vk.com/doc2036633_461668315?hash=acede283b6897f614b&dl=d70e9d84bdc82c60be)  
 
+### Общие полезности 
 [краткое руководство по markDown](https://paulradzkov.com/2014/markdown_cheatsheet/)  
-
 [Про хэширование](https://m.habr.com/ru/company/mailru/blog/271245/)  
 [NGINX изнутри: рожден для производительности и масштабирования](https://habr.com/ru/post/260065/)  
 [семантическое версионирование](https://semver.org/lang/ru/)  
@@ -31,11 +33,11 @@
 
 [CORS](https://grishaev.me/cors/)  
 [CORS, CSP, HTTPS, HSTS: о технологиях веб-безопасности](https://habr.com/ru/company/ruvds/blog/421347/)  
+[Основы компьютерных сетей. Тема №1. Основные сетевые термины и сетевые модели](https://habr.com/ru/post/307252/)  
 
+### Интересные статьи
 Почему я ушёл из Google и начал работать на себя  
 [часть 1](https://habr.com/ru/post/350374/)  
 [часть 2](https://habr.com/ru/post/487064/)  
-
-[Основы компьютерных сетей. Тема №1. Основные сетевые термины и сетевые модели](https://habr.com/ru/post/307252/)  
 
 [Джоел Спольски: Как правильно задавать вопросы более опытным программистам](https://habr.com/ru/company/skillfactory/blog/504760/)  
