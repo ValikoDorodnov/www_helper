@@ -11,6 +11,7 @@
 [Введение в язык Go](https://metanit.com/go/tutorial/1.1.php)  
 
 ### Каналы по IT
+[PHP Digest Cвежие новости, материалы и инструменты – раз в две недели. (Телеграм)](https://t.me/phpdigest)  
 [Сайт подкаста о разработке ПО и его окрестностях](https://sdcast.ksdaemon.ru/faq/)  
 [Пятиминутка php](https://5minphp.ru/)  
 
