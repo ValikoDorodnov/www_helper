@@ -4,15 +4,16 @@
 :x: означает, что раздел не заполнен.  
 :white_check_mark: означает, что раздел полностью заполнен.  
 :arrows_counterclockwise: 5/10 (заполнено/всего) означает, что раздел в процессе заполнения  
+
 # Разделы
 
  1. [Грейды](#Грейды)
      * [Грейды 1-5](#Грейды-1-5)
-        * [Грейд 1](#Грейд-1)
-        * [Грейд 2](#Грейд-2)
-        * [Грейд 3](#Грейд-3)
-        * [Грейд 4](#Грейд-4)
-        * [Грейд 5](#Грейд-5)
+        * [Грейд 1](#Грейд-1)  :white_check_mark:
+        * [Грейд 2](#Грейд-2)  :white_check_mark:
+        * [Грейд 3](#Грейд-3)  :white_check_mark:
+        * [Грейд 4](#Грейд-4)  :white_check_mark:
+        * [Грейд 5](#Грейд-5)  :white_check_mark:
      * [Грейды 6-10](#Грейды-6-10)
         * [Грейд 6](#Грейд-6)
         * [Грейд 7](#Грейд-7)
@@ -37,20 +38,20 @@
 
 Theory  
 [Понятие о логике](https://ru.wikipedia.org/wiki/%D0%9B%D0%BE%D0%B3%D0%B8%D0%BA%D0%B0)  
-[Алгебра логики](http://ya-znau.ru/znaniya/zn/132)  
 [Понятие об алгоритмах](https://www.yaklass.ru/materiali?mode=cht&chtid=474)  
-[Побитовые операторы](https://www.php.net/manual/ru/language.operators.bitwise.php)  
 Понятие о множествах  
 **Мно́жество** — одно из ключевых понятий математики; это математический объект, сам являющийся набором, совокупностью, собранием каких-либо объектов, которые называются элементами этого множества и обладают общим для всех их характеристическим свойством.  
+:pushpin:[Алгебра логики](http://ya-znau.ru/znaniya/zn/132)  
+:pushpin:[Побитовые операторы](https://www.php.net/manual/ru/language.operators.bitwise.php)  
 
 ***
 
 Language  
-[PHP Встроенные функции обработки переменных](https://www.php.net/manual/ru/functions.internal.php)  
-[PHP Встроенные функции работы со строками](https://www.php.net/manual/ru/ref.strings.php)  
 [PHP Основы языка PHP Особенности языка](https://www.php.net/manual/ru/language.basic-syntax.php)  
 [PHP Предопределённые переменные](https://www.php.net/manual/ru/reserved.variables.php)  
 [PHP Ссылки](https://www.php.net/manual/ru/language.references.whatare.php)  
+[PHP Встроенные функции обработки переменных](https://www.php.net/manual/ru/functions.internal.php)  
+[PHP Встроенные функции работы со строками](https://www.php.net/manual/ru/ref.strings.php)  
 
 ***
 
@@ -67,9 +68,9 @@ Storage
 
 Frontend
 [CSS Основы  HTML Основы  HTML Разметка текста](https://htmlacademy.ru/courses/basic-html-css)  
-[Блог верстальщика](http://webmasters.teamdev.com/)  
 [Базовый JS](https://htmlacademy.ru/courses/basic-javascript)  
-[Учебник JS](https://learn.javascript.ru/)
+:pushpin:[Блог верстальщика](http://webmasters.teamdev.com/)  
+:pushpin:[Учебник JS](https://learn.javascript.ru/)
 
 ***
 
@@ -103,8 +104,8 @@ $ git push -u origin master
 Misc  
 [Кодировки](https://habr.com/ru/post/158639/)  
 [Назначение и синтаксис регулярных выражений](https://m.habr.com/ru/company/badoo/blog/343310)  
-[Как новичку разобраться в регулярных выражениях](https://netpeak.net/ru/blog/kak-novichku-razobratsya-v-regulyarnyh-vyrazheniyah/)  
-[Функции для работы с регулярными выражениями](https://www.php.net/manual/ru/ref.pcre.php)  
+:pushpin:[Как новичку разобраться в регулярных выражениях](https://netpeak.net/ru/blog/kak-novichku-razobratsya-v-regulyarnyh-vyrazheniyah/)  
+:pushpin:[Функции для работы с регулярными выражениями](https://www.php.net/manual/ru/ref.pcre.php)  
 
 ***
 ***
@@ -112,24 +113,24 @@ Misc
 #### Грейд 2
 
 Theory  
-[Компьютерная сеть](https://ru.wikipedia.org/wiki/%D0%92%D1%8B%D1%87%D0%B8%D1%81%D0%BB%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F_%D1%81%D0%B5%D1%82%D1%8C)  
-[Scrum](https://onagile.ru/trends/agile/what-is-scrum)  
-[Agile](https://habr.com/ru/company/edison/blog/313410/)  
+[Цикл разработки web‑приложений](https://m.habr.com/ru/post/458336/)  
 [Методологии разработки](https://m.habr.com/ru/company/edison/blog/269789/)  
 [Минимально жизнеспособный продукт (MVP)](https://m.habr.com/ru/company/changeagain/blog/298830/)  
-[Цикл разработки web‑приложений](https://m.habr.com/ru/post/458336/)  
+[Компьютерная сеть](https://ru.wikipedia.org/wiki/%D0%92%D1%8B%D1%87%D0%B8%D1%81%D0%BB%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F_%D1%81%D0%B5%D1%82%D1%8C)  
+:pushpin:[Scrum](https://onagile.ru/trends/agile/what-is-scrum)  
+:pushpin:[Agile](https://habr.com/ru/company/edison/blog/313410/)  
 
 ***
 Language  
-[PHP Встроенные функции поддержки языков и кодировок](https://www.php.net/manual/ru/refs.international.php)  
-[PHP Встроенные функции работы с датой и временем](https://www.php.net/manual/ru/ref.datetime.php)  
-[PHP Встроенные функции работы с файловой системой](https://www.php.net/manual/ru/book.filesystem.php)  
-[PHPDoc](https://elisdn.ru/blog/80/some-reasons-to-learn-phpdoc)  
 PHP Пользовательские функции  
 [Стандарты PHP (PSR)](https://github.com/index0h/php-conventions)  
-[Перевод стандартов PSR](https://svyatoslav.biz/misc/psr_translation)  
-[PHP Standards Recommendations](https://www.php-fig.org/psr/)  
-[Развитие синтаксиса php](https://wp-kama.ru/id_6310/php-evolution.html)  
+[PHPDoc](https://elisdn.ru/blog/80/some-reasons-to-learn-phpdoc)  
+[PHP Встроенные функции работы с датой и временем](https://www.php.net/manual/ru/ref.datetime.php)  
+[PHP Встроенные функции работы с файловой системой](https://www.php.net/manual/ru/book.filesystem.php)  
+[PHP Встроенные функции поддержки языков и кодировок](https://www.php.net/manual/ru/refs.international.php)  
+:pushpin:[Перевод стандартов PSR](https://svyatoslav.biz/misc/psr_translation)  
+:pushpin:[PHP Standards Recommendations](https://www.php-fig.org/psr/)  
+:pushpin:[Развитие синтаксиса php](https://wp-kama.ru/id_6310/php-evolution.html)  
 
 ***
 Storage   
@@ -140,24 +141,24 @@ Storage
 ***
 
 DB  
-[PostgreSQL Простые выборки из таблиц](https://postgrespro.ru/docs/postgresql/9.6/queries-select-lists)  
-[PostgreSQL Синтаксис запроса SQL](https://postgrespro.ru/docs/postgresql/9.4/sql)  
 [PostgreSQL Типы данных](https://postgrespro.ru/docs/postgrespro/10/datatype)  
+[PostgreSQL Синтаксис запроса SQL](https://postgrespro.ru/docs/postgresql/9.4/sql)  
+[PostgreSQL Простые выборки из таблиц](https://postgrespro.ru/docs/postgresql/9.6/queries-select-lists)  
 
 ***
 Frontend  
-[HTML iFrame](https://webref.ru/html/iframe)  
 [HTML Таблицы](https://developer.mozilla.org/ru/docs/Learn/HTML/Tables/Basics)  
 [HTML Формы](https://webref.ru/course/html-content/forms)  
+[HTML iFrame](https://webref.ru/html/iframe)  
 
 ***
 
 DevOps  
 [pipe (конвейер)](https://habr.com/ru/post/195152/)  
 [pv](https://linux-notes.org/utilita-pv-progress-bar-dlya-konsol-ny-h-utilit-v-unix-linux/)   
-[Искусство командной строки](https://m.habr.com/ru/post/262127/)  
-[Курс по командной строке](https://ru.hexlet.io/courses/cli-basics)  
 [Команды для работы с файлами](https://losst.ru/komandy-linux-dlya-raboty-s-fajlami)  
+:pushpin:[Искусство командной строки](https://m.habr.com/ru/post/262127/)  
+:pushpin:[Курс по командной строке](https://ru.hexlet.io/courses/cli-basics)  
 
 ***
 
@@ -191,10 +192,10 @@ $ git fetch [remote-name]
 ***
 
 Misc  
+[Сетевые адреса](https://habr.com/ru/post/129664/)  
 DNS URI URL URN   
 [Давайте уже разберемся в DNS](https://habr.com/ru/post/303446/)  
 [URI — сложно о простом (Часть 1)](https://habr.com/ru/post/232385/)  
-[Сетевые адреса](https://habr.com/ru/post/129664/)  
 [Сетевые протоколы](https://habr.com/ru/post/307714/)  
 
 ***
@@ -203,20 +204,25 @@ DNS URI URL URN
 #### Грейд 3
 
 Theory  
-[Понятие об объектах](https://ru.wikipedia.org/wiki/%D0%9E%D0%B1%D1%8A%D0%B5%D0%BA%D1%82_(%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5))  
-[Теория алгоритмов](https://ru.wikipedia.org/wiki/%D0%A2%D0%B5%D0%BE%D1%80%D0%B8%D1%8F_%D0%B0%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82)  
+[Теория множеств](https://ru.wikipedia.org/wiki/%D0%A2%D0%B5%D0%BE%D1%80%D0%B8%D1%8F_%D0%BC%D0%BD%D0%BE%D0%B6%D0%B5%D1%81%D1%82%D0%B2)  
 Теория логики  
-Теория множеств  
+[Теория алгоритмов](https://ru.wikipedia.org/wiki/%D0%A2%D0%B5%D0%BE%D1%80%D0%B8%D1%8F_%D0%B0%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82)  
+[Понятие об объектах](https://ru.wikipedia.org/wiki/%D0%9E%D0%B1%D1%8A%D0%B5%D0%BA%D1%82_(%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5))  
 
 ***
 
 Language  
+[Session](https://www.php.net/manual/ru/features.sessions.php)  
+[Cookie](https://www.php.net/manual/ru/features.cookies.php)  
+[PHP Встроенные функции работы с массивами](https://www.php.net/manual/ru/ref.array.php)  
+[PHP Встроенные функции работы с регулярными выражениями](https://www.php.net/manual/ru/ref.pcre.php)  
+  
 PHP Встроенные функции для безопасной работы с данными  
-[Книга «Как пережить полный конец обеда, или безопасность в PHP». Часть 1](https://habr.com/ru/company/mailru/blog/310726/)  
-[часть 2](https://habr.com/ru/company/mailru/blog/352440/)  
-[часть 3](https://habr.com/ru/company/mailru/blog/352442/)  
-[часть 4](https://habr.com/ru/company/mailru/blog/352444/)  
-[Основные угрозы веб‑приложениям (OWASP)](https://m.habr.com/ru/company/gaz-is/blog/415283/)  
+:pushpin:[Книга «Как пережить полный конец обеда, или безопасность в PHP». Часть 1](https://habr.com/ru/company/mailru/blog/310726/)  
+:pushpin:[часть 2](https://habr.com/ru/company/mailru/blog/352440/)  
+:pushpin:[часть 3](https://habr.com/ru/company/mailru/blog/352442/)  
+:pushpin:[часть 4](https://habr.com/ru/company/mailru/blog/352444/)  
+:pushpin:[Основные угрозы веб‑приложениям (OWASP)](https://m.habr.com/ru/company/gaz-is/blog/415283/)  
 
 Функции для безопасной работы с данными  
 **mysqli_real_escape_string**  
@@ -225,12 +231,8 @@ PHP Встроенные функции для безопасной работы
 **htmlentities** — Преобразует все возможные символы в соответствующие HTML-сущности  
 **htmlspecialchars** — Преобразует специальные символы в HTML-сущности  
 **password_hash** — Создает хеш пароля  
-
-[PHP Встроенные функции работы с массивами](https://www.php.net/manual/ru/ref.array.php)  
-[PHP Встроенные функции работы с регулярными выражениями](https://www.php.net/manual/ru/ref.pcre.php)  
-[PHP для начинающих. Сессия](https://m.habr.com/ru/post/437972/)  
-[Session](https://www.php.net/manual/ru/features.sessions.php)  
-[Cookie](https://www.php.net/manual/ru/features.cookies.php)  
+  
+:pushpin:[PHP для начинающих. Сессия](https://m.habr.com/ru/post/437972/)  
 
 ***
 
@@ -241,9 +243,9 @@ Storage
 ***
 
 DB  
-[PostgreSQL Пагинация](https://www.postgresql.org/docs/8.3/queries-limit.html)  
-[PostgreSQL Сортировка](https://postgrespro.ru/docs/postgrespro/9.5/queries-order)  
 [PostgreSQL Условия](https://postgrespro.ru/docs/postgrespro/9.5/functions-conditional)  
+[PostgreSQL Сортировка](https://postgrespro.ru/docs/postgrespro/9.5/queries-order)  
+[PostgreSQL Пагинация](https://www.postgresql.org/docs/8.3/queries-limit.html)  
 
 ***
 
@@ -253,8 +255,8 @@ Frontend
 ***
 
 DevOps  
-[Переменные окружения](https://wiki.archlinux.org/index.php/Environment_variables_(%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9)) 
 [Симлинки](https://rtfm.co.ua/unix-chto-takoe-symlink-hardlink-i-inode/)  
+[Переменные окружения](https://wiki.archlinux.org/index.php/Environment_variables_(%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9)) 
 
 ***
 
@@ -288,16 +290,17 @@ $ git reset --hard HEAD^
 Misc  
 [Клиент/web-серверная архитектура](https://developer.mozilla.org/ru/docs/Learn/Server-side/First_steps/Client-Server_overview)  
 [Методы и средства обеспечения информационной защиты](https://searchinform.ru/informatsionnaya-bezopasnost/zaschita-informatsii/sposoby-zaschity-informatsii/)   
-[RFC 2616](https://tools.ietf.org/html/rfc2616#section-10)  
-
+[Виды систем контроля версий, их состав и возможности](https://biz30.timedoctor.com/ru/c%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0-%D0%BA%D0%BE%D0%BD%D1%82%D1%80%D0%BE%D0%BB%D1%8F-%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D0%B9/)  
+[Обзор HTTP](https://developer.mozilla.org/ru/docs/Web/HTTP/Overview#:~:text=HTTP%20%E2%80%94%20%D1%8D%D1%82%D0%BE%20%D0%BF%D1%80%D0%BE%D1%82%D0%BE%D0%BA%D0%BE%D0%BB%2C%20%D0%BF%D0%BE%D0%B7%D0%B2%D0%BE%D0%BB%D1%8F%D1%8E%D1%89%D0%B8%D0%B9%20%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B0%D1%82%D1%8C,%D0%B1%D1%80%D0%B0%D1%83%D0%B7%D0%B5%D1%80%D0%BE%D0%BC%20(web%2Dbrowser).)  
+  
 про http заголовки  
 [нужные](https://habr.com/ru/post/413205/)  
 [ненужные](https://habr.com/ru/post/412813/#comments)  
-
-[HTTP-заголовки для ответственного разработчика](https://habr.com/ru/company/mailru/blog/450816/)  
-[Коды ошибок](https://developer.mozilla.org/ru/docs/Web/HTTP/Status)  
-[Протокол Open Graph](https://ruogp.me/)  
-[Виды систем контроля версий, их состав и возможности](https://biz30.timedoctor.com/ru/c%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0-%D0%BA%D0%BE%D0%BD%D1%82%D1%80%D0%BE%D0%BB%D1%8F-%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D0%B9/)  
+  
+:pushpin:[HTTP-заголовки для ответственного разработчика](https://habr.com/ru/company/mailru/blog/450816/)  
+:pushpin:[Коды ошибок](https://developer.mozilla.org/ru/docs/Web/HTTP/Status)  
+:pushpin:[Протокол Open Graph](https://ruogp.me/)  
+:pushpin:[RFC 2616](https://tools.ietf.org/html/rfc2616#section-10)  
 
 ***
 ***
@@ -308,42 +311,40 @@ Theory
 [Основы информационной безопасности](https://m.habr.com/ru/company/vps_house/blog/343110/)  
 [Парадигмы программирования](https://inf1.info/programmingparadigm)  
 [Теоретические основы ООП: наследование, инкапсуляция, полиморфизм](https://habr.com/ru/post/463125/)  
-[ООП MVC, MVP, MVVM](https://habr.com/ru/post/321050/)  
-[M в MVC: почему модели непоняты и недооценены (перевод)](https://habr.com/ru/post/175465/)  
-
-
+:pushpin:[ООП MVC, MVP, MVVM](https://habr.com/ru/post/321050/)  
+:pushpin:[M в MVC: почему модели непоняты и недооценены (перевод)](https://habr.com/ru/post/175465/)  
 
 ***
 
 Language  
-PHP Авторизация с помощью сессий и Cookie  
-[PHP Включаемые файлы](https://www.php.net/manual/ru/function.include.php)  
 [PHP Встроенные функции для работы с БД и PDO](https://www.php.net/manual/ru/book.pdo.php)  
 [PHP Встроенные функции управления функциями](https://www.php.net/manual/ru/functions.internal.php)  
 [PHP Обзор расширений](https://www.php.net/manual/ru/extensions.php)  
+PHP Авторизация с помощью сессий и Cookie  
+[PHP Включаемые файлы](https://www.php.net/manual/ru/function.include.php)  
 
 ***
 
 Framework  
-Обзор Yii2  
 [CMS vs Framework: назначение, состав, отличия](https://vc.ru/flood/33985-cms-ili-freymvork-chto-vybrat)  
 [Фреймворки](https://m.habr.com/ru/company/oleg-bunin/blog/308644/)  
-[Не учите фреймворки, учите архитектуру](https://habr.com/ru/post/253297/)  
+[Обзор Yii2](https://yiiframework.com.ua/ru/doc/guide/2/structure-overview/)  
+:pushpin:[Не учите фреймворки, учите архитектуру](https://habr.com/ru/post/253297/)  
 
 ***
 
 Storage  
+[Термины реляционной БД](https://zametkinapolyah.ru/zametki-o-mysql/chast-3-10-slovar-terminov-relyacionnyx-baz-dannyx.html)  
 [Первичный ключ](https://m.habr.com/ru/post/247373/)  
 [и индексы](https://habr.com/ru/post/247373/)  
-[SQL ключи во всех подробностях](https://habr.com/ru/company/oleg-bunin/blog/348172/)  
-[Термины реляционной БД](https://zametkinapolyah.ru/zametki-o-mysql/chast-3-10-slovar-terminov-relyacionnyx-baz-dannyx.html)  
+:pushpin:[SQL ключи во всех подробностях](https://habr.com/ru/company/oleg-bunin/blog/348172/)  
 
 ***
 
 DB  
 [PostgreSQL Математические и строковые функции](https://postgrespro.ru/docs/postgrespro/9.5/functions-string)  
-[PostgreSQL Условные выражения](https://postgrespro.ru/docs/postgrespro/9.5/functions-conditional)  
 [PostgreSQL Функции для работы с датой-временем](https://postgrespro.ru/docs/postgrespro/10/functions-datetime)  
+[PostgreSQL Условные выражения](https://postgrespro.ru/docs/postgrespro/9.5/functions-conditional)  
 
 ***
 
@@ -365,9 +366,9 @@ Git
 ***
 
 Misc  
+[Принципы разработки](https://shwanoff.ru/principles-of-development/)  
 [Основные признаки "дурно пахнущего кода"](https://refactoring.guru/ru/refactoring/smells)  
 Отладка кода  
-[Принципы разработки](https://shwanoff.ru/principles-of-development/)  
 [Сокеты](https://tproger.ru/translations/what-are-web-sockets/)  
 
 
@@ -377,20 +378,20 @@ Misc
 #### Грейд 5
 
 Theory  
-[Виртуализация](https://ru.wikipedia.org/wiki/%D0%92%D0%B8%D1%80%D1%82%D1%83%D0%B0%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F)  
-Рефакторинг  
 [Чистые функции](https://ru.hexlet.io/courses/introduction_to_programming/lessons/pure/theory_unit)  
+[Рефакторинг](https://refactoring.guru/ru)  
 [Идентификация, аутентификации, авторизация](http://it-uroki.ru/uroki/bezopasnost/identifikaciya-autentifikaciya-avtorizaciya.html)  
-[Обзор способов и протоколов аутентификации в веб-приложениях](https://habr.com/ru/company/dataart/blog/262817/)  
+[Виртуализация](https://ru.wikipedia.org/wiki/%D0%92%D0%B8%D1%80%D1%82%D1%83%D0%B0%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F)  
+:pushpin:[Обзор способов и протоколов аутентификации в веб-приложениях](https://habr.com/ru/company/dataart/blog/262817/)  
 
 ***
 
 Language  
+[Lambda‑функции](https://www.php.net/manual/ru/functions.anonymous.php)  
 PHP: доступ через HTTP (curl, file_get_contents)  
 [PHP Curl](https://www.php.net/manual/ru/book.curl.php)  
-[Lambda‑функции](https://www.php.net/manual/ru/functions.anonymous.php)  
-[разница между lambda and closure](https://codeinphp.github.io/post/exploring-lambda-functions-and-closures-in-php/)  
-ООП в PHP Классы и объекты  
+[ООП в PHP Классы и объекты](https://www.php.net/manual/ru/language.oop5.php)  
+:pushpin:[разница между lambda and closure](https://codeinphp.github.io/post/exploring-lambda-functions-and-closures-in-php/)  
 
 ***
 
@@ -436,7 +437,6 @@ http
 ***
 
 Git  
-[Сравнение 5 команд Git: revert, checkout, reset, merge и rebase](https://proglib.io/p/sravnenie-5-komand-git-revert-checkout-reset-merge-i-rebase-2020-05-25)  
 [Поиск](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%9F%D0%BE%D0%B8%D1%81%D0%BA)  
 ```git
 $ git grep -n gmtime_r
@@ -468,17 +468,18 @@ stash@{2}: WIP on master: 21d80a5 added number to log
 
 $ git stash apply stash@{2}.
 ```
+:pushpin:[Сравнение 5 команд Git: revert, checkout, reset, merge и rebase](https://proglib.io/p/sravnenie-5-komand-git-revert-checkout-reset-merge-i-rebase-2020-05-25)  
 
 ***
 
 Misc  
-[Линтеры](https://ru.wikipedia.org/wiki/Lint)  
 [API: назначение, состав, особенности](https://habr.com/ru/post/464261/)  
-[Что такое управление API?](https://m.habr.com/ru/company/otus/blog/439222/)  
-[Rest API BestPracties](https://habr.com/ru/post/351890/)  
-Модель OSI  
-Стек TCP/IP  
-[Основы компьютерных сетей. Тема №1. Основные сетевые термины и сетевые модели](https://habr.com/ru/post/307252/)  
+[Линтеры](https://ru.wikipedia.org/wiki/Lint)  
+[Модель OSI](https://ru.wikipedia.org/wiki/%D0%A1%D0%B5%D1%82%D0%B5%D0%B2%D0%B0%D1%8F_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C_OSI)  
+[Стек TCP/IP](https://www.opennet.ru/docs/RUS/ip_network/glava_2.html)  
+:pushpin:[Что такое управление API?](https://m.habr.com/ru/company/otus/blog/439222/)  
+:pushpin:[Rest API BestPracties](https://habr.com/ru/post/351890/)  
+:pushpin:[Основы компьютерных сетей. Тема №1. Основные сетевые термины и сетевые модели](https://habr.com/ru/post/307252/)  
 
 
 ***
