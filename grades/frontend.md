@@ -124,9 +124,18 @@ CSS
 
 [Работа в Photoshop](https://habr.com/ru/post/272649/)  
 [[git] Понятие системы контроля версий](https://htmlacademy.ru/blog/education/all/version-control-system)  
-[[git] Сервер, ветка, коммит, конфликт]()  
-[[git] Индексация и добавление в индекс]()  
-[[git] push, pull, remote]()  
+[git] Сервер, [ветка](https://git-scm.com/book/ru/v2/%D0%92%D0%B5%D1%82%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2-Git-%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D1%8B-%D0%B2%D0%B5%D1%82%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F-%D0%B8-%D1%81%D0%BB%D0%B8%D1%8F%D0%BD%D0%B8%D1%8F), [коммит](https://githowto.com/ru/commiting_changes), [конфликт](https://githowto.com/ru/resolving_conflicts)  
+[[git] Индексация и добавление в индекс](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%98%D0%BD%D1%82%D0%B5%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D0%B5-%D0%B8%D0%BD%D0%B4%D0%B5%D0%BA%D1%81%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5)  
+[git] push, pull, remote
+```
+    git push //отправляем изменения на сервер (удаолённый репозиторий) после коммита. если кто-то уже сделал изменения в общей ветке, необходимо сделать git pull
+    git pull //автоматически получить изменения из удалённой ветки и слить их со своей текущей
+    git remote //посмотреть доступные удалённые репозитории
+    git remote show //URL удалённого репозитория, а также информация об отслеживаемых ветках
+    git remote rename имя_репозитория новоеИмя_репозитория//переименовать удалённый репозиторий
+    git remote add имя_репозитория //добавить удалённый репозиторий
+    git remote rm имя_репозитория //удалить
+```
 [Эспорт вектора](https://helpx.adobe.com/ru/illustrator/how-to/export-svg.html)  
 [.gitignore](https://git-scm.com/docs/gitignore)  
 
@@ -153,7 +162,7 @@ HTML
 [Микроразметка](http://seotuition.ru/%D0%9F%D0%BE%D0%B8%D1%81%D0%BA%D0%BE%D0%B2%D0%BE%D0%B5%D0%BF%D1%80%D0%BE%D0%B4%D0%B2%D0%B8%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5/%D0%9C%D0%B8%D0%BA%D1%80%D0%BE%D1%80%D0%B0%D0%B7%D0%BC%D0%B5%D1%82%D0%BA%D0%B0.aspx)  
 [sitemap.xml](https://support.google.com/webmasters/answer/183668?hl=ru)  
 [robots.txt](https://yandex.ru/support/webmaster/controlling-robot/robots-txt.html)  
-(Особенности краулинга поисковых ботов)[https://netpeak.net/ru/blog/chto-takoye-krauling-i-kak-upravlyat-robotami/]  
+[Особенности краулинга поисковых ботов](https://netpeak.net/ru/blog/chto-takoye-krauling-i-kak-upravlyat-robotami/)  
 [Особенности подготовки favicon](https://htmlacademy.ru/blog/boost/graphics/short-18)  
 [Назначение дата-атрибутов](https://developer.mozilla.org/ru/docs/Web/Guide/HTML/Using_data_attributes)  
 [Ретинизация изображений](https://developer.mozilla.org/ru/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images)  
@@ -177,16 +186,16 @@ no-js решения (аккордеоны/слайдеры/свитчеры н�
 
 Инструментарий  
 
-Основы работы в терминале  
+[Основы работы в терминале](https://tproger.ru/articles/useful-linux-commands/)  
 [Понимание файловой системы unix](https://ru.wikipedia.org/wiki/Unix_File_System)  
 [Понимание cli](https://ru.wikipedia.org/wiki/%D0%98%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81_%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D0%BD%D0%BE%D0%B9_%D1%81%D1%82%D1%80%D0%BE%D0%BA%D0%B8)  
 [git] реквесты  
 [git] отличие распределенной и не расп.  
-Понимание назначения таск-раннеров  
-Возможности консоли в браузере  
+[Понимание назначения таск-раннеров](https://www.youtube.com/watch?v=t7yYD3qVchw)  
+[Возможности консоли в браузере](https://habr.com/ru/company/ruvds/blog/414375/)  
 [caniuse //посмотреть поддержку браузерами](https://caniuse.com/)  
 [emmet](https://ru.wikipedia.org/wiki/Emmet)  
-Простая сборка на gulp  
+[Простая сборка на gulp](https://habr.com/ru/post/484714/)
 
 ***
 ***
@@ -194,7 +203,7 @@ no-js решения (аккордеоны/слайдеры/свитчеры н�
 #### Грейд 4  
 Теория и общая практика  
 
-Progressive Enhancement / Graceful Degradation  
+[Progressive Enhancement / Graceful Degradation](https://htmlacademy.ru/blog/boost/frontend/progressive-enhancement)  
 [Markdown](https://ru.wikipedia.org/wiki/Markdown)
 [Блок-схемы](https://oaipbfek.wordpress.com/%D1%81%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B1%D0%BB%D0%BE%D0%BA-%D1%81%D1%85%D0%B5%D0%BC-%D0%B0%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC%D0%BE%D0%B2/)  
 
@@ -227,33 +236,33 @@ CSS
 
 Инструментарий  
 
-симлинки  
-gitconfig  
-назначение и принципы работы node.js  
-назначение и принципы работы npm  
-package.json  
+[симлинки](https://ru.wikipedia.org/wiki/%D0%A1%D0%B8%D0%BC%D0%B2%D0%BE%D0%BB%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B0%D1%8F_%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B0)  
+[gitconfig](https://git-scm.com/book/ru/v2/%D0%92%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5-%D0%9F%D0%B5%D1%80%D0%B2%D0%BE%D0%BD%D0%B0%D1%87%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-Git)  
+[назначение и принципы работы node.js](https://habr.com/ru/company/ruvds/blog/422893/)  
+[назначение и принципы работы npm](https://habr.com/ru/post/243335/)  
+[package.json](https://habr.com/ru/company/ruvds/blog/423703/)  
 работа с готовой системой сборки  
-способы отладки кода  
+[способы отладки кода](https://learn.javascript.ru/debugging-chrome)  
 отладка сетевых запросов  
 понимание exit-кодов ПО  
-editorconfig  
+[editorconfig](https://habr.com/ru/post/220131/)  
 
 ***
 
 JavaScript  
 
-Понимание назначения jQuery  
-плюсы и минусы jQuery  
-выборка элементов  
-простые манипуляции с DOM  
-работа с атрибутами  
-основные типы данных  
-понятие событий и подписок  
-понятие функций  
-условия  
-циклы  
-стили именования переменных  
-переменные  
+[Понимание назначения jQuery](https://habr.com/ru/company/piter/blog/308134/)  
+[Плюсы и минусы jQuery](https://overcoder.net/q/96592/%D0%BA%D0%B0%D0%BA%D0%BE%D0%B2%D1%8B-%D0%BD%D0%B5%D0%BA%D0%BE%D1%82%D0%BE%D1%80%D1%8B%D0%B5-%D0%BF%D0%BB%D1%8E%D1%81%D1%8B-%D0%B8-%D0%BC%D0%B8%D0%BD%D1%83%D1%81%D1%8B-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-jquery)  
+[Выборка элементов](https://learn.javascript.ru/searching-elements-dom)  
+[Простые манипуляции с DOM](https://tproger.ru/translations/dom-javascript/)  
+[Работа с атрибутами](https://learn.javascript.ru/dom-attributes-and-properties)  
+[Основные типы данных](https://medium.com/@Dimetrio89/%D0%B2%D1%8B-%D0%BD%D0%B5-%D0%B7%D0%BD%D0%B0%D0%B5%D1%82%D0%B5-js-%D1%82%D0%B8%D0%BF%D1%8B-%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85-%D0%B8-%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D1%8F-f95a605de82)  
+[Понятие событий и подписок](https://learn.javascript.ru/introduction-browser-events)  
+[Понятие функций](https://learn.javascript.ru/function-basics)  
+[Условия](https://learn.javascript.ru/ifelse)  
+[Циклы](https://developer.mozilla.org/ru/docs/Web/JavaScript/Guide/%D0%A6%D0%B8%D0%BA%D0%BB%D1%8B_%D0%B8_%D0%B8%D1%82%D0%B5%D1%80%D0%B0%D1%86%D0%B8%D0%B8)  
+[Стили именования переменных](https://habr.com/ru/post/113044/)  
+[Переменные](https://learn.javascript.ru/variables)  
 
 ***
 ***
@@ -261,14 +270,14 @@ JavaScript
 #### Грейд 5  
 Теория и общая практика  
 
-JSON  
-API  
-REST  
-AJAX  
-web sockets  
-минификация кода  
-обфускация кода  
-сорсмапы  
+[JSON](https://learn.javascript.ru/json)  
+[API](https://habr.com/ru/post/464261/)  
+[REST](https://medium.com/@andr.ivas12/rest-%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%8B%D0%BC-%D1%8F%D0%B7%D1%8B%D0%BA%D0%BE%D0%BC-90a0bca0bc78)  
+[AJAX](https://developer.mozilla.org/ru/docs/Web/Guide/AJAX)  
+[Web sockets](https://learn.javascript.ru/websocket)  
+[Минификация кода](https://learn.javascript.ru/minification)  
+[Обфускация кода](https://medium.com/ctrl-info/%D0%B1%D0%B5%D1%81%D0%BF%D0%BB%D0%B0%D1%82%D0%BD%D1%8B%D0%B9-%D0%BE%D0%B1%D1%84%D1%83%D1%81%D0%BA%D0%B0%D1%82%D0%BE%D1%80-javascript-%D0%B8%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82-%D0%B4%D0%BB%D1%8F-%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA%D0%B0-js-2bb2f1ccad41)  
+[Сорсмапы](https://habr.com/ru/post/148098/)  
 
 ***
 
@@ -282,27 +291,27 @@ HTML
 
 [git] stash cherry-pick diff reset revert rebase squash  
 навыки отладки через debugger  
-основы webpack  
-babel  
+[Основы webpack](https://medium.com/nuances-of-programming/%D0%B2%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2-webpack-%D0%B4%D0%BB%D1%8F-%D0%BD%D0%BE%D0%B2%D0%B8%D1%87%D0%BA%D0%BE%D0%B2-6cafbf562386)  
+[Babel](https://medium.com/@it_root.corp/what-is-babel-e8a980bf4ad5)  
 stylelint  
 
 ***
 
 JavaScript  
 
-все типы данных  
-логические операторы  
-преобозование типов  
+[Все типы данных](https://developer.mozilla.org/ru/docs/Web/JavaScript/Data_structures)  
+[Логические операторы](https://learn.javascript.ru/logical-operators)  
+[Преобразование типов](https://learn.javascript.ru/type-conversions)  
 виды функций  
-XMLHttpRequest и аналоги  
+[XMLHttpRequest и аналоги](https://learn.javascript.ru/xmlhttprequest)  
 система событий  
 работа с JSON  
-отличия let const var  
+[Отличия let const var](https://techrocks.ru/2020/04/07/difference-between-var-let-const/)  
 отличия разных видов функций  
-iife  
+[iife](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%BD%D0%B8%D0%BC%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B5%D0%BC%D0%B5%D0%B4%D0%BB%D0%B5%D0%BD%D0%BD%D0%BE-%D0%B2%D1%8B%D0%B7%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC%D1%8B%D0%B5-%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B8-iife-%D0%B8-%D0%BD%D0%B5%D0%BC%D0%BD%D0%BE%D0%B3%D0%BE-%D0%B1%D0%BE%D0%BB%D1%8C%D1%88%D0%B5-ff8e9ba409eb)  
 всплытие  
 процесс срабатывания событий  
-понятие BOM  
+[Понятие BOM](https://learn.javascript.ru/browser-environment)  
 
 ***
 
@@ -326,13 +335,13 @@ iife
 Теория и общая практика  
 
 яндекс метрика или гугл аналитика  
-MIME-типы  
-CORS  
-JSONP  
-императивная и декларативная парадигмы  
-процедурная/функциональная/ооп  
+[MIME-типы](https://developer.mozilla.org/ru/docs/Web/HTTP/Basics_of_HTTP/MIME_types)  
+[CORS](https://developer.mozilla.org/ru/docs/Web/HTTP/CORS)  
+[JSONP](https://learn.javascript.ru/ajax-jsonp)  
+[Императивная и декларативная парадигмы](https://habr.com/ru/post/324688/)  
+[Процедурная/функциональная/ООП](https://habr.com/ru/post/474518/)  
 CSS  
-CSSNext  
+[CSSNext](https://habr.com/ru/post/267181/)  
 
 ***
 
@@ -345,8 +354,8 @@ git submodule
 [git] хуки  
 webpack: лоадеры плагины  
 webpack: точки входа и бандлинг  
-core-js  
-package-lock-json  
+[core-js](https://habr.com/ru/post/216997/)  
+[package-lock-json](https://medium.com/devschacht/understanding-lock-files-in-npm-5-4bf615c6cd50)  
 
 ***
 
@@ -385,13 +394,14 @@ apache
 #### Грейд 7  
 Теория и общая практика  
 
-GraphQL  
+[GraphQL](https://tproger.ru/translations/graphql-beginners-guide/)  
+[Что же такое этот GraphQL?](https://habr.com/ru/post/326986/)  
 
 ***
 
 Инструментарий  
 
-webpack: динамический импорт чанки  
+webpack: динамический импорт, чанки  
 eslint
 docker  
 docker-compose  
@@ -401,13 +411,13 @@ npm scripts
 
 JavaScript  
 
-прототипы в JS  
-ООП в JS  
+[Прототипы в JS](https://learn.javascript.ru/prototypes)  
+[ООП в JS](https://developer.mozilla.org/ru/docs/Web/JavaScript/Introduction_to_Object-Oriented_JavaScript)  
 сравнение прототипов и классов  
 виды функций и их отличия  
-синхронное и асинхронное выполнение кода  
-canvas  
-тегированные строки  
+[Синхронное и асинхронное выполнение кода](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%BB%D0%BD%D0%BE%D0%B5-%D0%BF%D0%BE%D0%BD%D0%B8%D0%BC%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE-%D0%B8-%D0%B0%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE-javascript-%D1%81-async-await-ba5f47f4436)  
+[Canvas](https://developer.mozilla.org/ru/docs/Web/API/Canvas_API/Tutorial)  
+[Тегированные строки](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/template_strings)  
 паттерн модуль  
 
 ***
@@ -416,7 +426,7 @@ canvas
 
 [Реляционные и нереляционные БД](https://habr.com/ru/company/ruvds/blog/324936/)  
 [Основы синтаксиса SQL](https://www.w3schools.com/sql/sql_syntax.asp)  
-SQL: выборка данных  
+[SQL: выборка данных](https://ru.hexlet.io/courses/rdb-basics/lessons/sql-dql/theory_unit)  
 
 ***
 ***
@@ -425,7 +435,7 @@ SQL: выборка данных
 
 Теория и общая практика  
 
-Процесс отрисовки страницы в браузере  
+[Процесс отрисовки страницы в браузере](https://habr.com/ru/post/224187/)  
 Event loop  
 
 ***
@@ -449,7 +459,7 @@ lodash
 ***
 
 Прочее  
-SQL: изменение удаление добавление  
+[SQL: изменение удаление добавление](https://docs.microsoft.com/ru-ru/office/vba/access/concepts/structured-query-language/insert-update-and-delete-records-from-a-table-using-access-sql)  
 
 ***
 
@@ -469,7 +479,7 @@ SSR
 
 Инструментарий  
 
-sentry  
+[Sentry](https://geekbrains.ru/events/761?from=events)  
 
 ***
 
@@ -634,7 +644,8 @@ TS: защитники типов
 
 ***
 Просто ссылочки на полезности  
-
+[Объясняем js динозавру](https://habr.com/ru/company/mailru/blog/340922/)
+[Правила наименования переменных](https://learn.javascript.ru/variable-names)
 [First Aid Git //помощь с гитом](http://firstaidgit.ru/#/)  
 [Tiny png //сжать png в браузере (c jpg он делает страшное)](https://tinypng.com/)
 [Image Optim //ставим на Mac и жмём изображения кучей](https://imageoptim.com/mac)
