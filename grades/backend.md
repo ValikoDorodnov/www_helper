@@ -21,12 +21,12 @@
         * [Грейд 9](#Грейд-9) :x: 0/18
         * [Грейд 10](#Грейд-10) :arrows_counterclockwise: 1/19
      * [Грейды 11-16](#Грейды-11-16)
-        * [Грейд 11](#Грейд-11)
-        * [Грейд 12](#Грейд-12)
-        * [Грейд 13](#Грейд-13)
-        * [Грейд 14](#Грейд-14)
-        * [Грейд 15](#Грейд-15)
-        * [Грейд 16](#Грейд-16)
+        * [Грейд 11](#Грейд-11) :arrows_counterclockwise: 1/19
+        * [Грейд 12](#Грейд-12) :arrows_counterclockwise: 1/16
+        * [Грейд 13](#Грейд-13) :arrows_counterclockwise: 11/12
+        * [Грейд 14](#Грейд-14) :arrows_counterclockwise: 7/12
+        * [Грейд 15](#Грейд-15) :x: 0/10
+        * [Грейд 16](#Грейд-16) :x: 0/9
  
  
 ## Грейды
@@ -923,20 +923,20 @@ Redis
 Theory  
 JWT  
 [Пять простых шагов для понимания JSON Web Tokens (JWT)](https://habr.com/ru/post/340146/)  
-[Зачем нужен Refresh Token, если есть Access Token?](https://habr.com/ru/company/voximplant/blog/323160/)  
-[Добавляем Refresh Token](https://habr.com/ru/post/466929/)  
-[Про токены, JSON Web Tokens, аутентификацию и авторизацию. Token-Based Authentication](https://gist.github.com/zmts/802dc9c3510d79fd40f9dc38a12bccfc)  
-[Authentication best practices for Vue](https://blog.sqreen.com/authentication-best-practices-vue/)  
-[О хранении JWT токенов в браузерах](https://habr.com/ru/post/502702/)  
-Oauth  
+:pushpin:[Зачем нужен Refresh Token, если есть Access Token?](https://habr.com/ru/company/voximplant/blog/323160/)  
+:pushpin:[Добавляем Refresh Token](https://habr.com/ru/post/466929/)  
+:pushpin:[Про токены, JSON Web Tokens, аутентификацию и авторизацию. Token-Based Authentication](https://gist.github.com/zmts/802dc9c3510d79fd40f9dc38a12bccfc)  
+:pushpin:[Authentication best practices for Vue](https://blog.sqreen.com/authentication-best-practices-vue/)  
+:pushpin:[О хранении JWT токенов в браузерах](https://habr.com/ru/post/502702/)  
 OpenID  
+Oauth  
 
 ***
 
 Language  
-PHP Паттерны проектирования: "декоратор"  
-ООП в PHP Магические методы  
 ООП в PHP Сериализация объектов  
+ООП в PHP Магические методы  
+PHP Паттерны проектирования: "декоратор"  
 
 ***
 
@@ -958,9 +958,9 @@ Storage
 ***
 
 DB  
-PostgreSQL Множественное добавление  
-PostgreSQL Подзапросы  
 PostgreSQL Представления  
+PostgreSQL Подзапросы  
+PostgreSQL Множественное добавление  
 
 ***
 
@@ -991,17 +991,17 @@ Theory
 ***
 
 Language  
+ООП в PHP Трейты  
 PHP Reflection API  
 PHP Управление транзакциями  
-ООП в PHP Трейты  
 
 ***
 
 Framework  
 Yii2 RBAC  
-[Подходы к контролю доступа: RBAC vs. ABAC](https://m.habr.com/ru/company/custis/blog/248649/)  
-Yii2 Модули  
+:pushpin:[Подходы к контролю доступа: RBAC vs. ABAC](https://m.habr.com/ru/company/custis/blog/248649/)  
 Yii2 Организация REST API  
+Yii2 Модули  
 
 ***
 
@@ -1016,8 +1016,8 @@ Storage
 ***
 
 DB  
-PostgreSQL: Статистика процессов  
 PostgreSQL Запросы к information_schema  
+PostgreSQL: Статистика процессов  
 
 ***
 
@@ -1030,10 +1030,10 @@ DevOps
 scp  
 rsync  
 ssh  
-[Магия SSH](https://habr.com/ru/post/331348/)  
-[Памятка пользователям ssh](https://habr.com/ru/post/122445/)  
-[Практические советы, примеры и туннели SSH](https://habr.com/ru/post/435546/)  
-[Белые пятна в работе с SSH](https://habr.com/ru/company/lodoss/blog/358800/)  
+:pushpin:[Магия SSH](https://habr.com/ru/post/331348/)  
+:pushpin:[Памятка пользователям ssh](https://habr.com/ru/post/122445/)  
+:pushpin:[Практические советы, примеры и туннели SSH](https://habr.com/ru/post/435546/)  
+:pushpin:[Белые пятна в работе с SSH](https://habr.com/ru/company/lodoss/blog/358800/)  
 
 ***
 
@@ -1047,23 +1047,23 @@ SSL
 #### Грейд 13
 
 Theory  
-[GraphQL](https://graphql.org/)  
-[Что же такое этот GraphQL?](https://habr.com/ru/post/326986/)  
-[Подробности о GraphQL: что, как и почему](https://habr.com/ru/company/ruvds/blog/445268/)  
+[Микросервисная архитектура](https://habr.com/ru/post/249183/)  
 [JSON API](https://jsonapi.org/)  
 [json api](https://habr.com/ru/company/oleg-bunin/blog/433322/)  
-[Микросервисная архитектура](https://habr.com/ru/post/249183/)  
+[GraphQL](https://graphql.org/)  
+:pushpin:[Что же такое этот GraphQL?](https://habr.com/ru/post/326986/)  
+:pushpin:[Подробности о GraphQL: что, как и почему](https://habr.com/ru/company/ruvds/blog/445268/)  
 [Принципы разработки: SOLID](https://web-creator.ru/articles/solid)  
-[Хороший дизайн должен быть SOLID: TOP-5 архитектурных принципов](http://igor.quatrocode.com/2008/09/solid-top-5.html)  
-[Принципы проектирования классов (S.O.L.I.D.)](https://blog.byndyu.ru/2009/10/solid.html)  
-[Шпаргалка по SOLID принципам](http://sergeyteplyakov.blogspot.com/2014/10/solid.html)  
+:pushpin:[Хороший дизайн должен быть SOLID: TOP-5 архитектурных принципов](http://igor.quatrocode.com/2008/09/solid-top-5.html)  
+:pushpin:[Принципы проектирования классов (S.O.L.I.D.)](https://blog.byndyu.ru/2009/10/solid.html)  
+:pushpin:[Шпаргалка по SOLID принципам](http://sergeyteplyakov.blogspot.com/2014/10/solid.html)  
 
 ***
 
 Language  
 [Паттерны проектирования: "наблюдатель"](https://refactoring.guru/ru/design-patterns/observer/php/example)  
 [Паттерны проектирования: "стратегия"](https://refactoring.guru/ru/design-patterns/strategy/php/example)  
-[Реализация SOLID ](https://github.com/peter-gribanov/clean-code-php/blob/ru/README.md#solid)  
+[Реализация SOLID](https://github.com/peter-gribanov/clean-code-php/blob/ru/README.md#solid)  
 
 ***
 
@@ -1087,7 +1087,7 @@ PostgreSQL Оконные функции
 Frontend  
 JS Асинхронность  
 [Async/await](https://learn.javascript.ru/async-await)  
-[JavaScript. Как работает Async, Await. Работа с сервером c fetch](https://www.youtube.com/watch?v=SHiUyM_fFME)  
+:pushpin:[JavaScript. Как работает Async, Await. Работа с сервером c fetch](https://www.youtube.com/watch?v=SHiUyM_fFME)  
 
 ***
 
@@ -1103,23 +1103,24 @@ Misc
 #### Грейд 14
 
 Theory  
-DDD Inversion of Control Domain Driven Design  
 Принципы разработки: GRASP  
 [GRASP паттерны проектирования](https://habr.com/ru/post/92570/)  
+Domain Driven Design  
+DDD Inversion of Control  
 
 ***
 
 Language  
-DDD DI DDD  
-Value Object DTO POCO  
 Реализация GRASP  
+Value Object DTO POCO  
+DDD: DI  
 
 ***
 
 Framework  
 Yii2 Реализация DI  
 [Контейнер внедрения зависимостей](https://www.yiiframework.com/doc/guide/2.0/ru/concept-di-container)  
-[Inversion of Control Containers and the Dependency Injection pattern](https://martinfowler.com/articles/injection.html)  
+:pushpin:[Inversion of Control Containers and the Dependency Injection pattern](https://martinfowler.com/articles/injection.html)  
 
 ***
 
@@ -1155,15 +1156,15 @@ Misc
 #### Грейд 15
 
 Theory  
-CI/CD  
 Функциональное программирование  
+CI/CD  
 
 ***
 
 Language  
-2й язык: Основы  
-DDD Repositories  
 DDD Services  
+DDD Repositories  
+2й язык: Основы  
 
 ***
 
@@ -1214,9 +1215,14 @@ Framework
 ***
 
 DB  
-Couchbase  
 Elasticesearch  
+Couchbase  
 
 ***
 Frontend  
 Описание фреймворка по выбору  
+
+***
+
+Misc  
+Power BI  
