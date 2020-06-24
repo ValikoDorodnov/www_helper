@@ -22,6 +22,8 @@
 
 ### Общие полезности 
 [краткое руководство по markDown](https://paulradzkov.com/2014/markdown_cheatsheet/)  
+[emoji markDown list](https://gist.github.com/rxaviers/7360908#file-gistfile1-md)  
+  
 [Про хэширование](https://m.habr.com/ru/company/mailru/blog/271245/)  
 [NGINX изнутри: рожден для производительности и масштабирования](https://habr.com/ru/post/260065/)  
 [семантическое версионирование](https://semver.org/lang/ru/)  

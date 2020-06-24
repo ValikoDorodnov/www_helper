@@ -14,12 +14,12 @@
         * [Грейд 3](#Грейд-3)  :white_check_mark:
         * [Грейд 4](#Грейд-4)  :white_check_mark:
         * [Грейд 5](#Грейд-5)  :white_check_mark:
-     * [Грейды 6-10](#Грейды-6-10)
-        * [Грейд 6](#Грейд-6)
-        * [Грейд 7](#Грейд-7)
-        * [Грейд 8](#Грейд-8)
-        * [Грейд 9](#Грейд-9)
-        * [Грейд 10](#Грейд-10)
+     * [Грейды 6-10](#Грейды-6-10) 
+        * [Грейд 6](#Грейд-6) :arrows_counterclockwise: 21/24
+        * [Грейд 7](#Грейд-7) :white_check_mark:
+        * [Грейд 8](#Грейд-8) :white_check_mark:
+        * [Грейд 9](#Грейд-9) :x: 0/18
+        * [Грейд 10](#Грейд-10) :arrows_counterclockwise: 1/19
      * [Грейды 11-16](#Грейды-11-16)
         * [Грейд 11](#Грейд-11)
         * [Грейд 12](#Грейд-12)
@@ -491,6 +491,9 @@ Misc
 #### Грейд 6
 
 Theory  
+[Минификация и обфускация кода](https://drupal.ru/node/19060)  
+[Итераторы и генераторы](https://www.php.net/manual/ru/language.generators.overview.php)  
+[Аутентификация](https://www.unisender.com/ru/support/about/glossary/chto-takoe-email-autentifikaciya/)  
 [Docker - обзор](https://www.youtube.com/watch?v=QF4ZF857m44)  
 ```yaml
 version: "3.1"
@@ -527,14 +530,6 @@ networks:
    example:
     driver: bridge
 ```
-[docker](https://www.8host.com/blog/ustanovka-i-ispolzovanie-docker-v-ubuntu-18-04/)  
-[удаление контейнеров докер](https://www.8host.com/blog/udalenie-obrazov-kontejnerov-i-tomov-docker/)  
-[docker xdebug](https://blog.denisbondar.com/post/phpstorm_docker_xdebug)  
-[Изучаем Docker, часть 4: уменьшение размеров образов и ускорение их сборки](https://habr.com/ru/company/ruvds/blog/440658/)  
-[шпаргалка docker](https://gist.github.com/Dmitriy-8-Kireev/f78388bd5aeb4069b5024d8558555555)  
-[Аутентификация](https://www.unisender.com/ru/support/about/glossary/chto-takoe-email-autentifikaciya/)  
-[Итераторы и генераторы](https://www.php.net/manual/ru/language.generators.overview.php)  
-[Минификация и обфускация кода](https://drupal.ru/node/19060)  
 
 ***
 
@@ -566,23 +561,23 @@ Class Example
 }
 ```
 [Ключевое слово static](https://www.php.net/manual/ru/language.oop5.static.php#language.oop5.static)  
-[Готовимся к собеседованию по PHP: ключевое слово «static»](https://habr.com/ru/post/259627/)  
+:pushpin:[Готовимся к собеседованию по PHP: ключевое слово «static»](https://habr.com/ru/post/259627/)  
 
 ***
 
 Framework  
+[Yii2 Структура приложения - входные скрипты](https://www.yiiframework.com/doc/guide/2.0/ru/structure-entry-scripts)  
+[Yii2 Роутинг](https://www.yiiframework.com/doc/guide/2.0/ru/rest-routing)  
 [Yii2 Загрузка классов](https://www.yiiframework.com/doc/guide/2.0/ru/concept-autoloading)  
 [Yii2 Миграции](https://www.yiiframework.com/doc/guide/2.0/ru/db-migrations)  
-[Yii2 Роутинг](https://www.yiiframework.com/doc/guide/2.0/ru/rest-routing)  
-[Yii2 Структура приложения - входные скрипты](https://www.yiiframework.com/doc/guide/2.0/ru/structure-entry-scripts)  
 
 ***
 
 Testing  
+Покрытие кода тестами  
 Начальные данные   
 Определение результатов  
-Покрытие кода тестами  
-[Чистые тесты на PHP и PHPUnit](https://habr.com/ru/company/mailru/blog/485124/)  
+:pushpin:[Чистые тесты на PHP и PHPUnit](https://habr.com/ru/company/mailru/blog/485124/)  
 
 ***
 
@@ -595,7 +590,7 @@ Storage
 DB  
 [PostgreSQL Первичные ключи и индексы](https://postgrespro.ru/docs/postgrespro/9.6/indexes)  
 [PostgreSQL Связывание ](https://postgrespro.ru/docs/postgrespro/9.5/tutorial-join)  
-[A Visual Explanation of SQL Joins](https://blog.codinghorror.com/a-visual-explanation-of-sql-joins/)  
+:pushpin:[A Visual Explanation of SQL Joins](https://blog.codinghorror.com/a-visual-explanation-of-sql-joins/)  
 
 ***
 
@@ -628,11 +623,11 @@ Applying: added staged command
 ***
 
 Misc  
-[Менеджер зависимостей Composer](https://habr.com/ru/post/145946/)  
-[vendor versions](https://getcomposer.org/doc/articles/versions.md)  
-[Web-серверная архитектура: подробно](https://tproger.ru/articles/web-api/)  
 [Xdebug](https://habr.com/ru/post/328094/)  
-[Liveprof покажет, когда и почему менялась производительность вашего PHP-приложения](https://habr.com/ru/company/badoo/blog/436364/)  
+[Менеджер зависимостей Composer](https://habr.com/ru/post/145946/)  
+[Web-серверная архитектура: подробно](https://tproger.ru/articles/web-api/)  
+:pushpin:[vendor versions](https://getcomposer.org/doc/articles/versions.md)  
+:pushpin:[Liveprof покажет, когда и почему менялась производительность вашего PHP-приложения](https://habr.com/ru/company/badoo/blog/436364/)  
 
 ***
 ***
@@ -641,35 +636,37 @@ Misc
 
 ***
 Theory  
-Docker - подробно  
+[Что такое API](https://habr.com/ru/post/464261/)  
 [Авторизация](https://wiki.diphost.ru/Authentication)  
 [Понятие о паттернах проектирования](https://refactoring.guru/ru/design-patterns)  
-RESTful API требования и подход к проектированию и разработке  
-[Что такое API](https://habr.com/ru/post/464261/)  
-[Postman](https://www.youtube.com/watch?v=hGmJMeE_ok0)  
-Отладка кода  
-[codesniffer](https://epages.su/blog/setting-php-code-sniffer-in-phpstorm-using-composer.html)  
+  
+Docker - подробно:  
+[docker](https://www.8host.com/blog/ustanovka-i-ispolzovanie-docker-v-ubuntu-18-04/)  
+[удаление контейнеров докер](https://www.8host.com/blog/udalenie-obrazov-kontejnerov-i-tomov-docker/)  
+[docker xdebug](https://blog.denisbondar.com/post/phpstorm_docker_xdebug)  
+[Изучаем Docker, часть 4: уменьшение размеров образов и ускорение их сборки](https://habr.com/ru/company/ruvds/blog/440658/)  
+[шпаргалка docker](https://gist.github.com/Dmitriy-8-Kireev/f78388bd5aeb4069b5024d8558555555)  
 
 ***
 
 Language  
-[PHP Генераторы](https://www.php.net/manual/ru/language.generators.php)  
-[PHP Итераторы](https://www.php.net/manual/ru/language.oop5.iterations.php)  
 [ООП в PHP Пространства имён](https://www.php.net/manual/ru/language.namespaces.php)  
+[PHP Итераторы](https://www.php.net/manual/ru/language.oop5.iterations.php)  
+[PHP Генераторы](https://www.php.net/manual/ru/language.generators.php)  
 
 ***
 
 Framework  
 [Yii2 Структура приложения - контроллеры и действия](https://www.yiiframework.com/doc/guide/2.0/ru/structure-controllers)  
-[Yii2 Структура приложения - модели](https://www.yiiframework.com/doc/guide/2.0/ru/structure-models)  
 [Yii2 Структура приложения - представления](https://www.yiiframework.com/doc/guide/2.0/ru/structure-views)  
+[Yii2 Структура приложения - модели](https://www.yiiframework.com/doc/guide/2.0/ru/structure-models)  
 
 ***
 
 Testing  
-[Инструменты: Codeception](https://codeception.com/)  
 [Методология разработки тестов](https://habr.com/ru/company/ruvds/blog/450316/)  
 [Тестовое окружение](https://habr.com/ru/company/hh/blog/271221/)  
+[Инструменты: Codeception](https://codeception.com/)  
 
 ***
 
@@ -690,10 +687,10 @@ PostgreSQL
 Frontend  
 AJAX  
 [Сетевые запросы](https://learn.javascript.ru/network)  
-[FETCH](https://learn.javascript.ru/fetch)  
-[PROMISE](https://learn.javascript.ru/promise-basics)  
-[fetch vs axios](https://medium.com/web-standards/fetch-vs-axios-js-%D0%B4%D0%BB%D1%8F-%D0%B3%D0%B5%D0%BD%D0%B5%D1%80%D0%B0%D1%86%D0%B8%D0%B8-http-%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%81%D0%BE%D0%B2-41206a4c0060)  
-[Hard JS](https://www.youtube.com/playlist?list=PLqKQF2ojwm3l4oPjsB9chrJmlhZ-zOzWT)  
+:pushpin:[FETCH](https://learn.javascript.ru/fetch)  
+:pushpin:[PROMISE](https://learn.javascript.ru/promise-basics)  
+:pushpin:[fetch vs axios](https://medium.com/web-standards/fetch-vs-axios-js-%D0%B4%D0%BB%D1%8F-%D0%B3%D0%B5%D0%BD%D0%B5%D1%80%D0%B0%D1%86%D0%B8%D0%B8-http-%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%81%D0%BE%D0%B2-41206a4c0060)  
+:pushpin:[Hard JS](https://www.youtube.com/playlist?list=PLqKQF2ojwm3l4oPjsB9chrJmlhZ-zOzWT)  
 
 ***
 
@@ -716,8 +713,10 @@ git reset [--soft | --mixed [-N] | --hard | --merge | --keep] [-q] [<commit>]
 
 Misc  
 [Postman](https://habr.com/ru/company/kolesa/blog/351250/)  
-[Xdebug](https://habr.com/ru/post/328094/)  
-Состав и механизм работы web-сервера  
+:pushpin:[Postman](https://www.youtube.com/watch?v=hGmJMeE_ok0)  
+[codesniffer](https://epages.su/blog/setting-php-code-sniffer-in-phpstorm-using-composer.html)  
+[Состав и механизм работы веб‑сервера](https://developer.mozilla.org/ru/docs/Learn/%D0%A7%D1%82%D0%BE_%D1%82%D0%B0%D0%BA%D0%BE%D0%B5_%D0%B2%D0%B5%D0%B1_%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80Storage)  
+
 
 ***
 ***
@@ -725,28 +724,28 @@ Misc
 #### Грейд 8
 
 Theory  
-[Кэширование](https://ruhighload.com/%D0%9A%D1%8D%D1%88%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5+%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85)  
-[Паттерны проектирования: порождающие](https://refactoring.guru/ru/design-patterns/creational-patterns)  
 [Охота на мифический MVC. Построение пользовательского интерфейса](https://habr.com/ru/post/322700/)  
-[Создание архитектуры программы или как проектировать табуретку](https://habr.com/ru/post/276593/)  
-[git-flow](https://danielkummer.github.io/git-flow-cheatsheet/index.ru_RU.html)  
+[Паттерны проектирования: порождающие](https://refactoring.guru/ru/design-patterns/creational-patterns)  
+[Кэширование](https://ruhighload.com/%D0%9A%D1%8D%D1%88%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5+%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85)  
+:pushpin:[Создание архитектуры программы или как проектировать табуретку](https://habr.com/ru/post/276593/)  
+:pushpin:[git-flow](https://danielkummer.github.io/git-flow-cheatsheet/index.ru_RU.html)  
 
 ***
 
 Language  
 PHP и проблема памяти  
 [Работа с памятью (и всё же она есть)](https://habr.com/ru/post/134784/)  
-[PHP Паттерны проектирования: "одиночка"](https://refactoring.guru/ru/design-patterns/singleton)  
 [ООП в PHP Абстрактные классы](https://www.php.net/manual/ru/language.oop5.abstract.php)  
 [ООП в PHP Интерфейсы](https://www.php.net/manual/ru/language.oop5.interfaces.php)  
-[Отличия абстрактного класса от интерфейса (abstract class and interface)](https://ru.stackoverflow.com/questions/235352/%D0%9E%D1%82%D0%BB%D0%B8%D1%87%D0%B8%D1%8F-%D0%B0%D0%B1%D1%81%D1%82%D1%80%D0%B0%D0%BA%D1%82%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BA%D0%BB%D0%B0%D1%81%D1%81%D0%B0-%D0%BE%D1%82-%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81%D0%B0-abstract-class-and-interface)  
+[PHP Паттерны проектирования: "одиночка"](https://refactoring.guru/ru/design-patterns/singleton)  
+:pushpin:[Отличия абстрактного класса от интерфейса (abstract class and interface)](https://ru.stackoverflow.com/questions/235352/%D0%9E%D1%82%D0%BB%D0%B8%D1%87%D0%B8%D1%8F-%D0%B0%D0%B1%D1%81%D1%82%D1%80%D0%B0%D0%BA%D1%82%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BA%D0%BB%D0%B0%D1%81%D1%81%D0%B0-%D0%BE%D1%82-%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81%D0%B0-abstract-class-and-interface)  
 
 ***
 
 Framework  
 [Yii2 Виджеты](https://www.yiiframework.com/doc/guide/2.0/ru/structure-widgets)  
-[Yii2 Поведения](https://www.yiiframework.com/doc/guide/2.0/ru/concept-behaviors)  
 [Yii2 Ресурсы](https://www.yiiframework.com/doc/guide/2.0/ru/structure-assets)  
+[Yii2 Поведения](https://www.yiiframework.com/doc/guide/2.0/ru/concept-behaviors)  
 [Yii2 Работа с БД - DAO](https://www.yiiframework.com/doc/guide/2.0/ru/db-dao)  
 
 ***
@@ -778,7 +777,7 @@ Frontend
 
 DevOps  
 [cron](https://help.ubuntu.ru/wiki/cron)  
-[Cron в Linux: история, использование и устройство](https://habr.com/ru/company/badoo/blog/468061/)  
+:pushpin:[Cron в Linux: история, использование и устройство](https://habr.com/ru/company/badoo/blog/468061/)  
 
 ***
 
@@ -792,11 +791,10 @@ $ git reset --hard <last commit from the branch you are on>
 
 ***
 Misc  
-[Простым языком об HTTP](https://habr.com/ru/post/215117/)  
-[UML диаграммы](https://prog-cpp.ru/uml-classes/)  
 [Модели работы сетевого сервера](https://life-prog.ru/2_8495_setevie-modeli-protokoli-i-arhitektura-klient--server.html)  
-[Клиент‑серверная архитектура](https://tproger.ru/articles/web-api/amp/)  
-[Состав и механизм работы веб‑сервера](https://developer.mozilla.org/ru/docs/Learn/%D0%A7%D1%82%D0%BE_%D1%82%D0%B0%D0%BA%D0%BE%D0%B5_%D0%B2%D0%B5%D0%B1_%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80Storage)  
+[UML диаграммы](https://prog-cpp.ru/uml-classes/)  
+[Простым языком об HTTP](https://habr.com/ru/post/215117/)  
+:pushpin:[Клиент‑серверная архитектура](https://tproger.ru/articles/web-api/amp/)  
 
 ***
 ***
@@ -804,23 +802,23 @@ Misc
 #### Грейд 9
 
 Theory  
+Паттерны проектирования: структурные  
 RBAC  
 Очереди  
-Паттерны проектирования: структурные  
 
 ***
 
 Language  
-ООП в PHP Инкапсуляция  
 ООП в PHP Наследование  
+ООП в PHP Инкапсуляция  
 ООП в PHP Полиморфизм  
 
 ***
 
 Framework  
-Yii2 Работа с БД - Active Record жизненные циклы  
-Yii2 Работа с БД - Active Record работа с данными  
 Yii2 Работа с БД - построитель запросов  
+Yii2 Работа с БД - Active Record работа с данными  
+Yii2 Работа с БД - Active Record жизненные циклы  
 
 ***
 
@@ -835,8 +833,8 @@ Storage
 ***
 
 DB  
-Elasticsearch: Язык запросов  
 PostgreSQL Управление транзакциями  
+Elasticsearch: Язык запросов  
 
 ***
 
@@ -852,9 +850,8 @@ fstab samba mount
 
 Misc  
 Docker  
-HTTP2  
-[HTTP/2: готовимся к переходу](https://habr.com/ru/company/selectel/blog/278167/)  
-[Путь к HTTP/2](https://habr.com/ru/post/308846/)  
+:pushpin:[HTTP/2: готовимся к переходу](https://habr.com/ru/company/selectel/blog/278167/)  
+:pushpin:[Путь к HTTP/2](https://habr.com/ru/post/308846/)  
 
 ***
 ***
@@ -869,16 +866,16 @@ Theory
 ***
 
 Language  
-PHP Паттерны проектирования: "адаптер"  
-PHP Паттерны проектирования: "фабрика"  
 ООП в PHP Позднее статическое связывание  
+PHP Паттерны проектирования: "фабрика"  
+PHP Паттерны проектирования: "адаптер"  
 
 ***
 
 Framework  
-Yii2 Логирование  
 Yii2 Фильтры - AccessControl  
 Yii2 Формы  
+Yii2 Логирование  
 
 ***
 
@@ -893,8 +890,8 @@ Storage
 ***
 
 DB  
-PostgreSQL Объединение  
 PostgreSQL Пользователи и разрешения схемы  
+PostgreSQL Объединение  
 
 ***
 
@@ -904,8 +901,8 @@ JS Prototype
 ***
 
 DevOps  
-Логи  
 Оптимизация PHP  
+Логи  
 
 ***
 
