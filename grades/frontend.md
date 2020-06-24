@@ -122,7 +122,7 @@ CSS
 
 Инструментарий  
 
-[Работа в photoshop](https://habr.com/ru/post/272649/)  
+[Работа в Photoshop](https://habr.com/ru/post/272649/)  
 [[git] Понятие системы контроля версий](https://htmlacademy.ru/blog/education/all/version-control-system)  
 [[git] Сервер, ветка, коммит, конфликт]()  
 [[git] Индексация и добавление в индекс]()  
@@ -170,7 +170,7 @@ no-js решения (аккордеоны/слайдеры/свитчеры н�
 [Cложные (комплексные) селекторы](https://webref.ru/layout/advanced-html-css/complex-selectors)  
 [reset.css](https://habr.com/ru/post/45296/)  
 [normalize.css](https://htmlacademy.ru/blog/boost/frontend/about-normalize-css)  
-[Atomic css](https://habr.com/ru/post/432586/)  
+[Atomic CSS](https://habr.com/ru/post/432586/)  
 [CSS-фреймворки](https://geekbrains.ru/posts/5_css_frameworks)  
 
 ***
