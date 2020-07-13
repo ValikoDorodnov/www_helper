@@ -9,7 +9,7 @@
 
  1. [Грейды](#Грейды)
      * [Грейды 1-5](#Грейды-1-5)
-        * [Грейд 1](#Грейд-1)  :white_check_mark:
+        * [Грейд 1](#Грейд-1)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/frontend.md)  
         * [Грейд 2](#Грейд-2)  :white_check_mark:
         * [Грейд 3](#Грейд-3)  :white_check_mark:
         * [Грейд 4](#Грейд-4)  :white_check_mark:
