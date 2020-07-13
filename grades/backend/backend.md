@@ -4,12 +4,13 @@
 :x: означает, что раздел не заполнен.  
 :white_check_mark: означает, что раздел полностью заполнен.  
 :arrows_counterclockwise: 5/10 (заполнено/всего) означает, что раздел в процессе заполнения  
+:mortar_board: краткое содержание + примеры  
 
 # Разделы
 
  1. [Грейды](#Грейды)
      * [Грейды 1-5](#Грейды-1-5)
-        * [Грейд 1](#Грейд-1)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/frontend.md)  
+        * [Грейд 1](#Грейд-1)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade1.md)  
         * [Грейд 2](#Грейд-2)  :white_check_mark:
         * [Грейд 3](#Грейд-3)  :white_check_mark:
         * [Грейд 4](#Грейд-4)  :white_check_mark:
@@ -66,7 +67,7 @@ Storage
 
 ***
 
-Frontend
+Frontend  
 [CSS Основы  HTML Основы  HTML Разметка текста](https://htmlacademy.ru/courses/basic-html-css)  
 [Базовый JS](https://htmlacademy.ru/courses/basic-javascript)  
 :pushpin:[Блог верстальщика](http://webmasters.teamdev.com/)  
@@ -74,7 +75,7 @@ Frontend
 
 ***
 
-DevOps 
+DevOps  
 [nano](https://losst.ru/tekstovyj-redaktor-nano-v-linux-dlya-novichkov)  
 [vi(m)](https://losst.ru/kak-polzovatsya-tekstovym-redaktorom-vim)  
 [Командные оболочки shell: обзор](https://habr.com/ru/post/157283/)  
@@ -83,21 +84,6 @@ DevOps
 
 Git  
 [Запись изменений Основы](https://githowto.com/ru)
-```git
-$ git add README
-
-$ git status
-On branch master
-Your branch is up-to-date with 'origin/master'.
-Changes to be committed:
-  (use "git restore --staged <file>..." to unstage)
-
-    new file:   README
-
-$ git commit -m "test commit"
-
-$ git push -u origin master
-```
 
 ***
 

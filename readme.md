@@ -1,7 +1,7 @@
 # WWW Helper
 
-[backend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend.md)  
-[frontend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/frontend.md)  
+[backend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/backend.md)  
+[frontend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/frontend/frontend.md)  
 
 ### GoLang 
 [Official web page](https://golang.org/)  
