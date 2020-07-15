@@ -12,7 +12,7 @@
      * [Грейды 1-5](#Грейды-1-5)
         * [Грейд 1](#Грейд-1)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade1.md)  
         * [Грейд 2](#Грейд-2)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade2.md)  
-        * [Грейд 3](#Грейд-3)  :white_check_mark:
+        * [Грейд 3](#Грейд-3)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade3.md)  
         * [Грейд 4](#Грейд-4)  :white_check_mark:
         * [Грейд 5](#Грейд-5)  :white_check_mark:
      * [Грейды 6-10](#Грейды-6-10) 
@@ -168,8 +168,8 @@ DNS URI URL URN
 
 Theory  
 [Теория множеств](https://ru.wikipedia.org/wiki/%D0%A2%D0%B5%D0%BE%D1%80%D0%B8%D1%8F_%D0%BC%D0%BD%D0%BE%D0%B6%D0%B5%D1%81%D1%82%D0%B2)  
-Теория логики  
-[Теория алгоритмов](https://ru.wikipedia.org/wiki/%D0%A2%D0%B5%D0%BE%D1%80%D0%B8%D1%8F_%D0%B0%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82)  
+[Теория логики](https://ru.wikipedia.org/wiki/%D0%9B%D0%BE%D0%B3%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%BE%D0%B5_%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5)  
+[Теория алгоритмов](https://ru.wikipedia.org/wiki/%D0%A2%D0%B5%D0%BE%D1%80%D0%B8%D1%8F_%D0%B0%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC%D0%BE%D0%B2)  
 [Понятие об объектах](https://ru.wikipedia.org/wiki/%D0%9E%D0%B1%D1%8A%D0%B5%D0%BA%D1%82_(%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5))  
 
 ***
@@ -186,15 +186,6 @@ PHP Встроенные функции для безопасной работы
 :pushpin:[часть 3](https://habr.com/ru/company/mailru/blog/352442/)  
 :pushpin:[часть 4](https://habr.com/ru/company/mailru/blog/352444/)  
 :pushpin:[Основные угрозы веб‑приложениям (OWASP)](https://m.habr.com/ru/company/gaz-is/blog/415283/)  
-
-Функции для безопасной работы с данными  
-**mysqli_real_escape_string**  
-**strip_tags** — Удаляет теги HTML и PHP из строки  
-**stripcslashes** — Удаляет экранирование символов, произведенное функцией addcslashes()  
-**htmlentities** — Преобразует все возможные символы в соответствующие HTML-сущности  
-**htmlspecialchars** — Преобразует специальные символы в HTML-сущности  
-**password_hash** — Создает хеш пароля  
-  
 :pushpin:[PHP для начинающих. Сессия](https://m.habr.com/ru/post/437972/)  
 
 ***
@@ -225,28 +216,7 @@ DevOps
 
 Git  
 [История коммитов](https://git-scm.com/book/ru/v2/%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D1%8B-Git-%D0%9F%D1%80%D0%BE%D1%81%D0%BC%D0%BE%D1%82%D1%80-%D0%B8%D1%81%D1%82%D0%BE%D1%80%D0%B8%D0%B8-%D0%BA%D0%BE%D0%BC%D0%BC%D0%B8%D1%82%D0%BE%D0%B2)  
-```git
-$ git log
-commit ca82a6dff817ec66f44342007202690a93763949
-Author: Scott Chacon <schacon@gee-mail.com>
-Date:   Mon Mar 17 21:52:11 2008 -0700
-
-    changed the version number
-
-```
 [Операции отмены](https://git-scm.com/book/ru/v2/%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D1%8B-Git-%D0%9E%D0%BF%D0%B5%D1%80%D0%B0%D1%86%D0%B8%D0%B8-%D0%BE%D1%82%D0%BC%D0%B5%D0%BD%D1%8B)  
-```git
-#--amend
-$ git commit -m 'initial commit'
-$ git add forgotten_file
-$ git commit --amend
-
-#Если вы сделали commit в git, но поняли, что он достаточно плох, то можно сделать и так:
-$ git reset --soft HEAD^
-
-#Если последний коммит отвратителен, то можно вообще его удалить
-$ git reset --hard HEAD^
-```
 
 ***
 

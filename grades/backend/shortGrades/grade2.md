@@ -1,7 +1,4 @@
 ## Грейд 2  
-```php
-```
-@inheritdoc  
 
 ### Theory  
 
