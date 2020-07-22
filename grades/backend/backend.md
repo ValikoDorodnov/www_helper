@@ -13,7 +13,7 @@
         * [Грейд 1](#Грейд-1)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade1.md)  
         * [Грейд 2](#Грейд-2)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade2.md)  
         * [Грейд 3](#Грейд-3)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade3.md)  
-        * [Грейд 4](#Грейд-4)  :white_check_mark:
+        * [Грейд 4](#Грейд-4)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade4.md)  
         * [Грейд 5](#Грейд-5)  :white_check_mark:
      * [Грейды 6-10](#Грейды-6-10) 
         * [Грейд 6](#Грейд-6) :arrows_counterclockwise: 21/24
@@ -268,8 +268,8 @@ Framework
 
 Storage  
 [Термины реляционной БД](https://zametkinapolyah.ru/zametki-o-mysql/chast-3-10-slovar-terminov-relyacionnyx-baz-dannyx.html)  
-[Первичный ключ](https://m.habr.com/ru/post/247373/)  
-[и индексы](https://habr.com/ru/post/247373/)  
+[Первичный ключ](https://postgrespro.ru/docs/postgrespro/9.5/ddl-constraints#ddl-constraints-primary-keys)  
+[и индексы](https://postgrespro.ru/docs/postgresql/9.6/indexes-types)  
 :pushpin:[SQL ключи во всех подробностях](https://habr.com/ru/company/oleg-bunin/blog/348172/)  
 
 ***
@@ -301,7 +301,7 @@ Git
 Misc  
 [Принципы разработки](https://shwanoff.ru/principles-of-development/)  
 [Основные признаки "дурно пахнущего кода"](https://refactoring.guru/ru/refactoring/smells)  
-Отладка кода  
+[Отладка кода](https://ru.hexlet.io/courses/php-basics/lessons/debug/theory_unit)  
 [Сокеты](https://tproger.ru/translations/what-are-web-sockets/)  
 
 
