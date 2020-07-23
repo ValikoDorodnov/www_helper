@@ -14,7 +14,7 @@
         * [Грейд 2](#Грейд-2)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade2.md)  
         * [Грейд 3](#Грейд-3)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade3.md)  
         * [Грейд 4](#Грейд-4)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade4.md)  
-        * [Грейд 5](#Грейд-5)  :white_check_mark:
+        * [Грейд 5](#Грейд-5)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade5.md)  
      * [Грейды 6-10](#Грейды-6-10) 
         * [Грейд 6](#Грейд-6) :arrows_counterclockwise: 21/24
         * [Грейд 7](#Грейд-7) :white_check_mark:
@@ -334,13 +334,14 @@ Framework
 ***
 
 Testing  
+Основы тестирования
 [Классификация тестов](https://habr.com/ru/post/81226/)  
-[Тестирование с PHPUnit и Codeception в Yii2](https://elisdn.ru/blog/78/yii2-codeception-testing)  
-[Мутационное тестирование в PHP: качественное измерение для code coverage](https://habr.com/ru/company/badoo/blog/462709/)  
-[Пирамида тестов на практике](https://habr.com/ru/post/358950/)  
-[Тестирование: 20 принципов новичка](https://habr.com/ru/post/193138/)  
-[7 бесплатных сервисов для проверки сайтов (о которых вы могли и не знать)](https://habr.com/ru/post/99318/)  
-[Тесты на Codeception для PHP-бэкендов](https://habr.com/ru/company/lamoda/blog/452136/)  
+[Принципы тестирования](https://habr.com/ru/post/193138/)  
+:pushpin:[Тестирование с PHPUnit и Codeception в Yii2](https://elisdn.ru/blog/78/yii2-codeception-testing)  
+:pushpin:[Мутационное тестирование в PHP: качественное измерение для code coverage](https://habr.com/ru/company/badoo/blog/462709/)  
+:pushpin:[Пирамида тестов на практике](https://habr.com/ru/post/358950/)  
+:pushpin:[7 бесплатных сервисов для проверки сайтов (о которых вы могли и не знать)](https://habr.com/ru/post/99318/)  
+:pushpin:[Тесты на Codeception для PHP-бэкендов](https://habr.com/ru/company/lamoda/blog/452136/)  
 
 ***
 
@@ -371,36 +372,8 @@ http
 
 Git  
 [Поиск](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%9F%D0%BE%D0%B8%D1%81%D0%BA)  
-```git
-$ git grep -n gmtime_r
-
-compat/gmtime.c:3:#undef gmtime_r
-compat/gmtime.c:8:      return git_gmtime_r(timep, &result);
-
-```
 [Просмотр разницы](https://git-scm.com/docs/git-diff)  
-```git
-$ git diff [<options>] [<commit>] [--] [<path>…​]
-$ git diff [<options>] --cached [<commit>] [--] [<path>…​]
-$ git diff [<options>] <commit> <commit> [--] [<path>…​]
-$ git diff [<options>] <blob> <blob>
-$ git diff [<options>] --no-index [--] <path> <path>
-```
 [Спрятать и достать изменения](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%9F%D1%80%D0%B8%D0%B1%D0%B5%D1%80%D0%B5%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B8-%D0%BE%D1%87%D0%B8%D1%81%D1%82%D0%BA%D0%B0)  
-```git
-$ git stash
-Saved working directory and index state \
-  "WIP on master: 049d078 added the index file"
-HEAD is now at 049d078 added the index file
-(To restore them type "git stash apply")
-
-$ git stash list
-stash@{0}: WIP on master: 049d078 added the index file
-stash@{1}: WIP on master: c264051 Revert "added file_size"
-stash@{2}: WIP on master: 21d80a5 added number to log
-
-$ git stash apply stash@{2}.
-```
 :pushpin:[Сравнение 5 команд Git: revert, checkout, reset, merge и rebase](https://proglib.io/p/sravnenie-5-komand-git-revert-checkout-reset-merge-i-rebase-2020-05-25)  
 
 ***
