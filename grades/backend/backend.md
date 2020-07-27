@@ -16,10 +16,10 @@
         * [Грейд 4](#Грейд-4)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade4.md)  
         * [Грейд 5](#Грейд-5)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade5.md)  
      * [Грейды 6-10](#Грейды-6-10) 
-        * [Грейд 6](#Грейд-6) :arrows_counterclockwise: 21/24
-        * [Грейд 7](#Грейд-7) :white_check_mark:
-        * [Грейд 8](#Грейд-8) :white_check_mark:
-        * [Грейд 9](#Грейд-9) :x: 0/18
+        * [Грейд 6](#Грейд-6)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade6.md)  
+        * [Грейд 7](#Грейд-7)  :white_check_mark:
+        * [Грейд 8](#Грейд-8)  :white_check_mark:
+        * [Грейд 9](#Грейд-9)  :x: 0/18
         * [Грейд 10](#Грейд-10) :arrows_counterclockwise: 1/19
      * [Грейды 11-16](#Грейды-11-16)
         * [Грейд 11](#Грейд-11) :arrows_counterclockwise: 1/19
@@ -401,71 +401,12 @@ Theory
 [Итераторы и генераторы](https://www.php.net/manual/ru/language.generators.overview.php)  
 [Аутентификация](https://www.unisender.com/ru/support/about/glossary/chto-takoe-email-autentifikaciya/)  
 [Docker - обзор](https://www.youtube.com/watch?v=QF4ZF857m44)  
-```yaml
-version: "3.1"
-
-services:
-  php:
-    build: php
-    container_name: EXAMPLE_PHP
-    restart: always
-    volumes:
-      - ${APPLICATION_DIR}:/var/www/backend
-      - ./php/php.ini:/usr/local/etc/php/php.ini
-    environment:
-      PHP_IDE_CONFIG: "serverName=Docker"
-    depends_on:
-      - EXAMPLE_NGINX
-    networks:
-      - example
-
-  nginx:
-    build: nginx
-    container_name: EXAMPLE_NGINX
-    restart: always
-    volumes:
-      - ./nginx/config/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/config/default.conf:/etc/nginx/conf.d/default.conf
-      - ${APPLICATION_DIR}:/var/www/backend
-    ports:
-      - 127.0.0.1:${NGINX_PORT}
-    networks:
-      - example
-
-networks:
-   example:
-    driver: bridge
-```
 
 ***
 
 Language  
 [PHP Исключения](https://www.php.net/manual/ru/language.exceptions.php)  
 [ООП в PHP Свойства и методы](https://www.php.net/manual/ru/language.oop5.basic.php)  
-```php
-<?php
-
-namespace app\example;
-
-Class Example
-{
-    public int $appleCount; // публичное свойство               | this->water
-    public static string $name; // публичное статичное свойство | self::$iron
-    public const MONEY = 100; // константа                      | self::MONEY
-
-    public function getAppleCount(): int
-    {
-        return $this->appleCount;
-    }
-
-    public static function sayMyName(): string
-    {
-        self::MONEY - 50;
-        return self::$iron;
-        
-    }
-}
-```
 [Ключевое слово static](https://www.php.net/manual/ru/language.oop5.static.php#language.oop5.static)  
 :pushpin:[Готовимся к собеседованию по PHP: ключевое слово «static»](https://habr.com/ru/post/259627/)  
 
@@ -480,15 +421,26 @@ Framework
 ***
 
 Testing  
-Покрытие кода тестами  
-Начальные данные   
+[Покрытие кода тестами](https://ru.wikipedia.org/wiki/%D0%9F%D0%BE%D0%BA%D1%80%D1%8B%D1%82%D0%B8%D0%B5_%D0%BA%D0%BE%D0%B4%D0%B0)  
+[Начальные данные](https://www.yiiframework.com/doc/guide/1.1/ru/test.fixture)  
 Определение результатов  
+Существует несколько различных способов измерения покрытия, основные из них:  
+- покрытие операторов — каждая ли строка исходного кода была выполнена и протестирована;
+- покрытие условий — каждая ли точка решения (вычисления истинно ли или ложно выражение) была выполнена и протестирована;
+- покрытие путей — все ли возможные пути через заданную часть кода были выполнены и протестированы;
+- покрытие функций — каждая ли функция программы была выполнена;
+- покрытие вход/выход — все ли вызовы функций и возвраты из них были выполнены.
+- покрытие значений параметров — все ли типовые и граничные значения параметров были проверены.
+
+:pushpin:[Code Coverage — хочу верить](https://habr.com/ru/post/345774/)  
+:pushpin:[Code Coverage by Java Rush](https://javarush.ru/groups/posts/602-codecov)  
 :pushpin:[Чистые тесты на PHP и PHPUnit](https://habr.com/ru/company/mailru/blog/485124/)  
 
 ***
 
 Storage   
 Нормальные формы 1НФ3НФ  
+[Нормализация базы данных и ее формы](https://office-menu.ru/uroki-sql/51-normalizatsiya-bazy-dannykh)  
 [Нормализация отношений. Шесть нормальных форм](https://habr.com/ru/post/254773/)  
 
 ***
@@ -512,19 +464,7 @@ DevOps
 
 Git   
 [Cherry-pick](https://git-scm.com/book/ru/v2/Appendix-C%3A-%D0%9A%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B-Git-%D0%92%D0%BD%D0%B5%D1%81%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B8%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B9)  
-```git
-$ git cherry-pick e43a6
-Finished one cherry-pick.
-[master]: created a0a41a9: "More friendly message when locking the index fails."
- 3 files changed, 17 insertions(+), 3 deletions(-)
-```
 [Rebase](https://git-scm.com/book/ru/v2/%D0%92%D0%B5%D1%82%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2-Git-%D0%9F%D0%B5%D1%80%D0%B5%D0%B1%D0%B0%D0%B7%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5#r_rebasing)  
-```git
-$ git checkout experiment
-$ git rebase master
-First, rewinding head to replay your work on top of it...
-Applying: added staged command
-```
 
 ***
 
