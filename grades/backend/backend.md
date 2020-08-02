@@ -17,7 +17,7 @@
         * [Грейд 5](#Грейд-5)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade5.md)  
      * [Грейды 6-10](#Грейды-6-10) 
         * [Грейд 6](#Грейд-6)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade6.md)  
-        * [Грейд 7](#Грейд-7)  :white_check_mark:
+        * [Грейд 7](#Грейд-7)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade7.md)  
         * [Грейд 8](#Грейд-8)  :white_check_mark:
         * [Грейд 9](#Грейд-9)  :x: 0/18
         * [Грейд 10](#Грейд-10) :arrows_counterclockwise: 1/19
@@ -510,7 +510,11 @@ Framework
 ***
 
 Testing  
-[Методология разработки тестов](https://habr.com/ru/company/ruvds/blog/450316/)  
+[Юнит-тестирование для чайников](https://habr.com/ru/post/169381/)  
+Методология разработки тестов  
+состав теста  
+жизненный цикл теста  
+[подход AAA](https://medium.com/@pjbgf/title-testing-code-ocd-and-the-aaa-pattern-df453975ab80)  
 [Тестовое окружение](https://habr.com/ru/company/hh/blog/271221/)  
 [Инструменты: Codeception](https://codeception.com/)  
 
@@ -548,12 +552,6 @@ DevOps
 Git  
 [Выбор ревизии](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%92%D1%8B%D0%B1%D0%BE%D1%80-%D1%80%D0%B5%D0%B2%D0%B8%D0%B7%D0%B8%D0%B8)  
 [Откат](https://git-scm.com/docs/git-reset)  
-```git
-git reset [-q] [<tree-ish>] [--] <pathspec>…​
-git reset [-q] [--pathspec-from-file=<file> [--pathspec-file-nul]] [<tree-ish>]
-git reset (--patch | -p) [<tree-ish>] [--] [<pathspec>…​]
-git reset [--soft | --mixed [-N] | --hard | --merge | --keep] [-q] [<commit>]
-```
 
 ***
 
@@ -561,7 +559,7 @@ Misc
 [Postman](https://habr.com/ru/company/kolesa/blog/351250/)  
 :pushpin:[Postman](https://www.youtube.com/watch?v=hGmJMeE_ok0)  
 [codesniffer](https://epages.su/blog/setting-php-code-sniffer-in-phpstorm-using-composer.html)  
-[Состав и механизм работы веб‑сервера](https://developer.mozilla.org/ru/docs/Learn/%D0%A7%D1%82%D0%BE_%D1%82%D0%B0%D0%BA%D0%BE%D0%B5_%D0%B2%D0%B5%D0%B1_%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80Storage)  
+[Состав и механизм работы веб‑сервера](https://developer.mozilla.org/ru/docs/Learn/%D0%A7%D1%82%D0%BE_%D1%82%D0%B0%D0%BA%D0%BE%D0%B5_%D0%B2%D0%B5%D0%B1_%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80)  
 
 
 ***
@@ -852,7 +850,7 @@ Yii2 Модули
 ***
 
 Testing  
-TDD  
+[TDD](https://habr.com/ru/company/ruvds/blog/450316/)  
 
 ***
 
