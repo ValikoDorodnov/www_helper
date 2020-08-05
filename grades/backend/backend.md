@@ -18,7 +18,7 @@
      * [Грейды 6-10](#Грейды-6-10) 
         * [Грейд 6](#Грейд-6)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade6.md)  
         * [Грейд 7](#Грейд-7)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade7.md)  
-        * [Грейд 8](#Грейд-8)  :white_check_mark:
+        * [Грейд 8](#Грейд-8)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade8.md)  
         * [Грейд 9](#Грейд-9)  :x: 0/18
         * [Грейд 10](#Грейд-10) :arrows_counterclockwise: 1/19
      * [Грейды 11-16](#Грейды-11-16)
@@ -222,6 +222,7 @@ Git
 
 Misc  
 [Клиент/web-серверная архитектура](https://developer.mozilla.org/ru/docs/Learn/Server-side/First_steps/Client-Server_overview)  
+:pushpin:[Клиент‑серверная архитектура](https://tproger.ru/articles/web-api/amp/)  
 [Методы и средства обеспечения информационной защиты](https://searchinform.ru/informatsionnaya-bezopasnost/zaschita-informatsii/sposoby-zaschity-informatsii/)   
 [Виды систем контроля версий, их состав и возможности](https://biz30.timedoctor.com/ru/c%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0-%D0%BA%D0%BE%D0%BD%D1%82%D1%80%D0%BE%D0%BB%D1%8F-%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D0%B9/)  
 [Обзор HTTP](https://developer.mozilla.org/ru/docs/Web/HTTP/Overview#:~:text=HTTP%20%E2%80%94%20%D1%8D%D1%82%D0%BE%20%D0%BF%D1%80%D0%BE%D1%82%D0%BE%D0%BA%D0%BE%D0%BB%2C%20%D0%BF%D0%BE%D0%B7%D0%B2%D0%BE%D0%BB%D1%8F%D1%8E%D1%89%D0%B8%D0%B9%20%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B0%D1%82%D1%8C,%D0%B1%D1%80%D0%B0%D1%83%D0%B7%D0%B5%D1%80%D0%BE%D0%BC%20(web%2Dbrowser).)  
@@ -568,6 +569,8 @@ Misc
 #### Грейд 8
 
 Theory  
+Понятие о паттерне MVC  
+[Охота на мифический MVC. Обзор, возвращение к первоисточникам и про то, как анализировать и выводить шаблоны самому](https://habr.com/ru/post/321050/)  
 [Охота на мифический MVC. Построение пользовательского интерфейса](https://habr.com/ru/post/322700/)  
 [Паттерны проектирования: порождающие](https://refactoring.guru/ru/design-patterns/creational-patterns)  
 [Кэширование](https://ruhighload.com/%D0%9A%D1%8D%D1%88%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5+%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85)  
@@ -595,10 +598,11 @@ Framework
 ***
 
 Testing  
-[Mock-объекты](https://codeception.com/docs/reference/Mock)  
 [Mock-объект](https://ru.wikipedia.org/wiki/Mock-%D0%BE%D0%B1%D1%8A%D0%B5%D0%BA%D1%82)  
-[Функциональное тестирование Codeception](https://codeception.com/docs/04-FunctionalTests)  
 [Функциональное тестирование](http://aplana.ru/services/testing/functionalnoe-testirovanie)  
+:pushpin:[Функциональное тестирование Codeception](https://codeception.com/docs/04-FunctionalTests)  
+:pushpin:[Mock-объекты codeception](https://codeception.com/docs/reference/Mock)  
+
 
 ***
 
@@ -627,10 +631,7 @@ DevOps
 
 Git  
 [Отмена слияний](https://riptutorial.com/ru/git/example/1477/%D0%BE%D1%82%D0%BC%D0%B5%D0%BD%D0%B0-%D1%81%D0%BB%D0%B8%D1%8F%D0%BD%D0%B8%D1%8F)  
-```git
-#Если не было push на удаленный репозиторий
-$ git reset --hard <last commit from the branch you are on>
-```
+:pushpin:[Отмена коммитов и изменений Git checkout git clean git revert git reset git rm](https://www.atlassian.com/ru/git/tutorials/undoing-changes)  
 [Продвинутое слияние](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%9F%D1%80%D0%BE%D0%B4%D0%B2%D0%B8%D0%BD%D1%83%D1%82%D0%BE%D0%B5-%D1%81%D0%BB%D0%B8%D1%8F%D0%BD%D0%B8%D0%B5)  
 
 ***
@@ -638,7 +639,6 @@ Misc
 [Модели работы сетевого сервера](https://life-prog.ru/2_8495_setevie-modeli-protokoli-i-arhitektura-klient--server.html)  
 [UML диаграммы](https://prog-cpp.ru/uml-classes/)  
 [Простым языком об HTTP](https://habr.com/ru/post/215117/)  
-:pushpin:[Клиент‑серверная архитектура](https://tproger.ru/articles/web-api/amp/)  
 
 ***
 ***
