@@ -117,3 +117,37 @@ $memberIds = OmniMember::find()
 
 //Output int[] ['23123', '123123'] //Массив user id
 ```
+
+## ::Via() связь через связь // аналог доступа связей через точку
+
+```php
+class StockBalanceItems extends BaseStockBalanceItems
+{
+    public function getPartner(): ActiveQuery
+    {
+        return $this->hasOne(UtdPartners::class, ['id' => 'partnerId'])
+            ->via('stockBalance');
+    }
+
+    public function getStockBalance(): ActiveQuery
+    {
+        return $this->hasOne(StockBalance::class, ['id' => 'stockBalanceId']);
+    }
+
+}
+```
+
+## Кастомный ::indexBy()
+```php
+$localData = WtbPartnerProductStock::find()
+            ->andWhere(['trade_point_id' => $tradePoints])
+            ->asArray()
+            ->indexBy(function ($stock) {
+                return $stock['trade_point_id']
+                    . '---'
+                    . $stock['article']
+                    . '---'
+                    . str_replace([','], ['.'], $stock['size']);
+            })
+            ->all();
+```
