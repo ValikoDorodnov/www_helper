@@ -4,7 +4,7 @@
 [frontend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/frontend/frontend.md)  
 
 ### Tips and Tricks
-[Yii Active Record](https://github.com/ValikoDorodnov/grades/blob/master/grades/tipsAndTricks/activeRecord.md)  
+[Yii Active Record](https://github.com/ValikoDorodnov/www_helper/blob/master/tipsAndTricks/activeRecord.md)  
 
 ### GoLang 
 [Official web page](https://golang.org/)  
