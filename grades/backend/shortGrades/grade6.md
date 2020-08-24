@@ -52,41 +52,7 @@ Linux. Ключевое преимущество Докера в том, что 
 
 Контейнеры используют другой подход: они предоставляют схожий с виртуальными машинами уровень изоляции, но благодаря  
 правильному задействованию низкоуровневых механизмов основной операционной системы делают это с в разы меньшей нагрузкой.  
-```yaml
-version: "3.1"
 
-services:
-  php:
-    build: php
-    container_name: EXAMPLE_PHP
-    restart: always
-    volumes:
-      - ${APPLICATION_DIR}:/var/www/backend
-      - ./php/php.ini:/usr/local/etc/php/php.ini
-    environment:
-      PHP_IDE_CONFIG: "serverName=Docker"
-    depends_on:
-      - EXAMPLE_NGINX
-    networks:
-      - example
-
-  nginx:
-    build: nginx
-    container_name: EXAMPLE_NGINX
-    restart: always
-    volumes:
-      - ./nginx/config/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/config/default.conf:/etc/nginx/conf.d/default.conf
-      - ${APPLICATION_DIR}:/var/www/backend
-    ports:
-      - 127.0.0.1:${NGINX_PORT}
-    networks:
-      - example
-
-networks:
-   example:
-    driver: bridge
-```
 ### Language  
 
 #### PHP Исключения  
