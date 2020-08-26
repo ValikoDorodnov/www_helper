@@ -400,6 +400,7 @@ Misc
 Theory  
 [Минификация и обфускация кода](https://drupal.ru/node/19060)  
 [Итераторы и генераторы](https://www.php.net/manual/ru/language.generators.overview.php)  
+:pushpin:[Видео доклад Генераторы в PHP - Александр Новиков (SpiralScout)](https://www.youtube.com/watch?v=nUdyay0XvHE)  
 [Аутентификация](https://www.unisender.com/ru/support/about/glossary/chto-takoe-email-autentifikaciya/)  
 [Docker - обзор](https://www.youtube.com/watch?v=QF4ZF857m44)  
 
@@ -940,7 +941,6 @@ Misc
 Проектирование микросервисной архитектуры  
 [Просто о микросервисах](https://habr.com/ru/company/raiffeisenbank/blog/346380/)  
 [Микросервисные паттерны проектирования](https://habr.com/ru/company/piter/blog/275633/)  
-
 
 ***
 ***
