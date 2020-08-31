@@ -444,6 +444,7 @@ Storage
 Нормальные формы 1НФ3НФ  
 [Нормализация базы данных и ее формы](https://office-menu.ru/uroki-sql/51-normalizatsiya-bazy-dannykh)  
 [Нормализация отношений. Шесть нормальных форм](https://habr.com/ru/post/254773/)  
+:pushpin:[Базы данных. 1,2,3 нормальные формы.(Видео)](https://www.youtube.com/watch?v=zwQzL80U51c)  
 
 ***
 
