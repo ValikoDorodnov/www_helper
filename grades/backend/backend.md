@@ -649,23 +649,23 @@ Misc
 #### Грейд 9
 
 Theory  
-Паттерны проектирования: структурные  
-RBAC  
-Очереди  
-
+[Паттерны проектирования: структурные](https://refactoring.guru/ru/design-patterns/structural-patterns)  
+[RBAC](https://ru.wikipedia.org/wiki/%D0%A3%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5_%D0%B4%D0%BE%D1%81%D1%82%D1%83%D0%BF%D0%BE%D0%BC_%D0%BD%D0%B0_%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%B5_%D1%80%D0%BE%D0%BB%D0%B5%D0%B9)  
+:pushpin:[Подходы к контролю доступа: RBAC vs. ABAC](https://m.habr.com/ru/company/custis/blog/248649/)  
+[Очереди](https://ru.wikipedia.org/wiki/%D0%9E%D1%87%D0%B5%D1%80%D0%B5%D0%B4%D1%8C_(%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5))  
+:pushpin:[Алгоритмы и структуры данных для начинающих: стеки и очереди](https://tproger.ru/translations/stacks-and-queues-for-beginners/)  
 ***
 
 Language  
-ООП в PHP Наследование  
-ООП в PHP Инкапсуляция  
-ООП в PHP Полиморфизм  
+[ООП в PHP Наследование](https://www.php.net/manual/ru/language.oop5.inheritance.php)  
+[ООП в PHP Инкапсуляция](https://www.php.net/manual/ru/language.oop5.visibility.php)  
+[ООП в PHP Полиморфизм](https://habr.com/ru/post/37610/)  
 
 ***
 
 Framework  
-Yii2 Работа с БД - построитель запросов  
-Yii2 Работа с БД - Active Record работа с данными  
-Yii2 Работа с БД - Active Record жизненные циклы  
+[Yii2 Работа с БД - построитель запросов](https://yiiframework.com.ua/ru/doc/guide/2/db-query-builder/)  
+[Yii2 Работа с БД - Active Record работа с данными, жизненные циклы](https://yiiframework.com.ua/ru/doc/guide/2/db-active-record/)  
 
 ***
 
@@ -846,7 +846,6 @@ PHP Управление транзакциями
 
 Framework  
 Yii2 RBAC  
-:pushpin:[Подходы к контролю доступа: RBAC vs. ABAC](https://m.habr.com/ru/company/custis/blog/248649/)  
 Yii2 Организация REST API  
 Yii2 Модули  
 
