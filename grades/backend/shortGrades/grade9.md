@@ -70,10 +70,148 @@ $b->sayHello(); // ошибка
 
 #### ООП в PHP Полиморфизм
 ```php
+abstract class Publication {
+ // определяем правило, что все публикации должны печататься, т.е. иметь метод do_print()
+ abstract public function do_print();
+}
+
+class News extends Publication {
+ // переопределяем абстрактный метод печати
+ public function do_print() {
+  echo '<h4>Новость</h4>';
+  //...
+ }
+}
+class Announcement extends Publication {
+ // переопределяем абстрактный метод печати
+ public function do_print() {
+  echo '<h4>Объявление</h4>';
+  //...
+ }
+}
+class Article extends Publication {
+ // переопределяем абстрактный метод печати
+ public function do_print() {
+  echo '<h4>Статья</h4>';
+  //...
+ }
+}
+
+//Наполняем массив публикаций объектами, производными от Publication
+$publications[] = new News();
+$publications[] = new Announcement();
+$publications[] = new Article();
+
+foreach ($publications as $publication) {
+ if ($publication instanceof Publication) { // Если мы работаем с наследниками Publication
+  $publication->do_print(); // то мы можем смело выводить данные на печать
+ }
+ else {
+  //исключение или обработка ошибки
+ }
+}
+//Главное здесь — последняя часть. Именно в ней заключается суть полиморфизма. Мы используем один и тот же код для  
+//объектов разных классов.
 ```
 
 ### Framework  
-#### Yii2 Работа с БД - построитель запросов  
-#### Yii2 Работа с БД - Active Record работа с данными  
-#### Yii2 Работа с БД - Active Record жизненные циклы  
 
+#### Yii2 Работа с БД - построитель запросов  
+Построенный поверх DAO, построитель запросов позволяет конструировать SQL выражения в программируемом и независимом от  
+СУБД виде. В сравнении с написанием чистого SQL выражения, использование построителя помогает вам писать более читаемый  
+связанный с SQL код и генерировать более безопасные SQL выражения.  
+
+Использование построителя запросов, как правило, включает два этапа:  
+- Создание объекта yii\db\Query представляющего различные части (такие как SELECT, FROM) SQL выражения SELECT.
+- Выполнить запрос методом yii\db\Query (таким как all()) для извлечения данных из базы данных.
+
+```php
+//Следующий код показывает обычное использование построителя запросов:
+$rows = (new \yii\db\Query())
+    ->select(['id', 'email'])
+    ->from('user')
+    ->where(['last_name' => 'Smith'])
+    ->limit(10)
+    ->all();
+```
+#### Yii2 Работа с БД - Active Record работа с данными и жизненные циклы  
+
+Active Record обеспечивает объектно-ориентированный интерфейс для доступа и манипулирования данными, хранящимися в  
+базах данных. Класс Active Record соответствует таблице в базе данных, объект Active Record соответствует строке этой  
+таблицы, а атрибут объекта Active Record представляет собой значение отдельного столбца строки. Вместо непосредственного  
+написания SQL-выражений вы сможете получать доступ к атрибутам Active Record и вызывать методы Active Record для доступа  
+и манипулирования данными, хранящимися в таблицах базы данных.  
+
+```php
+namespace app\models;
+
+use yii\db\ActiveRecord;
+
+class Customer extends ActiveRecord
+{
+    public static function tableName(): string
+    {
+        return 'customer';
+    }
+
+    public function transactionExample()
+    {
+        $transaction = Customer::getDb()->beginTransaction();
+        try {
+            $customer->id = 200;
+            $customer->save();
+            // ...другие операции с базой данных...
+            $transaction->commit();
+        } catch(\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        } catch(\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /** Объявление связей */
+    public function getOrders()
+    {
+        return $this->hasMany(Order::className(), ['customer_id' => 'id']);
+    }
+
+    public function getCustomer()
+    {
+        return $this->hasOne(Customer::className(), ['id' => 'customer_id']);
+    }
+
+}
+```
+
+##### Жизненные циклы Active Record
+
+Когда создаётся новый объект Active Record с помощью оператора new, следующий жизненный цикл имеет место:  
+- Вызывается конструктор класса;
+- Вызывается init(): инициируется событие EVENT_INIT.
+
+Когда происходит получение данных посредством одного из методов получения данных, каждый вновь создаваемый объект  
+Active Record при заполнении данными проходит следующий жизненный цикл:  
+- Вызывается конструктор класса.
+- Вызывается init(): инициируется событие EVENT_INIT.
+- Вызывается afterFind(): инициируется событие EVENT_AFTER_FIND.
+
+Когда вызывается метод save() для вставки или обновления объекта Active Record, следующий жизненный цикл имеет место:  
+- Вызывается beforeValidate(): инициируется событие EVENT_BEFORE_VALIDATE. Если метод возвращает false или свойство события yii\base\ModelEvent::isValid равно false, оставшиеся шаги не выполняются.
+- Осуществляется валидация данных. Если валидация закончилась неудачей, после 3-го шага остальные шаги не выполняются.
+- Вызывается afterValidate(): инициируется событие EVENT_AFTER_VALIDATE.
+- Вызывается beforeSave(): инициируется событие EVENT_BEFORE_INSERT или событие EVENT_BEFORE_UPDATE. Если метод возвращает false или свойство события yii\base\ModelEvent::isValid равно false, оставшиеся шаги не выполняются.
+- Осуществляется фактическая вставка или обновление данных в базу данных;
+- Вызывается afterSave(): инициируется событие EVENT_AFTER_INSERT или событие EVENT_AFTER_UPDATE.
+
+Когда вызывается метод delete() для удаления объекта Active Record, следующий жизненный цикл имеет место:  
+- Вызывается beforeDelete(): инициируется событие EVENT_BEFORE_DELETE. Если метод возвращает false или свойство события yii\base\ModelEvent::isValid равно false, остальные шаги не выполняются.
+- Осуществляется фактическое удаление данных из базы данных.
+- Вызывается afterDelete(): инициируется событие EVENT_AFTER_DELETE.
+
+Note: Вызов следующих методов НЕ инициирует ни один из вышеприведённых жизненных циклов:  
+- yii\db\ActiveRecord::updateAll()
+- yii\db\ActiveRecord::deleteAll()
+- yii\db\ActiveRecord::updateCounters()
+- yii\db\ActiveRecord::updateAllCounters()
