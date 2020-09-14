@@ -578,6 +578,7 @@ Theory
 [Охота на мифический MVC. Построение пользовательского интерфейса](https://habr.com/ru/post/322700/)  
 [Паттерны проектирования: порождающие](https://refactoring.guru/ru/design-patterns/creational-patterns)  
 [Кэширование](https://ruhighload.com/%D0%9A%D1%8D%D1%88%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5+%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85)  
+:pushpin:[11 видов кэширования для современного сайта](https://habr.com/ru/company/zerotech/blog/316316/)  
 :pushpin:[Создание архитектуры программы или как проектировать табуретку](https://habr.com/ru/post/276593/)  
 :pushpin:[git-flow](https://danielkummer.github.io/git-flow-cheatsheet/index.ru_RU.html)  
 
