@@ -462,6 +462,7 @@ Frontend
 
 DevOps  
 [psql](https://postgrespro.ru/docs/postgresql/9.6/app-psql)  
+[17 Practical psql Commands That You Don’t Want To Miss](https://www.postgresqltutorial.com/psql-commands/)  
 
 ***
 

@@ -2,8 +2,9 @@
 
 ### Theory
 #### Что такое API
-API (Application programming interface) — это контракт, который предоставляет программа. «Ко мне можно обращаться так  
-и так, я обязуюсь делать то и это».  
+API (программный интерфейс приложения, интерфейс прикладного программирования) — описание способов  
+(набор классов, процедур, функций, структур или констант), которыми одна компьютерная программа может взаимодействовать  
+с другой программой.  
 
 #### Авторизация
 Авторизация является функцией определения прав доступа к ресурсам и управления этим доступом. Авторизация —  
@@ -56,6 +57,16 @@ services:
 networks:
    example:
     driver: bridge
+```
+
+```
+//команды
+
+docker-compose up -d --build
+
+docker exec -i container_name
+docker exec -it container_name
+
 ```
 
 ### Language
@@ -183,7 +194,7 @@ $this->title = 'Вход';
 ?>
 <h1><?= Html::encode($this->title) ?></h1>
 
-<p>Пожалуйстауйста<?php $form = ActiveForm::begin(); ?>
+<?php $form = ActiveForm::begin(); ?>
     <?= $form->field($model, 'username') ?>
     <?= $form->field($model, 'password')->passwordInput() ?>
     <?= Html::submitButton('Login') ?>
@@ -271,6 +282,13 @@ class CalculatorTests
 
 #### PostgreSQL CREATE ALTER DROP
 @inheritdoc  
+```
+CREATE / ALTER / DROP TABLE
+CREATE / ALTER / DROP INDEX
+CREATE / ALTER / DROP DATABASE
+CREATE / ALTER / DROP USER
+CREATE / ALTER / DROP ROLE
+```
 
 #### PostgreSQL Ограничения
 
@@ -334,13 +352,11 @@ WebSocket особенно хорош для сервисов, которые н
 Postgres Pro предоставляет для этой цели вспомогательную программу pg_dump. Простейшее применение  
 этой программы выглядит так:  
 ```
-pg_dump имя_базы > файл_дампа
-```
+//создать файл дампа
+docker exec -i contrainer_name pg_dump -U user_name db_name > ~/Documents/dump.dump
 
-Текстовые файлы, созданные pg_dump, предназначаются для последующего чтения программой psql.  
-Общий вид команды для восстановления дампа:  
-```
-psql имя_базы < файл_дампа
+//применить файл дампа
+docker exec -i container_name psql -U user_name -d db_name < ~/Documents/dump.dump 
 ```
 
 ### Git
@@ -410,9 +426,15 @@ git reset [--soft | --mixed [-N] | --hard | --merge | --keep] [-q] [<commit>]
 А инструменты для автоматического документирования по описаниям из ваших коллекций сэкономят  
 время на ещё одну "полезную фичу".  
 
-#### codesniffer
-Code sniffer — инструмент для инспекции кода на соответствие стандартам.  
-Существует огромное количество стандартов кодирования на PHP.  
+#### Профайлеры
+Профилирование — сбор характеристик работы программы, таких как время выполнения отдельных фрагментов  
+(обычно подпрограмм), число верно предсказанных условных переходов, число кэш-промахов и т. д. Инструмент,  
+используемый для анализа работы, называют профилировщиком или профайлером (англ. profiler)  
+
+xhprof  
+liveprof  
+профайлер xDebug
+профайлер Yii2
 
 #### Состав и механизм работы веб‑сервера
 @inheritdoc  
