@@ -644,6 +644,8 @@ Misc
 [Модели работы сетевого сервера](https://life-prog.ru/2_8495_setevie-modeli-protokoli-i-arhitektura-klient--server.html)  
 [UML диаграммы](https://prog-cpp.ru/uml-classes/)  
 [Простым языком об HTTP](https://habr.com/ru/post/215117/)  
+:pushpin:[HTTP/2: готовимся к переходу](https://habr.com/ru/company/selectel/blog/278167/)  
+:pushpin:[Путь к HTTP/2](https://habr.com/ru/post/308846/)  
 
 ***
 ***
@@ -699,8 +701,6 @@ fstab samba mount
 
 Misc  
 Docker  
-:pushpin:[HTTP/2: готовимся к переходу](https://habr.com/ru/company/selectel/blog/278167/)  
-:pushpin:[Путь к HTTP/2](https://habr.com/ru/post/308846/)  
 
 ***
 ***
