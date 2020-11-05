@@ -33,5 +33,44 @@
 [Вёрстка — это не тупо.](http://webmasters.teamdev.com/) - отличный сайт для юного верстальщика  
 
 ### PHP
+В первую очередь следует узнать, куда и как применяется PHP.  
+[Тут](https://ru-hexlet-io.turbopages.org/ru.hexlet.io/s/blog/posts/zachem-izuchat-php-reyting-perspektivy-sfery-primeneniya) можно смело прочитать про php до абцаза про популярность.  
+
+Далее надо познакомиться с его [синтаксисом](https://www.php.net/manual/ru/language.basic-syntax.php).  
+Немаловажно изучить [типы данных](https://www.php.net/manual/ru/language.types.php)  
+В первую очередь надо обратить свое внимание на строки, числа, массивы, булев, числа с плавающей точкой, null.  
+
+[Здесь](https://www.php.net/manual/ru/language.control-structures.php) прочитать про  
+- if
+- else
+- elseif/else if
+- while
+- do-while
+- for
+- foreach
+- break
+- continue
+- switch
+- return
+
+Далее будут представлены ссылки на стандартные функции языка, учить их не надо - лишь знать, где найти:
+- [Функции для работы со строками](https://www.php.net/manual/ru/ref.strings.php)
+- [Функции для работы с массивами](https://www.php.net/manual/ru/ref.array.php)
+- [Математические функции](https://www.php.net/manual/ru/ref.math.php#ref.math)
+- [Функции даты и времени](https://www.php.net/manual/ru/ref.datetime.php)
+
+На этом этапе вы должны:
+- Уметь создавать простые страницы встраивая php код
+- Узнать какие есть типы данных в php и как их приводить (приведение типов)
+- Применять простые управляющие конструкции (циклы - do, do while, for, условия - if, else, switch, операторы try catch)
+- Познакомиться со стандратными функциями php (работа со строками, массивами, числами и прочее)
+- При помощи разных типов данных делать операции с различной информацией
+
+PHP редко используется как функциональный язык программирования, одна из его главных сил - это поддержка ООП.  
+Отличная статья [ООП в картинках](https://habr.com/ru/post/463125/) в которой на простых примерах рассказывается про суть ООП.  
+
+После прочтения статьи можно начинать изучать [классы и объекты](https://www.php.net/manual/ru/language.oop5.php)  
+В этот момент рекомендую начать изучения любого MVC PHP фреймворка (я буду базироваться на yii)  
+[Yii2](https://www.yiiframework.com/doc/guide/2.0/ru/start-installation)  
 
 
