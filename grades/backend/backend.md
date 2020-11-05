@@ -951,15 +951,20 @@ Misc
 
 Theory  
 Принципы разработки: GRASP  
-[GRASP паттерны проектирования](https://habr.com/ru/post/92570/)  
-Domain Driven Design  
+[GRASP (General Responsibility Assignment Software Patterns)](http://phpforum.su/index.php?showtopic=87687)  
+[Принципы GRASP](http://regfordev.blogspot.com/2015/08/grasp.html#.X2ihXhMzZQK)  
+Domain Driven Design
+[Дмитрий Науменко "Просто о сложном - Domain Driven Design"](https://www.youtube.com/watch?time_continue=1&v=7HXIrEsmlzM&feature=emb_title)
 DDD Inversion of Control  
 
 ***
 
 Language  
-Реализация GRASP  
-Value Object DTO POCO  
+Реализация GRASP
+[GRASP (General Responsibility Assignment Software Patterns)](http://phpforum.su/index.php?showtopic=87687)  
+Value Object DTO POCO
+[DTO vs POCO vs Value Object](https://habr.com/ru/post/268371/)
+[Наглядный пример различия DTO, POCO (POJO) и Value Object](https://ru.stackoverflow.com/questions/456623/%D0%9D%D0%B0%D0%B3%D0%BB%D1%8F%D0%B4%D0%BD%D1%8B%D0%B9-%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80-%D1%80%D0%B0%D0%B7%D0%BB%D0%B8%D1%87%D0%B8%D1%8F-dto-poco-pojo-%D0%B8-value-object)
 DDD: DI  
 
 ***
@@ -980,6 +985,7 @@ Storage
 
 DB  
 [PostgreSQL CTE](https://postgrespro.ru/docs/postgrespro/9.5/queries-with)  
+[Игра в прятки с оптимизатором. Гейм овер, это CTE PostgreSQL 12](https://habr.com/ru/company/postgrespro/blog/451344/)  
 
 ***
 
