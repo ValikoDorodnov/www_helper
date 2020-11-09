@@ -7,6 +7,7 @@
 
 ### Tips and Tricks
 [Yii Active Record](https://github.com/ValikoDorodnov/www_helper/blob/master/tipsAndTricks/activeRecord.md)  
+[Установка локального окружения win10](https://github.com/ValikoDorodnov/www_helper/blob/master/tipsAndTricks/win10_workspace_installation.md)  
 
 ### GoLang 
 [Official web page](https://golang.org/)  
