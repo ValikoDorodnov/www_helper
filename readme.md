@@ -50,3 +50,4 @@
 [часть 2](https://habr.com/ru/post/487064/)  
 
 [Джоел Спольски: Как правильно задавать вопросы более опытным программистам](https://habr.com/ru/company/skillfactory/blog/504760/)  
+[Как не испортить своего джуна](https://habr.com/ru/company/raiffeisenbank/blog/526342/)  
