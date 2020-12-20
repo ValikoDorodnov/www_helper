@@ -19,7 +19,7 @@
         * [Грейд 6](#Грейд-6)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade6.md)  
         * [Грейд 7](#Грейд-7)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade7.md)  
         * [Грейд 8](#Грейд-8)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade8.md)  
-        * [Грейд 9](#Грейд-9)  :x: 0/18
+        * [Грейд 9](#Грейд-9)  :arrows_counterclockwise: 8/18  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade9.md)  
         * [Грейд 10](#Грейд-10) :arrows_counterclockwise: 1/19
      * [Грейды 11-16](#Грейды-11-16)
         * [Грейд 11](#Грейд-11) :arrows_counterclockwise: 1/19
@@ -655,8 +655,8 @@ Misc
 Theory  
 [Паттерны проектирования: структурные](https://refactoring.guru/ru/design-patterns/structural-patterns)  
 [RBAC](https://ru.wikipedia.org/wiki/%D0%A3%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5_%D0%B4%D0%BE%D1%81%D1%82%D1%83%D0%BF%D0%BE%D0%BC_%D0%BD%D0%B0_%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%B5_%D1%80%D0%BE%D0%BB%D0%B5%D0%B9)  
-:pushpin:[Подходы к контролю доступа: RBAC vs. ABAC](https://m.habr.com/ru/company/custis/blog/248649/)  
 [Очереди](https://ru.wikipedia.org/wiki/%D0%9E%D1%87%D0%B5%D1%80%D0%B5%D0%B4%D1%8C_(%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5))  
+:pushpin:[Подходы к контролю доступа: RBAC vs. ABAC](https://m.habr.com/ru/company/custis/blog/248649/)  
 :pushpin:[Алгоритмы и структуры данных для начинающих: стеки и очереди](https://tproger.ru/translations/stacks-and-queues-for-beginners/)  
 ***
 
@@ -694,8 +694,10 @@ JS Работа с JSON
 
 ***
 
-DevOps 
-fstab samba mount  
+DevOps  
+fstab  
+samba  
+mount  
 
 ***
 
@@ -819,7 +821,8 @@ JS Замыкания
 ***
 
 DevOps  
-*top ps  
+*top  
+ps  
 iptables  
 netstat  
 
