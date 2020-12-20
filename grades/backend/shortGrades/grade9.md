@@ -215,3 +215,24 @@ Note: Вызов следующих методов НЕ инициирует н�
 - yii\db\ActiveRecord::deleteAll()
 - yii\db\ActiveRecord::updateCounters()
 - yii\db\ActiveRecord::updateAllCounters()
+
+### Testing  
+#### Автоматическое тестирование  
+
+### Storage  
+#### Понятие о транзакциях  
+
+### DB  
+#### PostgreSQL Управление транзакциями  
+#### Elasticsearch: Язык запросов  
+
+### Frontend  
+#### JS Работа с JSON  
+
+### DevOps  
+#### fstab  
+#### samba  
+#### mount  
+
+### Misc  
+#### Docker  
