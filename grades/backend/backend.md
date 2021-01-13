@@ -697,13 +697,13 @@ Testing
 ***
 
 Storage  
-Понятие о транзакциях  
-
+[Понятие о транзакциях](https://proselyte.net/tutorials/sql/sql-transactions/#:~:text=Руководство%20по%20SQL.-,Транзакции.,программой%2C%20которая%20работает%20с%20БД.)  
 ***
 
 DB  
-PostgreSQL Управление транзакциями  
+[PostgreSQL Управление транзакциями](https://postgrespro.ru/docs/postgrespro/10/tutorial-transactions)  
 Elasticsearch: Язык запросов  
+[Основы Elasticsearch](https://habr.com/ru/post/280488/)  
 
 ***
 
