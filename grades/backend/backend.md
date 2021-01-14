@@ -19,7 +19,7 @@
         * [Грейд 6](#Грейд-6)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade6.md)  
         * [Грейд 7](#Грейд-7)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade7.md)  
         * [Грейд 8](#Грейд-8)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade8.md)  
-        * [Грейд 9](#Грейд-9)  :arrows_counterclockwise: 8/18  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade9.md)  
+        * [Грейд 9](#Грейд-9)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade9.md)  
         * [Грейд 10](#Грейд-10) :arrows_counterclockwise: 1/19 [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade10.md)  
      * [Грейды 11-16](#Грейды-11-16)
         * [Грейд 11](#Грейд-11) :arrows_counterclockwise: 1/19 [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade11.md)  
@@ -713,14 +713,15 @@ JS Работа с JSON
 ***
 
 DevOps  
-fstab  
-samba  
-mount  
+[fstab](https://help.ubuntu.ru/wiki/fstab)  
+[samba](https://help.ubuntu.ru/wiki/samba#:~:text=Samba%20—%20программа%2C%20которая%20позволяет%20обращаться,Имеет%20клиентскую%20и%20серверную%20части.&text=Samba%20включена%20практически%20во%20все,%2C%20конечно%2C%20и%20в%20Ubuntu.)  
+[mount](https://www.opennet.ru/man.shtml?topic=mount&category=8)  
 
 ***
 
 Misc  
 Docker  
+смотри 7 грейд, пункт докер подробно
 
 ***
 ***
