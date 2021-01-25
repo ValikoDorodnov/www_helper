@@ -708,7 +708,7 @@ Elasticsearch: Язык запросов
 ***
 
 Frontend  
-JS Работа с JSON  
+[JS Работа с JSON](https://learn.javascript.ru/json)  
 
 ***
 
@@ -729,49 +729,58 @@ Docker
 #### Грейд 10
 
 Theory  
-Паттерны проектирования: поведенческие  
+[Паттерны проектирования: поведенческие](https://refactoring.guru/ru/design-patterns/behavioral-patterns)  
 Проектирование REST API  
+[REST — это новый SOAP](https://habr.com/ru/company/mailru/blog/345184/)  
 Способы доступа к данным: CRUD ORM AR Doctrine  
-
+[CRUD](https://ru.wikipedia.org/wiki/CRUD)  
+[ORM](https://ru.wikipedia.org/wiki/ORM)  
+[ActiveRecord](https://ru.wikipedia.org/wiki/ActiveRecord)  
+[Doctrine](https://ru.wikipedia.org/wiki/Doctrine)  
+:pushpin:[Active Record против Data Mapper-а для сохранения данных](https://habr.com/ru/post/198450/)  
 ***
 
 Language  
-ООП в PHP Позднее статическое связывание  
-PHP Паттерны проектирования: "фабрика"  
-PHP Паттерны проектирования: "адаптер"  
+[ООП в PHP Позднее статическое связывание](https://www.php.net/manual/ru/language.oop5.late-static-bindings.php)  
+[PHP Паттерны проектирования: "фабрика"](https://refactoring.guru/ru/design-patterns/factory-method)  
+[PHP Паттерны проектирования: "адаптер"](https://refactoring.guru/ru/design-patterns/adapter)  
 
 ***
 
 Framework  
-Yii2 Фильтры - AccessControl  
-Yii2 Формы  
-Yii2 Логирование  
+[Yii2 Фильтры - AccessControl](https://www.yiiframework.com/doc/guide/2.0/ru/structure-filters)  
+[Yii2 Формы](https://www.yiiframework.com/doc/guide/2.0/ru/input-forms)  
+[Yii2 Логирование](https://www.yiiframework.com/doc/guide/2.0/ru/runtime-logging)  
 
 ***
 
 Testing  
-Нагрузочное тестирование  
+[Нагрузочное тестирование](https://www.performance-lab.ru/blog/load-testing/testirovanie-proizvoditelnosti)  
 
 ***
 
 Storage  
-Схемы БД и доступ к БД  
+[Схемы БД](https://www.lucidchart.com/pages/ru/схемыбаз-данных)  
+[Доступ к БД](https://www.parsec.ru/articles/obzor-sistem-upravleniya-bazami-dannykh-subd-dlya-sistem-kontrolya-i-upravleniya-dostupom-skud/)  
 
 ***
 
 DB  
-PostgreSQL Пользователи и разрешения схемы  
-PostgreSQL Объединение  
+[PostgreSQL пользователи](https://postgrespro.ru/docs/postgresql/9.6/app-createuser)  
+[PostgreSQL разрешения](https://postgrespro.ru/docs/postgresql/9.4/user-manag)  
+[PostgreSQL схемы](https://postgrespro.ru/docs/postgrespro/9.5/ddl-schemas)  
+[PostgreSQL Объединение](https://postgrespro.ru/docs/postgrespro/9.5/tutorial-join)  
 
 ***
 
 Frontend  
-JS Prototype  
+[JS Prototype](https://learn.javascript.ru/function-prototype)  
 
 ***
 
 DevOps  
 Оптимизация PHP  
+[Нестандартная оптимизация проектов на PHP](https://habr.com/ru/post/250985/)  
 Логи  
 
 ***
