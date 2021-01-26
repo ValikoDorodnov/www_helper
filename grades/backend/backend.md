@@ -781,15 +781,17 @@ Frontend
 DevOps  
 Оптимизация PHP  
 [Нестандартная оптимизация проектов на PHP](https://habr.com/ru/post/250985/)  
-Логи  
+[Логи](https://hostiq.ua/wiki/log/)  
+[Grafana](https://habr.com/ru/company/southbridge/blog/431122/)  
 
 ***
 
 Misc  
 Code-review  
 [Как проводить Code Review по версии Google](https://habr.com/ru/post/473308/)  
-Memcached  
-Redis  
+[Memcached](https://habr.com/ru/post/14939/)  
+[Кэширование данных в web приложениях. Использование memcached](https://habr.com/ru/company/oleg-bunin/blog/320044/)  
+[Redis](https://wiki.merionet.ru/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/)  
 
 ***
 ***
