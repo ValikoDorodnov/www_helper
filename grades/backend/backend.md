@@ -811,35 +811,42 @@ JWT
 :pushpin:[О хранении JWT токенов в браузерах](https://habr.com/ru/post/502702/)  
 OpenID  
 Oauth  
-
+[Иллюстрированное руководство по OAuth и OpenID Connect](https://habr.com/ru/company/flant/blog/475942/)  
 ***
 
 Language  
-ООП в PHP Сериализация объектов  
-ООП в PHP Магические методы  
-PHP Паттерны проектирования: "декоратор"  
+[ООП в PHP Сериализация объектов](https://www.php.net/manual/ru/language.oop5.serialization.php)  
+[ООП в PHP Магические методы](https://www.php.net/manual/ru/language.oop5.magic.php)  
+[PHP Паттерны проектирования: "декоратор"](https://refactoring.guru/ru/design-patterns/decorator)  
 
 ***
 
 Framework  
-Yii2 Работа с БД - Active Record связанные данные  
-Yii2 Работа с БД - Active Record транзакции  
+[Yii2 Работа с БД - Active Record связанные данные -> работа со связными данными](https://www.yiiframework.com/doc/guide/2.0/ru/db-active-record)  
+[Yii2 Работа с БД - Active Record транзакции -> раздел транзакции](https://www.yiiframework.com/doc/guide/2.0/ru/db-active-record)  
 
 ***
 
 Testing  
-BDD  
-
+[BDD](https://ru.wikipedia.org/wiki/BDD_(программирование))  
+[Что такое TDD и BDD на пальцах](https://medium.com/@lucyhackwrench/что-такое-tdd-и-bdd-на-пальцах-и-что-должен-знать-о-них-фронтендер-701a10e06bb9#:~:text=BDD%20(Behavior%20Driven%20Development)%20—,%2C%20является%20расширением%20TDD-подхода.)  
+[TDDx2, BDD, DDD, FDD, MDD и PDD, или все, что вы хотите узнать о Driven Development](https://habr.com/ru/post/459620/)  
 ***
 
 Storage  
-Представления  
-Понятие о партиционировании таблиц  
+[Представления](https://codetown.ru/sql/predstavleniya/)  
+
+[Понятие о партиционировании таблиц](https://ru.wikipedia.org/wiki/Секционирование)  
+:pushpin:[Партиционирование в PostgreSQL – Что? Зачем? Как?](https://habr.com/ru/post/273933/)  
+:pushpin:[Партиционирование таблиц в mySQL](https://habr.com/ru/post/66151/#:~:text=Партиционирование%20(partitioning)%20—%20это%20разбиение,файл%20индексов%2C%20файл%20данных)  
 
 ***
 
 DB  
 PostgreSQL Представления  
+[Postgres CREATE VIEW](https://postgrespro.ru/docs/postgrespro/10/sql-createview)  
+[Система правил и представления](https://postgrespro.ru/docs/postgrespro/10/rules-views)  
+
 PostgreSQL Подзапросы  
 PostgreSQL Множественное добавление  
 
