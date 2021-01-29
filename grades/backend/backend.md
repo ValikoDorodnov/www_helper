@@ -22,7 +22,7 @@
         * [Грейд 9](#Грейд-9)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade9.md)  
         * [Грейд 10](#Грейд-10):white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade10.md)  
      * [Грейды 11-16](#Грейды-11-16)
-        * [Грейд 11](#Грейд-11) :white_check_mark: 1/19 [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade11.md)  
+        * [Грейд 11](#Грейд-11) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade11.md)  
         * [Грейд 12](#Грейд-12) :arrows_counterclockwise: 1/16
         * [Грейд 13](#Грейд-13) :arrows_counterclockwise: 11/12
         * [Грейд 14](#Грейд-14) :arrows_counterclockwise: 7/12
