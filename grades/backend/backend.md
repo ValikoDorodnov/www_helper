@@ -847,8 +847,12 @@ PostgreSQL Представления
 [Postgres CREATE VIEW](https://postgrespro.ru/docs/postgrespro/10/sql-createview)  
 [Система правил и представления](https://postgrespro.ru/docs/postgrespro/10/rules-views)  
 
-PostgreSQL Подзапросы  
+[PostgreSQL Подзапросы](https://metanit.com/sql/postgresql/4.7.php)  
+[Выражения подзапросов](https://postgrespro.ru/docs/postgrespro/10/functions-subquery)  
+
 PostgreSQL Множественное добавление  
+[Добавление данных](https://postgrespro.ru/docs/postgrespro/9.5/dml-insert)  
+[COPY](https://postgrespro.ru/docs/postgresql/9.5/sql-copy)  
 
 ***
 
