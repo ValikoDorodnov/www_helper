@@ -654,6 +654,8 @@ Misc
 
 Theory  
 [Паттерны проектирования: структурные](https://refactoring.guru/ru/design-patterns/structural-patterns)  
+[GoF (Структурные паттерны проектирования) - 1](https://www.youtube.com/watch?v=DDTfEw8NItk)  
+[GoF (Структурные паттерны проектирования) - 2](https://www.youtube.com/watch?v=xX1MfeyaT5Y)  
 [RBAC](https://ru.wikipedia.org/wiki/%D0%A3%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5_%D0%B4%D0%BE%D1%81%D1%82%D1%83%D0%BF%D0%BE%D0%BC_%D0%BD%D0%B0_%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%B5_%D1%80%D0%BE%D0%BB%D0%B5%D0%B9)  
 [RBAC Yii2](https://www.yiiframework.com/doc/guide/2.0/ru/security-authorization)  
 [Очереди](https://ru.wikipedia.org/wiki/%D0%9E%D1%87%D0%B5%D1%80%D0%B5%D0%B4%D1%8C_(%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5))  
