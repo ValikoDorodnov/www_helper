@@ -763,7 +763,7 @@ Testing
 
 Storage  
 [Схемы БД](https://www.lucidchart.com/pages/ru/схемыбаз-данных)  
-[Доступ к БД](https://www.parsec.ru/articles/obzor-sistem-upravleniya-bazami-dannykh-subd-dlya-sistem-kontrolya-i-upravleniya-dostupom-skud/)  
+[Основные модели баз данных](https://sites.google.com/site/raznyeurokipoinformatiki/home/bazy-dannyh/teoria-po-bazam-dannyh/varianty-hranenia-dannyh/osnovnye-modeli-baz-dannyh)  
 
 ***
 
