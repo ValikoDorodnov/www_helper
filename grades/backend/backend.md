@@ -771,7 +771,8 @@ DB
 [PostgreSQL пользователи](https://postgrespro.ru/docs/postgresql/9.6/app-createuser)  
 [PostgreSQL разрешения](https://postgrespro.ru/docs/postgresql/9.4/user-manag)  
 [PostgreSQL схемы](https://postgrespro.ru/docs/postgrespro/9.5/ddl-schemas)  
-[PostgreSQL Объединение](https://postgrespro.ru/docs/postgrespro/9.5/tutorial-join)  
+[PostgreSQL Объединение](https://postgrespro.ru/docs/postgrespro/9.5/queries-union)  
+[Объединение множеств. UNION](https://metanit.com/sql/postgresql/6.5.php)  
 
 ***
 
