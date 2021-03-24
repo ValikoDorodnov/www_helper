@@ -1094,12 +1094,12 @@ Misc
 
 Theory  
 Функциональное программирование  
-[Функциональное программирование для всех](https://habr.com/ru/post/142351/)
-[Функциональное программирование — это не то, что нам рассказывают](https://habr.com/ru/post/479238/)
+[Функциональное программирование для всех](https://habr.com/ru/post/142351/)  
+[Функциональное программирование — это не то, что нам рассказывают](https://habr.com/ru/post/479238/)  
 [Основные принципы программирования: функциональное программирование](https://tproger.ru/translations/functional-programming-concepts/)
 
 CI/CD  
-['Hello World' вам в облако](https://habr.com/ru/post/465149/)
+['Hello World' вам в облако](https://habr.com/ru/post/465149/)  
 [Просто о CI/CD (Непрерывная интеграция и доставка)](https://www.youtube.com/watch?v=7S1ndRRht6M)
 
 ***
@@ -1108,7 +1108,7 @@ Language
 DDD Services  
 DDD Repositories  
 [last-wishes](https://github.com/dddinphp/last-wishes)
-[ddd](https://github.com/dddinphp/ddd)
+[ddd](https://github.com/dddinphp/ddd)  
 2й язык: Основы
 
 ***
@@ -1120,7 +1120,7 @@ Framework
 
 Storage  
 Триггеры  
-[Просто и доступно про триггеры PostgreSQL](https://zxmd.wordpress.com/2010/11/04/triggers-pgsql/)
+[Просто и доступно про триггеры PostgreSQL](https://zxmd.wordpress.com/2010/11/04/triggers-pgsql/)  
 [Пример использования триггеров в PostgreSQL](https://eax.me/postgresql-triggers/)
 
 ***
@@ -1138,7 +1138,7 @@ Frontend
 
 Misc  
 Очереди: Apache Kafka и RabbitMQ  
-[Apache Kafka](https://habr.com/ru/post/354486/)
+[Apache Kafka](https://habr.com/ru/post/354486/)  
 [RabbitMQ tutorial](https://habr.com/ru/post/149694/)
 
 ***
@@ -1148,8 +1148,8 @@ Misc
 
 Theory  
 Многопоточность  
-[Изучаем многопоточное программирование в Go по картинкам](https://habr.com/ru/post/412715/)
-[Многопоточность GO](http://golang-book.ru/chapter-10-concurrency.html)
+[Изучаем многопоточное программирование в Go по картинкам](https://habr.com/ru/post/412715/)  
+[Многопоточность GO](http://golang-book.ru/chapter-10-concurrency.html)  
 Сравнение языков программирования
 
 ***
@@ -1170,7 +1170,7 @@ DB
 Elasticesearch  
 [Основы Elasticsearch](https://habr.com/ru/post/280488/)  
 Couchbase  
-[Couchbase в телекоме](https://habr.com/ru/post/436762/)
+[Couchbase в телекоме](https://habr.com/ru/post/436762/)  
 [Обзор Couchbase: умная и эффективная NoSQL база данных](https://oracle-patches.com/db/nosql/3987-obzor-couchbase-umnaya-i-effektivnaya-nosql-baza-dannyh)
 
 ***
