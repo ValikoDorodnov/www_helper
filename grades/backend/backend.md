@@ -837,8 +837,7 @@ Testing
 ***
 
 Storage  
-[Представления](https://codetown.ru/sql/predstavleniya/)  
-
+[Представления](https://www.sql.ru/docs/sql/u_sql/ch20.shtml)  
 [Понятие о партиционировании таблиц](https://ru.wikipedia.org/wiki/Секционирование)  
 :pushpin:[Партиционирование в PostgreSQL – Что? Зачем? Как?](https://habr.com/ru/post/273933/)  
 :pushpin:[Партиционирование таблиц в mySQL](https://habr.com/ru/post/66151/#:~:text=Партиционирование%20(partitioning)%20—%20это%20разбиение,файл%20индексов%2C%20файл%20данных)  
