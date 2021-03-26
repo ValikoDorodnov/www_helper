@@ -5,6 +5,7 @@
 
 ### Tips and Tricks
 [Yii Active Record](https://github.com/ValikoDorodnov/www_helper/blob/master/tipsAndTricks/activeRecord.md)  
+[Установка локального окружения win10](https://github.com/ValikoDorodnov/www_helper/blob/master/tipsAndTricks/win10_workspace_installation.md)  
 
 ### GoLang 
 [Official web page](https://golang.org/)  
@@ -48,3 +49,4 @@
 [часть 2](https://habr.com/ru/post/487064/)  
 
 [Джоел Спольски: Как правильно задавать вопросы более опытным программистам](https://habr.com/ru/company/skillfactory/blog/504760/)  
+[Как не испортить своего джуна](https://habr.com/ru/company/raiffeisenbank/blog/526342/)  

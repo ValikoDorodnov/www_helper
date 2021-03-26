@@ -19,10 +19,10 @@
         * [Грейд 6](#Грейд-6)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade6.md)  
         * [Грейд 7](#Грейд-7)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade7.md)  
         * [Грейд 8](#Грейд-8)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade8.md)  
-        * [Грейд 9](#Грейд-9)  :x: 0/18
-        * [Грейд 10](#Грейд-10) :arrows_counterclockwise: 1/19
+        * [Грейд 9](#Грейд-9)  :white_check_mark:  [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade9.md)  
+        * [Грейд 10](#Грейд-10):white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade10.md)  
      * [Грейды 11-16](#Грейды-11-16)
-        * [Грейд 11](#Грейд-11) :arrows_counterclockwise: 1/19
+        * [Грейд 11](#Грейд-11) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade11.md)  
         * [Грейд 12](#Грейд-12) :arrows_counterclockwise: 1/16
         * [Грейд 13](#Грейд-13) :arrows_counterclockwise: 11/12
         * [Грейд 14](#Грейд-14) :arrows_counterclockwise: 7/12
@@ -654,9 +654,13 @@ Misc
 
 Theory  
 [Паттерны проектирования: структурные](https://refactoring.guru/ru/design-patterns/structural-patterns)  
+[GoF (Структурные паттерны проектирования) - 1](https://www.youtube.com/watch?v=DDTfEw8NItk)  
+[GoF (Структурные паттерны проектирования) - 2](https://www.youtube.com/watch?v=xX1MfeyaT5Y)  
 [RBAC](https://ru.wikipedia.org/wiki/%D0%A3%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5_%D0%B4%D0%BE%D1%81%D1%82%D1%83%D0%BF%D0%BE%D0%BC_%D0%BD%D0%B0_%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%B5_%D1%80%D0%BE%D0%BB%D0%B5%D0%B9)  
-:pushpin:[Подходы к контролю доступа: RBAC vs. ABAC](https://m.habr.com/ru/company/custis/blog/248649/)  
+[RBAC Yii2](https://www.yiiframework.com/doc/guide/2.0/ru/security-authorization)  
 [Очереди](https://ru.wikipedia.org/wiki/%D0%9E%D1%87%D0%B5%D1%80%D0%B5%D0%B4%D1%8C_(%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5))  
+[Queue Yii2](https://www.yiiframework.com/extension/yiisoft/yii2-queue/doc/guide/2.0/ru/usage)  
+:pushpin:[Подходы к контролю доступа: RBAC vs. ABAC](https://m.habr.com/ru/company/custis/blog/248649/)  
 :pushpin:[Алгоритмы и структуры данных для начинающих: стеки и очереди](https://tproger.ru/translations/stacks-and-queues-for-beginners/)  
 ***
 
@@ -676,93 +680,148 @@ Framework
 Testing  
 Автоматическое тестирование  
 
+Обычно после написания кода его проверяют. Если речь о какой-то функции, то можно написать простой скрипт, который  
+будет вызывать ее с разными аргументами, и смотреть, что она вернет. Если вы сделали сайт или приложение,  
+то вы открываете его, жмете ссылки и кнопки, проверяете что все отображается верно. Это называется ручное  
+тестирование или QA (Quality Assurance — контроль качества) — человек проверяет работу программы. Если мы  
+попробуем автоматизировать этот процесс, и написать программу, которая проверяет правильность другой программы,  
+то это называется автоматизированное тестирование.  
+
+Главный плюс автоматических тестов — то, что они выполняются намного быстрее, чем ручное тестирование, и вам не  
+надо тратить на это свое время (или время тестировщика). Это позволяет запускать их хоть после каждого изменения в коде.  
+
+Также, тесты позволяют «защитить» написанный код. Если кто-то в команде (или вы сами) нечаянно «сломал» ваш код,  
+тесты это обнаружат и укажут, что именно перестало работать. Поэтому править код становится комфортнее  
+и спокойнее — не надо бояться, что в ходе правки вы сломали какой-то функционал и не заметили. Тестирование  
+особенно полезно при разработке сложных приложений в большой команде.  
+
+[Automate your workflow with git hooks](https://medium.com/backticks-tildes/how-to-automate-your-git-workflow-with-git-hooks-c905296c49bc#:~:text=Git%20hooks%20are%20scripts%20that,git%2Fhooks%20directory.)  
 ***
 
 Storage  
-Понятие о транзакциях  
-
+[Понятие о транзакциях](https://proselyte.net/tutorials/sql/sql-transactions/#:~:text=Руководство%20по%20SQL.-,Транзакции.,программой%2C%20которая%20работает%20с%20БД.)  
 ***
 
 DB  
-PostgreSQL Управление транзакциями  
+[PostgreSQL Управление транзакциями](https://postgrespro.ru/docs/postgrespro/10/tutorial-transactions)  
 Elasticsearch: Язык запросов  
+[Основы Elasticsearch](https://habr.com/ru/post/280488/)  
 
 ***
 
 Frontend  
-JS Работа с JSON  
+[JS Работа с JSON](https://learn.javascript.ru/json)  
 
 ***
 
-DevOps 
-fstab samba mount  
+DevOps  
+[fstab](https://help.ubuntu.ru/wiki/fstab)  
+[samba](https://help.ubuntu.ru/wiki/samba#:~:text=Samba%20—%20программа%2C%20которая%20позволяет%20обращаться,Имеет%20клиентскую%20и%20серверную%20части.&text=Samba%20включена%20практически%20во%20все,%2C%20конечно%2C%20и%20в%20Ubuntu.)  
+[mount](https://www.opennet.ru/man.shtml?topic=mount&category=8)  
 
 ***
 
 Misc  
 Docker  
+смотри 7 грейд, пункт докер подробно
 
 ***
 ***
+
+Практика
+- PHP: Реализовать очередь
+- ООП в PHP: Реализовать наследование
+- ООП в PHP: Реализовать инкапсуляцию
+- ООП в PHP: Реализовать полиморфизм
+- Yii2: Реализовать работу с БД с помощью Active Record
+- Testing: Настроить запуск Unit-тестов перед сохранением изменений в git
+- PostgreSQL: Организовать управление транзакциями в блоке PL/SQL запроса
+- Elasticsearch: Выполнить поиск информации в индексе products-b2b
+- JS: Использовать в разработке функции работы с JSON
+- Развернуть и настроить локальное рабочее окружение на базе образов Docker
 
 #### Грейд 10
 
 Theory  
-Паттерны проектирования: поведенческие  
+[Паттерны проектирования: поведенческие](https://refactoring.guru/ru/design-patterns/behavioral-patterns)  
 Проектирование REST API  
+[REST — это новый SOAP](https://habr.com/ru/company/mailru/blog/345184/)  
 Способы доступа к данным: CRUD ORM AR Doctrine  
-
+[CRUD](https://ru.wikipedia.org/wiki/CRUD)  
+[ORM](https://ru.wikipedia.org/wiki/ORM)  
+[ActiveRecord](https://ru.wikipedia.org/wiki/ActiveRecord)  
+[Doctrine](https://ru.wikipedia.org/wiki/Doctrine)  
+:pushpin:[Active Record против Data Mapper-а для сохранения данных](https://habr.com/ru/post/198450/)  
 ***
 
 Language  
-ООП в PHP Позднее статическое связывание  
-PHP Паттерны проектирования: "фабрика"  
-PHP Паттерны проектирования: "адаптер"  
+[ООП в PHP Позднее статическое связывание](https://www.php.net/manual/ru/language.oop5.late-static-bindings.php)  
+[PHP Паттерны проектирования: "фабрика"](https://refactoring.guru/ru/design-patterns/factory-method)  
+[PHP Паттерны проектирования: "адаптер"](https://refactoring.guru/ru/design-patterns/adapter)  
 
 ***
 
 Framework  
-Yii2 Фильтры - AccessControl  
-Yii2 Формы  
-Yii2 Логирование  
+[Yii2 Фильтры - AccessControl](https://www.yiiframework.com/doc/guide/2.0/ru/structure-filters)  
+[Yii2 Формы](https://www.yiiframework.com/doc/guide/2.0/ru/input-forms)  
+[Yii2 Логирование](https://www.yiiframework.com/doc/guide/2.0/ru/runtime-logging)  
 
 ***
 
 Testing  
-Нагрузочное тестирование  
+[Нагрузочное тестирование](https://www.performance-lab.ru/blog/load-testing/testirovanie-proizvoditelnosti)  
 
 ***
 
 Storage  
-Схемы БД и доступ к БД  
+[Схемы БД](https://www.lucidchart.com/pages/ru/схемыбаз-данных)  
+[Основные модели баз данных](https://sites.google.com/site/raznyeurokipoinformatiki/home/bazy-dannyh/teoria-po-bazam-dannyh/varianty-hranenia-dannyh/osnovnye-modeli-baz-dannyh)  
 
 ***
 
 DB  
-PostgreSQL Пользователи и разрешения схемы  
-PostgreSQL Объединение  
+[PostgreSQL пользователи](https://postgrespro.ru/docs/postgresql/9.6/app-createuser)  
+[PostgreSQL разрешения](https://postgrespro.ru/docs/postgresql/9.4/user-manag)  
+[PostgreSQL схемы](https://postgrespro.ru/docs/postgrespro/9.5/ddl-schemas)  
+[PostgreSQL Объединение](https://postgrespro.ru/docs/postgrespro/9.5/queries-union)  
+[Объединение множеств. UNION](https://metanit.com/sql/postgresql/6.5.php)  
 
 ***
 
 Frontend  
-JS Prototype  
+[JS Prototype](https://learn.javascript.ru/function-prototype)  
 
 ***
 
 DevOps  
 Оптимизация PHP  
-Логи  
+[Нестандартная оптимизация проектов на PHP](https://habr.com/ru/post/250985/)  
+[Логи](https://hostiq.ua/wiki/log/)  
+[Grafana](https://habr.com/ru/company/southbridge/blog/431122/)  
 
 ***
 
 Misc  
 Code-review  
 [Как проводить Code Review по версии Google](https://habr.com/ru/post/473308/)  
-Memcached  
-Redis  
+[Memcached](https://habr.com/ru/post/14939/)  
+[Кэширование данных в web приложениях. Использование memcached](https://habr.com/ru/company/oleg-bunin/blog/320044/)  
+[Redis](https://wiki.merionet.ru/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/)  
 
 ***
 ***
+
+Практика
+- Спроектировать REST API
+- ООП в PHP: Использовать в разработке позднее статическое связывание
+- PHP: Реализовать паттерн проектирования "фабрика"
+- PHP: Реализовать паттерн проектирования "адаптер"
+- Yii2: Настроить работу приложение с помощью фильтров
+- Yii2: Настроить логирование проекта
+- PostgreSQL: Создать схему БД
+- PostgreSQL: Написать SQL-запрос с объединением
+- Redis: Управлять хранением данных
+- Выполнить code-review
 
 ### Грейды 11-16 
 **[⬆ вернуться к началу](#Разделы)**
@@ -779,57 +838,82 @@ JWT
 :pushpin:[О хранении JWT токенов в браузерах](https://habr.com/ru/post/502702/)  
 OpenID  
 Oauth  
-
+[Иллюстрированное руководство по OAuth и OpenID Connect](https://habr.com/ru/company/flant/blog/475942/)  
 ***
 
 Language  
-ООП в PHP Сериализация объектов  
-ООП в PHP Магические методы  
-PHP Паттерны проектирования: "декоратор"  
+[ООП в PHP Сериализация объектов](https://www.php.net/manual/ru/language.oop5.serialization.php)  
+[ООП в PHP Магические методы](https://www.php.net/manual/ru/language.oop5.magic.php)  
+[PHP Паттерны проектирования: "декоратор"](https://refactoring.guru/ru/design-patterns/decorator)  
 
 ***
 
 Framework  
-Yii2 Работа с БД - Active Record связанные данные  
-Yii2 Работа с БД - Active Record транзакции  
+[Yii2 Работа с БД - Active Record связанные данные -> работа со связными данными](https://www.yiiframework.com/doc/guide/2.0/ru/db-active-record)  
+[Yii2 Работа с БД - Active Record транзакции -> раздел транзакции](https://www.yiiframework.com/doc/guide/2.0/ru/db-active-record)  
 
 ***
 
 Testing  
-BDD  
-
+[BDD](https://ru.wikipedia.org/wiki/BDD_(программирование))  
+[Что такое TDD и BDD на пальцах](https://medium.com/@lucyhackwrench/что-такое-tdd-и-bdd-на-пальцах-и-что-должен-знать-о-них-фронтендер-701a10e06bb9#:~:text=BDD%20(Behavior%20Driven%20Development)%20—,%2C%20является%20расширением%20TDD-подхода.)  
+[TDDx2, BDD, DDD, FDD, MDD и PDD, или все, что вы хотите узнать о Driven Development](https://habr.com/ru/post/459620/)  
 ***
 
 Storage  
-Представления  
-Понятие о партиционировании таблиц  
+[Представления](https://www.sql.ru/docs/sql/u_sql/ch20.shtml)  
+[Понятие о партиционировании таблиц](https://ru.wikipedia.org/wiki/Секционирование)  
+:pushpin:[Партиционирование в PostgreSQL – Что? Зачем? Как?](https://habr.com/ru/post/273933/)  
+:pushpin:[Партиционирование таблиц в mySQL](https://habr.com/ru/post/66151/#:~:text=Партиционирование%20(partitioning)%20—%20это%20разбиение,файл%20индексов%2C%20файл%20данных)  
 
 ***
 
 DB  
 PostgreSQL Представления  
-PostgreSQL Подзапросы  
+[Postgres CREATE VIEW](https://postgrespro.ru/docs/postgrespro/10/sql-createview)  
+[Система правил и представления](https://postgrespro.ru/docs/postgrespro/10/rules-views)  
+
+[PostgreSQL Подзапросы](https://metanit.com/sql/postgresql/4.7.php)  
+[Выражения подзапросов](https://postgrespro.ru/docs/postgrespro/10/functions-subquery)  
+
 PostgreSQL Множественное добавление  
+[Добавление данных](https://postgrespro.ru/docs/postgrespro/9.5/dml-insert)  
+[COPY](https://postgrespro.ru/docs/postgresql/9.5/sql-copy)  
 
 ***
 
 Frontend  
-JS Замыкания  
+[JS Замыкания](https://learn.javascript.ru/closure)  
 
 ***
 
 DevOps  
-*top ps  
-iptables  
-netstat  
+[*top](https://losst.ru/komanda-top-v-linux)  
+[ps](https://losst.ru/komanda-ps-v-linux)  
+[iptables](https://losst.ru/nastrojka-iptables-dlya-chajnikov)  
+[netstat](https://putty.org.ru/articles/netstat-linux-examples.html)  
 
 ***
 
 Misc  
 Docker: оптимизация сборки  
+[Несколько советов о том, как ускорить сборку Docker-образов.](https://habr.com/ru/company/itsumma/blog/501680/)  
 
 ***
 ***
+
+Практика
+- Реализовать аутентификацию с помощью JWT
+- ООП в PHP: Использовать в разработке методы сериализации объектов
+- ООП в PHP: Использовать в разработке магические методы
+- PHP: Реализовать паттерн проектирования "декоратор"
+- Yii2: Реализовать работу со связанными данными БД с помощью Active Record
+- Testing: Использовать BDD для описания тест-кейсов
+- PostgreSQL: Создать представление для SQL-запроса
+- PostgreSQL: Написать SQL-запрос с подзапросами
+- JS: Использовать в разработке механизм замыканий
+- Получать и расшифровывать информацию от системных утилит мониторинга процессов *nix
+- iptables: Управлять видимостью портов компонентов web-сервера
 
 #### Грейд 12
 
