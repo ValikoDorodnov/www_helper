@@ -1094,40 +1094,54 @@ Misc
 
 Theory  
 Функциональное программирование  
+[Функциональное программирование для всех](https://habr.com/ru/post/142351/)  
+[Функциональное программирование — это не то, что нам рассказывают](https://habr.com/ru/post/479238/)  
+[Основные принципы программирования: функциональное программирование](https://tproger.ru/translations/functional-programming-concepts/)
+
 CI/CD  
+['Hello World' вам в облако](https://habr.com/ru/post/465149/)
+[Просто о CI/CD (Непрерывная интеграция и доставка)](https://www.youtube.com/watch?v=7S1ndRRht6M)
 
 ***
 
 Language  
 DDD Services  
 DDD Repositories  
-2й язык: Основы  
+[last-wishes](https://github.com/dddinphp/last-wishes)  
+[ddd](https://github.com/dddinphp/ddd)  
+2й язык: Основы
 
 ***
 
 Framework  
-2й язык: Обзор фреймворков  
+2й язык: Обзор фреймворков
 
 ***
 
 Storage  
 Триггеры  
+[Просто и доступно про триггеры PostgreSQL](https://zxmd.wordpress.com/2010/11/04/triggers-pgsql/)  
+[Пример использования триггеров в PostgreSQL](https://eax.me/postgresql-triggers/)
 
 ***
 
 DB  
 PostgreSQL Создание процедур и триггеров  
+[Документация](https://postgrespro.ru/docs/postgresql/9.6/plpgsql-trigger)
 
 ***
 
 Frontend  
 Описание системы сборки по выбору  
+[Gulp за 30 минут](https://www.youtube.com/watch?v=qKcO04nJMu4)  
+[Gulp для самых маленьких - подробное руководство](https://www.youtube.com/watch?v=vW51JUVT66w)
 
 ***
 
 Misc  
 Очереди: Apache Kafka и RabbitMQ  
-
+[Apache Kafka](https://habr.com/ru/post/354486/)  
+[RabbitMQ tutorial](https://habr.com/ru/post/149694/)
 
 ***
 ***
@@ -1136,30 +1150,38 @@ Misc
 
 Theory  
 Многопоточность  
-Сравнение языков программирования  
+[Изучаем многопоточное программирование в Go по картинкам](https://habr.com/ru/post/412715/)  
+[Многопоточность GO](http://golang-book.ru/chapter-10-concurrency.html)  
+Сравнение языков программирования
 
 ***
 
 Language 2й язык:  
 Применение  
 Многопоточность  
+[STEPIK](https://stepik.org/lesson/360357/step/1?unit=344766)
 
 ***
 
 Framework  
-2й язык: Описание фреймворка по выбору  
+2й язык: Описание фреймворка по выбору
 
 ***
 
 DB  
 Elasticesearch  
+[Основы Elasticsearch](https://habr.com/ru/post/280488/)  
 Couchbase  
+[Couchbase в телекоме](https://habr.com/ru/post/436762/)  
+[Обзор Couchbase: умная и эффективная NoSQL база данных](https://oracle-patches.com/db/nosql/3987-obzor-couchbase-umnaya-i-effektivnaya-nosql-baza-dannyh)
 
 ***
 Frontend  
 Описание фреймворка по выбору  
+[Vue.js для сомневающихся. Все, что нужно знать](https://habr.com/ru/post/329452/)
 
 ***
 
 Misc  
 Power BI  
+[Изучаем веб-аналитику с нуля. Большая подборка](https://habr.com/ru/post/464467/)
