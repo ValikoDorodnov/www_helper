@@ -1106,6 +1106,9 @@ CI/CD
 
 Language  
 DDD Services  
+[Domain-driven design: рецепт для прагматика](https://www.youtube.com/watch?v=CR9mLGN9jh0)  
+[Еще немного про сервисный слой в PHP](https://habr.com/ru/post/547510/)  
+[Роли службы и фасада схожи](https://overcoder.net/q/128121/%D1%80%D0%BE%D0%BB%D0%B8-%D1%81%D0%BB%D1%83%D0%B6%D0%B1%D1%8B-%D0%B8-%D1%84%D0%B0%D1%81%D0%B0%D0%B4%D0%B0-%D1%81%D1%85%D0%BE%D0%B6%D0%B8)  
 DDD Repositories  
 [last-wishes](https://github.com/dddinphp/last-wishes)  
 [ddd](https://github.com/dddinphp/ddd)  
