@@ -807,6 +807,7 @@ Code-review
 [Memcached](https://habr.com/ru/post/14939/)  
 [Кэширование данных в web приложениях. Использование memcached](https://habr.com/ru/company/oleg-bunin/blog/320044/)  
 [Redis](https://wiki.merionet.ru/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/)  
+[Сравниваем Redis и Memcached, плюсы и минусы этих решений. Что выбрать Redis или Memcached.](https://www.youtube.com/watch?v=sYamcfYati8)  
 
 ***
 ***
