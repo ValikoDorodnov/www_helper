@@ -792,6 +792,7 @@ DB
 [PostgreSQL Управление транзакциями](https://postgrespro.ru/docs/postgrespro/10/tutorial-transactions)  
 Elasticsearch: Язык запросов  
 [Основы Elasticsearch](https://habr.com/ru/post/280488/)  
+[С чего начинается Elasticsearch](https://habr.com/ru/post/489924/)  
 
 ***
 
