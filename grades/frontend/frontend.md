@@ -15,11 +15,13 @@
         * [Грейд 8](#Грейд-8)
         * [Грейд 9](#Грейд-9)
         * [Грейд 10](#Грейд-10)
-     * [Грейды 11-14](#Грейды-11-14)
+     * [Грейды 11-14](#Грейды-11-16)
         * [Грейд 11](#Грейд-11)
         * [Грейд 12](#Грейд-12)
         * [Грейд 13](#Грейд-13)
         * [Грейд 14](#Грейд-14)
+        * [Грейд 15](#Грейд-15)
+        * [Грейд 16](#Грейд-16)
         
         
 ## Грейды
@@ -50,7 +52,7 @@ CSS
 
 [Виды селекторов](https://html5book.ru/osnovy-css/#part2)  
 [Основные псевдоклассы и псевдоэлементы](https://medium.com/@ABatickaya/%D0%B8%D1%81%D1%87%D0%B5%D1%80%D0%BF%D1%8B%D0%B2%D0%B0%D1%8E%D1%89%D0%B5%D0%B5-%D1%80%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE-%D0%BF%D0%BE-%D0%BF%D1%81%D0%B5%D0%B2%D0%B4%D0%BE%D1%8D%D0%BB%D0%B5%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D0%BC-%D0%B8-%D0%BF%D1%81%D0%B5%D0%B2%D0%B4%D0%BE%D0%BA%D0%BB%D0%B0%D1%81%D1%81%D0%B0%D0%BC-%D0%B2-css-3282b5ea029)  
-[Наследование, каскадность, вес important](https://developer.mozilla.org/ru/docs/Web/CSS/Specificity),(https://developer.mozilla.org/ru/docs/Web/Guide/CSS/Getting_started/Cascading_and_inheritance)  
+[Наследование, каскадность, вес important, специфичность](https://developer.mozilla.org/ru/docs/Web/CSS/Specificity),(https://developer.mozilla.org/ru/docs/Web/Guide/CSS/Getting_started/Cascading_and_inheritance)  
 [Блочная модель документа](https://tproger.ru/translations/css-box-model/)  
 [Виды и назначение единиц измерения](https://www.w3.org/Style/Examples/007/units.en.html)  
 [Позиционирование](https://itchief.ru/html-and-css/css-positioning-elements)  
@@ -76,7 +78,6 @@ CSS
 [Векторные спрайты](https://medium.com/web-standards/accessible-svg-icons-4d8d80b52f92)  
 [Форматы шрифтов](https://medium.com/@itsedrika/%D1%88%D1%80%D0%B8%D1%84%D1%82%D1%8B-%D0%B2-%D0%B2%D0%B5%D0%B1%D0%B5-a0ab4e65b3a)  
 [Особенности загрузки шрифтов](https://htmlacademy.ru/blog/boost/frontend/short-14)  
-[CSS-фреймворки](https://geekbrains.ru/posts/5_css_frameworks)  
 [Понятие UI/UX](https://habr.com/ru/post/321312/)  
 [Понимание работы веб-сервера](https://developer.mozilla.org/ru/docs/Learn/%D0%A7%D1%82%D0%BE_%D1%82%D0%B0%D0%BA%D0%BE%D0%B5_%D0%B2%D0%B5%D0%B1_%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80)  
 [Оптимизация вектора](https://webformyself.com/optimizaciya-svg-dlya-veb/), [сервис для сжатия SVGOMG](https://jakearchibald.github.io/svgomg/)  
@@ -95,7 +96,6 @@ HTML
 [HTML5 в полном объёме](https://developer.mozilla.org/ru/docs/HTML/HTML5)  
 [Возможности метатегов](https://habr.com/ru/company/click/blog/472610/)  
 [Понятие DOM-дерева](https://developer.mozilla.org/ru/docs/DOM/DOM_Reference/%D0%92%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5)  
-[Разметка форм](https://developer.mozilla.org/ru/docs/Learn/HTML/Forms/%D0%92%D0%B0%D1%88%D0%B0_%D0%BF%D0%B5%D1%80%D0%B2%D0%B0%D1%8F_HTML_%D1%84%D0%BE%D1%80%D0%BC%D0%B0)  
 [Возможности вьюпорт-мета](https://developer.mozilla.org/ru/docs/Mozilla/Mobile/Viewport_meta_tag)  
 [Семантика](https://medium.com/@stasonmars/%D1%81%D0%B5%D0%BA%D1%80%D0%B5%D1%82%D1%8B-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D1%81%D0%B5%D0%BC%D0%B0%D0%BD%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%BE%D0%B8%CC%86-%D0%B2%D0%B5%D1%80%D1%81%D1%82%D0%BA%D0%B8-%D0%B2-html5-c7cd5e6f1ebb)  
 Псевдопротоколы: [tel](https://blog.toliklunev.ru/all/psevdoprotokol-tel/), [mailto](https://ru.wikipedia.org/wiki/Mailto)  
@@ -137,7 +137,7 @@ CSS
     git remote rm имя_репозитория //удалить
 ```
 [Эспорт вектора](https://helpx.adobe.com/ru/illustrator/how-to/export-svg.html)  
-[.gitignore](https://git-scm.com/docs/gitignore)  
+[.gitignore](https://git-scm.com/docs/gitignore), gitkeep  
 
 ***
 ***
@@ -150,7 +150,7 @@ Cпособы получения данных для вывода
 [Cуществующие браузерные движки отличия](https://habr.com/ru/post/349512/)  
 [HTTP, HTTP2](https://habr.com/ru/post/308846/), [HTTPS](https://support.google.com/webmasters/answer/6073543?hl=ru), [FTP](https://ru.wikipedia.org/wiki/FTP)  
 [URL](https://developer.mozilla.org/ru/docs/Learn/Understanding_URLs)  
-Basic-auth  
+[Basic-auth](https://developer.mozilla.org/ru/docs/Web/HTTP/Authentication) 
 [localhost](https://www.hostinger.ru/rukovodstva/shto-takoje-localhost/)  
 
 ***
@@ -179,7 +179,6 @@ no-js решения (аккордеоны/слайдеры/свитчеры н�
 [Cложные (комплексные) селекторы](https://webref.ru/layout/advanced-html-css/complex-selectors)  
 [reset.css](https://habr.com/ru/post/45296/)  
 [normalize.css](https://htmlacademy.ru/blog/boost/frontend/about-normalize-css)  
-[Atomic CSS](https://habr.com/ru/post/432586/)  
 [CSS-фреймворки](https://geekbrains.ru/posts/5_css_frameworks)  
 
 ***
@@ -205,7 +204,7 @@ no-js решения (аккордеоны/слайдеры/свитчеры н�
 
 [Progressive Enhancement / Graceful Degradation](https://htmlacademy.ru/blog/boost/frontend/progressive-enhancement)  
 [Markdown](https://ru.wikipedia.org/wiki/Markdown)
-[Блок-схемы](https://oaipbfek.wordpress.com/%D1%81%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B1%D0%BB%D0%BE%D0%BA-%D1%81%D1%85%D0%B5%D0%BC-%D0%B0%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC%D0%BE%D0%B2/)  
+[Блок-схемы (практика)](https://oaipbfek.wordpress.com/%D1%81%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B1%D0%BB%D0%BE%D0%BA-%D1%81%D1%85%D0%B5%D0%BC-%D0%B0%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC%D0%BE%D0%B2/)  
 
 ***
 
@@ -263,6 +262,7 @@ JavaScript
 [Циклы](https://developer.mozilla.org/ru/docs/Web/JavaScript/Guide/%D0%A6%D0%B8%D0%BA%D0%BB%D1%8B_%D0%B8_%D0%B8%D1%82%D0%B5%D1%80%D0%B0%D1%86%D0%B8%D0%B8)  
 [Стили именования переменных](https://habr.com/ru/post/113044/)  
 [Переменные](https://learn.javascript.ru/variables)  
+custom properties из js
 
 ***
 ***
@@ -301,7 +301,9 @@ JavaScript
 
 [Все типы данных](https://developer.mozilla.org/ru/docs/Web/JavaScript/Data_structures)  
 [Логические операторы](https://learn.javascript.ru/logical-operators)  
+Операторы логического присваивания, Nullish Coalescing  
 [Преобразование типов](https://learn.javascript.ru/type-conversions)  
+копирование объектов и ссылки  
 виды функций  
 [XMLHttpRequest и аналоги](https://learn.javascript.ru/xmlhttprequest)  
 система событий  
@@ -312,6 +314,7 @@ JavaScript
 всплытие  
 процесс срабатывания событий  
 [Понятие BOM](https://learn.javascript.ru/browser-environment)  
+eval
 
 ***
 
@@ -340,6 +343,9 @@ JavaScript
 [JSONP](https://learn.javascript.ru/ajax-jsonp)  
 [Императивная и декларативная парадигмы](https://habr.com/ru/post/324688/)  
 [Процедурная/функциональная/ООП](https://habr.com/ru/post/474518/)  
+
+***
+
 CSS  
 [CSSNext](https://habr.com/ru/post/267181/)  
 
@@ -361,12 +367,16 @@ webpack: точки входа и бандлинг
 
 JavaScript  
 
-this  
+this, globalThis  
+методы массивов  
+методы объектов  
+методы строк  
 замыкания и область видимости  
-cookie localstorage и прочее  
+cookie localstorage indexedDB и прочее 
 regexp — основы  
 рекурсия  
 деструктуризация  
+объект arguments  
 rest/spread  
 bind call apply  
 шаблонные строки  
@@ -402,7 +412,7 @@ apache
 Инструментарий  
 
 webpack: динамический импорт, чанки  
-eslint
+eslint  
 docker  
 docker-compose  
 npm scripts  
@@ -412,6 +422,8 @@ npm scripts
 JavaScript  
 
 [Прототипы в JS](https://learn.javascript.ru/prototypes)  
+свойства объекта и их конфигурация  
+Object.freeze, Object.seal  
 [ООП в JS](https://developer.mozilla.org/ru/docs/Web/JavaScript/Introduction_to_Object-Oriented_JavaScript)  
 сравнение прототипов и классов  
 виды функций и их отличия  
@@ -491,10 +503,12 @@ history api
 try catch finally  
 основы React  
 классовые и функциональные компоненты  
+Fragments, refs  
 VDOM  
 продвинутое знание regexp  
 import/export  
 продвинутые промисы  
+Все паттерны проектирования
 
 ***
 ***
@@ -513,7 +527,7 @@ Electron
 
 headless-браузеры  
 Puppeteer  
-parcel rollup пр.  
+parcel rollup snowpack esbuild  
 
 ***
 
@@ -525,15 +539,16 @@ JS/ES/WebAPI/Node.js
 MVC  
 SPA/MPA/PWA/TWA  
 Плюсы-минусы PWA-native  
-CSS-in-JS  
+CSS-in-JS, styled components  
 CSS modules  
 жизненный цикл React-компонента  
 аналоги жизненного цикла на хуках  
+Context
 
 ***
 ***
 
-### Грейды 11-14 
+### Грейды 11-16 
 **[⬆ вернуться к началу](#Разделы)**
 
 #### Грейд 11  
@@ -559,9 +574,12 @@ Shadow DOM
 service-worker  
 Flux Redux  
 итераторы генераторы  
-условия  
 все хуки  
 пользовательские хуки  
+redux hooks  
+Компоненты высшего порядка  
+React.Children, cloneElement  
+Portal’s
 
 ***
 
@@ -585,14 +603,10 @@ JavaScript
 веб-воркеры  
 стратегии кеширования  
 D3.js  
-основы TypeScript  
-базовые типы TS  
-
-***
-
-Прочее  
-
-наличие стажёра  
+render-props  
+Оптимизация рендера react-компонентов  
+Profiler  
+React-Testing-Library  
 
 ***
 
@@ -607,32 +621,78 @@ D3.js
 
 Теория и общая практика  
 
-метапрограммирование  
+Оптимизация загрузки страницы  
+Core Web Vitals  
+Бинарный поиск  
+Расчет сложности алгоритма (О-большое)  
 
 ***
 
 JavaScript  
 
-ES-декораторы  
 написание расширений для браузеров  
 WebGL  
 three.js  
-TS: объекты функции массивы кортежи  
-TS: интерфейсы алиасы  
-написание и публикация NPM-пакетов  
-Proxy  
+основы TypeScript  
+базовые типы TS  
+Базовые типы react-компонентов
 
+***
+
+Прочее  
+
+наличие стажёра  
+
+***
+***
 #### Грейд 14  
 
 Теория и общая практика  
 
-алгоритмы сжатия данных  
+метапрограммирование  
+Работа памяти, массивы и связанные списки  
+Сортировка выбором, быстрая сортировка  
 
 ***
 
 JavaScript  
 
+TS: объекты функции массивы кортежи  
+TS: интерфейсы алиасы  
+написание и публикация NPM-пакетов  
+ES-декораторы  
+Proxy и Reflect  
+
+***
+***
+
+#### Грейд 15
+
+Теория и общая практика  
+
+NodeJS, различия между платформой NodeJS и браузером  
+Хэш-таблицы, графы, поиск в ширину  
+
+***
+
+JavaScript  
+
+NodeJS Основные модули  
+NodeJS Генерация событий  
+NodeJS Создание сервера  
 TS: расширенные типы  
+
+#### Грейд 16
+
+Теория и общая практика  
+
+алгоритмы сжатия данных  
+алгоритм k-ближайших соседей  
+
+***
+
+JavaScript  
+
 TS: условные типы пространства имён декларации  
 WebAssembly  
 TS: обобщения  
