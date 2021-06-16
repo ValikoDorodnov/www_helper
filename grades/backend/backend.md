@@ -945,7 +945,6 @@ Framework
 Testing  
 [BDD](https://ru.wikipedia.org/wiki/BDD_(программирование))  
 [Что такое TDD и BDD на пальцах](https://medium.com/@lucyhackwrench/что-такое-tdd-и-bdd-на-пальцах-и-что-должен-знать-о-них-фронтендер-701a10e06bb9#:~:text=BDD%20(Behavior%20Driven%20Development)%20—,%2C%20является%20расширением%20TDD-подхода.)  
-[TDDx2, BDD, DDD, FDD, MDD и PDD, или все, что вы хотите узнать о Driven Development](https://habr.com/ru/post/459620/)  
 ***
 
 Storage  
@@ -1006,13 +1005,14 @@ Docker: оптимизация сборки
 #### Грейд 12
 
 Theory  
-Двухфакторная аутентификация  
+[Двухфакторная аутентификация](https://www.kaspersky.ru/blog/what_is_two_factor_authenticatio/4272/)  
+[TDDx2, BDD, DDD, FDD, MDD и PDD, или все, что вы хотите узнать о Driven Development](https://habr.com/ru/post/459620/)  
 Методики проектирования ПО: TDD BDD DDD FDD MDD PDD  
 
 ***
 
 Language  
-ООП в PHP Трейты  
+[ООП в PHP Трейты](https://www.php.net/manual/ru/language.oop5.traits.php)  
 PHP Reflection API  
 PHP Управление транзакциями  
 
