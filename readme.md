@@ -34,6 +34,11 @@
 [NGINX изнутри: рожден для производительности и масштабирования](https://habr.com/ru/post/260065/)  
 [семантическое версионирование](https://semver.org/lang/ru/)  
 
+[зачем существуют требования ACID для баз данных](https://habr.com/ru/post/535616/)  
+[MVCC-1. Изоляция](https://m.habr.com/ru/company/postgrespro/blog/442804/)  
+[CQRS. Факты и заблуждения](https://habr.com/ru/post/347908/)  
+[Основы CQRS](https://habr.com/ru/company/simbirsoft/blog/329970/)  
+
 Введение в анализ сложности алгоритмов  
 [часть 1](https://habr.com/ru/post/196560/)  
 [часть 2](https://habr.com/ru/post/195482/)  
