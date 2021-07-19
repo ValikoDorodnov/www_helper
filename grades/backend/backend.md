@@ -1013,8 +1013,13 @@ Theory
 
 Language  
 [ООП в PHP Трейты](https://www.php.net/manual/ru/language.oop5.traits.php)  
+
 PHP Reflection API  
+[Введение в PHP Reflection API](https://habr.com/ru/post/433266/)  
+[Зачем в PHP нужна рефлексия?](https://qna.habr.com/q/173527)  
+
 PHP Управление транзакциями  
+[Транзакции и автоматическая фиксация изменений](https://www.php.net/manual/ru/pdo.transactions.php)  
 
 ***
 
