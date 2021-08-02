@@ -1036,18 +1036,21 @@ Testing
 ***
 
 Storage  
-Репликации  
+[Репликации](https://highload.today/replikatsiya-dannykh/)  
+:pushpin:[Логическая репликация в PostgreSQL. Репликационные идентификаторы и популярные ошибки](https://habr.com/ru/company/postgrespro/blog/489308/)  
 
 ***
 
 DB  
 PostgreSQL Запросы к information_schema  
-PostgreSQL: Статистика процессов  
+[information_schema](https://postgrespro.ru/docs/postgrespro/13/information-schema)  
+
+[PostgreSQL: Статистика процессов](https://postgrespro.ru/docs/postgresql/9.6/monitoring-stats)  
 
 ***
 
 Frontend  
-JS Classes  
+[JS Classes](https://learn.javascript.ru/classes)  
 
 ***
 
