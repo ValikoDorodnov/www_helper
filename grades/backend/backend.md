@@ -23,7 +23,7 @@
         * [Грейд 10](#Грейд-10):white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade10.md)  
      * [Грейды 11-16](#Грейды-11-16)
         * [Грейд 11](#Грейд-11) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade11.md)  
-        * [Грейд 12](#Грейд-12) :arrows_counterclockwise: 1/16
+        * [Грейд 12](#Грейд-12) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade12.md)
         * [Грейд 13](#Грейд-13) :arrows_counterclockwise: 11/12
         * [Грейд 14](#Грейд-14) :arrows_counterclockwise: 7/12
         * [Грейд 15](#Грейд-15) :arrows_counterclockwise: 8/10
@@ -1024,9 +1024,9 @@ PHP Управление транзакциями
 ***
 
 Framework  
-Yii2 RBAC  
-Yii2 Организация REST API  
-Yii2 Модули  
+[Yii2 RBAC](https://www.yiiframework.com/doc/guide/2.0/ru/security-authorization)  
+[Yii2 Организация REST API](https://www.yiiframework.com/doc/guide/2.0/ru/rest-quick-start)  
+[Yii2 Модули](https://www.yiiframework.com/doc/guide/2.0/ru/structure-modules)  
 
 ***
 
@@ -1055,9 +1055,14 @@ Frontend
 ***
 
 DevOps  
-scp  
-rsync  
-ssh  
+[scp](https://losst.ru/kopirovanie-fajlov-scp)  
+
+```bash
+scp -P 1500 login@127.0.0.1:~/static/0220.sql.gz ~/Documents
+```
+
+[rsync](https://losst.ru/rsync-primery-sinhronizatsii)  
+[ssh](https://losst.ru/kak-polzovatsya-ssh)  
 :pushpin:[Магия SSH](https://habr.com/ru/post/331348/)  
 :pushpin:[Памятка пользователям ssh](https://habr.com/ru/post/122445/)  
 :pushpin:[Практические советы, примеры и туннели SSH](https://habr.com/ru/post/435546/)  
@@ -1066,9 +1071,8 @@ ssh
 ***
 
 Misc  
-HTTPS  
-SSL  
-
+[HTTPS SSL/TLS](https://www.reg.ru/support/ssl-sertifikaty/obshtaya-informatsiya-po-ssl-sertifikatam/chto-takoye-protokol-https-i-printsipy-yego-raboty)  
+  
 ***
 ***
 
