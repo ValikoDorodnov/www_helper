@@ -28,7 +28,7 @@
 ### Общие полезности 
 [Темная сторона кода](https://habr.com/ru/company/scrumtrek/blog/168485/)  
 [краткое руководство по markDown](https://paulradzkov.com/2014/markdown_cheatsheet/)  
-[emoji markDown list](https://gist.github.com/rxaviers/7360908#file-gistfile1-md)  
+[emoji markDown list](https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)  
   
 [Про хэширование](https://m.habr.com/ru/company/mailru/blog/271245/)  
 [NGINX изнутри: рожден для производительности и масштабирования](https://habr.com/ru/post/260065/)  
