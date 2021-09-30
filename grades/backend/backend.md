@@ -23,7 +23,7 @@
         * [Грейд 10](#Грейд-10):white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade10.md)  
      * [Грейды 11-16](#Грейды-11-16)
         * [Грейд 11](#Грейд-11) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade11.md)  
-        * [Грейд 12](#Грейд-12) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade12.md)
+        * [Грейд 12](#Грейд-12) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade12.md) [Практика](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/overview.md)
         * [Грейд 13](#Грейд-13) :arrows_counterclockwise: 11/12
         * [Грейд 14](#Грейд-14) :arrows_counterclockwise: 7/12
         * [Грейд 15](#Грейд-15) :arrows_counterclockwise: 8/10
@@ -1075,18 +1075,6 @@ Misc
   
 ***
 ***
-
-Практика
-- ООП в PHP: Реализовать аналог множественного наследования
-- PHP: Использовать в разработке Reflection API
-- Yii2: Настроить контроль доступа на основе RBAC
-- Yii2: Реализовать REST API
-- Testing: Решить задачу с использованием TDD
-- PostgreSQL: Получать информацию о схеме с помощью SQL-запросов
-- PostgreSQL: Получать информацию о процессах БД с помощью SQL-запросов
-- JS: Использовать в разработке классы
-- ssh+scp: Выполнять команды
-- Настроить web-сервер на отображение страниц по HTTPS с использованием самоподписанного SSL-сертификата
 
 #### Грейд 13
 
