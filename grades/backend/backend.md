@@ -1044,7 +1044,7 @@ Storage
 DB  
 PostgreSQL Запросы к information_schema  
 [information_schema](https://postgrespro.ru/docs/postgrespro/13/information-schema)  
-
+[information_schema with PostgreSQL](https://tuttlem.github.io/2016/01/10/information_schema-with-postgresql.html)  
 [PostgreSQL: Статистика процессов](https://postgrespro.ru/docs/postgresql/9.6/monitoring-stats)  
 
 ***
