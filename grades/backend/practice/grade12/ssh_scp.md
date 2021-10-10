@@ -34,5 +34,5 @@ Protocol 2 --- форсированное использование прото�
 ## SCP
 ```
 # -P порт login@ip_address:file_to_copy dir_to_paste
-scp -P 1500 sandbox@84.53.245.3:~/static/dump.sql.gz ~/Documents
+scp -P 1501 sammy@255.256.257.258:~/static/dump.sql.gz ~/Documents
 ```
