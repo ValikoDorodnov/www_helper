@@ -8,5 +8,5 @@
 - PostgreSQL: Получать информацию о схеме с помощью SQL-запросов [:fast_forward:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/postgres/schema.sql)
 - PostgreSQL: Получать информацию о процессах БД с помощью SQL-запросов [:fast_forward:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/postgres/processes.sql)
 - JS: Использовать в разработке классы
-- ssh+scp: Выполнять команды
+- ssh+scp: Выполнять команды [:fast_forward:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/ssh_scp.md)
 - Настроить web-сервер на отображение страниц по HTTPS с использованием самоподписанного SSL-сертификата [:fast_forward:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/ssl.md)
