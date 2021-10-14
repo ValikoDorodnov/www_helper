@@ -2,7 +2,9 @@
 
 namespace app\assets;
 
+use yii\web\YiiAsset;
 use yii\web\AssetBundle;
+use yii\bootstrap4\BootstrapAsset;
 
 class AppAsset extends AssetBundle
 {
@@ -15,7 +17,7 @@ class AppAsset extends AssetBundle
         'dist/app.js'
     ];
     public $depends = [
-        'yii\web\YiiAsset',
-        'yii\bootstrap4\BootstrapAsset',
+        YiiAsset::class,
+        BootstrapAsset::class,
     ];
 }
