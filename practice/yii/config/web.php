@@ -1,5 +1,7 @@
 <?php
 
+use app\models\User;
+
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
@@ -13,14 +15,13 @@ $config = [
     ],
     'components' => [
         'request' => [
-            // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'FtTIc9-IemC_R5izO8ewUIZidtjT96fV',
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            'identityClass' => 'app\models\User',
+            'identityClass' => User::class,
             'enableAutoLogin' => true,
         ],
         'errorHandler' => [
@@ -42,7 +43,7 @@ $config = [
                 ],
             ],
         ],
-        'db' => $db,
+        'db' => $db['postgres'] ?? [],
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,

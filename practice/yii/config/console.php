@@ -25,7 +25,7 @@ $config = [
                 ],
             ],
         ],
-        'db' => $db,
+        'db' => $db['postgres'] ?? [],
     ],
     'params' => $params,
     /*
