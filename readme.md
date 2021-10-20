@@ -45,6 +45,17 @@
 [часть 3](https://habr.com/ru/post/195996/)  
 [часть 4](https://habr.com/ru/post/196226/)  
 
+frontend  
+[Приемы оптимизации веб-графики в 2021 году](https://habr.com/ru/company/domclick/blog/580850/)
+[Оператор опциональной последовательности](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Operators/Optional_chaining)
+[Объясняем js динозавру](https://habr.com/ru/company/mailru/blog/340922/)
+[Правила наименования переменных](https://learn.javascript.ru/variable-names)
+[First Aid Git - помощь с гитом](http://firstaidgit.ru/#/)  
+[Tiny png - сжать png в браузере (c jpg он делает страшное)](https://tinypng.com/)
+[Image Optim - ставим на Mac и жмём изображения кучей](https://imageoptim.com/mac)
+[Сжать видосики для веб](https://video.online-convert.com/ru)
+[Расширение Pixel perfect для Chrome](https://chrome.google.com/webstore/detail/perfectpixel-by-welldonec/dkaagdgjmgdmbnecmcefdhjekcoceebi?hl=ru)
+
 [CORS](https://grishaev.me/cors/)  
 [CORS, CSP, HTTPS, HSTS: о технологиях веб-безопасности](https://habr.com/ru/company/ruvds/blog/421347/)  
 [Основы компьютерных сетей. Тема №1. Основные сетевые термины и сетевые модели](https://habr.com/ru/post/307252/)  
