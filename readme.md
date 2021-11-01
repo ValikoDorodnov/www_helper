@@ -45,6 +45,8 @@
 [часть 3](https://habr.com/ru/post/195996/)  
 [часть 4](https://habr.com/ru/post/196226/)  
 
+[Road Map веб-разработчика by rrssag](https://github.com/rrssag/devRoadMap)  
+
 frontend  
 [Приемы оптимизации веб-графики в 2021 году](https://habr.com/ru/company/domclick/blog/580850/)
 [Оператор опциональной последовательности](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Operators/Optional_chaining)
