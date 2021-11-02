@@ -31,6 +31,12 @@ sudo visudo
 sammy ALL=(ALL) NOPASSWD:ALL
 
 ```
+
+### Добавить пользователя в docker группу
+```
+sudo usermod -aG docker sammy
+```
+
 [Редактирование файла Sudoers](https://www.digitalocean.com/community/tutorials/how-to-edit-the-sudoers-file-ru)  
 
 ### Добавить ключ ssh на сервер
