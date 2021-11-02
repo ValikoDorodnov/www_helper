@@ -2,8 +2,8 @@
 
 - ООП в PHP: Реализовать аналог множественного наследования [:fast_forward:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/multipleInheritance)
 - PHP: Использовать в разработке Reflection API [:fast_forward:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/reflectionApi)
-- Yii2: Настроить контроль доступа на основе RBAC
-- Yii2: Реализовать REST API
+- Yii2: Настроить контроль доступа на основе RBAC [:fast_forward:](https://github.com/ValikoDorodnov/www_helper/blob/master/practice/yii/controllers/XFilesController.php)
+- Yii2: Реализовать REST API [:fast_forward:](https://github.com/ValikoDorodnov/www_helper/blob/master/practice/yii/modules/api/controllers/PostController.php)
 - Testing: Решить задачу с использованием TDD
 - PostgreSQL: Получать информацию о схеме с помощью SQL-запросов [:fast_forward:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/postgres/schema.sql)
 - PostgreSQL: Получать информацию о процессах БД с помощью SQL-запросов [:fast_forward:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/postgres/processes.sql)
