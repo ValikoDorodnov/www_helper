@@ -46,11 +46,11 @@ ssh-copy-id sammy@22.33.44.55
 
 ### Сменить порт ssh
 ```
-nano /etc/ssh/sshd_config
+sudo nano /etc/ssh/sshd_config
 
 Port 9999
 
-systemctl restart ssh/sshd
+sudo systemctl restart ssh/sshd
 ```
 
 ### Отключить аутентификацию по паролю SSH
@@ -60,11 +60,11 @@ systemctl restart ssh/sshd
 - Вы не должны терять свои ключи SSH. Если вы отформатируете свой персональный компьютер и потеряете ssh-ключи, вы никогда не сможете получить доступ к серверу.
 - Если вы заблокированы, вы никогда не сможете получить доступ к вашему серверу.
 ```
-nano /etc/ssh/sshd_config
+sudo nano /etc/ssh/sshd_config
 
-set PasswordAuthentication yes to PasswordAuthentication no
+PasswordAuthentication no
 
-systemctl restart ssh/sshd
+sudo systemctl restart ssh/sshd
 ```
 
 #### Если Вам не нужны другие методы, то их тоже можно отключить, оставив только publickey
@@ -75,27 +75,62 @@ systemctl restart ssh/sshd
 только с обычной учетной записи пользователя, а затем изменить права на учетную  
 запись root с помощью команды sudo или su.  
 ```
-nano /etc/ssh/sshd_config
+sudo nano /etc/ssh/sshd_config
 
-set PermitRootLogin yes to PermitRootLogin no
+PermitRootLogin no
 
-systemctl restart ssh/sshd
+sudo systemctl restart ssh/sshd
 ```
 
 ### Включаем использование только 2й версии SSH протокола.
 ```
-nano /etc/ssh/sshd_config
+sudo nano /etc/ssh/sshd_config
 
-add Protocol 2
+Protocol 2
 
-systemctl restart ssh/sshd
+sudo systemctl restart ssh/sshd
 ```
 
 ## Fail2Ban
 
+### Установка
+```
+sudo apt update
+sudo apt install fail2ban
+```
+
 ### Для хранения ваших собственных настроек надо создать файл jail.local.
 ```
 sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+```
+
+### Дефолтные настройки
+```
+[DEFAULT]
+
+ignoreip = 23.34.45.56
+ignorecommand =
+bantime  = 10w
+findtime  = 10
+maxretry = 2
+
+maxmatches = %(maxretry)s
+backend = auto
+
+usedns = warn
+logencoding = auto
+
+enabled = false
+mode = normal
+
+#Jails
+
+[sshd]
+
+enabled = true
+port    = ssh (или другой порт, если у вас не дефолтный 22 порь 9999)
+logpath = %(sshd_log)s
+backend = %(sshd_backend)s
 ```
 
 ## Перезагрузить fail2ban
@@ -106,9 +141,13 @@ sudo systemctl restart fail2ban
 ### Узнать статус fail2ban
 ```
 sudo systemctl status fail2ban
+sudo fail2ban-client status sshd
 ```
 
-
+### Разбанить
+```
+sudo fail2ban-client set sshd unbanip 23.34.45.56
+```
 
 Iptables. Действуем по принципу "запрещено все, что не разрешено". Запрещаем по умолчанию весь INPUT и FORWARD трафик снаружи. Открываем на INPUT'е 22 порт. В дальнейшем открываем порты/forwarding по мере необходимости. Если у нас предполагаются сервисы на соседних серверах нужные только для внутренней коммуникации (Memcached, Redis, и т.д.), то открываем для них порты только для определенных IP. Просто так торчать наружу для всех они не должны.  
 
