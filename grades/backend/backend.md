@@ -1080,6 +1080,8 @@ Misc
 
 Theory  
 [Микросервисная архитектура](https://habr.com/ru/post/249183/)  
+:pushpin:[Микросервисы глазами аналитика](https://habr.com/ru/post/583136/)  
+
 [JSON API](https://jsonapi.org/)  
 [json api](https://habr.com/ru/company/oleg-bunin/blog/433322/)  
 [GraphQL](https://graphql.org/)  
