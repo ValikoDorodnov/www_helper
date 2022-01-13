@@ -1082,8 +1082,9 @@ Theory
 [Микросервисная архитектура](https://habr.com/ru/post/249183/)  
 :pushpin:[Микросервисы глазами аналитика](https://habr.com/ru/post/583136/)  
 
-[JSON API](https://jsonapi.org/)  
-[json api](https://habr.com/ru/company/oleg-bunin/blog/433322/)  
+[JSON API (статья)](https://habr.com/ru/company/oleg-bunin/blog/433322/)  
+:pushpin:[JSON API (спецификация)](https://jsonapi.org/)  
+
 [GraphQL](https://graphql.org/)  
 :pushpin:[Что же такое этот GraphQL?](https://habr.com/ru/post/326986/)  
 :pushpin:[Подробности о GraphQL: что, как и почему](https://habr.com/ru/company/ruvds/blog/445268/)  
