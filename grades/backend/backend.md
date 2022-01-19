@@ -24,7 +24,7 @@
      * [Грейды 11-16](#Грейды-11-16)
         * [Грейд 11](#Грейд-11) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade11.md)  
         * [Грейд 12](#Грейд-12) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade12.md) [Практика](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/overview.md)
-        * [Грейд 13](#Грейд-13) :arrows_counterclockwise: 11/12
+        * [Грейд 13](#Грейд-13) :arrows_counterclockwise: 11/12 [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade13.md)
         * [Грейд 14](#Грейд-14) :arrows_counterclockwise: 7/12
         * [Грейд 15](#Грейд-15) :arrows_counterclockwise: 8/10
         * [Грейд 16](#Грейд-16) :arrows_counterclockwise: 6/9
@@ -1088,6 +1088,7 @@ Theory
 [GraphQL](https://graphql.org/)  
 :pushpin:[Что же такое этот GraphQL?](https://habr.com/ru/post/326986/)  
 :pushpin:[Подробности о GraphQL: что, как и почему](https://habr.com/ru/company/ruvds/blog/445268/)  
+
 [Принципы разработки: SOLID](https://web-creator.ru/articles/solid)  
 :pushpin:[Хороший дизайн должен быть SOLID: TOP-5 архитектурных принципов](http://igor.quatrocode.com/2008/09/solid-top-5.html)  
 :pushpin:[Принципы проектирования классов (S.O.L.I.D.)](https://blog.byndyu.ru/2009/10/solid.html)  
