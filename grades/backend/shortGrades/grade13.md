@@ -305,3 +305,47 @@ public class SmtpMailer
 Суть принципа инверсии зависимостей проста: заменить композицию агрегацией. То есть вместо создания зависимостей  
 напрямую, класс должен требовать их у более высокого уровня через аргументы метода или конструктора. При этом  
 зависимость должна передаваться не в виде экземпляров конкретных классов, а в виде интерфейсов или абстрактных классов.  
+
+##### Сильная связанность, пример плохого кода
+```
+class Order
+{
+    public function __construct(IDB $db, IDiscount $discount)
+    {
+        $this->db = $db;
+        $this->discount = $discount;
+    }
+
+    public function calculate()
+    {
+        // ...
+        $product = new Product();
+        // ...
+        $promo = new Promo();
+        // ...
+        $warehouse = new Warehouse();
+        // ...
+        $email = new Notification();
+        // ...
+    }
+}
+```
+
+##### Слабая связанность, пример хорошего кода
+```
+class OrderInfo
+{
+    private IOrders $orders;
+
+    public function __construct(IOrder $orders)
+    {
+        $this->orders = $orders;
+    }
+
+    public function get()
+    {
+        $productDescription = $this->orders->getInformation();
+        // здесь идёт некоторый код и вызов view
+    }
+}
+```
