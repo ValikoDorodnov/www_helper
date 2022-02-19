@@ -64,6 +64,11 @@ class SiteController extends Controller
         return $this->render('index');
     }
 
+    public function actionTransformer()
+    {
+        return $this->render('transformer');
+    }
+
     /**
      * Login action.
      *
