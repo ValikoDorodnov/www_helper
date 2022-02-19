@@ -748,3 +748,5 @@ async function f() {
   alert(result); // "готово!"
 }
 ```
+
+[пример](https://github.com/ValikoDorodnov/www_helper/blob/master/practice/yii/front/fetch/index.js)  
