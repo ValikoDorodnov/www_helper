@@ -573,6 +573,29 @@ $context->setStrategy(new ConcreteStrategyB());
 $context->doSomeBusinessLogic();
 ```
 
+
+### Framework
+#### Yii2 Примеры реализации паттернов проектирования
+
+
+Abstract Factory, Factory Method, Builder, Adapter, Composite, Decorator, Facade, Proxy, Flyweight  
+Chain of responsibility, Command, Iterator, Observer, State, Strategy, Template method  
+Dependency Injection, Repository, mixin etc.  
+
+
+##### Builder
+
+```php
+\yii\db\ActiveQueryInterface;
+```
+
+
+##### Factory Method
+```php
+\yii\base\Controller::createAction()
+```
+
+
 ### Storage
 
 #### Механизм транзакций
