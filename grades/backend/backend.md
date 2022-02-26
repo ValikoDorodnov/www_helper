@@ -24,7 +24,7 @@
      * [Грейды 11-16](#Грейды-11-16)
         * [Грейд 11](#Грейд-11) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade11.md)  
         * [Грейд 12](#Грейд-12) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade12.md) [Практика](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/overview.md)
-        * [Грейд 13](#Грейд-13) :arrows_counterclockwise: 11/12 [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade13.md)
+        * [Грейд 13](#Грейд-13) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade13.md)
         * [Грейд 14](#Грейд-14) :arrows_counterclockwise: 7/12
         * [Грейд 15](#Грейд-15) :arrows_counterclockwise: 8/10
         * [Грейд 16](#Грейд-16) :arrows_counterclockwise: 6/9
@@ -1148,10 +1148,12 @@ Misc
 
 Theory  
 Принципы разработки: GRASP  
-[GRASP (General Responsibility Assignment Software Patterns)](http://phpforum.su/index.php?showtopic=87687)  
-[Принципы GRASP](http://regfordev.blogspot.com/2015/08/grasp.html#.X2ihXhMzZQK)  
+[GRASP (General Responsibility Assignment Software Patterns)](http://phpforum.su/index.php?showtopic=87687)
+[ООП для ООП: GRASP](https://habr.com/ru/post/38323/)  
+
 Domain Driven Design
 [Дмитрий Науменко "Просто о сложном - Domain Driven Design"](https://www.youtube.com/watch?time_continue=1&v=7HXIrEsmlzM&feature=emb_title)
+
 DDD Inversion of Control  
 
 ***
