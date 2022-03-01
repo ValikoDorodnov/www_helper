@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Всё что вам нужно знать о Node.js / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/460661\/"},"headline":"Всё что вам нужно знать о Node.js","datePublished":"2019-07-19T13:49:26+03:00","dateModified":"2019-08-08T12:30:31+03:00","author":{"@type":"Person","name":"Дмитрий"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Привет, Хабр! Представляю вашему вниманию перевод статьи &quot;Everything you need to know about Node.js&quot; автора Jorge Ram&oacute;n.  В наши дни платформа Node.js является о...","url":"https:\/\/habr.com\/ru\/post\/460661\/#post-content-body","about":["h_javascript","h_nodejs","f_develop"],"image":["https:\/\/habrastorage.org\/webt\/ua\/qz\/gr\/uaqzgrarpig3cxhjdiuiutbxbms.jpeg","https:\/\/habrastorage.org\/webt\/mm\/ns\/gn\/mmnsgnzvz7aptv62xrbo6zxju-w.jpeg","https:\/\/habrastorage.org\/webt\/yb\/qz\/zl\/ybqzzljzkgej-kirqwza-43amcw.gif","https:\/\/habrastorage.org\/webt\/ei\/ao\/02\/eiao02s-dtpki8au6sybf8-dmbu.gif","https:\/\/habrastorage.org\/webt\/o1\/sw\/x5\/o1swx5v-gnn2ptqjjzonhq3oew0.png","https:\/\/habrastorage.org\/webt\/bq\/lm\/cq\/bqlmcq7ntk4kpr2gncodmxpqqee.png","https:\/\/habrastorage.org\/webt\/wr\/vg\/0_\/wrvg0_hul5qltn9qpyg9fv6beua.png","https:\/\/habrastorage.org\/webt\/bg\/qm\/k1\/bgqmk13cgzyfg7vmynzpkxdxbdc.gif","https:\/\/habrastorage.org\/webt\/af\/99\/xc\/af99xcxnykot0wq-zv20o-6cvps.jpeg","https:\/\/habrastorage.org\/webt\/vl\/iw\/8n\/vliw8nxrmg8paobiiyvuozjxpdc.png","https:\/\/habrastorage.org\/webt\/lp\/nx\/vh\/lpnxvhxjbmqmkzmblpqqmfcxq0s.gif","https:\/\/habrastorage.org\/webt\/f_\/sc\/go\/f_scgo68j5gpf0xsnzklzdr9cjc.jpeg","https:\/\/habrastorage.org\/webt\/2k\/xy\/eq\/2kxyeqk7srzdocs9egzl5zlpwhm.png","https:\/\/habrastorage.org\/webt\/92\/8i\/lj\/928iljyzpqhkbczypvvqgkx0zc0.png","https:\/\/habrastorage.org\/webt\/lz\/z7\/uw\/lzz7uwcdvm1xd1yr6utj7cae36g.png","https:\/\/habrastorage.org\/webt\/it\/yo\/bh\/ityobhc10qgnkk5m9yk5xp94ble.gif","https:\/\/habrastorage.org\/webt\/nl\/kn\/7f\/nlkn7fwr_kxhtktm-_gt0ci7ask.jpeg","https:\/\/habrastorage.org\/webt\/pz\/rx\/bl\/pzrxblziplf06w7-kzbyojhafhg.gif","https:\/\/habrastorage.org\/webt\/zu\/vk\/gh\/zuvkghy8dnhjryfdf5b62ped8dw.gif","https:\/\/habrastorage.org\/webt\/nn\/hs\/r3\/nnhsr3jiw_4aed53jye8gokutpy.png","https:\/\/habrastorage.org\/webt\/tt\/ij\/el\/ttijelgt36k_vbengx3qjaaajlc.gif","https:\/\/habrastorage.org\/webt\/bd\/lk\/kd\/bdlkkdf7adtljydvhxyw22y3cfi.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Всё что вам нужно знать о Node.js" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Всё что вам нужно знать о Node.js" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Всё что вам нужно знать о Node.js" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Привет, Хабр! Представляю вашему вниманию перевод статьи &amp;quot;Everything you need to know about Node.js&amp;quot; автора Jorge Ramón.
+
+В наши дни платформа Node.js является одной из самых популярных платформ для..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Привет, Хабр! Представляю вашему вниманию перевод статьи &amp;quot;Everything you need to know about Node.js&amp;quot; автора Jorge Ramón.
+
+В наши дни платформа Node.js является одной из самых популярных платформ для..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Привет, Хабр! Представляю вашему вниманию перевод статьи &amp;quot;Everything you need to know about Node.js&amp;quot; автора Jorge Ramón.
+
+В наши дни платформа Node.js является одной из самых популярных платформ для..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Привет, Хабр! Представляю вашему вниманию перевод статьи &amp;quot;Everything you need to know about Node.js&amp;quot; автора Jorge Ramón.
+
+В наши дни платформа Node.js является одной из самых популярных платформ для..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Привет, Хабр! Представляю вашему вниманию перевод статьи &amp;quot;Everything you need to know about Node.js&amp;quot; автора Jorge Ramón.
+
+В наши дни платформа Node.js является одной из самых популярных платформ для..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/460661/29710367bb5ec2ad3bc906189469b289/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/460661/29710367bb5ec2ad3bc906189469b289/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/460661/29710367bb5ec2ad3bc906189469b289/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/460661/29710367bb5ec2ad3bc906189469b289/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/460661/29710367bb5ec2ad3bc906189469b289/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="460661" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2019-07-19T10:49:26.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/460661/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="перевод, программирование, node.js, javascript, event loop, workers">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/460661/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.126.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/460661/29710367bb5ec2ad3bc906189469b289/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/DemjanUA/" title="DemjanUA" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/3be/463/19a/3be46319a3c2395fcfaeb407b6a70a0e.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/DemjanUA/" class="tm-user-info__username">
+      DemjanUA
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2019-07-19T10:49:26.000Z" title="2019-07-19, 13:49">19  июля  2019 в 13:49</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Всё что вам нужно знать о Node.js</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/javascript/" class="tm-article-snippet__hubs-item-link"><span>JavaScript</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/nodejs/" class="tm-article-snippet__hubs-item-link"><span>Node.JS</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-sandbox"><span>
+        Из песочницы
+      </span></div></div> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><p>Привет, Хабр! Представляю вашему вниманию перевод статьи <a href="https://dev.to/jorge_rockr/everything-you-need-to-know-about-node-js-lnc#theproblemwithcpuintensivetasks">"Everything you need to know about Node.js"</a> автора Jorge Ramón.</p><br/>
+<p><img src="https://habrastorage.org/r/w780q1/webt/ua/qz/gr/uaqzgrarpig3cxhjdiuiutbxbms.jpeg" data-src="https://habrastorage.org/webt/ua/qz/gr/uaqzgrarpig3cxhjdiuiutbxbms.jpeg" data-blurred="true"/></p><br/>
+<p>В наши дни платформа Node.js является одной из самых популярных платформ для построения эффективных и масштабируемых REST API's. Она так же подходит для построения гибридных мобильных приложений, десктопных программ и даже для IoT.</p><br/>
+<p>Я работаю с платформой Node.js более 6 лет и я на самом деле люблю её. Этот пост главным образом пытается быть путеводителем по тому, как Node.js работает на самом деле.</p><a name="habracut"></a><br/>
+<p>Давайте же начнём!!</p><br/>
+<p><strong>О чем пойдёт речь:</strong></p><br/>
+<ul>
+<li><a href="index.html.1.126.html#p1">Мир до Node.js</a></li>
+<li><a href="index.html.1.126.html#p2">Проблема C10K</a></li>
+<li><a href="index.html.1.126.html#p3">Node.js и цикл событий</a></li>
+<li><a href="index.html.1.126.html#p4">Проблема CPU-ёмких задач</a></li>
+<li><a href="index.html.1.126.html#p5">Воркеры и их потоки</a></li>
+</ul><br/>
+<a name="p1"></a><br/>
+<h3 id="mir-do-nodejs">Мир до Node.js</h3><br/>
+<p><strong>Многопоточный сервер</strong></p><br/>
+<p>Веб-приложения, написанные следуя клиент/серверной архитектуре, работают по следующей схеме — клиент запрашивает нужный ресурс у сервера и сервер отправляет ресурс в ответ. В этой схеме сервер, ответив на запрос, прерывает соединение.</p><br/>
+<p>Такая модель эффективна поскольку каждый запрос к серверу потребляет ресурсы (память, процессорное время и т.д.). Для того чтобы обрабатывать каждый последующий запрос от клиента, сервер должен завершить обработку предыдущего.</p><br/>
+<p>Значит ли это, что сервер может обрабатывать только один запрос за раз? Не совсем! Когда сервер получает новый запрос он создаёт отдельный <strong>поток</strong> для его обработки. </p><br/>
+<p><em>Поток</em>, если простыми словами, это время и ресурсы, что CPU выделяет на выполнение небольшого блока инструкций. С учётом сказанного, сервер может обрабатывать несколько запросов одновременно, но только по одному на поток. Такая модель так же называться <strong>thread-per-request model</strong>.</p><br/>
+<p><img src="https://habrastorage.org/r/w780q1/webt/mm/ns/gn/mmnsgnzvz7aptv62xrbo6zxju-w.jpeg" data-src="https://habrastorage.org/webt/mm/ns/gn/mmnsgnzvz7aptv62xrbo6zxju-w.jpeg" data-blurred="true"/></p><br/>
+<p>Для обработки N запросов серверу нужно N потоков. Если сервер получает N+1 запросов, тогда он должен ждать пока один из потоков не станет доступным.</p><br/>
+<p>На рисунке выше, сервер может обрабатывать до 4 запросов (потоков) единовременно и когда он получает следующие 3 запроса, эти запросы должны ждать пока любой из этих 4 потоков не станет доступным.</p><br/>
+<p>Один из способов избавиться от ограничений — добавить больше ресурсов (памяти, ядер процессора и т. д.) на сервер, но это не самое лучшее решение….</p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/yb/qz/zl/ybqzzljzkgej-kirqwza-43amcw.gif" data-src="https://habrastorage.org/webt/yb/qz/zl/ybqzzljzkgej-kirqwza-43amcw.gif"/></div><br/>
+<p>И, конечно, не забываем о технологических ограничениях.</p><br/>
+<p><strong>Блокирующий ввод/вывод</strong></p><br/>
+<p>Ограниченное число потоков на сервере не единственная проблема. Возможно, Вам стало интересно почему один поток не может обрабатывать несколько запросов одновременно? всё из-за <strong>блокирующих операций ввода/вывода</strong>.</p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/ei/ao/02/eiao02s-dtpki8au6sybf8-dmbu.gif" data-src="https://habrastorage.org/webt/ei/ao/02/eiao02s-dtpki8au6sybf8-dmbu.gif"/></div><br/>
+<p>Допустим, Вы разрабатываете онлайн магазин и Вам нужна страница где пользователь может просматривать список всех товаров.</p><br/>
+<p>Пользователь стучится на <a href="http://yourstore.com/products">http://yourstore.com/products</a> и сервер рендерит HTML файл со всеми продуктами с базы данных в ответ. Совсем не сложно, да?</p><br/>
+<p>Но, что же происходит за кулисами?</p><br/>
+<ul>
+<li>Когда пользователь стучится на <code>/products</code> особый метод или функция должна выполниться, что бы обработать запрос. Маленький кусочек кода (Ваш или фреймворка) анализирует URL-адрес запроса и ищет подходящий метод или функцию.<strong> Поток работает</strong>. <img width="20" src="https://habrastorage.org/r/w1560/webt/o1/sw/x5/o1swx5v-gnn2ptqjjzonhq3oew0.png" data-src="https://habrastorage.org/webt/o1/sw/x5/o1swx5v-gnn2ptqjjzonhq3oew0.png"/></li>
+<li>Теперь нужный метод или функция выполняться, так как и в первом пункте — <strong>поток работает.</strong><img width="20" src="https://habrastorage.org/r/w1560/webt/o1/sw/x5/o1swx5v-gnn2ptqjjzonhq3oew0.png" data-src="https://habrastorage.org/webt/o1/sw/x5/o1swx5v-gnn2ptqjjzonhq3oew0.png"/></li>
+<li>Так как Вы хороший разработчик, Вы сохраняете все системные логи в файл, ну и конечно же, что бы быть уверенными, что роутер выполняет нужный метод/функцию — Вы так же логируете строку "Method X executing!!». Но всё это блокирующие операции ввода/вывода. <strong> Поток ждёт</strong>.<img width="20" src="https://habrastorage.org/r/w1560/webt/bq/lm/cq/bqlmcq7ntk4kpr2gncodmxpqqee.png" data-src="https://habrastorage.org/webt/bq/lm/cq/bqlmcq7ntk4kpr2gncodmxpqqee.png"/></li>
+<li>Все логи сохранены и следующие строки функции выполняются. <strong>Поток работает снова</strong>. <img width="20" src="https://habrastorage.org/r/w1560/webt/o1/sw/x5/o1swx5v-gnn2ptqjjzonhq3oew0.png" data-src="https://habrastorage.org/webt/o1/sw/x5/o1swx5v-gnn2ptqjjzonhq3oew0.png"/></li>
+<li>Время обращаться к базе данных и получать все продукты – простой запрос, вроде <code>SELECT * FROM products</code>, выполняет свою работу, но угадайте что? Да-да, это блокирующая операция ввода/вывода. <strong>Поток ждёт</strong>. <img width="20" src="https://habrastorage.org/r/w1560/webt/bq/lm/cq/bqlmcq7ntk4kpr2gncodmxpqqee.png" data-src="https://habrastorage.org/webt/bq/lm/cq/bqlmcq7ntk4kpr2gncodmxpqqee.png"/></li>
+<li>Вы получили массив или список всех продуктов, но убедитесь, что Вы всё это залогировали. <strong>Поток ждёт</strong>. <img width="20" src="https://habrastorage.org/r/w1560/webt/bq/lm/cq/bqlmcq7ntk4kpr2gncodmxpqqee.png" data-src="https://habrastorage.org/webt/bq/lm/cq/bqlmcq7ntk4kpr2gncodmxpqqee.png"/></li>
+<li>Теперь у Вас есть все продукты и пришло время рендерить шаблон для будущей страницы, но перед этим Вам нужно их прочитать. <strong>Поток ждёт</strong>. <img width="20" src="https://habrastorage.org/r/w1560/webt/bq/lm/cq/bqlmcq7ntk4kpr2gncodmxpqqee.png" data-src="https://habrastorage.org/webt/bq/lm/cq/bqlmcq7ntk4kpr2gncodmxpqqee.png"/></li>
+<li>Движок рендеринга делает свою работу и шлёт ответ клиенту. <strong>Поток работает снова</strong>. <img width="20" src="https://habrastorage.org/r/w1560/webt/o1/sw/x5/o1swx5v-gnn2ptqjjzonhq3oew0.png" data-src="https://habrastorage.org/webt/o1/sw/x5/o1swx5v-gnn2ptqjjzonhq3oew0.png"/></li>
+<li>Поток свободен, словно птица в небесах. <img width="20" src="https://habrastorage.org/r/w1560/webt/wr/vg/0_/wrvg0_hul5qltn9qpyg9fv6beua.png" data-src="https://habrastorage.org/webt/wr/vg/0_/wrvg0_hul5qltn9qpyg9fv6beua.png"/></li>
+</ul><br/>
+<p>На сколько медленны операции ввода/вывода? Ну это зависит от конкретной. Давайте обратимся к таблице:</p><br/>
+<div class="scrollable-table"><table>
+<tr>
+<th><b>Операция</b></th>
+<th><b>Количество CPU тактов</b></th>
+</tr>
+<tr>
+<td>CPU Registers</td>
+<td>3 такта</td>
+</tr>
+<tr>
+<td>L1 Cache</td>
+<td>8 тактов</td>
+</tr>
+<tr>
+<td>L2 Cache</td>
+<td>12 тактов</td>
+</tr>
+<tr>
+<td>RAM</td>
+<td>150 тактов</td>
+</tr>
+<tr>
+<td>Disk</td>
+<td>30,000,000 тактов</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>250,000,000 тактов</td>
+</tr>
+</table></div><br/>
+<p>Операции сети и чтения с диска слишком медленные. Представьте сколько запросов или обращений к внешним API ваша система могла бы обработать за это время. </p><br/>
+<p>Подбивая итоги: операции ввода/вывода заставляют поток ждать и тратить ресурсы впустую.</p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/bg/qm/k1/bgqmk13cgzyfg7vmynzpkxdxbdc.gif" data-src="https://habrastorage.org/webt/bg/qm/k1/bgqmk13cgzyfg7vmynzpkxdxbdc.gif"/></div><br/>
+<a name="p2"></a><br/>
+<h3 id="problema-c10k">Проблема C10K</h3><br/>
+<p><strong>Проблема</strong></p><br/>
+<p><b>C10k</b> (англ. <i>C10k; 10k connections</i> — проблема 10 тысяч соединений)</p><br/>
+<p>В ранние 2000-е, серверные и клиентские машины были медленными. Проблема возникала при параллельной обработке 10 000 клиентских соединений к одной машине. </p><br/>
+<p>Но почему традиционная модель thread-per-request (поток на запрос) не могла решить эту проблему? Что ж, давайте используем немного математики.</p><br/>
+<p>Нативная реализация потоков выделяет больше 1 Мб памяти на поток, выходя из этого – для 10 тысяч потоков требуется 10 Гб оперативной памяти и это только для стека потоков. Да, и не забывайте, мы в начале 2000-х!!</p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w780q1/webt/af/99/xc/af99xcxnykot0wq-zv20o-6cvps.jpeg" data-src="https://habrastorage.org/webt/af/99/xc/af99xcxnykot0wq-zv20o-6cvps.jpeg" data-blurred="true"/></div><br/>
+<p>В наши дни серверные и клиентские компьютеры работают быстрее и эффективней и почти любой язык программирования или фреймворк справляются с этой проблемой. Но фактически проблема не исчерпана. Для 10 миллионов клиентских соединений к одной машине проблема возвращается вновь (но теперь она <a href="http://c10m.robertgraham.com/p/manifesto.html">C10M Problem</a>).</p><br/>
+<p><strong>JavaScript спасение?</strong></p><br/>
+<p>Осторожно, спойлеры<img width="70" src="https://habrastorage.org/r/w1560/webt/vl/iw/8n/vliw8nxrmg8paobiiyvuozjxpdc.png" data-src="https://habrastorage.org/webt/vl/iw/8n/vliw8nxrmg8paobiiyvuozjxpdc.png"/>!!!<br/>
+Node.js на самом деле решает проблему C10K… но как?!</p><br/>
+<p>Серверный JavaScript не был чем-то новым и необычным в начале 2000-х, на тот момент уже существовали реализации поверх JVM (java virtual machine) – RingoJS и AppEngineJS, что работали на модели thread-per-request.</p><br/>
+<p>Но если они не смогли решить проблему, тогда как Node.js смог?! Всё из-за того, что JavaScript <strong>однопоточный</strong>.</p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/lp/nx/vh/lpnxvhxjbmqmkzmblpqqmfcxq0s.gif" data-src="https://habrastorage.org/webt/lp/nx/vh/lpnxvhxjbmqmkzmblpqqmfcxq0s.gif"/></div><br/>
+<a name="p3"></a><br/>
+<h3 id="nodejs-i-cikl-sobytiy">Node.js и цикл событий</h3><br/>
+<p><strong>Node.js</strong></p><br/>
+<p>Node.js это серверная платформа, что работает на движке Google Chrome – V8, который умеет компилировать JavaScript код в машинный код. </p><br/>
+<p>Node.js использует <strong>событийно-ориентированную</strong> модель и <strong>неблокирующую ввод / вывод</strong> архитектуру, что делает его легковесным и эффективным. Это не фреймворк, и не библиотека, это среда выполнения JavaScript.</p><br/>
+<p>Давайте напишем маленький пример:</p><br/>
+<pre><code class="javascript">// Importing native http module
+const http = require('http');
+
+// Creating a server instance where every call
+// the message 'Hello World' is responded to the client
+const server = http.createServer(function(request, response) {
+  response.write('Hello World');
+  response.end();
+});
+
+// Listening port 8080
+server.listen(8080);</code></pre><br/>
+<p><strong>Non-blocking I/O</strong></p><br/>
+<p>Node.js использует неблокирующие ввод/вывод операции, что же это значит:</p><br/>
+<ul>
+<li>Главный поток не будет блокироваться операциями ввода/вывода.</li>
+<li>Сервер будет продолжать обслуживать запросы.</li>
+<li>Нам придётся работать с <strong>асинхронным кодом</strong>.</li>
+</ul><br/>
+<p>Давайте напишем пример, в котором на запрос к <code>/home</code> сервер в ответ шлёт HTML страницу, а для всех других запросов — 'Hello World'. Что бы отослать HTML страницу сначала ее нужно прочитать из файла.</p><br/>
+<p><code>home.html</code></p><br/>
+<pre><code class="html">&lt;html>
+  &lt;body>
+    &lt;h1>This is home page&lt;/h1>
+  &lt;/body>
+&lt;/html></code></pre><br/>
+<p><code>index.js</code></p><br/>
+<pre><code class="javascript">const http = require('http');
+const fs = require('fs');
+
+const server = http.createServer(function(request, response) {
+  if (request.url === '/home') {
+    fs.readFile(`${ __dirname }/home.html`, function (err, content) {
+      if (!err) {
+        response.setHeader('Content-Type', 'text/html');
+        response.write(content);
+      } else {
+        response.statusCode = 500;
+        response.write('An error has ocurred');
+      }
+
+      response.end();
+    });
+  } else {
+    response.write('Hello World');
+    response.end();
+  }
+});
+
+server.listen(8080);</code></pre><br/>
+<p>Если запрашиваемый url-адрес <code>/home</code>, тогда используется нативный модуль <code>fs</code> для чтения файла <code>home.html</code>.</p><br/>
+<p>Функции что попадают в <code>http.createServer</code> и <code>fs.readFile</code> как аргументы — <strong>колбэки</strong>. Эти функции будут выполнены в какой-то из моментов в будущем (Первая, как только сервер получит запрос, а вторая — когда файл будет прочитан с диска и помещён в буфер).</p><br/>
+<p>Пока файл считывается с диска, Node.js может обрабатывать другие запросы и даже считывать файл снова и всё это в одном потоке… но как?!</p><br/>
+<p><strong>Цикл событий</strong></p><br/>
+<p><strong>Цикл событий</strong> — это магия, которая происходит внутри Node.js. Это буквально бесконечный цикл и на самом деле один поток. </p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w780q1/webt/f_/sc/go/f_scgo68j5gpf0xsnzklzdr9cjc.jpeg" data-src="https://habrastorage.org/webt/f_/sc/go/f_scgo68j5gpf0xsnzklzdr9cjc.jpeg" data-blurred="true"/></div><br/>
+<p><strong>Libuv</strong> — C библиотека которая реализует этот паттерн и является частью ядра Node.js. Вы можете узнать больше о libuv <a href="https://nikhilm.github.io/uvbook/introduction.html">здесь</a>.</p><br/>
+<p>Цикл событий имеет 6 фаз, каждое исполнение всех 6 фаз называют <strong>tick</strong>-ом.</p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/2k/xy/eq/2kxyeqk7srzdocs9egzl5zlpwhm.png" data-src="https://habrastorage.org/webt/2k/xy/eq/2kxyeqk7srzdocs9egzl5zlpwhm.png"/></div><br/>
+<ul>
+<li><strong>timers</strong>: в этой фазе выполняются коллбэки, запланированные методами <code>setTimeout()</code> и <code>setInterval()</code>;</li>
+<li><strong>pending callbacks</strong>: выполняются почти все коллбэки, за исключением событий <code>close</code>, таймеров и <code>setImmediate()</code>;</li>
+<li><strong>idle, prepare</strong>: используется только для внутренних целей;</li>
+<li><strong>poll</strong>: ответственен за получение новых событий ввода/вывода. Node.js может блокироваться на этом этапе;</li>
+<li><strong>check</strong>: коллбэки, вызванные методом <code>setImmediate()</code>, выполняються на этом этапе;</li>
+<li><strong>close callbacks</strong>: например, <code>socket.on('close', ...)</code>;</li>
+</ul><br/>
+<p>Хорошо, есть только один поток, и этот поток и есть цикл событий, но тогда кто выполняет все операции ввода/вывода?</p><br/>
+<p>Обратите внимание<img width="60" src="https://habrastorage.org/r/w1560/webt/92/8i/lj/928iljyzpqhkbczypvvqgkx0zc0.png" data-src="https://habrastorage.org/webt/92/8i/lj/928iljyzpqhkbczypvvqgkx0zc0.png"/>!!!<br/>
+Когда циклу событий нужно выполнить операцию ввода/вывода он использует поток ОС с тредпула (thread pool), а когда задача выполнена, коллбэк ставится в очередь во время фазы <em>pending callbacks</em>.</p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/lz/z7/uw/lzz7uwcdvm1xd1yr6utj7cae36g.png" data-src="https://habrastorage.org/webt/lz/z7/uw/lzz7uwcdvm1xd1yr6utj7cae36g.png"/></div><br/>
+<p>Разве это не круто?</p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/it/yo/bh/ityobhc10qgnkk5m9yk5xp94ble.gif" data-src="https://habrastorage.org/webt/it/yo/bh/ityobhc10qgnkk5m9yk5xp94ble.gif"/></div><br/>
+<a name="p4"></a><br/>
+<h3 id="problema-cpu-yomkih-zadach">Проблема CPU-ёмких задач</h3><br/>
+<p>Node.js кажется идеальным! Вы можете создавать всё, что захотите.</p><br/>
+<p>Давайте напишем API для вычислений простых чисел.</p><br/>
+<p>Простое число – это целое (натуральное) число больше единицы и делимое только на 1 и на само себя.</p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w780q1/webt/nl/kn/7f/nlkn7fwr_kxhtktm-_gt0ci7ask.jpeg" data-src="https://habrastorage.org/webt/nl/kn/7f/nlkn7fwr_kxhtktm-_gt0ci7ask.jpeg" data-blurred="true"/></div><br/>
+<p>Дано число N, API должен вычислять и возвращать первые N простых чисел в список (или массив).</p><br/>
+<p><code>primes.js</code></p><br/>
+<pre><code class="javascript">function isPrime(n) {
+  for(let i = 2, s = Math.sqrt(n); i &lt;= s; i++) {
+    if(n % i === 0) return false;
+  }
+  return n > 1;
+}
+
+function nthPrime(n) {
+  let counter = n;
+  let iterator = 2;
+  let result = [];
+
+  while(counter > 0) {
+    isPrime(iterator) &amp;&amp; result.push(iterator) &amp;&amp; counter--;
+    iterator++;
+  }
+
+  return result;
+}
+
+module.exports = { isPrime, nthPrime };</code></pre><br/>
+<p><code>index.js</code></p><br/>
+<pre><code class="javascript">const http = require('http');
+const url = require('url');
+const primes = require('./primes');
+
+const server = http.createServer(function (request, response) {
+  const { pathname, query } = url.parse(request.url, true);
+
+  if (pathname === '/primes') {
+    const result = primes.nthPrime(query.n || 0);
+    response.setHeader('Content-Type', 'application/json');
+    response.write(JSON.stringify(result));
+    response.end();
+  } else {
+    response.statusCode = 404;
+    response.write('Not Found');
+    response.end();
+  }
+});
+
+server.listen(8080);</code></pre><br/>
+<p><code>prime.js</code> это реализация нужных вычислений: функция <code>isPrime</code> проверяет является ли число простым, а nthPrime возвращает N таких чисел.</p><br/>
+<p>Файл же <code>index.js</code> отвечает за создание сервера и использует модуль <code>prime.js</code> для обработки каждого запроса на <code>/primes</code>. Число N прокидывается через строку запроса в URL-адресе.</p><br/>
+<p>Что бы получить первых 20 простых чисел нам нужно сделать запрос на <code>http://localhost:8080/primes?n=20</code>.</p><br/>
+<p>Предположим, к нам стучатся 3 клиента и пытаются получить доступ к нашему не блокирующемуся вводом/выводом API:</p><br/>
+<ul>
+<li>Первый запрашивает 5 простых чисел каждую секунду.</li>
+<li>Второй запрашивает 1000 простых чисел каждую секунду</li>
+<li>Третий запрашивает 10 000 000 000 простых чисел, но...</li>
+</ul><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/pz/rx/bl/pzrxblziplf06w7-kzbyojhafhg.gif" data-src="https://habrastorage.org/webt/pz/rx/bl/pzrxblziplf06w7-kzbyojhafhg.gif"/></div><br/>
+<p>Когда третий клиент шлёт запрос – главный поток блокируется и это главный признак проблемы <strong>CPU-ёмких задач</strong>. Когда главный поток занят исполнением «тяжёлой» задачи он становится недоступен для других задач.</p><br/>
+<p>Но как насчёт libuv? Если Вы помните, эта библиотека помогает Node.js исполнять операции ввода/вывода с помощью потоков ОС избегая блокировки главного потока и Вы абсолютно правы, это решение нашей проблемы, но для того, что бы это стало возможным, наш модуль должен быть написан на языке C++, что бы libuv могла с ним работать.</p><br/>
+<p>К счастью, начиная с v10.5 в Node.js добавлен нативный модуль <strong>Worker Threads</strong>.</p><br/>
+<a name="p5"></a><br/>
+<h3 id="vorkery-i-ih-potoki">Воркеры и их потоки</h3><br/>
+<p>Как говорит нам <a href="https://nodejs.org/api/worker_threads.html">документация</a>:</p><br/>
+<blockquote>Воркеры полезны для выполнения CPU-ёмких JavaScript операций; не используйте их для операций ввода/вывода, уже встроенные в Node.js механизмы более эффективно справляются с такими задачами, чем Worker thread.</blockquote><p><strong>Исправление кода</strong></p><br/>
+<p>Пришло время переписать наш код:</p><br/>
+<p><code>primes-workerthreads.js</code></p><br/>
+<pre><code class="javascript">const { workerData, parentPort } = require('worker_threads');
+
+function isPrime(n) {
+  for(let i = 2, s = Math.sqrt(n); i &lt;= s; i++)
+    if(n % i === 0) return false;
+  return n > 1;
+}
+
+function nthPrime(n) {
+  let counter = n;
+  let iterator = 2;
+  let result = [];
+
+  while(counter > 0) {
+    isPrime(iterator) &amp;&amp; result.push(iterator) &amp;&amp; counter--;
+    iterator++;
+  }
+
+  return result;
+}
+
+parentPort.postMessage(nthPrime(workerData.n));</code></pre><br/>
+<p><code>index-workerthreads.js</code></p><br/>
+<pre><code class="javascript">const http = require('http');
+const url = require('url');
+const { Worker } = require('worker_threads');
+
+const server = http.createServer(function (request, response) {                                                                                              
+  const { pathname, query } = url.parse(request.url, true);
+
+  if (pathname === '/primes') {                                                                                                                                    
+    const worker = new Worker('./primes-workerthreads.js', { workerData: { n: query.n || 0 } });
+
+    worker.on('error', function () {
+      response.statusCode = 500;
+      response.write('Oops there was an error...');
+      response.end();
+    });
+
+    let result;
+    worker.on('message', function (message) {
+      result = message;
+    });
+
+    worker.on('exit', function () {
+      response.setHeader('Content-Type', 'application/json');
+      response.write(JSON.stringify(result));
+      response.end();
+    });
+  } else {
+    response.statusCode = 404;
+    response.write('Not Found');
+    response.end();
+  }
+});
+
+server.listen(8080);</code></pre><br/>
+<p>В файле <code>index-workerthreads.js</code> при каждом запросе на <code>/primes</code> создаётся экземпляр класса <code>Worker</code> (с нативного модуля <code>worker_threads</code>) для выгрузки и исполнения файла <code>primes-workerthreads.js</code> в поток воркера. Когда список простых чисел просчитан и готов, инициируется событие <code>message</code> – результат попадает в главный поток из-за того, что у воркера не осталось работы он также инициирует событие <code>exit</code>, позволяя основному потоку отправлять данные клиенту.</p><br/>
+<p><code>primes-workerthreads.js</code> изменён немного. Он импортирует <code>workerData</code> (это копия параметров, переданных с основного потока) и <code>parentPort</code> через который результат работы воркера передаётся назад в главный поток.</p><br/>
+<p>Теперь давайте испробуем наш пример снова и посмотрим, что случиться:</p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/zu/vk/gh/zuvkghy8dnhjryfdf5b62ped8dw.gif" data-src="https://habrastorage.org/webt/zu/vk/gh/zuvkghy8dnhjryfdf5b62ped8dw.gif"/></div><br/>
+<p>Основной поток больше не блокируется <img width="115" src="https://habrastorage.org/r/w1560/webt/nn/hs/r3/nnhsr3jiw_4aed53jye8gokutpy.png" data-src="https://habrastorage.org/webt/nn/hs/r3/nnhsr3jiw_4aed53jye8gokutpy.png"/>!!!!!</p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/tt/ij/el/ttijelgt36k_vbengx3qjaaajlc.gif" data-src="https://habrastorage.org/webt/tt/ij/el/ttijelgt36k_vbengx3qjaaajlc.gif"/></div><br/>
+<p>Теперь всё работает как нужно, но плодить воркеры без всяких на то причин все же не лучшая практика, создавать потоки не дешёвое удовольствие. Обязательно создайте пул потоков перед этим.</p><br/>
+<h4 id="zaklyuchenie">Заключение</h4><br/>
+<p>Node.js мощная технология, которую стоит изучить при возможности.<br/>
+Моя личная рекомендация – всегда будьте любопытными! Если Вы знаете, как что-то работает изнутри, Вы сможете работать с этим более эффективно.</p><br/>
+<p>Это всё на сегодня, ребята. Я надеюсь этот пост был полезен для Вас и вы узнали что-то новое о Node.js.</p><br/>
+<p>Спасибо за прочтение и до встречи в следующих постах<img width="20" src="https://habrastorage.org/r/w1560/webt/bd/lk/kd/bdlkkdf7adtljydvhxyw22y3cfi.png" data-src="https://habrastorage.org/webt/bd/lk/kd/bdlkkdf7adtljydvhxyw22y3cfi.png"/>.</p></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BF%D0%B5%D1%80%D0%B5%D0%B2%D0%BE%D0%B4%5D" class="tm-tags-list__link">перевод</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%5D" class="tm-tags-list__link">программирование</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bnode.js%5D" class="tm-tags-list__link">node.js</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bjavascript%5D" class="tm-tags-list__link">javascript</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bevent%20loop%5D" class="tm-tags-list__link">event loop</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bworkers%5D" class="tm-tags-list__link">workers</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/javascript/" class="tm-hubs-list__link">
+    JavaScript
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/nodejs/" class="tm-hubs-list__link">
+    Node.JS
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 75: ↑71 и ↓4</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 75: ↑71 и ↓4" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+67</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">114K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    373
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/DemjanUA/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/3be/463/19a/3be46319a3c2395fcfaeb407b6a70a0e.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 25 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    23
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Дмитрий</span> <a href="https://habr.com/ru/users/DemjanUA/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @DemjanUA
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/460661/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 18 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner16700" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner16701" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/react_razrabotchik" target="_blank" class="tm-vacancies-block__vacancy-title">
+        React разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        276
+    вакансий
+      </div></div><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/nodejs_razrabotchik" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Node.js разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        185
+    вакансий
+      </div></div><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/programmist_javascript" target="_blank" class="tm-vacancies-block__vacancy-title">
+        JavaScript разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        554
+    вакансии
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/460661/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/460661/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"460661":{"id":"460661","timePublished":"2019-07-19T10:49:26+00:00","isCorporative":false,"lang":"ru","titleHtml":"Всё что вам нужно знать о Node.js","leadData":{"textHtml":"\u003Cp\u003EПривет, Хабр! Представляю вашему вниманию перевод статьи \u003Ca href=\"https:\u002F\u002Fdev.to\u002Fjorge_rockr\u002Feverything-you-need-to-know-about-node-js-lnc#theproblemwithcpuintensivetasks\"\u003E\"Everything you need to know about Node.js\"\u003C\u002Fa\u003E автора Jorge Ramón.\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fua\u002Fqz\u002Fgr\u002Fuaqzgrarpig3cxhjdiuiutbxbms.jpeg\"\u003E\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EВ наши дни платформа Node.js является одной из самых популярных платформ для построения эффективных и масштабируемых REST API's. Она так же подходит для построения гибридных мобильных приложений, десктопных программ и даже для IoT.\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EЯ работаю с платформой Node.js более 6 лет и я на самом деле люблю её. Этот пост главным образом пытается быть путеводителем по тому, как Node.js работает на самом деле.\u003C\u002Fp\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"sandbox","data":null}],"author":{"scoreStats":{"score":23,"votesCount":25},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1225881","alias":"DemjanUA","fullname":"Дмитрий","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F3be\u002F463\u002F19a\u002F3be46319a3c2395fcfaeb407b6a70a0e.jpg","speciality":"Пользователь"},"statistics":{"commentsCount":18,"favoritesCount":373,"readingCount":114174,"score":67,"votesCount":75},"hubs":[{"relatedData":null,"id":"357","alias":"javascript","type":"collective","title":"JavaScript","titleHtml":"JavaScript","isProfiled":true},{"relatedData":null,"id":"17110","alias":"nodejs","type":"collective","title":"Node.JS","titleHtml":"Node.JS","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cp\u003EПривет, Хабр! Представляю вашему вниманию перевод статьи \u003Ca href=\"https:\u002F\u002Fdev.to\u002Fjorge_rockr\u002Feverything-you-need-to-know-about-node-js-lnc#theproblemwithcpuintensivetasks\"\u003E\"Everything you need to know about Node.js\"\u003C\u002Fa\u003E автора Jorge Ramón.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fua\u002Fqz\u002Fgr\u002Fuaqzgrarpig3cxhjdiuiutbxbms.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fua\u002Fqz\u002Fgr\u002Fuaqzgrarpig3cxhjdiuiutbxbms.jpeg\" data-blurred=\"true\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ наши дни платформа Node.js является одной из самых популярных платформ для построения эффективных и масштабируемых REST API's. Она так же подходит для построения гибридных мобильных приложений, десктопных программ и даже для IoT.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЯ работаю с платформой Node.js более 6 лет и я на самом деле люблю её. Этот пост главным образом пытается быть путеводителем по тому, как Node.js работает на самом деле.\u003C\u002Fp\u003E\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДавайте же начнём!!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EО чем пойдёт речь:\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"#p1\"\u003EМир до Node.js\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#p2\"\u003EПроблема C10K\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#p3\"\u003ENode.js и цикл событий\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#p4\"\u003EПроблема CPU-ёмких задач\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#p5\"\u003EВоркеры и их потоки\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"p1\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"mir-do-nodejs\"\u003EМир до Node.js\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EМногопоточный сервер\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВеб-приложения, написанные следуя клиент\u002Fсерверной архитектуре, работают по следующей схеме — клиент запрашивает нужный ресурс у сервера и сервер отправляет ресурс в ответ. В этой схеме сервер, ответив на запрос, прерывает соединение.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТакая модель эффективна поскольку каждый запрос к серверу потребляет ресурсы (память, процессорное время и т.д.). Для того чтобы обрабатывать каждый последующий запрос от клиента, сервер должен завершить обработку предыдущего.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЗначит ли это, что сервер может обрабатывать только один запрос за раз? Не совсем! Когда сервер получает новый запрос он создаёт отдельный \u003Cstrong\u003Eпоток\u003C\u002Fstrong\u003E для его обработки. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cem\u003EПоток\u003C\u002Fem\u003E, если простыми словами, это время и ресурсы, что CPU выделяет на выполнение небольшого блока инструкций. С учётом сказанного, сервер может обрабатывать несколько запросов одновременно, но только по одному на поток. Такая модель так же называться \u003Cstrong\u003Ethread-per-request model\u003C\u002Fstrong\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fmm\u002Fns\u002Fgn\u002Fmmnsgnzvz7aptv62xrbo6zxju-w.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fmm\u002Fns\u002Fgn\u002Fmmnsgnzvz7aptv62xrbo6zxju-w.jpeg\" data-blurred=\"true\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДля обработки N запросов серверу нужно N потоков. Если сервер получает N+1 запросов, тогда он должен ждать пока один из потоков не станет доступным.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНа рисунке выше, сервер может обрабатывать до 4 запросов (потоков) единовременно и когда он получает следующие 3 запроса, эти запросы должны ждать пока любой из этих 4 потоков не станет доступным.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОдин из способов избавиться от ограничений — добавить больше ресурсов (памяти, ядер процессора и т. д.) на сервер, но это не самое лучшее решение….\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fyb\u002Fqz\u002Fzl\u002Fybqzzljzkgej-kirqwza-43amcw.gif\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fyb\u002Fqz\u002Fzl\u002Fybqzzljzkgej-kirqwza-43amcw.gif\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИ, конечно, не забываем о технологических ограничениях.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EБлокирующий ввод\u002Fвывод\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОграниченное число потоков на сервере не единственная проблема. Возможно, Вам стало интересно почему один поток не может обрабатывать несколько запросов одновременно? всё из-за \u003Cstrong\u003Eблокирующих операций ввода\u002Fвывода\u003C\u002Fstrong\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fei\u002Fao\u002F02\u002Feiao02s-dtpki8au6sybf8-dmbu.gif\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fei\u002Fao\u002F02\u002Feiao02s-dtpki8au6sybf8-dmbu.gif\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДопустим, Вы разрабатываете онлайн магазин и Вам нужна страница где пользователь может просматривать список всех товаров.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПользователь стучится на \u003Ca href=\"http:\u002F\u002Fyourstore.com\u002Fproducts\"\u003Ehttp:\u002F\u002Fyourstore.com\u002Fproducts\u003C\u002Fa\u003E и сервер рендерит HTML файл со всеми продуктами с базы данных в ответ. Совсем не сложно, да?\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНо, что же происходит за кулисами?\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EКогда пользователь стучится на \u003Ccode\u003E\u002Fproducts\u003C\u002Fcode\u003E особый метод или функция должна выполниться, что бы обработать запрос. Маленький кусочек кода (Ваш или фреймворка) анализирует URL-адрес запроса и ищет подходящий метод или функцию.\u003Cstrong\u003E Поток работает\u003C\u002Fstrong\u003E. \u003Cimg width=\"20\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fo1\u002Fsw\u002Fx5\u002Fo1swx5v-gnn2ptqjjzonhq3oew0.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fo1\u002Fsw\u002Fx5\u002Fo1swx5v-gnn2ptqjjzonhq3oew0.png\"\u002F\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EТеперь нужный метод или функция выполняться, так как и в первом пункте — \u003Cstrong\u003Eпоток работает.\u003C\u002Fstrong\u003E\u003Cimg width=\"20\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fo1\u002Fsw\u002Fx5\u002Fo1swx5v-gnn2ptqjjzonhq3oew0.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fo1\u002Fsw\u002Fx5\u002Fo1swx5v-gnn2ptqjjzonhq3oew0.png\"\u002F\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EТак как Вы хороший разработчик, Вы сохраняете все системные логи в файл, ну и конечно же, что бы быть уверенными, что роутер выполняет нужный метод\u002Fфункцию — Вы так же логируете строку \"Method X executing!!». Но всё это блокирующие операции ввода\u002Fвывода. \u003Cstrong\u003E Поток ждёт\u003C\u002Fstrong\u003E.\u003Cimg width=\"20\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fbq\u002Flm\u002Fcq\u002Fbqlmcq7ntk4kpr2gncodmxpqqee.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fbq\u002Flm\u002Fcq\u002Fbqlmcq7ntk4kpr2gncodmxpqqee.png\"\u002F\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EВсе логи сохранены и следующие строки функции выполняются. \u003Cstrong\u003EПоток работает снова\u003C\u002Fstrong\u003E. \u003Cimg width=\"20\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fo1\u002Fsw\u002Fx5\u002Fo1swx5v-gnn2ptqjjzonhq3oew0.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fo1\u002Fsw\u002Fx5\u002Fo1swx5v-gnn2ptqjjzonhq3oew0.png\"\u002F\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EВремя обращаться к базе данных и получать все продукты – простой запрос, вроде \u003Ccode\u003ESELECT * FROM products\u003C\u002Fcode\u003E, выполняет свою работу, но угадайте что? Да-да, это блокирующая операция ввода\u002Fвывода. \u003Cstrong\u003EПоток ждёт\u003C\u002Fstrong\u003E. \u003Cimg width=\"20\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fbq\u002Flm\u002Fcq\u002Fbqlmcq7ntk4kpr2gncodmxpqqee.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fbq\u002Flm\u002Fcq\u002Fbqlmcq7ntk4kpr2gncodmxpqqee.png\"\u002F\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EВы получили массив или список всех продуктов, но убедитесь, что Вы всё это залогировали. \u003Cstrong\u003EПоток ждёт\u003C\u002Fstrong\u003E. \u003Cimg width=\"20\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fbq\u002Flm\u002Fcq\u002Fbqlmcq7ntk4kpr2gncodmxpqqee.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fbq\u002Flm\u002Fcq\u002Fbqlmcq7ntk4kpr2gncodmxpqqee.png\"\u002F\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EТеперь у Вас есть все продукты и пришло время рендерить шаблон для будущей страницы, но перед этим Вам нужно их прочитать. \u003Cstrong\u003EПоток ждёт\u003C\u002Fstrong\u003E. \u003Cimg width=\"20\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fbq\u002Flm\u002Fcq\u002Fbqlmcq7ntk4kpr2gncodmxpqqee.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fbq\u002Flm\u002Fcq\u002Fbqlmcq7ntk4kpr2gncodmxpqqee.png\"\u002F\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EДвижок рендеринга делает свою работу и шлёт ответ клиенту. \u003Cstrong\u003EПоток работает снова\u003C\u002Fstrong\u003E. \u003Cimg width=\"20\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fo1\u002Fsw\u002Fx5\u002Fo1swx5v-gnn2ptqjjzonhq3oew0.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fo1\u002Fsw\u002Fx5\u002Fo1swx5v-gnn2ptqjjzonhq3oew0.png\"\u002F\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EПоток свободен, словно птица в небесах. \u003Cimg width=\"20\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fwr\u002Fvg\u002F0_\u002Fwrvg0_hul5qltn9qpyg9fv6beua.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fwr\u002Fvg\u002F0_\u002Fwrvg0_hul5qltn9qpyg9fv6beua.png\"\u002F\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНа сколько медленны операции ввода\u002Fвывода? Ну это зависит от конкретной. Давайте обратимся к таблице:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Cth\u003E\u003Cb\u003EОперация\u003C\u002Fb\u003E\u003C\u002Fth\u003E\r\n\u003Cth\u003E\u003Cb\u003EКоличество CPU тактов\u003C\u002Fb\u003E\u003C\u002Fth\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003ECPU Registers\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E3 такта\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EL1 Cache\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E8 тактов\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EL2 Cache\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E12 тактов\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003ERAM\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E150 тактов\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EDisk\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E30,000,000 тактов\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003ENetwork\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E250,000,000 тактов\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОперации сети и чтения с диска слишком медленные. Представьте сколько запросов или обращений к внешним API ваша система могла бы обработать за это время. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПодбивая итоги: операции ввода\u002Fвывода заставляют поток ждать и тратить ресурсы впустую.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fbg\u002Fqm\u002Fk1\u002Fbgqmk13cgzyfg7vmynzpkxdxbdc.gif\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fbg\u002Fqm\u002Fk1\u002Fbgqmk13cgzyfg7vmynzpkxdxbdc.gif\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"p2\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"problema-c10k\"\u003EПроблема C10K\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EПроблема\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cb\u003EC10k\u003C\u002Fb\u003E (англ. \u003Ci\u003EC10k; 10k connections\u003C\u002Fi\u003E — проблема 10 тысяч соединений)\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ ранние 2000-е, серверные и клиентские машины были медленными. Проблема возникала при параллельной обработке 10 000 клиентских соединений к одной машине. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНо почему традиционная модель thread-per-request (поток на запрос) не могла решить эту проблему? Что ж, давайте используем немного математики.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНативная реализация потоков выделяет больше 1 Мб памяти на поток, выходя из этого – для 10 тысяч потоков требуется 10 Гб оперативной памяти и это только для стека потоков. Да, и не забывайте, мы в начале 2000-х!!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Faf\u002F99\u002Fxc\u002Faf99xcxnykot0wq-zv20o-6cvps.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Faf\u002F99\u002Fxc\u002Faf99xcxnykot0wq-zv20o-6cvps.jpeg\" data-blurred=\"true\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ наши дни серверные и клиентские компьютеры работают быстрее и эффективней и почти любой язык программирования или фреймворк справляются с этой проблемой. Но фактически проблема не исчерпана. Для 10 миллионов клиентских соединений к одной машине проблема возвращается вновь (но теперь она \u003Ca href=\"http:\u002F\u002Fc10m.robertgraham.com\u002Fp\u002Fmanifesto.html\"\u003EC10M Problem\u003C\u002Fa\u003E).\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EJavaScript спасение?\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОсторожно, спойлеры\u003Cimg width=\"70\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fvl\u002Fiw\u002F8n\u002Fvliw8nxrmg8paobiiyvuozjxpdc.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fvl\u002Fiw\u002F8n\u002Fvliw8nxrmg8paobiiyvuozjxpdc.png\"\u002F\u003E!!!\u003Cbr\u002F\u003E\r\nNode.js на самом деле решает проблему C10K… но как?!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСерверный JavaScript не был чем-то новым и необычным в начале 2000-х, на тот момент уже существовали реализации поверх JVM (java virtual machine) – RingoJS и AppEngineJS, что работали на модели thread-per-request.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНо если они не смогли решить проблему, тогда как Node.js смог?! Всё из-за того, что JavaScript \u003Cstrong\u003Eоднопоточный\u003C\u002Fstrong\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Flp\u002Fnx\u002Fvh\u002Flpnxvhxjbmqmkzmblpqqmfcxq0s.gif\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Flp\u002Fnx\u002Fvh\u002Flpnxvhxjbmqmkzmblpqqmfcxq0s.gif\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"p3\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"nodejs-i-cikl-sobytiy\"\u003ENode.js и цикл событий\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003ENode.js\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003ENode.js это серверная платформа, что работает на движке Google Chrome – V8, который умеет компилировать JavaScript код в машинный код. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003ENode.js использует \u003Cstrong\u003Eсобытийно-ориентированную\u003C\u002Fstrong\u003E модель и \u003Cstrong\u003Eнеблокирующую ввод \u002F вывод\u003C\u002Fstrong\u003E архитектуру, что делает его легковесным и эффективным. Это не фреймворк, и не библиотека, это среда выполнения JavaScript.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДавайте напишем маленький пример:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E\u002F\u002F Importing native http module\nconst http = require('http');\n\n\u002F\u002F Creating a server instance where every call\n\u002F\u002F the message 'Hello World' is responded to the client\nconst server = http.createServer(function(request, response) {\n  response.write('Hello World');\n  response.end();\n});\n\n\u002F\u002F Listening port 8080\nserver.listen(8080);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003ENon-blocking I\u002FO\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003ENode.js использует неблокирующие ввод\u002Fвывод операции, что же это значит:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EГлавный поток не будет блокироваться операциями ввода\u002Fвывода.\u003C\u002Fli\u003E\r\n\u003Cli\u003EСервер будет продолжать обслуживать запросы.\u003C\u002Fli\u003E\r\n\u003Cli\u003EНам придётся работать с \u003Cstrong\u003Eасинхронным кодом\u003C\u002Fstrong\u003E.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДавайте напишем пример, в котором на запрос к \u003Ccode\u003E\u002Fhome\u003C\u002Fcode\u003E сервер в ответ шлёт HTML страницу, а для всех других запросов — 'Hello World'. Что бы отослать HTML страницу сначала ее нужно прочитать из файла.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ccode\u003Ehome.html\u003C\u002Fcode\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"html\"\u003E&lt;html\u003E\n  &lt;body\u003E\n    &lt;h1\u003EThis is home page&lt;\u002Fh1\u003E\n  &lt;\u002Fbody\u003E\n&lt;\u002Fhtml\u003E\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ccode\u003Eindex.js\u003C\u002Fcode\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Econst http = require('http');\nconst fs = require('fs');\n\nconst server = http.createServer(function(request, response) {\n  if (request.url === '\u002Fhome') {\n    fs.readFile(`${ __dirname }\u002Fhome.html`, function (err, content) {\n      if (!err) {\n        response.setHeader('Content-Type', 'text\u002Fhtml');\n        response.write(content);\n      } else {\n        response.statusCode = 500;\n        response.write('An error has ocurred');\n      }\n\n      response.end();\n    });\n  } else {\n    response.write('Hello World');\n    response.end();\n  }\n});\n\nserver.listen(8080);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕсли запрашиваемый url-адрес \u003Ccode\u003E\u002Fhome\u003C\u002Fcode\u003E, тогда используется нативный модуль \u003Ccode\u003Efs\u003C\u002Fcode\u003E для чтения файла \u003Ccode\u003Ehome.html\u003C\u002Fcode\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EФункции что попадают в \u003Ccode\u003Ehttp.createServer\u003C\u002Fcode\u003E и \u003Ccode\u003Efs.readFile\u003C\u002Fcode\u003E как аргументы — \u003Cstrong\u003Eколбэки\u003C\u002Fstrong\u003E. Эти функции будут выполнены в какой-то из моментов в будущем (Первая, как только сервер получит запрос, а вторая — когда файл будет прочитан с диска и помещён в буфер).\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПока файл считывается с диска, Node.js может обрабатывать другие запросы и даже считывать файл снова и всё это в одном потоке… но как?!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EЦикл событий\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EЦикл событий\u003C\u002Fstrong\u003E — это магия, которая происходит внутри Node.js. Это буквально бесконечный цикл и на самом деле один поток. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Ff_\u002Fsc\u002Fgo\u002Ff_scgo68j5gpf0xsnzklzdr9cjc.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ff_\u002Fsc\u002Fgo\u002Ff_scgo68j5gpf0xsnzklzdr9cjc.jpeg\" data-blurred=\"true\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003ELibuv\u003C\u002Fstrong\u003E — C библиотека которая реализует этот паттерн и является частью ядра Node.js. Вы можете узнать больше о libuv \u003Ca href=\"https:\u002F\u002Fnikhilm.github.io\u002Fuvbook\u002Fintroduction.html\"\u003Eздесь\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЦикл событий имеет 6 фаз, каждое исполнение всех 6 фаз называют \u003Cstrong\u003Etick\u003C\u002Fstrong\u003E-ом.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002F2k\u002Fxy\u002Feq\u002F2kxyeqk7srzdocs9egzl5zlpwhm.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F2k\u002Fxy\u002Feq\u002F2kxyeqk7srzdocs9egzl5zlpwhm.png\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cstrong\u003Etimers\u003C\u002Fstrong\u003E: в этой фазе выполняются коллбэки, запланированные методами \u003Ccode\u003EsetTimeout()\u003C\u002Fcode\u003E и \u003Ccode\u003EsetInterval()\u003C\u002Fcode\u003E;\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003Epending callbacks\u003C\u002Fstrong\u003E: выполняются почти все коллбэки, за исключением событий \u003Ccode\u003Eclose\u003C\u002Fcode\u003E, таймеров и \u003Ccode\u003EsetImmediate()\u003C\u002Fcode\u003E;\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003Eidle, prepare\u003C\u002Fstrong\u003E: используется только для внутренних целей;\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003Epoll\u003C\u002Fstrong\u003E: ответственен за получение новых событий ввода\u002Fвывода. Node.js может блокироваться на этом этапе;\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003Echeck\u003C\u002Fstrong\u003E: коллбэки, вызванные методом \u003Ccode\u003EsetImmediate()\u003C\u002Fcode\u003E, выполняються на этом этапе;\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003Eclose callbacks\u003C\u002Fstrong\u003E: например, \u003Ccode\u003Esocket.on('close', ...)\u003C\u002Fcode\u003E;\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EХорошо, есть только один поток, и этот поток и есть цикл событий, но тогда кто выполняет все операции ввода\u002Fвывода?\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОбратите внимание\u003Cimg width=\"60\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002F92\u002F8i\u002Flj\u002F928iljyzpqhkbczypvvqgkx0zc0.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F92\u002F8i\u002Flj\u002F928iljyzpqhkbczypvvqgkx0zc0.png\"\u002F\u003E!!!\u003Cbr\u002F\u003E\r\nКогда циклу событий нужно выполнить операцию ввода\u002Fвывода он использует поток ОС с тредпула (thread pool), а когда задача выполнена, коллбэк ставится в очередь во время фазы \u003Cem\u003Epending callbacks\u003C\u002Fem\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Flz\u002Fz7\u002Fuw\u002Flzz7uwcdvm1xd1yr6utj7cae36g.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Flz\u002Fz7\u002Fuw\u002Flzz7uwcdvm1xd1yr6utj7cae36g.png\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EРазве это не круто?\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fit\u002Fyo\u002Fbh\u002Fityobhc10qgnkk5m9yk5xp94ble.gif\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fit\u002Fyo\u002Fbh\u002Fityobhc10qgnkk5m9yk5xp94ble.gif\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"p4\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"problema-cpu-yomkih-zadach\"\u003EПроблема CPU-ёмких задач\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003ENode.js кажется идеальным! Вы можете создавать всё, что захотите.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДавайте напишем API для вычислений простых чисел.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПростое число – это целое (натуральное) число больше единицы и делимое только на 1 и на само себя.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fnl\u002Fkn\u002F7f\u002Fnlkn7fwr_kxhtktm-_gt0ci7ask.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fnl\u002Fkn\u002F7f\u002Fnlkn7fwr_kxhtktm-_gt0ci7ask.jpeg\" data-blurred=\"true\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДано число N, API должен вычислять и возвращать первые N простых чисел в список (или массив).\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ccode\u003Eprimes.js\u003C\u002Fcode\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Efunction isPrime(n) {\n  for(let i = 2, s = Math.sqrt(n); i &lt;= s; i++) {\n    if(n % i === 0) return false;\n  }\n  return n \u003E 1;\n}\n\nfunction nthPrime(n) {\n  let counter = n;\n  let iterator = 2;\n  let result = [];\n\n  while(counter \u003E 0) {\n    isPrime(iterator) &amp;&amp; result.push(iterator) &amp;&amp; counter--;\n    iterator++;\n  }\n\n  return result;\n}\n\nmodule.exports = { isPrime, nthPrime };\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ccode\u003Eindex.js\u003C\u002Fcode\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Econst http = require('http');\nconst url = require('url');\nconst primes = require('.\u002Fprimes');\n\nconst server = http.createServer(function (request, response) {\n  const { pathname, query } = url.parse(request.url, true);\n\n  if (pathname === '\u002Fprimes') {\n    const result = primes.nthPrime(query.n || 0);\n    response.setHeader('Content-Type', 'application\u002Fjson');\n    response.write(JSON.stringify(result));\n    response.end();\n  } else {\n    response.statusCode = 404;\n    response.write('Not Found');\n    response.end();\n  }\n});\n\nserver.listen(8080);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ccode\u003Eprime.js\u003C\u002Fcode\u003E это реализация нужных вычислений: функция \u003Ccode\u003EisPrime\u003C\u002Fcode\u003E проверяет является ли число простым, а nthPrime возвращает N таких чисел.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EФайл же \u003Ccode\u003Eindex.js\u003C\u002Fcode\u003E отвечает за создание сервера и использует модуль \u003Ccode\u003Eprime.js\u003C\u002Fcode\u003E для обработки каждого запроса на \u003Ccode\u003E\u002Fprimes\u003C\u002Fcode\u003E. Число N прокидывается через строку запроса в URL-адресе.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЧто бы получить первых 20 простых чисел нам нужно сделать запрос на \u003Ccode\u003Ehttp:\u002F\u002Flocalhost:8080\u002Fprimes?n=20\u003C\u002Fcode\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПредположим, к нам стучатся 3 клиента и пытаются получить доступ к нашему не блокирующемуся вводом\u002Fвыводом API:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EПервый запрашивает 5 простых чисел каждую секунду.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВторой запрашивает 1000 простых чисел каждую секунду\u003C\u002Fli\u003E\r\n\u003Cli\u003EТретий запрашивает 10 000 000 000 простых чисел, но...\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fpz\u002Frx\u002Fbl\u002Fpzrxblziplf06w7-kzbyojhafhg.gif\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fpz\u002Frx\u002Fbl\u002Fpzrxblziplf06w7-kzbyojhafhg.gif\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКогда третий клиент шлёт запрос – главный поток блокируется и это главный признак проблемы \u003Cstrong\u003ECPU-ёмких задач\u003C\u002Fstrong\u003E. Когда главный поток занят исполнением «тяжёлой» задачи он становится недоступен для других задач.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНо как насчёт libuv? Если Вы помните, эта библиотека помогает Node.js исполнять операции ввода\u002Fвывода с помощью потоков ОС избегая блокировки главного потока и Вы абсолютно правы, это решение нашей проблемы, но для того, что бы это стало возможным, наш модуль должен быть написан на языке C++, что бы libuv могла с ним работать.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EК счастью, начиная с v10.5 в Node.js добавлен нативный модуль \u003Cstrong\u003EWorker Threads\u003C\u002Fstrong\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"p5\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"vorkery-i-ih-potoki\"\u003EВоркеры и их потоки\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКак говорит нам \u003Ca href=\"https:\u002F\u002Fnodejs.org\u002Fapi\u002Fworker_threads.html\"\u003Eдокументация\u003C\u002Fa\u003E:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EВоркеры полезны для выполнения CPU-ёмких JavaScript операций; не используйте их для операций ввода\u002Fвывода, уже встроенные в Node.js механизмы более эффективно справляются с такими задачами, чем Worker thread.\u003C\u002Fblockquote\u003E\u003Cp\u003E\u003Cstrong\u003EИсправление кода\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПришло время переписать наш код:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ccode\u003Eprimes-workerthreads.js\u003C\u002Fcode\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Econst { workerData, parentPort } = require('worker_threads');\n\nfunction isPrime(n) {\n  for(let i = 2, s = Math.sqrt(n); i &lt;= s; i++)\n    if(n % i === 0) return false;\n  return n \u003E 1;\n}\n\nfunction nthPrime(n) {\n  let counter = n;\n  let iterator = 2;\n  let result = [];\n\n  while(counter \u003E 0) {\n    isPrime(iterator) &amp;&amp; result.push(iterator) &amp;&amp; counter--;\n    iterator++;\n  }\n\n  return result;\n}\n\nparentPort.postMessage(nthPrime(workerData.n));\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ccode\u003Eindex-workerthreads.js\u003C\u002Fcode\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Econst http = require('http');\nconst url = require('url');\nconst { Worker } = require('worker_threads');\n\nconst server = http.createServer(function (request, response) {                                                                                              \n  const { pathname, query } = url.parse(request.url, true);\n\n  if (pathname === '\u002Fprimes') {                                                                                                                                    \n    const worker = new Worker('.\u002Fprimes-workerthreads.js', { workerData: { n: query.n || 0 } });\n\n    worker.on('error', function () {\n      response.statusCode = 500;\n      response.write('Oops there was an error...');\n      response.end();\n    });\n\n    let result;\n    worker.on('message', function (message) {\n      result = message;\n    });\n\n    worker.on('exit', function () {\n      response.setHeader('Content-Type', 'application\u002Fjson');\n      response.write(JSON.stringify(result));\n      response.end();\n    });\n  } else {\n    response.statusCode = 404;\n    response.write('Not Found');\n    response.end();\n  }\n});\n\nserver.listen(8080);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ файле \u003Ccode\u003Eindex-workerthreads.js\u003C\u002Fcode\u003E при каждом запросе на \u003Ccode\u003E\u002Fprimes\u003C\u002Fcode\u003E создаётся экземпляр класса \u003Ccode\u003EWorker\u003C\u002Fcode\u003E (с нативного модуля \u003Ccode\u003Eworker_threads\u003C\u002Fcode\u003E) для выгрузки и исполнения файла \u003Ccode\u003Eprimes-workerthreads.js\u003C\u002Fcode\u003E в поток воркера. Когда список простых чисел просчитан и готов, инициируется событие \u003Ccode\u003Emessage\u003C\u002Fcode\u003E – результат попадает в главный поток из-за того, что у воркера не осталось работы он также инициирует событие \u003Ccode\u003Eexit\u003C\u002Fcode\u003E, позволяя основному потоку отправлять данные клиенту.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ccode\u003Eprimes-workerthreads.js\u003C\u002Fcode\u003E изменён немного. Он импортирует \u003Ccode\u003EworkerData\u003C\u002Fcode\u003E (это копия параметров, переданных с основного потока) и \u003Ccode\u003EparentPort\u003C\u002Fcode\u003E через который результат работы воркера передаётся назад в главный поток.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТеперь давайте испробуем наш пример снова и посмотрим, что случиться:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fzu\u002Fvk\u002Fgh\u002Fzuvkghy8dnhjryfdf5b62ped8dw.gif\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fzu\u002Fvk\u002Fgh\u002Fzuvkghy8dnhjryfdf5b62ped8dw.gif\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОсновной поток больше не блокируется \u003Cimg width=\"115\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fnn\u002Fhs\u002Fr3\u002Fnnhsr3jiw_4aed53jye8gokutpy.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fnn\u002Fhs\u002Fr3\u002Fnnhsr3jiw_4aed53jye8gokutpy.png\"\u002F\u003E!!!!!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Ftt\u002Fij\u002Fel\u002Fttijelgt36k_vbengx3qjaaajlc.gif\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ftt\u002Fij\u002Fel\u002Fttijelgt36k_vbengx3qjaaajlc.gif\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТеперь всё работает как нужно, но плодить воркеры без всяких на то причин все же не лучшая практика, создавать потоки не дешёвое удовольствие. Обязательно создайте пул потоков перед этим.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4 id=\"zaklyuchenie\"\u003EЗаключение\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003ENode.js мощная технология, которую стоит изучить при возможности.\u003Cbr\u002F\u003E\r\nМоя личная рекомендация – всегда будьте любопытными! Если Вы знаете, как что-то работает изнутри, Вы сможете работать с этим более эффективно.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЭто всё на сегодня, ребята. Я надеюсь этот пост был полезен для Вас и вы узнали что-то новое о Node.js.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСпасибо за прочтение и до встречи в следующих постах\u003Cimg width=\"20\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fbd\u002Flk\u002Fkd\u002Fbdlkkdf7adtljydvhxyw22y3cfi.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fbd\u002Flk\u002Fkd\u002Fbdlkkdf7adtljydvhxyw22y3cfi.png\"\u002F\u003E.\u003C\u002Fp\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"перевод"},{"titleHtml":"программирование"},{"titleHtml":"node.js"},{"titleHtml":"javascript"},{"titleHtml":"event loop"},{"titleHtml":"workers"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F460661\u002F29710367bb5ec2ad3bc906189469b289\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F460661\u002F29710367bb5ec2ad3bc906189469b289\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F460661\\\u002F\"},\"headline\":\"Всё что вам нужно знать о Node.js\",\"datePublished\":\"2019-07-19T13:49:26+03:00\",\"dateModified\":\"2019-08-08T12:30:31+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Дмитрий\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Привет, Хабр! Представляю вашему вниманию перевод статьи &quot;Everything you need to know about Node.js&quot; автора Jorge Ram&oacute;n.  В наши дни платформа Node.js является о...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F460661\\\u002F#post-content-body\",\"about\":[\"h_javascript\",\"h_nodejs\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fua\\\u002Fqz\\\u002Fgr\\\u002Fuaqzgrarpig3cxhjdiuiutbxbms.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fmm\\\u002Fns\\\u002Fgn\\\u002Fmmnsgnzvz7aptv62xrbo6zxju-w.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fyb\\\u002Fqz\\\u002Fzl\\\u002Fybqzzljzkgej-kirqwza-43amcw.gif\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fei\\\u002Fao\\\u002F02\\\u002Feiao02s-dtpki8au6sybf8-dmbu.gif\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fo1\\\u002Fsw\\\u002Fx5\\\u002Fo1swx5v-gnn2ptqjjzonhq3oew0.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fbq\\\u002Flm\\\u002Fcq\\\u002Fbqlmcq7ntk4kpr2gncodmxpqqee.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fwr\\\u002Fvg\\\u002F0_\\\u002Fwrvg0_hul5qltn9qpyg9fv6beua.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fbg\\\u002Fqm\\\u002Fk1\\\u002Fbgqmk13cgzyfg7vmynzpkxdxbdc.gif\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Faf\\\u002F99\\\u002Fxc\\\u002Faf99xcxnykot0wq-zv20o-6cvps.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fvl\\\u002Fiw\\\u002F8n\\\u002Fvliw8nxrmg8paobiiyvuozjxpdc.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Flp\\\u002Fnx\\\u002Fvh\\\u002Flpnxvhxjbmqmkzmblpqqmfcxq0s.gif\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Ff_\\\u002Fsc\\\u002Fgo\\\u002Ff_scgo68j5gpf0xsnzklzdr9cjc.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F2k\\\u002Fxy\\\u002Feq\\\u002F2kxyeqk7srzdocs9egzl5zlpwhm.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F92\\\u002F8i\\\u002Flj\\\u002F928iljyzpqhkbczypvvqgkx0zc0.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Flz\\\u002Fz7\\\u002Fuw\\\u002Flzz7uwcdvm1xd1yr6utj7cae36g.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fit\\\u002Fyo\\\u002Fbh\\\u002Fityobhc10qgnkk5m9yk5xp94ble.gif\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fnl\\\u002Fkn\\\u002F7f\\\u002Fnlkn7fwr_kxhtktm-_gt0ci7ask.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fpz\\\u002Frx\\\u002Fbl\\\u002Fpzrxblziplf06w7-kzbyojhafhg.gif\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fzu\\\u002Fvk\\\u002Fgh\\\u002Fzuvkghy8dnhjryfdf5b62ped8dw.gif\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fnn\\\u002Fhs\\\u002Fr3\\\u002Fnnhsr3jiw_4aed53jye8gokutpy.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Ftt\\\u002Fij\\\u002Fel\\\u002Fttijelgt36k_vbengx3qjaaajlc.gif\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fbd\\\u002Flk\\\u002Fkd\\\u002Fbdlkkdf7adtljydvhxyw22y3cfi.png\"]}","metaDescription":"Привет, Хабр! Представляю вашему вниманию перевод статьи &quot;Everything you need to know about Node.js&quot; автора Jorge Ramón.\r\n\r\nВ наши дни платформа Node.js является одной из самых популярных платформ для...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"React разработчик","vacanciesCount":276,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Freact_razrabotchik","itemHubs":["javascript","reactjs"]},{"title":"Node.js разработчик","vacanciesCount":185,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fnodejs_razrabotchik","itemHubs":["nodejs"]},{"title":"JavaScript разработчик","vacanciesCount":554,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fprogrammist_javascript","itemHubs":["javascript","reactjs","nodejs","typescript","vuejs","angular","sveltejs"]}],"hubs":"javascript,nodejs"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

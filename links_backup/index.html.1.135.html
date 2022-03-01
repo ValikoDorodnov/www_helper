@@ -1,0 +1,338 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru-RU">
+
+<head profile="http://gmpg.org/xfn/11">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<title>Пример использования триггеров в PostgreSQL | Записки программиста</title>
+
+<link rel="shortcut icon" href="https://eax.me/favicon.ico" type="image/x-icon" />
+<meta name="google-site-verification" content="mI_RLXJwm4YMPzdIMR6z3SZiGCHnxxQCZPKAYBimygM" />
+<meta name='yandex-verification' content='5944100ee6c98f3d' />
+  <meta name="description" content="Тут по работе возникла небольшая задачка с PostgreSQL. Интересна задача тем, что в ней достаточно оправдано использование триггеров. Как показывает опыт, не каж" />
+
+<link rel="stylesheet" href="https://eax.me/wp-content/themes/eaxme/style.css?20210331" type="text/css" media="screen" />
+
+<link rel="alternate" type="application/rss+xml" title="Записки программиста - RSS Feed" href="https://eax.me/feed/" />
+
+<link rel="stylesheet" href="https://eax.me/wp-content/plugins/codecolorer/codecolorer.css" type="text/css" media="screen" />
+<link rel='canonical' href='index.html.1.135.html' />
+</head>
+<body>
+
+<script type="text/javascript"><!--
+new Image().src = "https://coun"+"ter.yad"+"ro.ru/hit?r"+
+escape(document.referrer)+((typeof(screen)=="undefined")?"":
+";s"+screen.width+"*"+screen.height+"*"+(screen.colorDepth?
+screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+
+";"+Math.random();//--></script>
+
+<div id="page">
+
+<!-- header begin -->
+
+<div id="header">
+    <div id="header_title">
+        <h1><a href="https://eax.me/">Записки программиста</a></h1>
+    </div>
+    <div id="header_desc">
+      <strong>Блог о программировании, а также электронике, радио, и всяком таком</strong>
+    </div>
+    <div class="clear"></div>
+</div>
+
+<!-- header end -->
+
+<div id="body">
+<div id="body_top">
+	<div id="body_left">
+    	<div id="body_left_content">
+
+
+	<div id="content" class="narrowcolumn">
+
+			
+			<div class="post" id="post-74942">
+                <div class="post-top">
+                    <div class="post-title">
+                        <div class="left">
+                          <h2>Пример использования триггеров в PostgreSQL</h2>
+                          <div style="float: left;">
+                          <p>22 января 2020</p>
+                          </div>
+                          <div style="float: right;"></div>
+                          <div style="clear: both;"></div>
+                        </div>
+                    </div>
+                </div>
+				<div class="entry">
+					<p>Тут по работе возникла небольшая задачка с <a href="https://eax.me/postgresql-install/">PostgreSQL</a>. Интересна задача тем, что в ней достаточно оправдано использование триггеров. Как показывает опыт, не каждый разработчик знаком со «столь продвинутыми» возможностями постгреса. Поэтому мне показалось, что будет неплохой идеей написать про&nbsp;задачу и ее решение. <span id="more-74942"></span></p>
+<h3>Формулировка задачи</h3>
+<p>В упрощенной форме задача формулируется так. Есть таблица, в которой хранятся временные метки и некое число, соответствующее временной метке:</p>
+<div class="codecolorer-container sql default" style="overflow:auto;white-space:nowrap;"><div class="sql codecolorer"><span class="kw1">CREATE</span> <span class="kw1">TABLE</span> data_raw<span class="br0">&#40;</span>tstamp <span class="kw1">TIMESTAMP</span> <span class="kw1">PRIMARY</span> <span class="kw1">KEY</span><span class="sy0">,</span> val <span class="kw1">INT</span> <span class="kw1">NOT</span> <span class="kw1">NULL</span><span class="br0">&#41;</span>;</div></div>
+<p>Данных не очень много, десятки записей за сутки. Поэтому их не страшно хранить в PostgreSQL, а не специализированной time seties базе данных. На самом деле, помимо временной метки и значения, каждая запись содержит и другие данные. Но в рамках данной статьи они нас не интересуют. Считается, что временные метки не повторяются, поэтому их допустимо использовать в качестве первичного ключа.</p>
+<p>Необходимо сделать следующее. Для каждого дня берется три интервала времени &#8212; с 00:00 до 07:59, с 08:00 до 15:59 и 16:00 до 23:59. Необходимо посчитать какие-то агрегаты за эти интервалы. В рамках поста мы будем считать среднее. Выборка агрегатов должна производиться как можно быстрее, поскольку предполагается, что к ним будет много запросов на чтение.</p>
+<h3>Решение в лоб</h3>
+<p>Неплохая идея при решении любой задачи &#8212; найти простейшее решение, а&nbsp;затем, если нужно, подумать над оптимизацией.</p>
+<p>Заполним таблицу случайными данными:</p>
+<div class="codecolorer-container sql default" style="overflow:auto;white-space:nowrap;"><div class="sql codecolorer"><span class="kw1">INSERT</span> <span class="kw1">INTO</span> data_raw <span class="br0">&#40;</span>tstamp<span class="sy0">,</span> val<span class="br0">&#41;</span><br />
+&nbsp; <span class="kw1">SELECT</span> tstamp<span class="sy0">,</span> <span class="kw1">FLOOR</span><span class="br0">&#40;</span>random<span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">*</span><span class="nu0">100</span><span class="br0">&#41;</span><br />
+&nbsp; <span class="kw1">FROM</span> generate_series <span class="br0">&#40;</span><br />
+&nbsp; &nbsp; <span class="st0">'2020-01-01 00:00:00'</span> :: <span class="kw1">TIMESTAMP</span><span class="sy0">,</span><br />
+&nbsp; &nbsp; <span class="st0">'2020-01-04 23:00:00'</span> :: <span class="kw1">TIMESTAMP</span><span class="sy0">,</span><br />
+&nbsp; &nbsp; <span class="st0">'1 hour'</span><span class="br0">&#41;</span> <span class="kw1">AS</span> tstamp;</div></div>
+<p>&#8230; и напишем решение в лоб:</p>
+<div class="codecolorer-container sql default" style="overflow:auto;white-space:nowrap;"><div class="sql codecolorer"><span class="kw1">SELECT</span><br />
+&nbsp; tstamp :: <span class="kw1">DATE</span> <span class="sy0">+</span> <br />
+&nbsp; &nbsp; concat<span class="br0">&#40;</span><br />
+&nbsp; &nbsp; &nbsp; <span class="kw1">FLOOR</span><span class="br0">&#40;</span><span class="kw1">EXTRACT</span><span class="br0">&#40;</span><span class="kw1">HOUR</span> <span class="kw1">FROM</span> tstamp<span class="br0">&#41;</span> <span class="sy0">/</span> <span class="nu0">8</span><span class="br0">&#41;</span><span class="sy0">*</span><span class="nu0">8</span><span class="sy0">,</span><br />
+&nbsp; &nbsp; &nbsp; <span class="st0">':00:00'</span><br />
+&nbsp; &nbsp; <span class="br0">&#41;</span> :: <span class="kw1">TIME</span> <span class="kw1">AS</span> d<span class="sy0">,</span><br />
+&nbsp; <span class="kw1">AVG</span><span class="br0">&#40;</span>val<span class="br0">&#41;</span> :: <span class="kw1">FLOAT</span><br />
+<span class="kw1">FROM</span> data_raw<br />
+<span class="kw1">GROUP</span> <span class="kw1">BY</span> d<br />
+<span class="kw1">ORDER</span> <span class="kw1">BY</span> d;</div></div>
+<p>Пример результата:</p>
+<div class="codecolorer-container text default" style="overflow:auto;white-space:nowrap;"><div class="text codecolorer">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; d &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;| &nbsp;avg<br />
+---------------------+--------<br />
+&nbsp;2020-01-01 00:00:00 | 50.125<br />
+&nbsp;2020-01-01 08:00:00 | 56.125<br />
+&nbsp;2020-01-01 16:00:00 | 62.625<br />
+&nbsp;2020-01-02 00:00:00 | &nbsp; 51.5<br />
+&nbsp;2020-01-02 08:00:00 | &nbsp;54.25<br />
+&nbsp;2020-01-02 16:00:00 | 57.625<br />
+&nbsp;2020-01-03 00:00:00 | 45.625<br />
+&nbsp;2020-01-03 08:00:00 | &nbsp; &nbsp; 27<br />
+&nbsp;2020-01-03 16:00:00 | &nbsp;44.25<br />
+&nbsp;2020-01-04 00:00:00 | &nbsp;47.75<br />
+&nbsp;2020-01-04 08:00:00 | 53.875<br />
+&nbsp;2020-01-04 16:00:00 | &nbsp; 53.5<br />
+(12 rows)</div></div>
+<p>Разумеется, решение неэффективно, потому что каждый раз выполняется полное сканирование таблицы c группировками, сортировкой и всеми расчетами, см&nbsp;вывод <code class="codecolorer text default"><span class="text">EXPLAIN</span></code>. Теперь нам нужно получить такой же результат, только быстрее.</p>
+<h3>Решение на materialized view</h3>
+<p>Первое, что приходит на ум &#8212; это воспользоваться <a href="https://www.postgresql.org/docs/current/rules-materializedviews.html">materialized view</a>:</p>
+<div class="codecolorer-container sql default" style="overflow:auto;white-space:nowrap;"><div class="sql codecolorer"><span class="kw1">CREATE</span> <span class="kw1">MATERIALIZED</span> <span class="kw1">VIEW</span> data_view <span class="kw1">AS</span><br />
+&nbsp; <span class="kw1">SELECT</span><br />
+&nbsp; &nbsp; tstamp :: <span class="kw1">DATE</span> <span class="sy0">+</span> <br />
+&nbsp; &nbsp; &nbsp; concat<span class="br0">&#40;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">FLOOR</span><span class="br0">&#40;</span><span class="kw1">EXTRACT</span><span class="br0">&#40;</span><span class="kw1">HOUR</span> <span class="kw1">FROM</span> tstamp<span class="br0">&#41;</span> <span class="sy0">/</span> <span class="nu0">8</span><span class="br0">&#41;</span><span class="sy0">*</span><span class="nu0">8</span><span class="sy0">,</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="st0">':00:00'</span><br />
+&nbsp; &nbsp; &nbsp; <span class="br0">&#41;</span> :: <span class="kw1">TIME</span> <span class="kw1">AS</span> d<span class="sy0">,</span><br />
+&nbsp; &nbsp; <span class="kw1">AVG</span><span class="br0">&#40;</span>val<span class="br0">&#41;</span><br />
+&nbsp; <span class="kw1">FROM</span> data_raw<br />
+&nbsp; <span class="kw1">GROUP</span> <span class="kw1">BY</span> d<br />
+&nbsp; <span class="kw1">ORDER</span> <span class="kw1">BY</span> d;<br />
+<br />
+<span class="co1">-- уникальный индекс необходим для использования</span><br />
+<span class="co1">-- команды refresh materialized view concurrently.</span><br />
+<span class="co1">-- без concurrently вьюха будет блокироваться на время обновления</span><br />
+<span class="kw1">CREATE</span> <span class="kw1">UNIQUE</span> <span class="kw1">INDEX</span> data_view_idx <span class="kw1">ON</span> data_view<span class="br0">&#40;</span>d<span class="br0">&#41;</span>;</div></div>
+<p>Теперь закэшированные агрегаты можно читать прямо из data_view. Главное &#8212; не&nbsp;забывать делать:</p>
+<div class="codecolorer-container sql default" style="overflow:auto;white-space:nowrap;"><div class="sql codecolorer"><span class="kw1">REFRESH</span> <span class="kw1">MATERIALIZED</span> <span class="kw1">VIEW</span> <span class="kw1">CONCURRENTLY</span> data_view;</div></div>
+<p>&#8230; после записи очередной пачки данных в data_raw.</p>
+<p>Такое решение, в общем-то, имеет полное право на жизнь, но не лишено недостатков. Дело в том, что при каждом рефреше materialized view пересчитывается целиком. Со временем, когда data_raw подрастет, это может стать проблемой.</p>
+<h3>Решение на триггерах</h3>
+<p><a href="https://www.postgresql.org/docs/current/plpgsql-trigger.html">Триггеры</a> позволяют получить такую же materialized view, только умнее. При каждой записи в data_raw триггер будет обновлять ровно одну строчку нашей самодельной вьюхи. </p>
+<p>Итак, создадим новую таблицу:</p>
+<div class="codecolorer-container sql default" style="overflow:auto;white-space:nowrap;"><div class="sql codecolorer"><span class="kw1">CREATE</span> <span class="kw1">TABLE</span> data_agg<span class="br0">&#40;</span><br />
+&nbsp; tstamp <span class="kw1">TIMESTAMP</span> <span class="kw1">PRIMARY</span> <span class="kw1">KEY</span><span class="sy0">,</span><br />
+&nbsp; total <span class="kw1">BIGINT</span> <span class="kw1">NOT</span> <span class="kw1">NULL</span><span class="sy0">,</span><br />
+&nbsp; num <span class="kw1">INT</span> <span class="kw1">NOT</span> <span class="kw1">NULL</span><br />
+<span class="br0">&#41;</span>;</div></div>
+<p>Напишем небольшой триггер на <a href="https://eax.me/plpgsql/">PL/pgSQL</a>:</p>
+<div class="codecolorer-container sql default" style="overflow:auto;white-space:nowrap;"><div class="sql codecolorer"><span class="kw1">CREATE</span> <span class="kw1">OR</span> <span class="kw1">REPLACE</span> <span class="kw1">FUNCTION</span> update_data_agg<span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="kw1">RETURNS</span> <span class="kw1">TRIGGER</span> <span class="kw1">AS</span> $$<br />
+<span class="kw1">BEGIN</span><br />
+&nbsp; <span class="kw1">INSERT</span> <span class="kw1">INTO</span> data_agg <span class="br0">&#40;</span>tstamp<span class="sy0">,</span> total<span class="sy0">,</span> num<span class="br0">&#41;</span> <span class="kw1">VALUES</span> <span class="br0">&#40;</span><br />
+&nbsp; &nbsp; &nbsp; <span class="kw1">NEW</span><span class="sy0">.</span>tstamp :: <span class="kw1">DATE</span> <span class="sy0">+</span> concat<span class="br0">&#40;</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">FLOOR</span><span class="br0">&#40;</span><span class="kw1">EXTRACT</span><span class="br0">&#40;</span><span class="kw1">HOUR</span> <span class="kw1">FROM</span> <span class="kw1">NEW</span><span class="sy0">.</span>tstamp<span class="br0">&#41;</span> <span class="sy0">/</span> <span class="nu0">8</span><span class="br0">&#41;</span><span class="sy0">*</span><span class="nu0">8</span><span class="sy0">,</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; <span class="st0">':00:00'</span><br />
+&nbsp; &nbsp; &nbsp; <span class="br0">&#41;</span> :: <span class="kw1">TIME</span><span class="sy0">,</span> <span class="kw1">NEW</span><span class="sy0">.</span>val<span class="sy0">,</span> <span class="nu0">1</span><br />
+&nbsp; &nbsp; <span class="br0">&#41;</span> <span class="kw1">ON</span> <span class="kw1">CONFLICT</span> <span class="br0">&#40;</span>tstamp<span class="br0">&#41;</span> <span class="kw1">DO</span><br />
+&nbsp; &nbsp; <span class="kw1">UPDATE</span> <span class="kw1">SET</span> total <span class="sy0">=</span> data_agg<span class="sy0">.</span>total <span class="sy0">+</span> <span class="kw1">EXCLUDED</span><span class="sy0">.</span>total<span class="sy0">,</span><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;num <span class="sy0">=</span> data_agg<span class="sy0">.</span>num <span class="sy0">+</span> <span class="nu0">1</span>;<br />
+&nbsp; &nbsp; <span class="kw1">RETURN</span> <span class="kw1">NULL</span>;<br />
+<span class="kw1">END</span><br />
+$$ <span class="kw1">LANGUAGE</span> <span class="st0">'plpgsql'</span>;</div></div>
+<p>&#8230; и повесим его на INSERT в таблицу data_raw:</p>
+<div class="codecolorer-container sql default" style="overflow:auto;white-space:nowrap;"><div class="sql codecolorer"><span class="kw1">CREATE</span> <span class="kw1">TRIGGER</span> data_agg_trigger<br />
+<span class="kw1">AFTER</span> <span class="kw1">INSERT</span> <span class="kw1">ON</span> data_raw<br />
+<span class="kw1">FOR</span> <span class="kw1">EACH</span> <span class="kw1">ROW</span> <span class="kw1">EXECUTE</span> <span class="kw1">PROCEDURE</span> update_data_agg<span class="br0">&#40;</span><span class="br0">&#41;</span>;</div></div>
+<p>Триггер представляет собой не более, чем <a href="https://www.postgresql.org/docs/current/sql-insert.html#SQL-ON-CONFLICT">UPSERT</a> в табличку data_agg. Неявный аргумент триггера с именем <code class="codecolorer text default"><span class="text">new</span></code> представляет собой record, который INSERT&#8217;ится в таблицу data_raw. Если бы мы писали триггер на UPDATE, он имел бы два неявных аргумента &#8212; <code class="codecolorer text default"><span class="text">new</span></code> и <code class="codecolorer text default"><span class="text">old</span></code>.</p>
+<p>Чтобы триггер сработал для данных, уже записанных в data_raw, сделаем так:</p>
+<div class="codecolorer-container sql default" style="overflow:auto;white-space:nowrap;"><div class="sql codecolorer"><span class="kw1">COPY</span> data_raw <span class="kw1">TO</span> <span class="st0">'/tmp/data_raw.dat'</span>;<br />
+<span class="kw1">DELETE</span> <span class="kw1">FROM</span> data_raw;<br />
+<span class="kw1">COPY</span> data_raw <span class="kw1">FROM</span> <span class="st0">'/tmp/data_raw.dat'</span>;</div></div>
+<p>Проверяем:</p>
+<div class="codecolorer-container sql default" style="overflow:auto;white-space:nowrap;"><div class="sql codecolorer"><span class="kw1">SELECT</span> tstamp<span class="sy0">,</span> total::<span class="kw1">FLOAT</span><span class="sy0">/</span>num <span class="kw1">AS</span> <span class="kw1">AVG</span><br />
+<span class="kw1">FROM</span> data_agg <span class="kw1">ORDER</span> <span class="kw1">BY</span> tstamp;</div></div>
+<p>&#8230; и видим такой результат:</p>
+<div class="codecolorer-container text default" style="overflow:auto;white-space:nowrap;"><div class="text codecolorer">&nbsp; &nbsp; &nbsp; &nbsp;tstamp &nbsp; &nbsp; &nbsp; &nbsp;| &nbsp;avg<br />
+---------------------+--------<br />
+&nbsp;2020-01-01 00:00:00 | 50.125<br />
+&nbsp;2020-01-01 08:00:00 | 56.125<br />
+&nbsp;2020-01-01 16:00:00 | 62.625<br />
+&nbsp;2020-01-02 00:00:00 | &nbsp; 51.5<br />
+&nbsp;2020-01-02 08:00:00 | &nbsp;54.25<br />
+&nbsp;2020-01-02 16:00:00 | 57.625<br />
+&nbsp;2020-01-03 00:00:00 | 45.625<br />
+&nbsp;2020-01-03 08:00:00 | &nbsp; &nbsp; 27<br />
+&nbsp;2020-01-03 16:00:00 | &nbsp;44.25<br />
+&nbsp;2020-01-04 00:00:00 | &nbsp;47.75<br />
+&nbsp;2020-01-04 08:00:00 | 53.875<br />
+&nbsp;2020-01-04 16:00:00 | &nbsp; 53.5<br />
+(12 rows)</div></div>
+<p>Легко убедиться, что он совпадает с результатом, полученным ранее. </p>
+<p>Можно также подстелить себе соломки и запретить операции UPDATE, DELETE и TRUNCATE на таблице data_raw:</p>
+<div class="codecolorer-container sql default" style="overflow:auto;white-space:nowrap;"><div class="sql codecolorer"><span class="kw1">CREATE</span> <span class="kw1">OR</span> <span class="kw1">REPLACE</span> <span class="kw1">FUNCTION</span> data_raw_insert_only<span class="br0">&#40;</span><span class="br0">&#41;</span> <span class="kw1">RETURNS</span> <span class="kw1">TRIGGER</span> <span class="kw1">AS</span> $$<br />
+<span class="kw1">BEGIN</span><br />
+&nbsp; <span class="kw1">RAISE</span> <span class="st0">'UPDATE / DELETE / TRUNCATE are not allowed on data_raw,'</span><br />
+&nbsp; &nbsp; <span class="st0">' because triggers are involved!'</span>;<br />
+&nbsp; <span class="kw1">RETURN</span> <span class="kw1">NULL</span>;<br />
+<span class="kw1">END</span><br />
+$$ <span class="kw1">LANGUAGE</span> <span class="st0">'plpgsql'</span>;<br />
+<br />
+<span class="kw1">CREATE</span> <span class="kw1">TRIGGER</span> data_raw_ins_only <span class="kw1">BEFORE</span> <span class="kw1">UPDATE</span> <span class="kw1">OR</span> <span class="kw1">DELETE</span> <span class="kw1">OR</span> <span class="kw1">TRUNCATE</span><br />
+<span class="kw1">ON</span> data_raw <span class="kw1">EXECUTE</span> <span class="kw1">PROCEDURE</span> data_raw_insert_only<span class="br0">&#40;</span><span class="br0">&#41;</span>;</div></div>
+<p>Если этого не сделать, то выполнение UPDATE, DELETE и TRUNCATE над таблицей data_raw (например, руками через psql) приведет к тому, что таблица data_agg перестанет быть консистентной. </p>
+<h3>Заключение</h3>
+<p>Само собой разумеется, у задачи нет единственного правильного решения. Например, data_raw можно было бы вообще не хранить. Но я предпочитаю всегда хранить сырые данные. Опыт показывает, что рано или поздно заказчик попросит посчитать не только среднее, но также минимумы и максимумы.</p>
+<p>Иногда триггеры критикуют за то, что якобы из-за них часть логики оказывается в приложении, а часть &#8212; в СУБД, за счет чего становится сложнее поддерживать код. Я не особо убежден, что это такая уж большая проблема. В конце концов, в&nbsp;нормальных проектах схема базы данных вместе со всеми триггерами хранится в&nbsp;том же репозитории, что и код приложения. Ведь кто как не приложение <a href="https://eax.me/golang-pgx/">выполняет миграцию схему базы данных</a>?</p>
+<p>Реализация всей логики на стороне приложения тоже имеет право на жизнь. Но&nbsp;платой за такой подход является увеличение сетевого трафика и реализация своих джоинов, группировок, и вот этого всего. Разумеется, такие реализации редко обходятся без багов. По моим представлениям, данный подход оправдан крайне редко. Например, если требуется произвести тяжелые вычисления, и&nbsp;хочется разгрузить СУБД. </p>
+<p>А доводилось ли вам работать с триггерами в PostgreSQL и если да, то для чего вы их использовали?</p>
+<p><em>Дополнение:</em> Позже я узнал, что описанный в данном посте подход более удобно реализован в <a href="https://eax.me/timescaledb/">расширении TimescaleDB</a>. Нужно однако учитывать, что реализация непрерывных агрегатов в TimescaleDB имеет пару особенностей, о которых более подробно <a href="https://eax.me/timescaledb-caggs-implementation/">рассказано здесь</a>.</p>
+<!-- tags begin -->
+
+          <p style="padding-bottom: 0px;"><em>Метки: <a href="https://eax.me/tag/postgresql/" rel="tag">PostgreSQL</a>, <a href="https://eax.me/tag/dbms/" rel="tag">СУБД</a>.</em></p> 
+
+
+<!-- tags end -->
+
+<!-- subscribe begin -->
+
+<!--
+<div style="border: 3px dashed #777; padding: 5px 0px 5px 15px;">
+<div style="margin: 0px 0px 3px 20px;"><h4><a href="/patreon/" style="color: #f26522;">Поддержи автора</a>, чтобы в блоге было больше полезных статей!</h4></div>
+<div style="margin: 3px 0px 3px 40px;"><h4>Также подпишись на <a href="/feed/">RSS</a>, <a href="/vkontakte/">ВКонтакте</a>, <a href="/twitter/">Twitter</a> или <a href="/telegram/">Telegram</a>.</h4></div>
+<div class="clear"></div>
+</div>
+-->
+<div id="comments">
+<noscript>
+<p style="color: #ff5900; text-align: center;"><br />Комментарии Disqus не работают без JavaScript. Но это не страшно, вы можете прислать свой комментарий мне на почту.</p>
+</noscript>
+</div>
+
+<!-- subscribe end -->
+
+				</div>
+			</div>
+
+<!-- comments begin -->
+	
+<div id="disqus_thread"></div>
+<!-- DISQUS -->
+<script type="text/javascript"><!--
+  var disqus_domain = 'disqus.com';
+  var disqus_container_id = 'disqus_thread';
+  var disqus_shortname = 'eaxme';
+  var disqus_url = 'https://eax.me/postgresql-triggers/';
+  var disqus_identifier = '74942 http://eax.me/?p=74942';
+  var disqus_title = "Пример использования триггеров в PostgreSQL";
+  (function() {
+      var s = document.createElement('script');
+      s.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+      s.type = 'text/javascript';
+      s.async = true;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(s);
+    })();
+//--></script>
+<!-- / DISQUS -->
+<!-- comments end -->
+
+	
+	</div>
+
+            
+        </div>
+    </div>
+
+<!-- sidebar begin -->
+    <div id="body_right">
+    	<div id="body_right_content">
+            <div id="sidebars">
+                	<div id="sidebar" class="sidebars">
+		<ul>
+		<li id="text-10" class="widget widget_text"><h2 class="widgettitle">Коротко о себе</h2>			<div class="textwidget"><div style="margin-bottom: 6px;"><span class="about">Меня зовут Александр, позывной любительского радио R2AUK. Здесь я&nbsp;пишу об интересующих меня вещах и&nbsp;временами — просто о жизни.</span></div>
+
+<div style="margin-bottom: 6px;"><span class="about">Вы можете следить за обновлениями блога с помощью <a href="https://eax.me/feed/">RSS</a>, <a href="https://eax.me/vkontakte/">ВКонтакте</a>, <a href="https://eax.me/twitter/">Twitter</a> или <a href="https://eax.me/telegram/">Telegram</a>. Сайт можно поддержать на&nbsp;<a href="https://eax.me/patreon/">Patreon</a>.</span></div>
+
+<div style="margin-bottom: 6px;"><span class="about">Мой контактный e-mail — <a href="mailto:mail@eax.me">mail@eax.me</a>. Если вы хотите мне написать, прошу предварительно ознакомиться с <a href="https://eax.me/faq/">этим FAQ</a>.</span></div></div>
+		</li><li id="search-3" class="widget widget_search"><form method="get" id="searchform" action="https://encrypted.google.com/search">
+<div>
+<input type="hidden" name="as_sitesearch" value="eax.me" />
+<input type="text" id="s" name="as_q" value="" />
+<input type="submit" id="searchsubmit" value="&nbsp;Поиск&nbsp;" />
+</div>
+</form>
+</li><li id="text-15" class="widget widget_text"><h2 class="widgettitle">Основные рубрики</h2>			<div class="textwidget"><ul>
+<li><a href="https://eax.me/tag/antenny/">Антенны</a></li>
+<li><a href="https://eax.me/tag/wireless/">Беспроводная связь</a></li>
+<li><a href="https://eax.me/tag/c-cpp/">C/C++</a></li>
+<li><a href="https://eax.me/tag/fpga/">FPGA</a></li>
+<li><a href="https://eax.me/tag/golang/">Go</a></li>
+<li><a href="https://eax.me/tag/linux/">Linux</a></li>
+<li><a href="https://eax.me/tag/postgresql/">PostgreSQL</a></li>
+<li><a href="https://eax.me/tag/python/">Python</li></li>
+<li><a href="https://eax.me/tag/sdr/">Software Defined Radio</a></li>
+<li><a href="https://eax.me/tag/stm32/">STM32</a></li>
+<li><a href="https://eax.me/tag/dbms/">СУБД</a></li>
+<li><a href="https://eax.me/tag/elektronika/">Электроника</a></li>
+</ul></div>
+		</li>                </ul>
+<div class="clear"></div>
+			</div>
+            </div>
+            
+        </div>
+        <div id="body_right_content_end"></div>
+    </div>
+    <div id="body_right_end"></div>
+<!-- sidebar end -->
+
+</div>
+</div>
+
+<!-- footer begin -->
+
+<div id="footer">
+</div>
+	<div id="footer_text">
+
+        <div style="float: left;">
+<p style="font-family: arial; line-height: 1.1; color: #ddd;">Копирование материалов данного сайта не возбраняется при условии <br /> указания ссылки на первоисточник.  &copy; 2009&ndash;2022 Записки программиста</p>
+        </div>
+        <div style="float: right;">
+
+
+<script type="text/javascript"><!--
+document.write(
+'<a href="htt'+'ps://www.livein'+'ternet.ru/st'+'at/eax.me/index.html" '+
+'target="_blank"><img src="/files/counter.gif" '+
+'title="Statistics" '+
+'alt="" height="31" width="88" border="0" /></a>' +
+'');
+//--></script>
+        </div>
+        <div style="clear: both;"></div>
+    </div>
+
+<!-- footer end -->
+</div>
+
+
+</body>
+</html>
+<!-- Dynamic page generated in 0.124 seconds. -->
+<!-- Cached page generated by WP-Super-Cache on 2022-03-01 20:06:09 -->
+
+<!-- super cache -->

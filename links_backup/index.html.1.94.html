@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Пять простых шагов для понимания JSON Web Tokens (JWT) / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/340146\/"},"headline":"Пять простых шагов для понимания JSON Web Tokens (JWT)","datePublished":"2017-10-15T22:15:00+03:00","dateModified":"2019-10-02T17:05:26+03:00","author":{"@type":"Person","name":"Борис Южаков"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Представляю вам мой довольно вольный перевод статьи 5 Easy Steps to Understanding JSON Web Tokens (JWT). В этой статье будет рассказано о том, что из себя предс...","url":"https:\/\/habr.com\/ru\/post\/340146\/#post-content-body","about":["h_infosecurity","h_webdev","h_programming","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/340146\/f49e551f045bcc3ade4429c441d5ec9d\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Пять простых шагов для понимания JSON Web Tokens (JWT)" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Пять простых шагов для понимания JSON Web Tokens (JWT)" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Пять простых шагов для понимания JSON Web Tokens (JWT)" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Представляю вам мой довольно вольный перевод статьи 5 Easy Steps to Understanding JSON Web Tokens (JWT). В этой статье будет рассказано о том, что из себя представляют JSON Web Tokens (JWT) и с чем..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Представляю вам мой довольно вольный перевод статьи 5 Easy Steps to Understanding JSON Web Tokens (JWT). В этой статье будет рассказано о том, что из себя представляют JSON Web Tokens (JWT) и с чем..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Представляю вам мой довольно вольный перевод статьи 5 Easy Steps to Understanding JSON Web Tokens (JWT). В этой статье будет рассказано о том, что из себя представляют JSON Web Tokens (JWT) и с чем..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Представляю вам мой довольно вольный перевод статьи 5 Easy Steps to Understanding JSON Web Tokens (JWT). В этой статье будет рассказано о том, что из себя представляют JSON Web Tokens (JWT) и с чем..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Представляю вам мой довольно вольный перевод статьи 5 Easy Steps to Understanding JSON Web Tokens (JWT). В этой статье будет рассказано о том, что из себя представляют JSON Web Tokens (JWT) и с чем..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habrastorage.org/webt/mn/hx/za/mnhxza3gv59jfgmoccgbz6mdb9k.jpeg" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habrastorage.org/webt/mn/hx/za/mnhxza3gv59jfgmoccgbz6mdb9k.jpeg" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habrastorage.org/webt/mn/hx/za/mnhxza3gv59jfgmoccgbz6mdb9k.jpeg" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habrastorage.org/webt/mn/hx/za/mnhxza3gv59jfgmoccgbz6mdb9k.jpeg" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habrastorage.org/webt/mn/hx/za/mnhxza3gv59jfgmoccgbz6mdb9k.jpeg?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="340146" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2017-10-15T19:15:00.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/340146/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="oauth, токены, авторизация">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/340146/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.94.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habrastorage.org/webt/mn/hx/za/mnhxza3gv59jfgmoccgbz6mdb9k.jpeg" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/borisyuzhakov/" title="borisyuzhakov" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/22e/73c/9b2/22e73c9b2d87b0eeee406c8772412149.png" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/borisyuzhakov/" class="tm-user-info__username">
+      borisyuzhakov
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2017-10-15T19:15:00.000Z" title="2017-10-15, 22:15">15  октября  2017 в 22:15</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Пять простых шагов для понимания JSON Web Tokens (JWT)</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/infosecurity/" class="tm-article-snippet__hubs-item-link"><span>Информационная безопасность</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/programming/" class="tm-article-snippet__hubs-item-link"><span>Программирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-sandbox"><span>
+        Из песочницы
+      </span></div></div> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><p><img src="https://habrastorage.org/r/w780q1/getpro/habr/post_images/ae6/48a/b1f/ae648ab1f46718aea34fc91053bb0078.jpg" alt="jwt" data-src="https://habrastorage.org/getpro/habr/post_images/ae6/48a/b1f/ae648ab1f46718aea34fc91053bb0078.jpg" data-blurred="true"/></p><br/>
+<p>Представляю вам мой довольно вольный перевод статьи <a href="https://medium.com/vandium-software/5-easy-steps-to-understanding-json-web-tokens-jwt-1164c0adfcec">5 Easy Steps to Understanding JSON Web Tokens (JWT)</a>. В этой статье будет рассказано о том, что из себя представляют <em>JSON Web Tokens (JWT)</em> и с чем их едят. То есть какую роль они играют в проверке подлинности пользователя и обеспечении безопасности данных приложения.</p><a name="habracut"></a><br/>
+<p>Для начала рассмотрим формальное определение.</p><br/>
+<blockquote><code>JSON Web Token (JWT)</code> — это <em>JSON</em> объект, который определен в открытом стандарте <a href="https://tools.ietf.org/html/rfc7519">RFC 7519</a>. Он считается одним из безопасных способов передачи информации между двумя участниками. Для его создания необходимо определить заголовок (header) с общей информацией по токену, полезные данные (payload), такие как id пользователя, его роль и т.д. и подписи (signature).<br/>
+Кстати, правильно <em>JWT</em> произносится как <code>/dʒɒt/</code></blockquote><p>Простыми словами, <em>JWT</em> — это лишь строка в следующем формате <code>header.payload.signature</code>.<br/>
+Предположим, что мы хотим зарегистрироваться на сайте. В нашем случае есть три участника — пользователь <code>user</code>, сервер приложения <code>application server</code> и сервер аутентификации <code>authentication server</code>. Сервер аутентификации будет обеспечивать пользователя токеном, с помощью которого он позднее сможет взаимодействовать с приложением.</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/4e6/230/2d9/4e62302d99ae5382cfa1842a7d8e02da.png" alt="Как приложение использует JWT для проверки аутентификации пользователя." data-src="https://habrastorage.org/getpro/habr/post_images/4e6/230/2d9/4e62302d99ae5382cfa1842a7d8e02da.png"/></p><br/>
+<p>Приложение использует <em>JWT</em> для проверки аутентификации пользователя следующим образом:</p><br/>
+<ol>
+<li>Сперва пользователь заходит на сервер аутентификации с помощью аутентификационного ключа (это может быть пара <em>логин/пароль</em>, либо <em>Facebook</em> ключ, либо <em>Google</em> ключ, либо ключ от другой учетки).</li>
+<li>Затем сервер аутентификации создает <em>JWT</em> и отправляет его пользователю.</li>
+<li>Когда пользователь делает запрос к API приложения, он добавляет к нему полученный ранее <em>JWT</em>.</li>
+<li>Когда пользователь делает API запрос, приложение может проверить по переданному с запросом <em>JWT</em> является ли пользователь тем, за кого себя выдает. В этой схеме сервер приложения сконфигурирован так, что сможет проверить, является ли входящий <em>JWT</em> именно тем, что был создан сервером аутентификации (процесс проверки будет объяснен позже более детально).</li>
+</ol><br/>
+<h2 id="struktura-jwt">Структура JWT</h2><br/>
+<p><em>JWT</em> состоит из трех частей: заголовок <code>header</code>, полезные данные <code>payload</code> и подпись <code>signature</code>. Давайте пройдемся по каждой из них.</p><br/>
+<h3 id="shag-1-sozdaem-header">Шаг 1. Создаем HEADER</h3><br/>
+<p>Хедер <em>JWT</em> содержит информацию о том, как должна вычисляться <em>JWT</em> подпись. Хедер — это тоже <em>JSON</em> объект, который выглядит следующим образом:</p><br/>
+<pre><code class="json">header = { "alg": "HS256", "typ": "JWT"}</code></pre><br/>
+<p>Поле <code>typ</code> не говорит нам ничего нового, только то, что это <em>JSON Web Token</em>. Интереснее здесь будет поле <code>alg</code>, которое определяет алгоритм хеширования. Он будет использоваться при создании подписи. <code>HS256</code> — не что иное, как <code>HMAC-SHA256</code>, для его вычисления нужен лишь один секретный ключ (более подробно об этом в шаге 3). Еще может использоваться другой алгоритм <code>RS256</code> — в отличие от предыдущего, он является ассиметричным и создает два ключа: публичный и приватный. С помощью приватного ключа создается подпись, а с помощью публичного только лишь проверяется подлинность подписи, поэтому нам не нужно беспокоиться о его безопасности.</p><br/>
+<h3 id="shag-2-sozdaem-payload">Шаг 2. Создаем PAYLOAD</h3><br/>
+<p><strong>Payload</strong> — это полезные данные, которые хранятся внутри <em>JWT</em>. Эти данные также называют <em>JWT-claims</em> (заявки). В примере, который рассматриваем мы, сервер аутентификации создает <em>JWT</em> с информацией об <em>id</em> пользователя — <strong>userId</strong>.</p><br/>
+<pre><code class="json">payload = { "userId": "b08f86af-35da-48f2-8fab-cef3904660bd" }</code></pre><br/>
+<p>Мы положили только одну <em>заявку</em> (claim) в <em>payload</em>. Вы можете положить столько <em>заявок</em>, сколько захотите. Существует список стандартных <em>заявок</em> для <em>JWT</em> payload — вот некоторые из них:</p><br/>
+<ul>
+<li><em>iss</em> (issuer) — определяет приложение, из которого отправляется токен.</li>
+<li><em>sub</em> (subject) — определяет тему токена.</li>
+<li><em>exp</em> (expiration time) — время жизни токена.</li>
+</ul><br/>
+<p>Эти поля могут быть полезными при создании <em>JWT</em>, но они не являются обязательными. Если хотите знать весь список доступных полей для <em>JWT</em>, можете заглянуть в <a href="https://en.wikipedia.org/wiki/JSON_Web_Token#Standard_fields">Wiki</a>. Но стоит помнить, что чем больше передается информации, тем больший получится в итоге сам <em>JWT</em>. Обычно с этим не бывает проблем, но все-таки это может негативно сказаться на производительности и вызвать задержки во взаимодействии с сервером.</p><br/>
+<h3 id="shag-3-sozdaem-signature">Шаг 3. Создаем SIGNATURE</h3><br/>
+<p>Подпись вычисляется с использование следующего псевдо-кода:</p><br/>
+<pre><code class="plaintext">const SECRET_KEY = 'cAtwa1kkEy'
+const unsignedToken = base64urlEncode(header) + '.' + base64urlEncode(payload)
+const signature = HMAC-SHA256(unsignedToken, SECRET_KEY)</code></pre><br/>
+<p>Алгоритм <strong>base64url</strong> кодирует хедер и payload, созданные на <em>1</em> и <em>2</em> шаге. Алгоритм соединяет закодированные строки через точку. Затем полученная строка хешируется алгоритмом, заданным в хедере на основе нашего секретного ключа.</p><br/>
+<pre><code class="plaintext">// header eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9
+// payload eyJ1c2VySWQiOiJiMDhmODZhZi0zNWRhLTQ4ZjItOGZhYi1jZWYzOTA0NjYwYmQifQ
+// signature -xN_h82PHVTCMA9vdoHrcZxH-x5mb11y1537t3rGzcM</code></pre><br/>
+<h3 id="shag-4-teper-obedinim-vse-tri-jwt-komponenta-vmeste">Шаг 4. Теперь объединим все три JWT компонента вместе</h3><br/>
+<p>Теперь, когда у нас есть все три составляющих, мы можем создать наш <em>JWT</em>. Это довольно просто, мы соединяем все полученные элементы в строку через точку.</p><br/>
+<pre><code class="plaintext">const token = encodeBase64Url(header) + '.' + encodeBase64Url(payload) + '.' + encodeBase64Url(signature)
+// JWT Token
+// eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJiMDhmODZhZi0zNWRhLTQ4ZjItOGZhYi1jZWYzOTA0NjYwYmQifQ.-xN_h82PHVTCMA9vdoHrcZxH-x5mb11y1537t3rGzcM</code></pre><br/>
+<p>Вы можете попробовать создать свой собственный <em>JWT</em> на сайте <a href="https://jwt.io/">jwt.io</a>.<br/>
+Вернемся к нашему примеру. Теперь сервер аутентификации может слать пользователю <em>JWT</em>.</p><br/>
+<h3 id="kak-jwt-zaschischaet-nashi-dannye">Как JWT защищает наши данные?</h3><br/>
+<p>Очень важно понимать, что использование <em>JWT</em> <strong>НЕ</strong> скрывает и не маскирует данные автоматически. Причина, почему <em>JWT</em> используются — это проверка, что отправленные данные были действительно отправлены авторизованным источником. Как было продемонстрировано выше, данные внутри <em>JWT</em> закодированы и подписаны, обратите внимание, это не одно и тоже, что зашифрованы. Цель кодирования данных — преобразование структуры. Подписанные данные позволяют получателю данных проверить аутентификацию источника данных. Таким образом закодирование и подпись данных не защищает их. С другой стороны, главная цель шифрования — это защита данных от неавторизованного доступа. Для более детального объяснения различия между кодированием и шифрованием, а также о том, как работает хеширование, смотрите <a href="https://danielmiessler.com/study/encoding-encryption-hashing-obfuscation/#encoding">эту статью</a>. Поскольку <em>JWT</em> только лишь закодирована и подписана, и поскольку <em>JWT</em> не зашифрована, <em>JWT</em> не гарантирует никакой безопасности для чувствительных <em>(sensitive)</em> данных.</p><br/>
+<h3 id="shag-5-proverka-jwt">Шаг 5. Проверка JWT</h3><br/>
+<p>В нашем простом примере из 3 участников мы используем <em>JWT</em>, который подписан с помощью <code>HS256</code> алгоритма и только сервер аутентификации и сервер приложения знают секретный ключ. Сервер приложения получает секретный ключ от сервера аутентификации во время установки аутентификационных процессов. Поскольку приложение знает секретный ключ, когда пользователь делает API-запрос с приложенным к нему токеном, приложение может выполнить тот же алгоритм подписывания к <em>JWT</em>, что в шаге <em>3</em>. Приложение может потом проверить эту подпись, сравнивая ее со своей собственной, вычисленной хешированием. Если подписи совпадают, значит <em>JWT</em> валидный, т.е. пришел от проверенного источника. Если подписи не совпадают, значит что-то пошло не так — возможно, это является признаком потенциальной атаки. Таким образом, проверяя <em>JWT</em>, приложение добавляет доверительный слой <em>(a layer of trust)</em> между собой и пользователем.</p><br/>
+<h2 id="v-zaklyuchenie">В заключение</h2><br/>
+<p>Мы прошлись по тому, что такое <em>JWT</em>, как они создаются и как валидируются, каким образом они могут быть использованы для установления доверительных отношений между пользователем и приложением. Но это лишь кусочек пазла большой темы авторизации и обеспечения защиты вашего приложения. Мы рассмотрели лишь основы, но без них невозможно двигаться дальше.</p><br/>
+<h2 id="chto-dalshe">Что дальше?</h2><br/>
+<p>Подумаем о безопасности и добавим <code>Refresh Token</code>. Смотрите следующую мою <a href="https://habr.com/ru/post/466929/">статью на эту тему</a>.</p><br/>
+<h2 id="poleznye-ssylki">Полезные ссылки</h2><br/>
+<ol>
+<li><a href="https://medium.com/vandium-software/5-easy-steps-to-understanding-json-web-tokens-jwt-1164c0adfcec">5 Easy Steps to Understanding JSON Web Tokens (JWT)</a></li>
+<li><a href="https://medium.com/@rajaraodv/securing-react-redux-apps-with-jwt-tokens-fcfe81356ea0">Securing React Redux Apps With JWT Tokens</a></li>
+<li><a href="https://habrahabr.ru/company/Voximplant/blog/323160/">Зачем нужен Refresh Token, если есть Access Token?</a></li>
+</ol></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Boauth%5D" class="tm-tags-list__link">oauth</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%82%D0%BE%D0%BA%D0%B5%D0%BD%D1%8B%5D" class="tm-tags-list__link">токены</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F%5D" class="tm-tags-list__link">авторизация</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/infosecurity/" class="tm-hubs-list__link">
+    Информационная безопасность
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/programming/" class="tm-hubs-list__link">
+    Программирование
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 28: ↑24 и ↓4</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 28: ↑24 и ↓4" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+20</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">320K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    521
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/borisyuzhakov/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/22e/73c/9b2/22e73c9b2d87b0eeee406c8772412149.png" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 17 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    15
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Борис Южаков</span> <a href="https://habr.com/ru/users/borisyuzhakov/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @borisyuzhakov
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Frontend developer</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/340146/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 60 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner3322" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner3323" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/specialist_po_informacionnoj_bezopasnosti" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Специалист по информационной безопасности
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        59
+    вакансий
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/340146/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/340146/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"340146":{"id":"340146","timePublished":"2017-10-15T19:15:00+00:00","isCorporative":false,"lang":"ru","titleHtml":"Пять простых шагов для понимания JSON Web Tokens (JWT)","leadData":{"textHtml":"\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fae6\u002F48a\u002Fb1f\u002Fae648ab1f46718aea34fc91053bb0078.jpg\" alt=\"jwt\"\u003E\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EПредставляю вам мой довольно вольный перевод статьи \u003Ca href=\"https:\u002F\u002Fmedium.com\u002Fvandium-software\u002F5-easy-steps-to-understanding-json-web-tokens-jwt-1164c0adfcec\"\u003E5 Easy Steps to Understanding JSON Web Tokens (JWT)\u003C\u002Fa\u003E. В этой статье будет рассказано о том, что из себя представляют \u003Cem\u003EJSON Web Tokens (JWT)\u003C\u002Fem\u003E и с чем их едят. То есть какую роль они играют в проверке подлинности пользователя и обеспечении безопасности данных приложения.\u003C\u002Fp\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"sandbox","data":null}],"author":{"scoreStats":{"score":15,"votesCount":17},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"698265","alias":"borisyuzhakov","fullname":"Борис Южаков","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F22e\u002F73c\u002F9b2\u002F22e73c9b2d87b0eeee406c8772412149.png","speciality":"Frontend developer"},"statistics":{"commentsCount":60,"favoritesCount":521,"readingCount":320192,"score":20,"votesCount":28},"hubs":[{"relatedData":null,"id":"50","alias":"infosecurity","type":"collective","title":"Информационная безопасность","titleHtml":"Информационная безопасность","isProfiled":true},{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"359","alias":"programming","type":"collective","title":"Программирование","titleHtml":"Программирование","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fae6\u002F48a\u002Fb1f\u002Fae648ab1f46718aea34fc91053bb0078.jpg\" alt=\"jwt\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fae6\u002F48a\u002Fb1f\u002Fae648ab1f46718aea34fc91053bb0078.jpg\" data-blurred=\"true\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПредставляю вам мой довольно вольный перевод статьи \u003Ca href=\"https:\u002F\u002Fmedium.com\u002Fvandium-software\u002F5-easy-steps-to-understanding-json-web-tokens-jwt-1164c0adfcec\"\u003E5 Easy Steps to Understanding JSON Web Tokens (JWT)\u003C\u002Fa\u003E. В этой статье будет рассказано о том, что из себя представляют \u003Cem\u003EJSON Web Tokens (JWT)\u003C\u002Fem\u003E и с чем их едят. То есть какую роль они играют в проверке подлинности пользователя и обеспечении безопасности данных приложения.\u003C\u002Fp\u003E\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДля начала рассмотрим формальное определение.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Ccode\u003EJSON Web Token (JWT)\u003C\u002Fcode\u003E — это \u003Cem\u003EJSON\u003C\u002Fem\u003E объект, который определен в открытом стандарте \u003Ca href=\"https:\u002F\u002Ftools.ietf.org\u002Fhtml\u002Frfc7519\"\u003ERFC 7519\u003C\u002Fa\u003E. Он считается одним из безопасных способов передачи информации между двумя участниками. Для его создания необходимо определить заголовок (header) с общей информацией по токену, полезные данные (payload), такие как id пользователя, его роль и т.д. и подписи (signature).\u003Cbr\u002F\u003E\r\nКстати, правильно \u003Cem\u003EJWT\u003C\u002Fem\u003E произносится как \u003Ccode\u003E\u002Fdʒɒt\u002F\u003C\u002Fcode\u003E\u003C\u002Fblockquote\u003E\u003Cp\u003EПростыми словами, \u003Cem\u003EJWT\u003C\u002Fem\u003E — это лишь строка в следующем формате \u003Ccode\u003Eheader.payload.signature\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\nПредположим, что мы хотим зарегистрироваться на сайте. В нашем случае есть три участника — пользователь \u003Ccode\u003Euser\u003C\u002Fcode\u003E, сервер приложения \u003Ccode\u003Eapplication server\u003C\u002Fcode\u003E и сервер аутентификации \u003Ccode\u003Eauthentication server\u003C\u002Fcode\u003E. Сервер аутентификации будет обеспечивать пользователя токеном, с помощью которого он позднее сможет взаимодействовать с приложением.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F4e6\u002F230\u002F2d9\u002F4e62302d99ae5382cfa1842a7d8e02da.png\" alt=\"Как приложение использует JWT для проверки аутентификации пользователя.\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F4e6\u002F230\u002F2d9\u002F4e62302d99ae5382cfa1842a7d8e02da.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПриложение использует \u003Cem\u003EJWT\u003C\u002Fem\u003E для проверки аутентификации пользователя следующим образом:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EСперва пользователь заходит на сервер аутентификации с помощью аутентификационного ключа (это может быть пара \u003Cem\u003Eлогин\u002Fпароль\u003C\u002Fem\u003E, либо \u003Cem\u003EFacebook\u003C\u002Fem\u003E ключ, либо \u003Cem\u003EGoogle\u003C\u002Fem\u003E ключ, либо ключ от другой учетки).\u003C\u002Fli\u003E\r\n\u003Cli\u003EЗатем сервер аутентификации создает \u003Cem\u003EJWT\u003C\u002Fem\u003E и отправляет его пользователю.\u003C\u002Fli\u003E\r\n\u003Cli\u003EКогда пользователь делает запрос к API приложения, он добавляет к нему полученный ранее \u003Cem\u003EJWT\u003C\u002Fem\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003EКогда пользователь делает API запрос, приложение может проверить по переданному с запросом \u003Cem\u003EJWT\u003C\u002Fem\u003E является ли пользователь тем, за кого себя выдает. В этой схеме сервер приложения сконфигурирован так, что сможет проверить, является ли входящий \u003Cem\u003EJWT\u003C\u002Fem\u003E именно тем, что был создан сервером аутентификации (процесс проверки будет объяснен позже более детально).\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"struktura-jwt\"\u003EСтруктура JWT\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cem\u003EJWT\u003C\u002Fem\u003E состоит из трех частей: заголовок \u003Ccode\u003Eheader\u003C\u002Fcode\u003E, полезные данные \u003Ccode\u003Epayload\u003C\u002Fcode\u003E и подпись \u003Ccode\u003Esignature\u003C\u002Fcode\u003E. Давайте пройдемся по каждой из них.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"shag-1-sozdaem-header\"\u003EШаг 1. Создаем HEADER\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EХедер \u003Cem\u003EJWT\u003C\u002Fem\u003E содержит информацию о том, как должна вычисляться \u003Cem\u003EJWT\u003C\u002Fem\u003E подпись. Хедер — это тоже \u003Cem\u003EJSON\u003C\u002Fem\u003E объект, который выглядит следующим образом:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"json\"\u003Eheader = { \"alg\": \"HS256\", \"typ\": \"JWT\"}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПоле \u003Ccode\u003Etyp\u003C\u002Fcode\u003E не говорит нам ничего нового, только то, что это \u003Cem\u003EJSON Web Token\u003C\u002Fem\u003E. Интереснее здесь будет поле \u003Ccode\u003Ealg\u003C\u002Fcode\u003E, которое определяет алгоритм хеширования. Он будет использоваться при создании подписи. \u003Ccode\u003EHS256\u003C\u002Fcode\u003E — не что иное, как \u003Ccode\u003EHMAC-SHA256\u003C\u002Fcode\u003E, для его вычисления нужен лишь один секретный ключ (более подробно об этом в шаге 3). Еще может использоваться другой алгоритм \u003Ccode\u003ERS256\u003C\u002Fcode\u003E — в отличие от предыдущего, он является ассиметричным и создает два ключа: публичный и приватный. С помощью приватного ключа создается подпись, а с помощью публичного только лишь проверяется подлинность подписи, поэтому нам не нужно беспокоиться о его безопасности.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"shag-2-sozdaem-payload\"\u003EШаг 2. Создаем PAYLOAD\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EPayload\u003C\u002Fstrong\u003E — это полезные данные, которые хранятся внутри \u003Cem\u003EJWT\u003C\u002Fem\u003E. Эти данные также называют \u003Cem\u003EJWT-claims\u003C\u002Fem\u003E (заявки). В примере, который рассматриваем мы, сервер аутентификации создает \u003Cem\u003EJWT\u003C\u002Fem\u003E с информацией об \u003Cem\u003Eid\u003C\u002Fem\u003E пользователя — \u003Cstrong\u003EuserId\u003C\u002Fstrong\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"json\"\u003Epayload = { \"userId\": \"b08f86af-35da-48f2-8fab-cef3904660bd\" }\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EМы положили только одну \u003Cem\u003Eзаявку\u003C\u002Fem\u003E (claim) в \u003Cem\u003Epayload\u003C\u002Fem\u003E. Вы можете положить столько \u003Cem\u003Eзаявок\u003C\u002Fem\u003E, сколько захотите. Существует список стандартных \u003Cem\u003Eзаявок\u003C\u002Fem\u003E для \u003Cem\u003EJWT\u003C\u002Fem\u003E payload — вот некоторые из них:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cem\u003Eiss\u003C\u002Fem\u003E (issuer) — определяет приложение, из которого отправляется токен.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cem\u003Esub\u003C\u002Fem\u003E (subject) — определяет тему токена.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cem\u003Eexp\u003C\u002Fem\u003E (expiration time) — время жизни токена.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЭти поля могут быть полезными при создании \u003Cem\u003EJWT\u003C\u002Fem\u003E, но они не являются обязательными. Если хотите знать весь список доступных полей для \u003Cem\u003EJWT\u003C\u002Fem\u003E, можете заглянуть в \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FJSON_Web_Token#Standard_fields\"\u003EWiki\u003C\u002Fa\u003E. Но стоит помнить, что чем больше передается информации, тем больший получится в итоге сам \u003Cem\u003EJWT\u003C\u002Fem\u003E. Обычно с этим не бывает проблем, но все-таки это может негативно сказаться на производительности и вызвать задержки во взаимодействии с сервером.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"shag-3-sozdaem-signature\"\u003EШаг 3. Создаем SIGNATURE\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПодпись вычисляется с использование следующего псевдо-кода:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Econst SECRET_KEY = 'cAtwa1kkEy'\nconst unsignedToken = base64urlEncode(header) + '.' + base64urlEncode(payload)\nconst signature = HMAC-SHA256(unsignedToken, SECRET_KEY)\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EАлгоритм \u003Cstrong\u003Ebase64url\u003C\u002Fstrong\u003E кодирует хедер и payload, созданные на \u003Cem\u003E1\u003C\u002Fem\u003E и \u003Cem\u003E2\u003C\u002Fem\u003E шаге. Алгоритм соединяет закодированные строки через точку. Затем полученная строка хешируется алгоритмом, заданным в хедере на основе нашего секретного ключа.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\u002F\u002F header eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9\n\u002F\u002F payload eyJ1c2VySWQiOiJiMDhmODZhZi0zNWRhLTQ4ZjItOGZhYi1jZWYzOTA0NjYwYmQifQ\n\u002F\u002F signature -xN_h82PHVTCMA9vdoHrcZxH-x5mb11y1537t3rGzcM\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"shag-4-teper-obedinim-vse-tri-jwt-komponenta-vmeste\"\u003EШаг 4. Теперь объединим все три JWT компонента вместе\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТеперь, когда у нас есть все три составляющих, мы можем создать наш \u003Cem\u003EJWT\u003C\u002Fem\u003E. Это довольно просто, мы соединяем все полученные элементы в строку через точку.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Econst token = encodeBase64Url(header) + '.' + encodeBase64Url(payload) + '.' + encodeBase64Url(signature)\n\u002F\u002F JWT Token\n\u002F\u002F eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJiMDhmODZhZi0zNWRhLTQ4ZjItOGZhYi1jZWYzOTA0NjYwYmQifQ.-xN_h82PHVTCMA9vdoHrcZxH-x5mb11y1537t3rGzcM\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВы можете попробовать создать свой собственный \u003Cem\u003EJWT\u003C\u002Fem\u003E на сайте \u003Ca href=\"https:\u002F\u002Fjwt.io\u002F\"\u003Ejwt.io\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\nВернемся к нашему примеру. Теперь сервер аутентификации может слать пользователю \u003Cem\u003EJWT\u003C\u002Fem\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"kak-jwt-zaschischaet-nashi-dannye\"\u003EКак JWT защищает наши данные?\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОчень важно понимать, что использование \u003Cem\u003EJWT\u003C\u002Fem\u003E \u003Cstrong\u003EНЕ\u003C\u002Fstrong\u003E скрывает и не маскирует данные автоматически. Причина, почему \u003Cem\u003EJWT\u003C\u002Fem\u003E используются — это проверка, что отправленные данные были действительно отправлены авторизованным источником. Как было продемонстрировано выше, данные внутри \u003Cem\u003EJWT\u003C\u002Fem\u003E закодированы и подписаны, обратите внимание, это не одно и тоже, что зашифрованы. Цель кодирования данных — преобразование структуры. Подписанные данные позволяют получателю данных проверить аутентификацию источника данных. Таким образом закодирование и подпись данных не защищает их. С другой стороны, главная цель шифрования — это защита данных от неавторизованного доступа. Для более детального объяснения различия между кодированием и шифрованием, а также о том, как работает хеширование, смотрите \u003Ca href=\"https:\u002F\u002Fdanielmiessler.com\u002Fstudy\u002Fencoding-encryption-hashing-obfuscation\u002F#encoding\"\u003Eэту статью\u003C\u002Fa\u003E. Поскольку \u003Cem\u003EJWT\u003C\u002Fem\u003E только лишь закодирована и подписана, и поскольку \u003Cem\u003EJWT\u003C\u002Fem\u003E не зашифрована, \u003Cem\u003EJWT\u003C\u002Fem\u003E не гарантирует никакой безопасности для чувствительных \u003Cem\u003E(sensitive)\u003C\u002Fem\u003E данных.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"shag-5-proverka-jwt\"\u003EШаг 5. Проверка JWT\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ нашем простом примере из 3 участников мы используем \u003Cem\u003EJWT\u003C\u002Fem\u003E, который подписан с помощью \u003Ccode\u003EHS256\u003C\u002Fcode\u003E алгоритма и только сервер аутентификации и сервер приложения знают секретный ключ. Сервер приложения получает секретный ключ от сервера аутентификации во время установки аутентификационных процессов. Поскольку приложение знает секретный ключ, когда пользователь делает API-запрос с приложенным к нему токеном, приложение может выполнить тот же алгоритм подписывания к \u003Cem\u003EJWT\u003C\u002Fem\u003E, что в шаге \u003Cem\u003E3\u003C\u002Fem\u003E. Приложение может потом проверить эту подпись, сравнивая ее со своей собственной, вычисленной хешированием. Если подписи совпадают, значит \u003Cem\u003EJWT\u003C\u002Fem\u003E валидный, т.е. пришел от проверенного источника. Если подписи не совпадают, значит что-то пошло не так — возможно, это является признаком потенциальной атаки. Таким образом, проверяя \u003Cem\u003EJWT\u003C\u002Fem\u003E, приложение добавляет доверительный слой \u003Cem\u003E(a layer of trust)\u003C\u002Fem\u003E между собой и пользователем.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"v-zaklyuchenie\"\u003EВ заключение\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EМы прошлись по тому, что такое \u003Cem\u003EJWT\u003C\u002Fem\u003E, как они создаются и как валидируются, каким образом они могут быть использованы для установления доверительных отношений между пользователем и приложением. Но это лишь кусочек пазла большой темы авторизации и обеспечения защиты вашего приложения. Мы рассмотрели лишь основы, но без них невозможно двигаться дальше.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"chto-dalshe\"\u003EЧто дальше?\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПодумаем о безопасности и добавим \u003Ccode\u003ERefresh Token\u003C\u002Fcode\u003E. Смотрите следующую мою \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fru\u002Fpost\u002F466929\u002F\"\u003Eстатью на эту тему\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"poleznye-ssylki\"\u003EПолезные ссылки\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fmedium.com\u002Fvandium-software\u002F5-easy-steps-to-understanding-json-web-tokens-jwt-1164c0adfcec\"\u003E5 Easy Steps to Understanding JSON Web Tokens (JWT)\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fmedium.com\u002F@rajaraodv\u002Fsecuring-react-redux-apps-with-jwt-tokens-fcfe81356ea0\"\u003ESecuring React Redux Apps With JWT Tokens\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fhabrahabr.ru\u002Fcompany\u002FVoximplant\u002Fblog\u002F323160\u002F\"\u003EЗачем нужен Refresh Token, если есть Access Token?\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"oauth"},{"titleHtml":"токены"},{"titleHtml":"авторизация"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fmn\u002Fhx\u002Fza\u002Fmnhxza3gv59jfgmoccgbz6mdb9k.jpeg","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fmn\u002Fhx\u002Fza\u002Fmnhxza3gv59jfgmoccgbz6mdb9k.jpeg","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F340146\\\u002F\"},\"headline\":\"Пять простых шагов для понимания JSON Web Tokens (JWT)\",\"datePublished\":\"2017-10-15T22:15:00+03:00\",\"dateModified\":\"2019-10-02T17:05:26+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Борис Южаков\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Представляю вам мой довольно вольный перевод статьи 5 Easy Steps to Understanding JSON Web Tokens (JWT). В этой статье будет рассказано о том, что из себя предс...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F340146\\\u002F#post-content-body\",\"about\":[\"h_infosecurity\",\"h_webdev\",\"h_programming\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F340146\\\u002Ff49e551f045bcc3ade4429c441d5ec9d\\\u002F\"]}","metaDescription":"Представляю вам мой довольно вольный перевод статьи 5 Easy Steps to Understanding JSON Web Tokens (JWT). В этой статье будет рассказано о том, что из себя представляют JSON Web Tokens (JWT) и с чем...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"Специалист по информационной безопасности","vacanciesCount":59,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fspecialist_po_informacionnoj_bezopasnosti","itemHubs":["infosecurity"]}],"hubs":"infosecurity,webdev,programming"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

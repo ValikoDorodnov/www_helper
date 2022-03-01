@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>11 примеров использования Netstat</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="https://putty.org.ru/css/style.css?_=1577282284">
+<script type="text/javascript" src="https://putty.org.ru/js/mc.js"></script><noscript><div><img src="https://mc.yandex.ru/watch/4330606" style="position:absolute;left:-9999px;" alt=""></div></noscript><link rel="alternate" type="application/rss+xml" title="PuTTY: Новости" href="https://putty.org.ru/rss.xml">
+</head>
+<body spellcheck="false">
+<div id="top"><span>[<noindex>root@putty</noindex> ~/articles] #</span><ul id="menu" role="navigation" aria-label="Main">
+<li><a href="https://putty.org.ru/">Главная</a></li>
+<li><a href="https://putty.org.ru/download.html">Скачать</a></li>
+<li><a href="https://putty.org.ru/docs.html">Документация</a></li>
+<li><a href="https://putty.org.ru/ports.html">Модификации</a></li>
+<li><a href="https://putty.org.ru/articles.html" rel="nofollow" class="current">Статьи</a></li>
+<li><a href="https://putty.org.ru/licence.html">Лицензия</a></li>
+</ul>
+</div>
+
+<div id="sidebar"><div id="logo"><div id="l1"><a href="https://putty.org.ru/" rel="nofollow" title="PONG"></a></div><div id="l2"><a href="https://putty.org.ru/" rel="nofollow" title="PONG"></a></div></div></div>
+
+<div id="content">
+<h1 id="netstat"><span>11</span> примеров использования netstat</h1>
+<p>Команда <strong>netstat</strong>, входящая в стандартный набор сетевых инструментов UNIX, отображает различную network–related информацию, такую как сетевые подключения, статистику интерфейсов, таблицы маршрутизации, masquerade, multicast, и т.п.</p>
+<p>В этой статье рассмотрим десять практических примеров использования команды <strong>netstat в Linux</strong>.</p>
+<h2>1. Список всех портов (как прослушиваемых, так и нет)</h2>
+<p>Перечислить все порты: <strong>netstat -a</strong></p>
+<pre class="scrollable"># netstat -a | more
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 localhost:domain        *:*                     LISTEN
+udp6       0      0 fe80::20c:29ff:fe68:ntp [::]:*
+
+Active UNIX domain sockets (servers and established)
+Proto RefCnt Flags       Type       State         I-Node   Path
+unix  2      [ ACC ]     STREAM     LISTENING     20492    /var/run/mysqld/mysqld.sock
+unix  2      [ ACC ]     STREAM     LISTENING     23323    /var/run/php5-fpm.sock</pre>
+<p>Перечислить все TCP порты: <strong>netstat -at</strong></p>
+<pre class="scrollable"># netstat -at
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 localhost:domain        *:*                     LISTEN
+tcp        0      0 *:ssh                   *:*                     LISTEN
+tcp        0      0 localhost:ipp           *:*                     LISTEN
+tcp        0      0 *:http                  *:*                     LISTEN</pre>
+<p>Перечислить все UDP порты: <strong>netstat -au</strong></p>
+<pre class="scrollable"># netstat -au
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+udp        0      0 localhost:domain        *:*
+udp        0      0 *:bootpc                *:*
+udp6       0      0 fe80::20c:29ff:fe68:ntp [::]:*</pre>
+<h2>2. Список сокетов, находящихся в состоянии LISTEN</h2>
+<p>Перечислить все прослушиваемые порты: <strong>netstat -l</strong></p>
+<pre class="scrollable"># netstat -l
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 localhost:domain        *:*                     LISTEN
+tcp6       0      0 [::]:ssh                [::]:*                  LISTEN
+udp        0      0 192.168.128.134:ntp     *:*</pre>
+<p>Перечислить прослушиваемые TCP порты: <strong>netstat -lt</strong></p>
+<pre class="scrollable"># netstat -lt
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 localhost:domain        *:*                     LISTEN
+tcp        0      0 localhost:ipp           *:*                     LISTEN
+tcp6       0      0 [::]:ssh                [::]:*                  LISTEN</pre>
+<p>Перечислить прослушиваемые UDP порты: <strong>netstat -lu</strong></p>
+<pre class="scrollable"># netstat -lu
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+udp        0      0 *:bootpc                *:*
+udp6       0      0 [::]:ntp                [::]:*</pre>
+<p>Перечислить прослушиваемые UNIX сокеты: <strong>netstat -lx</strong></p>
+<pre class="scrollable"># netstat -lx
+Active UNIX domain sockets (only servers)
+Proto RefCnt Flags       Type       State         I-Node   Path
+unix  2      [ ACC ]     STREAM     LISTENING     3141     /var/run/fail2ban/fail2ban.sock
+unix  2      [ ACC ]     STREAM     LISTENING     20492    /var/run/mysqld/mysqld.sock
+unix  2      [ ACC ]     STREAM     LISTENING     23323    /var/run/php5-fpm.sock</pre>
+<h2>3. Просмотр статистики для каждого протокола</h2>
+<p>Показать статистику всех портов: <strong>netstat -s</strong></p>
+<pre class="scrollable"># netstat -s
+Ip:
+    11150 total packets received
+    1 with invalid addresses
+    0 forwarded
+    0 incoming packets discarded
+    11149 incoming packets delivered
+    11635 requests sent out
+Icmp:
+    13791 ICMP messages received
+    12 input ICMP message failed.
+Tcp:
+    15020 active connections openings
+    97955 passive connection openings
+    135 failed connection attempts
+Udp:
+    2841 packets received
+    180 packets to unknown port received.
+.....</pre>
+<p>Показать статистику только TCP портов: <strong>netstat -st</strong></p>
+<pre># netstat -st</pre>
+<p>Показать статистику только UDP портов: <strong>netstat -su</strong></p>
+<pre># netstat -su</pre>
+<h2>4. Отображение PID и имени процесса в выводе netstat </h2>
+<p>Опция <strong>netstat -p</strong> добавит «PID/Program Name» в вывод netstat, и может быть совмещена с любым другим набором опций. Это очень полезно при отладке, для определения того, какая программа работает на определённом порту.</p>
+<pre class="scrollable"># netstat -pt
+Active Internet connections (w/o servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 org-ru-putty.vm.udf:www 52-106.plus.kerch:55723 ESTABLISHED 9486/nginx: worker
+tcp        0      0 org-ru-putty.vm.udf:www 52-106.plus.kerch:55757 ESTABLISHED 9486/nginx: worker</pre>
+<h2>5. Разрешение имён в выводе netstat</h2>
+<p>Когда вам не нужно резолвить имя хоста, имя порта, имя пользователя, используйте опцию <strong>netstat -n</strong> для вывода значений в цифровом формате. Команда покажет IP-адрес вместо хоста, номер порта вместо имени порта, UID вместо имени пользователя.</p>
+<p>Это также ускорит вывод, так как netstat не станет выполнять ненужный поиск.</p>
+<pre># netstat -an</pre>
+<p>Для вывода цифровых значений только некоторых из этих пунктов, используйте следующие команды:</p>
+<pre class="scrollable"># netsat -a --numeric-ports
+
+# netsat -a --numeric-hosts
+
+# netsat -a --numeric-users</pre>
+<h2>6. Вывод информации netstat непрерывно</h2>
+<p>Опция <strong>netstat -c</strong> будет выводить информацию непрерывно, в стиле <strong>top</strong>, обновляя экран каждые несколько секунд.</p>
+<pre class="scrollable"># netstat -c
+Active Internet connections (w/o servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 org-ru-putty.vm.udf:www 182.131.74.202:59933    FIN_WAIT2
+tcp        0      0 org-ru-putty.vm.udf:www 182.131.74.202:63761    FIN_WAIT2
+tcp        0      0 org-ru-putty.vm.udf:www 92-181-66-102-irk.:4585 ESTABLISHED
+^C</pre>
+<h2>7. Неподдерживаемые системой семейства адресов</h2>
+<p>Опция <strong>netstat --verbose</strong> покажет подробный вывод, а в самом конце отобразит неподдерживаемые Address Family.</p>
+<pre class="scrollable">    netstat: no support for `AF IPX' on this system.
+    netstat: no support for `AF AX25' on this system.
+    netstat: no support for `AF X25' on this system.
+    netstat: no support for `AF NETROM' on this system.</pre>
+<h2>8. Маршрутизация ядра</h2>
+<p>Показать таблицу маршрутизации ядра: <strong>netstat -r</strong></p>
+<pre class="scrollable"># netstat -r
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
+default         192.168.128.2   0.0.0.0         UG        0 0          0 eth0
+192.168.128.0   *               255.255.255.0   U         0 0          0 eth0</pre>
+<p>Примечание: Используйте <strong>netstat -rn</strong> для просмотра маршрута в цифровом формате без разрешения имён узлов.</p>
+<h2>9. Соответствие портов и процессов</h2>
+<p>Узнать, какой порт занимает определённая программа:</p>
+<pre class="scrollable"># netstat -ap | grep ssh
+(Not all processes could be identified, non-owned process info
+ will not be shown, you would have to be root to see it all.)
+tcp        0      0 *:ssh                   *:*                     LISTEN      -
+tcp6       0      0 [::]:ssh                [::]:*                  LISTEN      -</pre>
+<p>Выяснить, каким процессом используется определённый порт:</p>
+<pre># netstat -an | grep ':80'</pre>
+<h2>10. Сетевые интерфейсы</h2>
+<p>Показать список сетевых интерфейсов: <strong>netstat -i</strong></p>
+<pre class="scrollable"># netstat -i
+Kernel Interface table
+Iface   MTU Met   RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg
+eth0       1500 0   1911037      0      0 0       1382056      0      0      0 BMRU
+lo        16436 0         0      0      0 0             0      0      0      0 LRU</pre>
+<p>Показать расширенную информацию об интерфейсах (аналогично ifconfig): <strong>netstat -ie</strong></p>
+<pre class="scrollable"># netstat -ie
+Kernel Interface table
+eth0      Link encap:Ethernet  HWaddr 00:0c:29:68:4c:a4
+          inet addr:192.168.128.134  Bcast:192.168.128.255  Mask:255.255.255.0
+          inet6 addr: fe80::20c:29ff:fe68:4ca4/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:24278 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:11275 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:33203025 (33.2 MB)  TX bytes:665822 (665.8 KB)
+          Interrupt:19 Base address:0x2000</pre>
+<h2>11. netstat -lnptux</h2>
+<p>Резюмируем вышеописанное и объединим ключи в одну полезную команду, которая покажет:
+<ul class="netstat-list">
+<li><kbd>-l</kbd> все открытые порты (LISTEN)</li>
+<li><kbd>-t</kbd> по протоколу TCP</li>
+<li><kbd>-u</kbd> по протоколу UDP</li>
+<li><kbd>-x</kbd> по протоколу UNIX Socket</li>
+<li><kbd>-n</kbd> без резолва IP/имён</li>
+<li><kbd>-p</kbd> но с названиями процессов и PID-ами</li>
+</ul>
+<p>Примечание: Не все процессы могут быть идентифицированы последним ключом, чужие процессы показаны не будут. Вы должны иметь права root чтобы увидеть всё.</p>
+<pre class="scrollable"># netstat -lnptux
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      9614/nginx
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      601/sshd
+udp        0      0 8.8.4.4:123             0.0.0.0:*                           574/ntpd
+udp        0      0 127.0.0.1:123           0.0.0.0:*                           574/ntpd
+udp        0      0 0.0.0.0:123             0.0.0.0:*                           574/ntpd
+Active UNIX domain sockets (only servers)
+Proto RefCnt Flags       Type       State         I-Node   PID/Program name    Path
+unix  2      [ ACC ]     STREAM     LISTENING     4233     826/python          /var/run/fail2ban/fail2ban.sock
+unix  2      [ ACC ]     STREAM     LISTENING     8122     2561/mysqld         /var/run/mysqld/mysqld.sock
+unix  2      [ ACC ]     STREAM     LISTENING     160413   7301/php-fpm.conf   /var/run/php5-fpm.sock</pre><div class="footer">© 2009–2022, PuTTY.ORG.RU<span class="footer_long"> — </span><span class="footer_break"><br></span>При использовании материалов сайта указывайте источник.</div>
+
+</div>
+
+<script src="https://putty.org.ru/js/hrefs.js"></script>
+</body>
+</html>

@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Основы Elasticsearch / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/280488\/"},"headline":"Основы Elasticsearch","datePublished":"2016-03-30T08:08:12+03:00","dateModified":"2016-09-29T20:06:30+03:00","author":{"@type":"Person","name":"Михаил Кузьмин"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Elasticsearch &mdash; поисковый движок с json rest api, использующий Lucene и написанный на Java. Описание всех преимуществ этого движка доступно на официальном сайте.","url":"https:\/\/habr.com\/ru\/post\/280488\/#post-content-body","about":["h_webdev","h_search_technologies","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/280488\/9beb5b6ba27132be283b50dc43f55e57\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Основы Elasticsearch" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Основы Elasticsearch" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Основы Elasticsearch" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Elasticsearch — поисковый движок с json rest api, использующий Lucene и написанный на Java. Описание всех преимуществ этого движка доступно на официальном сайте. Далее по тексту будем называть..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Elasticsearch — поисковый движок с json rest api, использующий Lucene и написанный на Java. Описание всех преимуществ этого движка доступно на официальном сайте. Далее по тексту будем называть..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Elasticsearch — поисковый движок с json rest api, использующий Lucene и написанный на Java. Описание всех преимуществ этого движка доступно на официальном сайте. Далее по тексту будем называть..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Elasticsearch — поисковый движок с json rest api, использующий Lucene и написанный на Java. Описание всех преимуществ этого движка доступно на официальном сайте. Далее по тексту будем называть..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Elasticsearch — поисковый движок с json rest api, использующий Lucene и написанный на Java. Описание всех преимуществ этого движка доступно на официальном сайте. Далее по тексту будем называть..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/280488/9beb5b6ba27132be283b50dc43f55e57/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/280488/9beb5b6ba27132be283b50dc43f55e57/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/280488/9beb5b6ba27132be283b50dc43f55e57/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/280488/9beb5b6ba27132be283b50dc43f55e57/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/280488/9beb5b6ba27132be283b50dc43f55e57/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="280488" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2016-03-30T05:08:12.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/280488/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="elasticsearch, curl, java, search engine, json, rest, lucene">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/280488/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.139.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/280488/9beb5b6ba27132be283b50dc43f55e57/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/mkuzmin/" title="mkuzmin" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/85b/b08/074/85bb08074c420292d783ceee6c767209.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/mkuzmin/" class="tm-user-info__username">
+      mkuzmin
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2016-03-30T05:08:12.000Z" title="2016-03-30, 08:08">30  марта  2016 в 08:08</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Основы Elasticsearch</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/search_technologies/" class="tm-article-snippet__hubs-item-link"><span>Поисковые технологии</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><p>Elasticsearch — поисковый движок с json rest api, использующий Lucene и написанный на Java. Описание всех преимуществ этого движка доступно на <a href="https://www.elastic.co/products/elasticsearch">официальном сайте</a>. Далее по тексту будем называть Elasticsearch как ES.</p><br/>
+<p>Подобные движки используются при сложном поиске по базе документов. Например, поиск с учетом морфологии языка или поиск по geo координатам.</p><br/>
+<p>В этой статье я расскажу про основы ES на примере индексации постов блога. Покажу как фильтровать, сортировать и искать документы.</p><a name="habracut"></a><br/>
+<p>Чтобы не зависеть от операционной системы, все запросы к ES я буду делать с помощью CURL. Также есть плагин для google chrome под названием <a href="https://chrome.google.com/webstore/detail/sense-beta/lhjgkmllcaadmopgmanpapmpjgmfcfig?hl=ru">sense</a>.</p><br/>
+<p>По тексту расставлены ссылки на документацию и другие источники. В конце размещены ссылки для быстрого доступа к документации. Определения незнакомых терминов можно прочитать в <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html">глоссарии</a>.<br/>
+</p><br/>
+<h1>Установка ES</h1><br/>
+<p>Для этого нам сначала потребуется Java. Разработчики <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setup.html#jvm-version">рекомендуют</a> установить версии Java новее, чем Java 8 update 20 или Java 7 update 55.</p><br/>
+<p>Дистрибутив ES доступен на <a href="https://www.elastic.co/downloads/elasticsearch">сайте разработчика</a>. После распаковки архива нужно запустить <code>bin/elasticsearch</code>. Также доступны <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-repositories.html">пакеты для apt и yum</a>. Есть <a href="https://hub.docker.com/_/elasticsearch/">официальный image для docker</a>. <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html">Подробнее об установке</a>.</p><br/>
+<p>После установки и запуска проверим работоспособность:</p><br/>
+<pre><code class="bash"># для удобства запомним адрес в переменную
+#export ES_URL=$(docker-machine ip dev):9200
+export ES_URL=localhost:9200
+
+curl -X GET $ES_URL</code></pre><br/>
+<p>Нам придет приблизительно такой ответ:</p><br/>
+<pre><code>{
+  "name" : "Heimdall",
+  "cluster_name" : "elasticsearch",
+  "version" : {
+    "number" : "2.2.1",
+    "build_hash" : "d045fc29d1932bce18b2e65ab8b297fbf6cd41a1",
+    "build_timestamp" : "2016-03-09T09:38:54Z",
+    "build_snapshot" : false,
+    "lucene_version" : "5.4.1"
+  },
+  "tagline" : "You Know, for Search"
+}</code></pre><br/>
+<h1>Индексация</h1><br/>
+<p>Добавим пост в ES:</p><br/>
+<pre><code class="bash"># Добавим документ c id 1 типа post в индекс blog.
+# ?pretty указывает, что вывод должен быть человеко-читаемым.
+
+curl -XPUT "$ES_URL/blog/post/1?pretty" -d'
+{
+  "title": "Веселые котята",
+  "content": "&lt;p>Смешная история про котят&lt;p>",
+  "tags": [
+    "котята",
+    "смешная история"
+  ],
+  "published_at": "2014-09-12T20:44:42+00:00"
+}'
+</code></pre><br/>
+<p>ответ сервера:</p><br/>
+<pre><code>{
+  "_index" : "blog",
+  "_type" : "post",
+  "_id" : "1",
+  "_version" : 1,
+  "_shards" : {
+    "total" : 2,
+    "successful" : 1,
+    "failed" : 0
+  },
+  "created" : false
+}
+</code></pre><br/>
+<p>ES автоматически создал <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-index">индекс</a> blog и <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#glossary-type">тип</a> post. Можно провести условную аналогию: индекс — это база данных, а тип — таблица в этой БД. Каждый тип имеет свою схему — <a href="http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/glossary.html#glossary-mapping">mapping</a>, также как и реляционная таблица. Mapping генерируется автоматически при индексации документа:</p><br/>
+<pre><code class="bash"># Получим mapping всех типов индекса blog
+curl -XGET "$ES_URL/blog/_mapping?pretty"</code></pre><br/>
+<p>В ответе сервера я добавил в комментариях значения полей проиндексированного документа:</p><br/>
+<pre><code>{
+  "blog" : {
+    "mappings" : {
+      "post" : {
+        "properties" : {
+          /* "content": "&lt;p>Смешная история про котят&lt;p>", */ 
+          "content" : {
+            "type" : "string"
+          },
+          /* "published_at": "2014-09-12T20:44:42+00:00" */
+          "published_at" : {
+            "type" : "date",
+            "format" : "strict_date_optional_time||epoch_millis"
+          },
+          /* "tags": ["котята", "смешная история"] */
+          "tags" : {
+            "type" : "string"
+          },
+          /*  "title": "Веселые котята" */
+          "title" : {
+            "type" : "string"
+          }
+        }
+      }
+    }
+  }
+}</code></pre><br/>
+<p>Стоит отметить, что ES не делает различий между одиночным значением и массивом значений. Например, поле title содержит просто заголовок, а поле tags — массив строк, хотя они представлены в mapping одинаково.<br/>
+Позднее мы поговорим о маппинге более подобно.<br/>
+</p><br/>
+<h1>Запросы</h1><br/>
+<h2>Извлечение документа по его id:</h2><br/>
+<pre><code class="bash"># извлечем документ с id 1 типа post из индекса blog
+curl -XGET "$ES_URL/blog/post/1?pretty"</code></pre><br/>
+<pre><code>{
+  "_index" : "blog",
+  "_type" : "post",
+  "_id" : "1",
+  "_version" : 1,
+  "found" : true,
+  "_source" : {
+    "title" : "Веселые котята",
+    "content" : "&lt;p>Смешная история про котят&lt;p>",
+    "tags" : [ "котята", "смешная история" ],
+    "published_at" : "2014-09-12T20:44:42+00:00"
+  }
+}</code></pre><br/>
+<p>В ответе появились новые ключи: <code>_version</code> и <code>_source</code>. Вообще, все ключи, начинающиеся с <code>_</code> относятся к служебным.</p><br/>
+<p>Ключ <code>_version</code> показывает версию документа. Он нужен для работы механизма оптимистических блокировок. Например, мы хотим изменить документ, имеющий версию 1. Мы отправляем измененный документ и указываем, что это правка документа с версией 1. Если кто-то другой тоже редактировал документ с версией 1 и отправил изменения раньше нас, то ES не примет наши изменения, т.к. он хранит документ с версией 2. </p><br/>
+<p>Ключ <code>_source</code> содержит тот документ, который мы индексировали. ES не использует это значение для поисковых операций, т.к. для поиска используются индексы. Для экономии места ES хранит сжатый исходный документ. Если нам нужен только id, а не весь исходный документ, то можно отключить хранение исходника.</p><br/>
+<p>Если нам не нужна дополнительная информация, можно получить только содержимое _source:</p><br/>
+<pre><code class="bash">curl -XGET "$ES_URL/blog/post/1/_source?pretty"</code></pre><br/>
+<pre><code>{
+  "title" : "Веселые котята",
+  "content" : "&lt;p>Смешная история про котят&lt;p>",
+  "tags" : [ "котята", "смешная история" ],
+  "published_at" : "2014-09-12T20:44:42+00:00"
+}
+</code></pre><br/>
+<p>Также можно выбрать только определенные поля:</p><br/>
+<pre><code class="bash"># извлечем только поле title
+curl -XGET "$ES_URL/blog/post/1?_source=title&amp;pretty"</code></pre><br/>
+<pre><code>{
+  "_index" : "blog",
+  "_type" : "post",
+  "_id" : "1",
+  "_version" : 1,
+  "found" : true,
+  "_source" : {
+    "title" : "Веселые котята"
+  }
+}</code></pre><br/>
+<p>Давайте проиндексируем еще несколько постов и выполним более сложные запросы.</p><br/>
+<pre><code class="bash">curl -XPUT "$ES_URL/blog/post/2" -d'
+{
+  "title": "Веселые щенки",
+  "content": "&lt;p>Смешная история про щенков&lt;p>",
+  "tags": [
+    "щенки",
+    "смешная история"
+  ],
+  "published_at": "2014-08-12T20:44:42+00:00"
+}'</code></pre><br/>
+<pre><code class="bash">curl -XPUT "$ES_URL/blog/post/3" -d'
+{
+  "title": "Как у меня появился котенок",
+  "content": "&lt;p>Душераздирающая история про бедного котенка с улицы&lt;p>",
+  "tags": [
+    "котята"
+  ],
+  "published_at": "2014-07-21T20:44:42+00:00"
+}'</code></pre><br/>
+<h2>Сортировка</h2><br/>
+<pre><code class="bash"># найдем последний пост по дате публикации и извлечем поля title и published_at
+curl -XGET "$ES_URL/blog/post/_search?pretty" -d'
+{
+  "size": 1,
+  "_source": ["title", "published_at"],
+  "sort": [{"published_at": "desc"}]
+}'</code></pre><br/>
+<pre><code>{
+  "took" : 8,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 5,
+    "successful" : 5,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : 3,
+    "max_score" : null,
+    "hits" : [ {
+      "_index" : "blog",
+      "_type" : "post",
+      "_id" : "1",
+      "_score" : null,
+      "_source" : {
+        "title" : "Веселые котята",
+        "published_at" : "2014-09-12T20:44:42+00:00"
+      },
+      "sort" : [ 1410554682000 ]
+    } ]
+  }
+}</code></pre><br/>
+<p>Мы выбрали последний пост. <code>size</code> ограничивает кол-во документов в выдаче. <code>total</code> показывает общее число документов, подходящих под запрос. <code>sort</code> в выдаче содержит массив целых чисел, по которым производится сортировка. Т.е. дата преобразовалась в целое число. Подробнее о сортировке можно прочитать в <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html#search-request-sort">документации</a>.<br/>
+</p><br/>
+<h2>Фильтры и запросы</h2><br/>
+<p>ES с версии 2 не различает фильты и запросы, вместо этого <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html">вводится понятие контекстов</a>.<br/>
+Контекст запроса отличается от контекста фильтра тем, что запрос генерирует _score и не кэшируется. Что такое _score я покажу позже.<br/>
+</p><br/>
+<h2>Фильтрация по дате</h2><br/>
+<p>Используем запрос <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html">range</a> в контексте filter:</p><br/>
+<pre><code class="bash"># получим посты, опубликованные 1ого сентября или позже
+curl -XGET "$ES_URL/blog/post/_search?pretty" -d'
+{
+  "filter": {
+    "range": {
+      "published_at": { "gte": "2014-09-01" }
+    }
+  }
+}'</code></pre><br/>
+<h2>Фильтрация по тегам</h2><br/>
+<p>Используем <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html">term query</a> для поиска id документов, содержащих заданное слово:</p><br/>
+<pre><code class="bash"># найдем все документы, в поле tags которых есть элемент 'котята'
+curl -XGET "$ES_URL/blog/post/_search?pretty" -d'
+{
+  "_source": [
+    "title",
+    "tags"
+  ],
+  "filter": {
+    "term": {
+      "tags": "котята"
+    }
+  }
+}'</code></pre><br/>
+<pre><code>{
+  "took" : 9,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 5,
+    "successful" : 5,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : 2,
+    "max_score" : 1.0,
+    "hits" : [ {
+      "_index" : "blog",
+      "_type" : "post",
+      "_id" : "1",
+      "_score" : 1.0,
+      "_source" : {
+        "title" : "Веселые котята",
+        "tags" : [ "котята", "смешная история" ]
+      }
+    }, {
+      "_index" : "blog",
+      "_type" : "post",
+      "_id" : "3",
+      "_score" : 1.0,
+      "_source" : {
+        "title" : "Как у меня появился котенок",
+        "tags" : [ "котята" ]
+      }
+    } ]
+  }
+}</code></pre><br/>
+<h2>Полнотекстовый поиск</h2><br/>
+<p>Три наших документа содержат в поле content следующее:</p><br/>
+<ul>
+<li><code>&lt;p>Смешная история про котят&lt;p></code></li>
+<li><code>&lt;p>Смешная история про щенков&lt;p></code></li>
+<li><code>&lt;p>Душераздирающая история про бедного котенка с улицы&lt;p></code></li>
+</ul><br/>
+<p>Используем <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html">match query</a> для поиска id документов, содержащих заданное слово:</p><br/>
+<pre><code class="bash"># source: false означает, что не нужно извлекать _source найденных документов
+curl -XGET "$ES_URL/blog/post/_search?pretty" -d'
+{
+  "_source": false,
+  "query": {
+    "match": {
+      "content": "история"
+    }
+  }
+}'</code></pre><br/>
+<pre><code>{
+  "took" : 13,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 5,
+    "successful" : 5,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : 3,
+    "max_score" : 0.11506981,
+    "hits" : [ {
+      "_index" : "blog",
+      "_type" : "post",
+      "_id" : "2",
+      "_score" : 0.11506981
+    }, {
+      "_index" : "blog",
+      "_type" : "post",
+      "_id" : "1",
+      "_score" : 0.11506981
+    }, {
+      "_index" : "blog",
+      "_type" : "post",
+      "_id" : "3",
+      "_score" : 0.095891505
+    } ]
+  }
+}</code></pre><br/>
+<p>Однако, если искать "истории" в поле контент, то мы ничего не найдем, т.к. в индексе содержатся только оригинальные слова, а не их основы. Для того чтобы сделать качественный поиск, нужно настроить анализатор.</p><br/>
+<p>Поле <code>_score</code> показывает <a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/relevance-intro.html">релевантность</a>. Если запрос выпоняется в filter context, то значение _score всегда будет равно 1, что означает полное соответствие фильтру.<br/>
+</p><br/>
+<h1>Анализаторы</h1><br/>
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html">Анализаторы</a> нужны, чтобы преобразовать исходный текст в набор токенов.<br/>
+Анализаторы состоят из одного <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenizers.html">Tokenizer</a> и нескольких необязательных <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenfilters.html">TokenFilters</a>. Tokenizer может предшествовать нескольким <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-charfilters.html">CharFilters</a>. Tokenizer разбивают исходную строку на токены, например, по пробелам и символам пунктуации. TokenFilter может изменять токены, удалять или добавлять новые, например, оставлять только основу слова, убирать предлоги, добавлять синонимы. CharFilter — изменяет исходную строку целиком, например, вырезает html теги.</p><br/>
+<p>В ES есть несколько <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html">стандартных анализаторов</a>. Например, анализатор <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html#russian-analyzer">russian</a>.</p><br/>
+<p>Воспользуемся <a href="http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-analyze.html">api</a> и посмотрим, как анализаторы standard и russian преобразуют строку "Веселые истории про котят": </p><br/>
+<pre><code class="bash"># используем анализатор standard       
+# обязательно нужно перекодировать не ASCII символы
+curl -XGET "$ES_URL/_analyze?pretty&amp;analyzer=standard&amp;text=%D0%92%D0%B5%D1%81%D0%B5%D0%BB%D1%8B%D0%B5%20%D0%B8%D1%81%D1%82%D0%BE%D1%80%D0%B8%D0%B8%20%D0%BF%D1%80%D0%BE%20%D0%BA%D0%BE%D1%82%D1%8F%D1%82"</code></pre><br/>
+<pre><code>{
+  "tokens" : [ {
+    "token" : "веселые",
+    "start_offset" : 0,
+    "end_offset" : 7,
+    "type" : "&lt;ALPHANUM>",
+    "position" : 0
+  }, {
+    "token" : "истории",
+    "start_offset" : 8,
+    "end_offset" : 15,
+    "type" : "&lt;ALPHANUM>",
+    "position" : 1
+  }, {
+    "token" : "про",
+    "start_offset" : 16,
+    "end_offset" : 19,
+    "type" : "&lt;ALPHANUM>",
+    "position" : 2
+  }, {
+    "token" : "котят",
+    "start_offset" : 20,
+    "end_offset" : 25,
+    "type" : "&lt;ALPHANUM>",
+    "position" : 3
+  } ]
+}</code></pre><br/>
+<pre><code class="bash"># используем анализатор russian
+curl -XGET "$ES_URL/_analyze?pretty&amp;analyzer=russian&amp;text=%D0%92%D0%B5%D1%81%D0%B5%D0%BB%D1%8B%D0%B5%20%D0%B8%D1%81%D1%82%D0%BE%D1%80%D0%B8%D0%B8%20%D0%BF%D1%80%D0%BE%20%D0%BA%D0%BE%D1%82%D1%8F%D1%82"</code></pre><br/>
+<pre><code>{
+  "tokens" : [ {
+    "token" : "весел",
+    "start_offset" : 0,
+    "end_offset" : 7,
+    "type" : "&lt;ALPHANUM>",
+    "position" : 0
+  }, {
+    "token" : "истор",
+    "start_offset" : 8,
+    "end_offset" : 15,
+    "type" : "&lt;ALPHANUM>",
+    "position" : 1
+  }, {
+    "token" : "кот",
+    "start_offset" : 20,
+    "end_offset" : 25,
+    "type" : "&lt;ALPHANUM>",
+    "position" : 3
+  } ]
+}</code></pre><br/>
+<p>Стандартный анализатор разбил строку по пробелам и перевел все в нижний регистр, анализатор russian — убрал не значимые слова, перевел в нижний регистр и оставил основу слов.</p><br/>
+<p>Посмотрим, какие Tokenizer, TokenFilters, CharFilters использует анализатор russian:</p><br/>
+<pre><code>{
+  "filter": {
+    "russian_stop": {
+      "type":       "stop",
+      "stopwords":  "_russian_"
+    },
+    "russian_keywords": {
+      "type":       "keyword_marker",
+      "keywords":   []
+    },
+    "russian_stemmer": {
+      "type":       "stemmer",
+      "language":   "russian"
+    }
+  },
+  "analyzer": {
+    "russian": {
+      "tokenizer":  "standard",
+      /* TokenFilters */
+      "filter": [
+        "lowercase",
+        "russian_stop",
+        "russian_keywords",
+        "russian_stemmer"
+      ]
+      /* CharFilters отсутствуют */
+    }
+  }
+}</code></pre><br/>
+<p>Опишем свой анализатор на основе russian, который будет вырезать html теги. Назовем его default, т.к. анализатор с таким именем будет использоваться по умолчанию.</p><br/>
+<pre><code>{
+  "filter": {
+    "ru_stop": {
+      "type":       "stop",
+      "stopwords":  "_russian_"
+    },
+    "ru_stemmer": {
+      "type":       "stemmer",
+      "language":   "russian"
+    }
+  },
+  "analyzer": {
+    "default": {
+      /* добавляем удаление html тегов */
+      "char_filter": ["html_strip"],
+      "tokenizer":  "standard",
+      "filter": [
+        "lowercase",
+        "ru_stop",
+        "ru_stemmer"
+      ]
+    }
+  }
+}</code></pre><br/>
+<p>Сначала из исходной строки удалятся все html теги, потом ее разобьет на токены tokenizer standard, полученные токены перейдут в нижний регистр, удалятся незначимые слова и от оставшихся токенов останется основа слова.<br/>
+</p><br/>
+<h1>Создание индекса</h1><br/>
+<p>Выше мы описали default анализатор. Он будет применяться ко всем строковым полям. Наш пост содержит массив тегов, соответственно, теги тоже будут обработаны анализатором. Т.к. мы ищем посты по точному соответствию тегу, то необходимо отключить анализ для поля tags.</p><br/>
+<p>Создадим индекс blog2 с анализатором и маппингом, в котором отключен анализ поля tags:</p><br/>
+<pre><code class="bash">curl -XPOST "$ES_URL/blog2" -d'
+{
+  "settings": {
+    "analysis": {
+      "filter": {
+        "ru_stop": {
+          "type": "stop",
+          "stopwords": "_russian_"
+        },
+        "ru_stemmer": {
+          "type": "stemmer",
+          "language": "russian"
+        }
+      },
+      "analyzer": {
+        "default": {
+          "char_filter": [
+            "html_strip"
+          ],
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "ru_stop",
+            "ru_stemmer"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "post": {
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "published_at": {
+          "type": "date"
+        },
+        "tags": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}'</code></pre><br/>
+<p>Добавим те же 3 поста в этот индекс (blog2). Я опущу этот процесс, т.к. он аналогичен добавлению документов в индекс blog.<br/>
+</p><br/>
+<h1>Полнотекстовый поиск с поддержкой выражений</h1><br/>
+<p>Познакомимся с еще одним типом запросов: </p><br/>
+<pre><code class="bash"># найдем документы, в которых встречается слово 'истории'
+# query -> simple_query_string -> query содержит поисковый запрос
+# поле title имеет приоритет 3
+# поле tags имеет приоритет 2
+# поле content имеет приоритет 1
+# приоритет используется при ранжировании результатов
+curl -XPOST "$ES_URL/blog2/post/_search?pretty" -d'
+{
+  "query": {
+    "simple_query_string": {
+      "query": "истории",
+      "fields": [
+        "title^3",
+        "tags^2",
+        "content"
+      ]
+    }
+  }
+}'</code></pre><br/>
+<p>Т.к. мы используем анализатор с русским стеммингом, то этот запрос вернет все документы, хотя в них встречается только слово 'история'.</p><br/>
+<p>Запрос может содержать специальные символы, например:</p><br/>
+<pre><code>"\"fried eggs\" +(eggplant | potato) -frittata"</code></pre><br/>
+<p>Синтаксис запроса:</p><br/>
+<pre><code>+ signifies AND operation
+| signifies OR operation
+- negates a single token
+" wraps a number of tokens to signify a phrase for searching
+* at the end of a term signifies a prefix query
+( and ) signify precedence
+~N after a word signifies edit distance (fuzziness)
+~N after a phrase signifies slop amount</code></pre><br/>
+<pre><code class="bash"># найдем документы без слова 'щенки'
+curl -XPOST "$ES_URL/blog2/post/_search?pretty" -d'
+{
+  "query": {
+    "simple_query_string": {
+      "query": "-щенки",
+      "fields": [
+        "title^3",
+        "tags^2",
+        "content"
+      ]
+    }
+  }
+}'
+
+# получим 2 поста про котиков</code></pre><br/>
+<h1>Ссылки</h1><br/>
+<ul>
+<li><a href="https://www.elastic.co">Elasctic.co</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html">Reference</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html">Guide</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html">Глоссарий</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html">Установка</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/docs.html">Манипуляции с документами</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indices.html">Операции с индексами</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html">Список запросов</a><br/>
+</li>
+</ul><br/>
+<h1>PS</h1><br/>
+<p>Если интересны подобные статьи-уроки, есть идеи новых статей или есть предложения о сотрудничестве, то буду рад сообщению в личку или на почту m.kuzmin+habr@darkleaf.ru.</p></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Belasticsearch%5D" class="tm-tags-list__link">elasticsearch</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bcurl%5D" class="tm-tags-list__link">curl</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bjava%5D" class="tm-tags-list__link">java</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bsearch%20engine%5D" class="tm-tags-list__link">search engine</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bjson%5D" class="tm-tags-list__link">json</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Brest%5D" class="tm-tags-list__link">rest</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Blucene%5D" class="tm-tags-list__link">lucene</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/search_technologies/" class="tm-hubs-list__link">
+    Поисковые технологии
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 39: ↑38 и ↓1</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 39: ↑38 и ↓1" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+37</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">539K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    748
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/mkuzmin/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/85b/b08/074/85bb08074c420292d783ceee6c767209.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 76 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    56
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Михаил Кузьмин</span> <a href="https://habr.com/ru/users/mkuzmin/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @mkuzmin
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <div class="tm-article-author__user-contacts"><a href="https://github.com/darkleaf/" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Github
+    </a></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/280488/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 78 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner7663" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner7664" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/280488/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/280488/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"280488":{"id":"280488","timePublished":"2016-03-30T05:08:12+00:00","isCorporative":false,"lang":"ru","titleHtml":"Основы Elasticsearch","leadData":{"textHtml":"\u003Cp\u003EElasticsearch — поисковый движок с json rest api, использующий Lucene и написанный на Java. Описание всех преимуществ этого движка доступно на \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fproducts\u002Felasticsearch\"\u003Eофициальном сайте\u003C\u002Fa\u003E. Далее по тексту будем называть Elasticsearch как ES.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПодобные движки используются при сложном поиске по базе документов. Например, поиск с учетом морфологии языка или поиск по geo координатам.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ этой статье я расскажу про основы ES на примере индексации постов блога. Покажу как фильтровать, сортировать и искать документы.\u003C\u002Fp\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":56,"votesCount":76},"rating":0,"relatedData":null,"contacts":[{"title":"Github","url":"https:\u002F\u002Fgithub.com\u002Fdarkleaf\u002F","value":"darkleaf"}],"authorContacts":[{"title":"Github","url":"https:\u002F\u002Fgithub.com\u002Fdarkleaf\u002F","value":"darkleaf"}],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"110409","alias":"mkuzmin","fullname":"Михаил Кузьмин","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F85b\u002Fb08\u002F074\u002F85bb08074c420292d783ceee6c767209.jpg","speciality":null},"statistics":{"commentsCount":78,"favoritesCount":748,"readingCount":538684,"score":37,"votesCount":39},"hubs":[{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"126","alias":"search_technologies","type":"collective","title":"Поисковые технологии","titleHtml":"Поисковые технологии","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cp\u003EElasticsearch — поисковый движок с json rest api, использующий Lucene и написанный на Java. Описание всех преимуществ этого движка доступно на \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fproducts\u002Felasticsearch\"\u003Eофициальном сайте\u003C\u002Fa\u003E. Далее по тексту будем называть Elasticsearch как ES.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПодобные движки используются при сложном поиске по базе документов. Например, поиск с учетом морфологии языка или поиск по geo координатам.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ этой статье я расскажу про основы ES на примере индексации постов блога. Покажу как фильтровать, сортировать и искать документы.\u003C\u002Fp\u003E\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЧтобы не зависеть от операционной системы, все запросы к ES я буду делать с помощью CURL. Также есть плагин для google chrome под названием \u003Ca href=\"https:\u002F\u002Fchrome.google.com\u002Fwebstore\u002Fdetail\u002Fsense-beta\u002Flhjgkmllcaadmopgmanpapmpjgmfcfig?hl=ru\"\u003Esense\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПо тексту расставлены ссылки на документацию и другие источники. В конце размещены ссылки для быстрого доступа к документации. Определения незнакомых терминов можно прочитать в \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fglossary.html\"\u003Eглоссарии\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1\u003EУстановка ES\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДля этого нам сначала потребуется Java. Разработчики \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fsetup.html#jvm-version\"\u003Eрекомендуют\u003C\u002Fa\u003E установить версии Java новее, чем Java 8 update 20 или Java 7 update 55.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДистрибутив ES доступен на \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fdownloads\u002Felasticsearch\"\u003Eсайте разработчика\u003C\u002Fa\u003E. После распаковки архива нужно запустить \u003Ccode\u003Ebin\u002Felasticsearch\u003C\u002Fcode\u003E. Также доступны \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fsetup-repositories.html\"\u003Eпакеты для apt и yum\u003C\u002Fa\u003E. Есть \u003Ca href=\"https:\u002F\u002Fhub.docker.com\u002F_\u002Felasticsearch\u002F\"\u003Eофициальный image для docker\u003C\u002Fa\u003E. \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002F_installation.html\"\u003EПодробнее об установке\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПосле установки и запуска проверим работоспособность:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E# для удобства запомним адрес в переменную\n#export ES_URL=$(docker-machine ip dev):9200\nexport ES_URL=localhost:9200\n\ncurl -X GET $ES_URL\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНам придет приблизительно такой ответ:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E{\n  \"name\" : \"Heimdall\",\n  \"cluster_name\" : \"elasticsearch\",\n  \"version\" : {\n    \"number\" : \"2.2.1\",\n    \"build_hash\" : \"d045fc29d1932bce18b2e65ab8b297fbf6cd41a1\",\n    \"build_timestamp\" : \"2016-03-09T09:38:54Z\",\n    \"build_snapshot\" : false,\n    \"lucene_version\" : \"5.4.1\"\n  },\n  \"tagline\" : \"You Know, for Search\"\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1\u003EИндексация\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДобавим пост в ES:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E# Добавим документ c id 1 типа post в индекс blog.\n# ?pretty указывает, что вывод должен быть человеко-читаемым.\n\ncurl -XPUT \"$ES_URL\u002Fblog\u002Fpost\u002F1?pretty\" -d'\n{\n  \"title\": \"Веселые котята\",\n  \"content\": \"&lt;p\u003EСмешная история про котят&lt;p\u003E\",\n  \"tags\": [\n    \"котята\",\n    \"смешная история\"\n  ],\n  \"published_at\": \"2014-09-12T20:44:42+00:00\"\n}'\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003Eответ сервера:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E{\n  \"_index\" : \"blog\",\n  \"_type\" : \"post\",\n  \"_id\" : \"1\",\n  \"_version\" : 1,\n  \"_shards\" : {\n    \"total\" : 2,\n    \"successful\" : 1,\n    \"failed\" : 0\n  },\n  \"created\" : false\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EES автоматически создал \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fglossary.html#glossary-index\"\u003Eиндекс\u003C\u002Fa\u003E blog и \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fglossary.html#glossary-type\"\u003Eтип\u003C\u002Fa\u003E post. Можно провести условную аналогию: индекс — это база данных, а тип — таблица в этой БД. Каждый тип имеет свою схему — \u003Ca href=\"http:\u002F\u002Fwww.elasticsearch.org\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fglossary.html#glossary-mapping\"\u003Emapping\u003C\u002Fa\u003E, также как и реляционная таблица. Mapping генерируется автоматически при индексации документа:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E# Получим mapping всех типов индекса blog\ncurl -XGET \"$ES_URL\u002Fblog\u002F_mapping?pretty\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ ответе сервера я добавил в комментариях значения полей проиндексированного документа:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E{\n  \"blog\" : {\n    \"mappings\" : {\n      \"post\" : {\n        \"properties\" : {\n          \u002F* \"content\": \"&lt;p\u003EСмешная история про котят&lt;p\u003E\", *\u002F \n          \"content\" : {\n            \"type\" : \"string\"\n          },\n          \u002F* \"published_at\": \"2014-09-12T20:44:42+00:00\" *\u002F\n          \"published_at\" : {\n            \"type\" : \"date\",\n            \"format\" : \"strict_date_optional_time||epoch_millis\"\n          },\n          \u002F* \"tags\": [\"котята\", \"смешная история\"] *\u002F\n          \"tags\" : {\n            \"type\" : \"string\"\n          },\n          \u002F*  \"title\": \"Веселые котята\" *\u002F\n          \"title\" : {\n            \"type\" : \"string\"\n          }\n        }\n      }\n    }\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСтоит отметить, что ES не делает различий между одиночным значением и массивом значений. Например, поле title содержит просто заголовок, а поле tags — массив строк, хотя они представлены в mapping одинаково.\u003Cbr\u002F\u003E\r\nПозднее мы поговорим о маппинге более подобно.\u003Cbr\u002F\u003E\r\n\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1\u003EЗапросы\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EИзвлечение документа по его id:\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E# извлечем документ с id 1 типа post из индекса blog\ncurl -XGET \"$ES_URL\u002Fblog\u002Fpost\u002F1?pretty\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E{\n  \"_index\" : \"blog\",\n  \"_type\" : \"post\",\n  \"_id\" : \"1\",\n  \"_version\" : 1,\n  \"found\" : true,\n  \"_source\" : {\n    \"title\" : \"Веселые котята\",\n    \"content\" : \"&lt;p\u003EСмешная история про котят&lt;p\u003E\",\n    \"tags\" : [ \"котята\", \"смешная история\" ],\n    \"published_at\" : \"2014-09-12T20:44:42+00:00\"\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ ответе появились новые ключи: \u003Ccode\u003E_version\u003C\u002Fcode\u003E и \u003Ccode\u003E_source\u003C\u002Fcode\u003E. Вообще, все ключи, начинающиеся с \u003Ccode\u003E_\u003C\u002Fcode\u003E относятся к служебным.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКлюч \u003Ccode\u003E_version\u003C\u002Fcode\u003E показывает версию документа. Он нужен для работы механизма оптимистических блокировок. Например, мы хотим изменить документ, имеющий версию 1. Мы отправляем измененный документ и указываем, что это правка документа с версией 1. Если кто-то другой тоже редактировал документ с версией 1 и отправил изменения раньше нас, то ES не примет наши изменения, т.к. он хранит документ с версией 2. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКлюч \u003Ccode\u003E_source\u003C\u002Fcode\u003E содержит тот документ, который мы индексировали. ES не использует это значение для поисковых операций, т.к. для поиска используются индексы. Для экономии места ES хранит сжатый исходный документ. Если нам нужен только id, а не весь исходный документ, то можно отключить хранение исходника.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕсли нам не нужна дополнительная информация, можно получить только содержимое _source:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Ecurl -XGET \"$ES_URL\u002Fblog\u002Fpost\u002F1\u002F_source?pretty\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E{\n  \"title\" : \"Веселые котята\",\n  \"content\" : \"&lt;p\u003EСмешная история про котят&lt;p\u003E\",\n  \"tags\" : [ \"котята\", \"смешная история\" ],\n  \"published_at\" : \"2014-09-12T20:44:42+00:00\"\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТакже можно выбрать только определенные поля:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E# извлечем только поле title\ncurl -XGET \"$ES_URL\u002Fblog\u002Fpost\u002F1?_source=title&amp;pretty\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E{\n  \"_index\" : \"blog\",\n  \"_type\" : \"post\",\n  \"_id\" : \"1\",\n  \"_version\" : 1,\n  \"found\" : true,\n  \"_source\" : {\n    \"title\" : \"Веселые котята\"\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДавайте проиндексируем еще несколько постов и выполним более сложные запросы.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Ecurl -XPUT \"$ES_URL\u002Fblog\u002Fpost\u002F2\" -d'\n{\n  \"title\": \"Веселые щенки\",\n  \"content\": \"&lt;p\u003EСмешная история про щенков&lt;p\u003E\",\n  \"tags\": [\n    \"щенки\",\n    \"смешная история\"\n  ],\n  \"published_at\": \"2014-08-12T20:44:42+00:00\"\n}'\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Ecurl -XPUT \"$ES_URL\u002Fblog\u002Fpost\u002F3\" -d'\n{\n  \"title\": \"Как у меня появился котенок\",\n  \"content\": \"&lt;p\u003EДушераздирающая история про бедного котенка с улицы&lt;p\u003E\",\n  \"tags\": [\n    \"котята\"\n  ],\n  \"published_at\": \"2014-07-21T20:44:42+00:00\"\n}'\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EСортировка\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E# найдем последний пост по дате публикации и извлечем поля title и published_at\ncurl -XGET \"$ES_URL\u002Fblog\u002Fpost\u002F_search?pretty\" -d'\n{\n  \"size\": 1,\n  \"_source\": [\"title\", \"published_at\"],\n  \"sort\": [{\"published_at\": \"desc\"}]\n}'\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E{\n  \"took\" : 8,\n  \"timed_out\" : false,\n  \"_shards\" : {\n    \"total\" : 5,\n    \"successful\" : 5,\n    \"failed\" : 0\n  },\n  \"hits\" : {\n    \"total\" : 3,\n    \"max_score\" : null,\n    \"hits\" : [ {\n      \"_index\" : \"blog\",\n      \"_type\" : \"post\",\n      \"_id\" : \"1\",\n      \"_score\" : null,\n      \"_source\" : {\n        \"title\" : \"Веселые котята\",\n        \"published_at\" : \"2014-09-12T20:44:42+00:00\"\n      },\n      \"sort\" : [ 1410554682000 ]\n    } ]\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EМы выбрали последний пост. \u003Ccode\u003Esize\u003C\u002Fcode\u003E ограничивает кол-во документов в выдаче. \u003Ccode\u003Etotal\u003C\u002Fcode\u003E показывает общее число документов, подходящих под запрос. \u003Ccode\u003Esort\u003C\u002Fcode\u003E в выдаче содержит массив целых чисел, по которым производится сортировка. Т.е. дата преобразовалась в целое число. Подробнее о сортировке можно прочитать в \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fsearch-request-sort.html#search-request-sort\"\u003Eдокументации\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EФильтры и запросы\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EES с версии 2 не различает фильты и запросы, вместо этого \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fquery-filter-context.html\"\u003Eвводится понятие контекстов\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\nКонтекст запроса отличается от контекста фильтра тем, что запрос генерирует _score и не кэшируется. Что такое _score я покажу позже.\u003Cbr\u002F\u003E\r\n\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EФильтрация по дате\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИспользуем запрос \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fquery-dsl-range-query.html\"\u003Erange\u003C\u002Fa\u003E в контексте filter:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E# получим посты, опубликованные 1ого сентября или позже\ncurl -XGET \"$ES_URL\u002Fblog\u002Fpost\u002F_search?pretty\" -d'\n{\n  \"filter\": {\n    \"range\": {\n      \"published_at\": { \"gte\": \"2014-09-01\" }\n    }\n  }\n}'\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EФильтрация по тегам\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИспользуем \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fquery-dsl-term-query.html\"\u003Eterm query\u003C\u002Fa\u003E для поиска id документов, содержащих заданное слово:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E# найдем все документы, в поле tags которых есть элемент 'котята'\ncurl -XGET \"$ES_URL\u002Fblog\u002Fpost\u002F_search?pretty\" -d'\n{\n  \"_source\": [\n    \"title\",\n    \"tags\"\n  ],\n  \"filter\": {\n    \"term\": {\n      \"tags\": \"котята\"\n    }\n  }\n}'\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E{\n  \"took\" : 9,\n  \"timed_out\" : false,\n  \"_shards\" : {\n    \"total\" : 5,\n    \"successful\" : 5,\n    \"failed\" : 0\n  },\n  \"hits\" : {\n    \"total\" : 2,\n    \"max_score\" : 1.0,\n    \"hits\" : [ {\n      \"_index\" : \"blog\",\n      \"_type\" : \"post\",\n      \"_id\" : \"1\",\n      \"_score\" : 1.0,\n      \"_source\" : {\n        \"title\" : \"Веселые котята\",\n        \"tags\" : [ \"котята\", \"смешная история\" ]\n      }\n    }, {\n      \"_index\" : \"blog\",\n      \"_type\" : \"post\",\n      \"_id\" : \"3\",\n      \"_score\" : 1.0,\n      \"_source\" : {\n        \"title\" : \"Как у меня появился котенок\",\n        \"tags\" : [ \"котята\" ]\n      }\n    } ]\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EПолнотекстовый поиск\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТри наших документа содержат в поле content следующее:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ccode\u003E&lt;p\u003EСмешная история про котят&lt;p\u003E\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E&lt;p\u003EСмешная история про щенков&lt;p\u003E\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E&lt;p\u003EДушераздирающая история про бедного котенка с улицы&lt;p\u003E\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИспользуем \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fquery-dsl-match-query.html\"\u003Ematch query\u003C\u002Fa\u003E для поиска id документов, содержащих заданное слово:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E# source: false означает, что не нужно извлекать _source найденных документов\ncurl -XGET \"$ES_URL\u002Fblog\u002Fpost\u002F_search?pretty\" -d'\n{\n  \"_source\": false,\n  \"query\": {\n    \"match\": {\n      \"content\": \"история\"\n    }\n  }\n}'\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E{\n  \"took\" : 13,\n  \"timed_out\" : false,\n  \"_shards\" : {\n    \"total\" : 5,\n    \"successful\" : 5,\n    \"failed\" : 0\n  },\n  \"hits\" : {\n    \"total\" : 3,\n    \"max_score\" : 0.11506981,\n    \"hits\" : [ {\n      \"_index\" : \"blog\",\n      \"_type\" : \"post\",\n      \"_id\" : \"2\",\n      \"_score\" : 0.11506981\n    }, {\n      \"_index\" : \"blog\",\n      \"_type\" : \"post\",\n      \"_id\" : \"1\",\n      \"_score\" : 0.11506981\n    }, {\n      \"_index\" : \"blog\",\n      \"_type\" : \"post\",\n      \"_id\" : \"3\",\n      \"_score\" : 0.095891505\n    } ]\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОднако, если искать \"истории\" в поле контент, то мы ничего не найдем, т.к. в индексе содержатся только оригинальные слова, а не их основы. Для того чтобы сделать качественный поиск, нужно настроить анализатор.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПоле \u003Ccode\u003E_score\u003C\u002Fcode\u003E показывает \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Fguide\u002Fcurrent\u002Frelevance-intro.html\"\u003Eрелевантность\u003C\u002Fa\u003E. Если запрос выпоняется в filter context, то значение _score всегда будет равно 1, что означает полное соответствие фильтру.\u003Cbr\u002F\u003E\r\n\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1\u003EАнализаторы\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fanalysis.html\"\u003EАнализаторы\u003C\u002Fa\u003E нужны, чтобы преобразовать исходный текст в набор токенов.\u003Cbr\u002F\u003E\r\nАнализаторы состоят из одного \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fanalysis-tokenizers.html\"\u003ETokenizer\u003C\u002Fa\u003E и нескольких необязательных \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fanalysis-tokenfilters.html\"\u003ETokenFilters\u003C\u002Fa\u003E. Tokenizer может предшествовать нескольким \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fanalysis-charfilters.html\"\u003ECharFilters\u003C\u002Fa\u003E. Tokenizer разбивают исходную строку на токены, например, по пробелам и символам пунктуации. TokenFilter может изменять токены, удалять или добавлять новые, например, оставлять только основу слова, убирать предлоги, добавлять синонимы. CharFilter — изменяет исходную строку целиком, например, вырезает html теги.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ ES есть несколько \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fanalysis-analyzers.html\"\u003Eстандартных анализаторов\u003C\u002Fa\u003E. Например, анализатор \u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fanalysis-lang-analyzer.html#russian-analyzer\"\u003Erussian\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВоспользуемся \u003Ca href=\"http:\u002F\u002Fwww.elasticsearch.org\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Findices-analyze.html\"\u003Eapi\u003C\u002Fa\u003E и посмотрим, как анализаторы standard и russian преобразуют строку \"Веселые истории про котят\": \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E# используем анализатор standard       \n# обязательно нужно перекодировать не ASCII символы\ncurl -XGET \"$ES_URL\u002F_analyze?pretty&amp;analyzer=standard&amp;text=%D0%92%D0%B5%D1%81%D0%B5%D0%BB%D1%8B%D0%B5%20%D0%B8%D1%81%D1%82%D0%BE%D1%80%D0%B8%D0%B8%20%D0%BF%D1%80%D0%BE%20%D0%BA%D0%BE%D1%82%D1%8F%D1%82\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E{\n  \"tokens\" : [ {\n    \"token\" : \"веселые\",\n    \"start_offset\" : 0,\n    \"end_offset\" : 7,\n    \"type\" : \"&lt;ALPHANUM\u003E\",\n    \"position\" : 0\n  }, {\n    \"token\" : \"истории\",\n    \"start_offset\" : 8,\n    \"end_offset\" : 15,\n    \"type\" : \"&lt;ALPHANUM\u003E\",\n    \"position\" : 1\n  }, {\n    \"token\" : \"про\",\n    \"start_offset\" : 16,\n    \"end_offset\" : 19,\n    \"type\" : \"&lt;ALPHANUM\u003E\",\n    \"position\" : 2\n  }, {\n    \"token\" : \"котят\",\n    \"start_offset\" : 20,\n    \"end_offset\" : 25,\n    \"type\" : \"&lt;ALPHANUM\u003E\",\n    \"position\" : 3\n  } ]\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E# используем анализатор russian\ncurl -XGET \"$ES_URL\u002F_analyze?pretty&amp;analyzer=russian&amp;text=%D0%92%D0%B5%D1%81%D0%B5%D0%BB%D1%8B%D0%B5%20%D0%B8%D1%81%D1%82%D0%BE%D1%80%D0%B8%D0%B8%20%D0%BF%D1%80%D0%BE%20%D0%BA%D0%BE%D1%82%D1%8F%D1%82\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E{\n  \"tokens\" : [ {\n    \"token\" : \"весел\",\n    \"start_offset\" : 0,\n    \"end_offset\" : 7,\n    \"type\" : \"&lt;ALPHANUM\u003E\",\n    \"position\" : 0\n  }, {\n    \"token\" : \"истор\",\n    \"start_offset\" : 8,\n    \"end_offset\" : 15,\n    \"type\" : \"&lt;ALPHANUM\u003E\",\n    \"position\" : 1\n  }, {\n    \"token\" : \"кот\",\n    \"start_offset\" : 20,\n    \"end_offset\" : 25,\n    \"type\" : \"&lt;ALPHANUM\u003E\",\n    \"position\" : 3\n  } ]\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСтандартный анализатор разбил строку по пробелам и перевел все в нижний регистр, анализатор russian — убрал не значимые слова, перевел в нижний регистр и оставил основу слов.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПосмотрим, какие Tokenizer, TokenFilters, CharFilters использует анализатор russian:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E{\n  \"filter\": {\n    \"russian_stop\": {\n      \"type\":       \"stop\",\n      \"stopwords\":  \"_russian_\"\n    },\n    \"russian_keywords\": {\n      \"type\":       \"keyword_marker\",\n      \"keywords\":   []\n    },\n    \"russian_stemmer\": {\n      \"type\":       \"stemmer\",\n      \"language\":   \"russian\"\n    }\n  },\n  \"analyzer\": {\n    \"russian\": {\n      \"tokenizer\":  \"standard\",\n      \u002F* TokenFilters *\u002F\n      \"filter\": [\n        \"lowercase\",\n        \"russian_stop\",\n        \"russian_keywords\",\n        \"russian_stemmer\"\n      ]\n      \u002F* CharFilters отсутствуют *\u002F\n    }\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОпишем свой анализатор на основе russian, который будет вырезать html теги. Назовем его default, т.к. анализатор с таким именем будет использоваться по умолчанию.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E{\n  \"filter\": {\n    \"ru_stop\": {\n      \"type\":       \"stop\",\n      \"stopwords\":  \"_russian_\"\n    },\n    \"ru_stemmer\": {\n      \"type\":       \"stemmer\",\n      \"language\":   \"russian\"\n    }\n  },\n  \"analyzer\": {\n    \"default\": {\n      \u002F* добавляем удаление html тегов *\u002F\n      \"char_filter\": [\"html_strip\"],\n      \"tokenizer\":  \"standard\",\n      \"filter\": [\n        \"lowercase\",\n        \"ru_stop\",\n        \"ru_stemmer\"\n      ]\n    }\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСначала из исходной строки удалятся все html теги, потом ее разобьет на токены tokenizer standard, полученные токены перейдут в нижний регистр, удалятся незначимые слова и от оставшихся токенов останется основа слова.\u003Cbr\u002F\u003E\r\n\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1\u003EСоздание индекса\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВыше мы описали default анализатор. Он будет применяться ко всем строковым полям. Наш пост содержит массив тегов, соответственно, теги тоже будут обработаны анализатором. Т.к. мы ищем посты по точному соответствию тегу, то необходимо отключить анализ для поля tags.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСоздадим индекс blog2 с анализатором и маппингом, в котором отключен анализ поля tags:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Ecurl -XPOST \"$ES_URL\u002Fblog2\" -d'\n{\n  \"settings\": {\n    \"analysis\": {\n      \"filter\": {\n        \"ru_stop\": {\n          \"type\": \"stop\",\n          \"stopwords\": \"_russian_\"\n        },\n        \"ru_stemmer\": {\n          \"type\": \"stemmer\",\n          \"language\": \"russian\"\n        }\n      },\n      \"analyzer\": {\n        \"default\": {\n          \"char_filter\": [\n            \"html_strip\"\n          ],\n          \"tokenizer\": \"standard\",\n          \"filter\": [\n            \"lowercase\",\n            \"ru_stop\",\n            \"ru_stemmer\"\n          ]\n        }\n      }\n    }\n  },\n  \"mappings\": {\n    \"post\": {\n      \"properties\": {\n        \"content\": {\n          \"type\": \"string\"\n        },\n        \"published_at\": {\n          \"type\": \"date\"\n        },\n        \"tags\": {\n          \"type\": \"string\",\n          \"index\": \"not_analyzed\"\n        },\n        \"title\": {\n          \"type\": \"string\"\n        }\n      }\n    }\n  }\n}'\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДобавим те же 3 поста в этот индекс (blog2). Я опущу этот процесс, т.к. он аналогичен добавлению документов в индекс blog.\u003Cbr\u002F\u003E\r\n\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1\u003EПолнотекстовый поиск с поддержкой выражений\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПознакомимся с еще одним типом запросов: \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E# найдем документы, в которых встречается слово 'истории'\n# query -\u003E simple_query_string -\u003E query содержит поисковый запрос\n# поле title имеет приоритет 3\n# поле tags имеет приоритет 2\n# поле content имеет приоритет 1\n# приоритет используется при ранжировании результатов\ncurl -XPOST \"$ES_URL\u002Fblog2\u002Fpost\u002F_search?pretty\" -d'\n{\n  \"query\": {\n    \"simple_query_string\": {\n      \"query\": \"истории\",\n      \"fields\": [\n        \"title^3\",\n        \"tags^2\",\n        \"content\"\n      ]\n    }\n  }\n}'\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТ.к. мы используем анализатор с русским стеммингом, то этот запрос вернет все документы, хотя в них встречается только слово 'история'.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЗапрос может содержать специальные символы, например:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E\"\\\"fried eggs\\\" +(eggplant | potato) -frittata\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСинтаксис запроса:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E+ signifies AND operation\n| signifies OR operation\n- negates a single token\n\" wraps a number of tokens to signify a phrase for searching\n* at the end of a term signifies a prefix query\n( and ) signify precedence\n~N after a word signifies edit distance (fuzziness)\n~N after a phrase signifies slop amount\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E# найдем документы без слова 'щенки'\ncurl -XPOST \"$ES_URL\u002Fblog2\u002Fpost\u002F_search?pretty\" -d'\n{\n  \"query\": {\n    \"simple_query_string\": {\n      \"query\": \"-щенки\",\n      \"fields\": [\n        \"title^3\",\n        \"tags^2\",\n        \"content\"\n      ]\n    }\n  }\n}'\n\n# получим 2 поста про котиков\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1\u003EСсылки\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.elastic.co\"\u003EElasctic.co\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Findex.html\"\u003EReference\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Fguide\u002Fcurrent\u002Findex.html\"\u003EGuide\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fglossary.html\"\u003EГлоссарий\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002F_installation.html\"\u003EУстановка\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fdocs.html\"\u003EМанипуляции с документами\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Findices.html\"\u003EОперации с индексами\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.elastic.co\u002Fguide\u002Fen\u002Felasticsearch\u002Freference\u002Fcurrent\u002Fquery-dsl.html\"\u003EСписок запросов\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1\u003EPS\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕсли интересны подобные статьи-уроки, есть идеи новых статей или есть предложения о сотрудничестве, то буду рад сообщению в личку или на почту m.kuzmin+habr@darkleaf.ru.\u003C\u002Fp\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"elasticsearch"},{"titleHtml":"curl"},{"titleHtml":"java"},{"titleHtml":"search engine"},{"titleHtml":"json"},{"titleHtml":"rest"},{"titleHtml":"lucene"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F280488\u002F9beb5b6ba27132be283b50dc43f55e57\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F280488\u002F9beb5b6ba27132be283b50dc43f55e57\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F280488\\\u002F\"},\"headline\":\"Основы Elasticsearch\",\"datePublished\":\"2016-03-30T08:08:12+03:00\",\"dateModified\":\"2016-09-29T20:06:30+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Михаил Кузьмин\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Elasticsearch &mdash; поисковый движок с json rest api, использующий Lucene и написанный на Java. Описание всех преимуществ этого движка доступно на официальном сайте.\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F280488\\\u002F#post-content-body\",\"about\":[\"h_webdev\",\"h_search_technologies\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F280488\\\u002F9beb5b6ba27132be283b50dc43f55e57\\\u002F\"]}","metaDescription":"Elasticsearch — поисковый движок с json rest api, использующий Lucene и написанный на Java. Описание всех преимуществ этого движка доступно на официальном сайте. Далее по тексту будем называть...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":"webdev,search_technologies"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>JSON API – работаем по спецификации / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/oleg-bunin\/blog\/433322\/"},"headline":"JSON API – работаем по спецификации","datePublished":"2019-01-28T10:46:52+03:00","dateModified":"2019-01-28T11:37:02+03:00","author":{"@type":"Person","name":"Глеб Михеев"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"В&nbsp;последнее время веб-разработка разделилась. Теперь мы&nbsp;все не&nbsp;full-stack программисты&nbsp;&mdash; мы&nbsp;фронтендеры и&nbsp;бэкендеры. А&nbsp;самое сложное в&nbsp;этом, как и&nbsp;везде, это про...","url":"https:\/\/habr.com\/ru\/company\/oleg-bunin\/blog\/433322\/#post-content-body","about":["c_oleg-bunin","h_webdev","h_open_source","h_javascript","h_programming","f_develop"],"image":["https:\/\/habrastorage.org\/webt\/o4\/me\/1u\/o4me1uwmahvlwsnvqxyf_rzwa1i.jpeg","https:\/\/habrastorage.org\/webt\/zn\/9m\/uk\/zn9muk80uvsd_yuragws16ms70c.png","https:\/\/habrastorage.org\/webt\/op\/wi\/6l\/opwi6l_tbihj0tvef8tu4feyoo4.png","https:\/\/habrastorage.org\/webt\/4i\/rk\/hm\/4irkhm7dcicexgmqomprfdraisu.png","https:\/\/habrastorage.org\/webt\/m2\/i2\/ua\/m2i2uadak8sdzbge_pvqlnpu55s.png","https:\/\/habrastorage.org\/webt\/k1\/nj\/lm\/k1njlm8egbrcguim8am6juym76s.png","https:\/\/habrastorage.org\/webt\/jd\/v_\/aa\/jdv_aarpo9qnevtro5ddqbgw5ic.png","https:\/\/habrastorage.org\/webt\/o4\/tc\/ci\/o4tcci6wnmokubjjdecsy5vwclm.png","https:\/\/habrastorage.org\/webt\/fn\/6l\/9t\/fn6l9tjzotvgzehwpbezkd0vcf4.png","https:\/\/habrastorage.org\/webt\/ul\/lj\/yk\/ulljykpo7bhyw85r9ru69k2nuxe.png","https:\/\/habrastorage.org\/webt\/i9\/rg\/ir\/i9rgirjcdxgm16ogmtopu6dnjrq.png","https:\/\/habrastorage.org\/webt\/ty\/14\/kn\/ty14knt_laxzsr2ozusbo0xkk0c.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="JSON API – работаем по спецификации" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="JSON API – работаем по спецификации" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="JSON API – работаем по спецификации" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="В&amp;nbsp;последнее время веб-разработка разделилась. Теперь мы&amp;nbsp;все не&amp;nbsp;full-stack программисты&amp;nbsp;&amp;mdash; мы&amp;nbsp;фронтендеры и&amp;nbsp;бэкендеры. А&amp;nbsp;самое сложное в&amp;nbsp;этом, как..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="В&amp;nbsp;последнее время веб-разработка разделилась. Теперь мы&amp;nbsp;все не&amp;nbsp;full-stack программисты&amp;nbsp;&amp;mdash; мы&amp;nbsp;фронтендеры и&amp;nbsp;бэкендеры. А&amp;nbsp;самое сложное в&amp;nbsp;этом, как..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="В&amp;nbsp;последнее время веб-разработка разделилась. Теперь мы&amp;nbsp;все не&amp;nbsp;full-stack программисты&amp;nbsp;&amp;mdash; мы&amp;nbsp;фронтендеры и&amp;nbsp;бэкендеры. А&amp;nbsp;самое сложное в&amp;nbsp;этом, как..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="В&amp;nbsp;последнее время веб-разработка разделилась. Теперь мы&amp;nbsp;все не&amp;nbsp;full-stack программисты&amp;nbsp;&amp;mdash; мы&amp;nbsp;фронтендеры и&amp;nbsp;бэкендеры. А&amp;nbsp;самое сложное в&amp;nbsp;этом, как..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="В&amp;nbsp;последнее время веб-разработка разделилась. Теперь мы&amp;nbsp;все не&amp;nbsp;full-stack программисты&amp;nbsp;&amp;mdash; мы&amp;nbsp;фронтендеры и&amp;nbsp;бэкендеры. А&amp;nbsp;самое сложное в&amp;nbsp;этом, как..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/433322/2fa5f9c9de4fd1ff1156ae97983b0c0e/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/433322/2fa5f9c9de4fd1ff1156ae97983b0c0e/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/433322/2fa5f9c9de4fd1ff1156ae97983b0c0e/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/433322/2fa5f9c9de4fd1ff1156ae97983b0c0e/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/433322/2fa5f9c9de4fd1ff1156ae97983b0c0e/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="433322" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2019-01-28T07:46:52.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/oleg-bunin/blog/433322/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="json api, frontendconf">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/433322/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.115.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/433322/2fa5f9c9de4fd1ff1156ae97983b0c0e/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="oleg-bunin" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><!----></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/oleg-bunin/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/add/eb3/e91/addeb3e91fe453f9d78c7b52b8dc6a90.png" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">349.95</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/oleg-bunin/profile/" class="tm-company-card__name">
+      Конференции Олега Бунина (Онтико)
+    </a> <div class="tm-company-card__description">Профессиональные конференции для IT-разработчиков</div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/glebmachine/" title="glebmachine" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/118/ea7/631/118ea7631403936094eafd562562e94d.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/glebmachine/" class="tm-user-info__username">
+      glebmachine
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2019-01-28T07:46:52.000Z" title="2019-01-28, 10:46">28  января  2019 в 10:46</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>JSON API – работаем по спецификации</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/oleg-bunin/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании Конференции Олега Бунина (Онтико)</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/open_source/" class="tm-article-snippet__hubs-item-link"><span>Open source</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/javascript/" class="tm-article-snippet__hubs-item-link"><span>JavaScript</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/programming/" class="tm-article-snippet__hubs-item-link"><span>Программирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div><img height="1" src="https://vk.com/rtrg?p=VK-RTRG-200244-Qc4X" width="1" style="display: none;"></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">В последнее время веб-разработка разделилась. Теперь мы все не full-stack программисты — мы фронтендеры и бэкендеры. А самое сложное в этом, как и везде, это проблема взаимодействия и интеграции.<br/>
+<br/>
+Фронтенд с бэкендом взаимодействуют через API. И от того, какой это API, насколько хорошо или плохо бэкенд и фронтенд договорились между собой, зависит весь результат разработки. Если мы все вместе станем обсуждать, как сделать паджинацию, и потратим на её переделывание целый день, то можем и не добраться до бизнес-задач.<br/>
+<br/>
+Чтобы не буксовать и не разводить холивары по поводу названия переменных, нужна хорошая спецификация. Давайте поговорим о том, какой она должны быть, чтобы всем жилось легче. Заодно станем экспертами по велосипедным сараям.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/o4/me/1u/o4me1uwmahvlwsnvqxyf_rzwa1i.jpeg" data-src="https://habrastorage.org/webt/o4/me/1u/o4me1uwmahvlwsnvqxyf_rzwa1i.jpeg" data-blurred="true"/><br/>
+<a name="habracut"></a><br/>
+Начнем издалека — с проблемы, которую мы решаем.<br/>
+<br/>
+Давным-давно, в 1959 году <a href="https://ru.wikipedia.org/wiki/%D0%9F%D0%B0%D1%80%D0%BA%D0%B8%D0%BD%D1%81%D0%BE%D0%BD,_%D0%A1%D0%B8%D1%80%D0%B8%D0%BB_%D0%9D%D0%BE%D1%80%D1%82%D0%BA%D0%BE%D1%82"> Сирил Паркинсон</a> (не путать с болезнью, это писатель и экономический деятель) придумал несколько интересных законов. Например, что расходы растут вместе с доходами и т.д. Один из них называется Законом тривиальности:<br/>
+<br/>
+<blockquote>Время, потраченное на обсуждение пункта, обратно пропорционально рассматриваемой сумме.<br/>
+</blockquote><br/>
+Паркинсон был экономистом, поэтому он объяснял свои законы в экономических терминах, примерно так. Если вы придете в совет директоров и скажете, что вам нужны 10 млн долларов на строительство атомной электростанции, скорее всего, этот вопрос будет обсуждаться гораздо меньше, чем выделение 100 фунтов на велосипедный сарай для сотрудников. Потому что все знают, как строить велосипедный сарай, у всех есть свое мнение, все чувствуют себя важными и хотят поучаствовать, а атомная электростанция — это что-то абстрактное и далекое, 10 млн тоже никто никогда не видел — вопросов меньше.<br/>
+<br/>
+В 1999 году закон тривиальности Паркинсона появился в программировании, которое тогда активно развивалось. В программировании этот закон встречался в основном в англоязычной литературе и звучал, как метафора. Назывался он <strong>The Bikeshed effect</strong> (эффект велосипедного сарая), но суть та же самая — велосипедный сарай мы готовы и хотим обсуждать гораздо дольше, чем строительство электростанции.<br/>
+<br/>
+В программирование этот термин ввел датский разработчик Poul-Henning Kamp, который участвовал в создании FreeBSD. В процессе проектирования команда очень долго обсуждала то, как должна работать функция sleep. Это цитата из <a href="http://phk.freebsd.dk/sagas/bikeshed.html">письма</a> Poul-Henning Kamp (разработка тогда велась в e-mail переписке):<br/>
+<br/>
+<blockquote>It was a proposal to make sleep(1) DTRT If given a non-integer argument that set this particular grass-fire off I’m not going to say any more about it than that, because it is a much smaller item than one would expect from the length of the thread, and it has already received far more attention than some of the *problems* we have around here.<br/>
+</blockquote><br/>
+В этом письме он говорит, что есть куча гораздо более важных нерешенных задач: «Давайте не будем заниматься велосипедным сараем, уже что-нибудь с этим сделаем и пойдем дальше!»<br/>
+<br/>
+Так Poul-Henning Kamp в 1999 году в англоязычную литературу ввел термин bikeshed effect который, можно перефразировать как:<br/>
+<br/>
+<blockquote>Количество шума, создаваемого изменением в коде, обратно пропорционально сложности изменения.<br/>
+</blockquote><br/>
+Чем более простое добавление или изменение мы делаем, тем больше мнений по этому поводу мы должны выслушать. Думаю, многие с этим встречались. Если решаем простой вопрос, например, как именовать переменные, — для машины это без разницы — этот вопрос вызовет огромное количество холиваров. А серьезные, действительно важные для бизнеса проблемы не обсуждаются и идут фоном.<br/>
+<br/>
+Как вы думаете, что важнее: то, как мы общаемся между бэкендом и фронтендом, или бизнес задачи, которые мы делаем? Все считают по-разному, но любой заказчик, человек, который ждет, что вы принесете ему деньги, скажет: «Сделайте мне уже наши бизнес-задачи!» Ему абсолютно все равно, как вы будете передавать данные между бэкендом и фронтендом. Возможно, он даже не знает, что такое бэкенд и фронтенд.<br/>
+<br/>
+Подытожить вступление я хотел бы утверждением: <strong>API — это велосипедный сарай.</strong><br/>
+<br/>
+<div class="oembed"><div><div style="left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.2493%;"><div class="tm-iframe_temp" data-src="https://www.youtube.com/embed/1cJVwn44iSc?rel=0&amp;showinfo=1&amp;hl=en-US" data-style="border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;" id="" width=""></div></div></div></div><br/>
+<em> <a href="http://alexey-avdeev.com/jsonapi-work-according-to-specification/"> Ссылка </a> </em> <em> на презентацию доклада</em><br/>
+<br/>
+<strong>О спикере:</strong> Алексей Авдеев (<a href="https://habr.com/ru/users/avdeev/" class="user_link">Avdeev</a>) работает в компании Neuron.Digital, которая занимается нейронками и делает для них классный фронтенд. Также Алексей уделяет внимание OpenSource, и всем советует. Занимается разработкой давно — с 2002 года, застал древний интернет, когда компьютеры были большими, интернет маленьким, а отсутствие JS никого не смущало и все верстали сайты на таблицах.<br/>
+<br/>
+<h2>Как бороться с велосипедными сараями?<br/>
+</h2><br/>
+После того, как уважаемый Сирил Паркинсон вывел закон тривиальности, он много обсуждался. Оказывается, эффекта велосипедного сарая здесь можно легко избежать:<br/>
+<br/>
+<ol>
+<li><strong>Не слушать советы.</strong> Я думаю, так себе идея — если не слушать советы, можно такого наворотить, особенно в программировании, и особенно если вы начинающий разработчик.<br/>
+</li>
+<li><strong>Делать так, как хотите.</strong> «Я художник, я так вижу!» — никакого bikeshed эффекта, делается все, что нужно, но на выходе появляются очень странные вещи. Это часто встречается во фрилансе. Наверняка вы сталкивались с задачами, которые приходилось доделывать за другими разработчиком и реализация которых вызывала у вас недоумение.<br/>
+</li>
+<li><strong>Спросить себя важно ли это?</strong> Если нет, можно просто не обсуждать, но это вопрос личного сознания.<br/>
+</li>
+<li><strong>Использовать объективные критерии.</strong> Про этот пункт я как раз буду говорить в докладе. Чтобы избежать эффекта велосипедного сарая, можно использовать критерии, которые объективно скажут, что лучше. Они существуют.<br/>
+</li>
+<li><strong>Не говорить о том, о чём не хочешь слушать советы. </strong> В нашей компании начинающие бэкенд-разработчики — интроверты, поэтому бывает, что они делают что-то, о чем не рассказывают остальным. В результате мы встречаем сюрпризы. Этот метод работает, но в программировании это не лучший вариант.<br/>
+</li>
+<li>Если вас не волнует проблема, ее можно просто <strong>отпустить или выбрать любой из предлагаемых вариантов,</strong> которые возникли в процессе холиваров.<br/>
+</li>
+</ol><br/>
+<h2>Anti-bikeshedding tool<br/>
+</h2><br/>
+Я хочу рассказать про <strong>объективные инструменты</strong> для решения проблемы велосипедного сарая. Чтобы продемонстрировать, что такое anti-bikeshedding tool, расскажу небольшую историю.<br/>
+<br/>
+Представим, что у нас есть начинающий бэкенд-разработчик. Он недавно пришел в компанию, и ему поручили спроектировать небольшой сервис, например, блог, для чего нужно написать REST-протокол.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/zn/9m/uk/zn9muk80uvsd_yuragws16ms70c.png" data-src="https://habrastorage.org/webt/zn/9m/uk/zn9muk80uvsd_yuragws16ms70c.png"/><em>Рой Филдинг, автор REST</em><br/>
+<br/>
+На фото Рой Филдинг, который в 2000 году защитил диссертацию «Архитектурные стили и дизайн сетевых программных архитектур» и тем самым ввел термин REST. Более того, он придумал HTTP и, по сути, является одним из основателей Интернета.<br/>
+<br/>
+REST — это набор архитектурных принципов, которые говорят, как нужно проектировать REST протоколы, REST API, RESTful сервисы. Это достаточно абстрактные и сложные архитектурные принципы. Уверен, что никто из вас ни разу не видел API, сделанного полностью по всем RESTful принципам.<br/>
+<br/>
+<h2>Требования к архитектуре REST<br/>
+</h2><br/>
+Приведу несколько требований к <a href="https://ru.wikipedia.org/wiki/REST">REST</a> протоколам, на которые потом буду ссылаться и опираться. Их довольно много, в Википедии можно прочитать про это подробней.<br/>
+<br/>
+   1. <strong>Модель клиент-сервер.</strong><br/>
+Самый главный принцип REST, то есть нашего с вами взаимодействия с бэкендом. По REST бэкенд является сервером, фронтенд — клиентом, и мы общаемся в формате клиент—сервер. Мобильные устройства тоже являются клиентом. Разработчики под часы, под холодильники, другие сервисы — тоже разрабатывают клиентскую часть. RESTful API — это сервер, к которому обращается клиент.<br/>
+<br/>
+   2. <strong>Отсутствие состояния.</strong><br/>
+На сервере обязательно должно отсутствовать состояние, то есть все, что нужно для ответа, приходит в запросе. Когда на сервере хранится сессия, и в зависимости от этой сессии приходят разные ответы, это нарушение принципа REST.<br/>
+<br/>
+   3. <strong>Единообразие интерфейса.</strong><br/>
+Это один из ключевых базовых принципов, по которым должны строиться REST API. Он включает в себя следующее:<br/>
+<br/>
+<ul>
+<li>Идентификация ресурсов — то, как мы должны строить URL. По REST мы обращаемся к серверу за каким-то ресурсом.</li>
+<li>Манипуляция ресурсами через представление. Сервер возвращает нам представление, которое отличается от того, что лежит в базе данных. Неважно, храните вы информацию в MySQL или PostgreSQL — у нас есть представление.</li>
+<li>«Самоописываемые» сообщения — то есть в сообщении лежит id, ссылки, откуда можно еще раз это сообщение получить — все, что нужно, чтобы еще раз работать с этим ресурсом.</li>
+<li>Гипермедиа — это ссылки на следующие действия с ресурсом. Мне кажется, ни один REST API ее не делает, но она описана Роем Филдингом.</li>
+</ul><br/>
+Есть еще 3 принципа, которые я не привожу, потому что они не важны для моего рассказа.<br/>
+<br/>
+<h2>RESTful-блог<br/>
+</h2><br/>
+Вернемся к начинающему бэкенд-разработчику, которого попросили сделать сервис для блога на RESTful. Ниже пример прототипа.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/op/wi/6l/opwi6l_tbihj0tvef8tu4feyoo4.png" data-src="https://habrastorage.org/webt/op/wi/6l/opwi6l_tbihj0tvef8tu4feyoo4.png"/><br/>
+<br/>
+Это сайт, на котором есть статьи, их можно комментировать, у статьи и комментариев есть автор — стандартная история. Наш начинающий бэкенд-разработчик будет делать RESTful API для этого блога.<br/>
+<br/>
+Со всеми данными блога мы работаем по принципу <a href="https://ru.wikipedia.org/wiki/CRUD">СRUD</a>.<br/>
+<img src="https://habrastorage.org/r/w1560/webt/4i/rk/hm/4irkhm7dcicexgmqomprfdraisu.png" data-src="https://habrastorage.org/webt/4i/rk/hm/4irkhm7dcicexgmqomprfdraisu.png"/><br/>
+Должна быть возможность любой ресурс создавать, читать, обновлять и удалять. Попробуем попросить нашего бэкенд-разработчика построить RESTful AP Iпо принципу СRUD. То есть написать методы, чтобы создавать статьи, получать список статей или отдельную статью, обновлять и удалять.<br/>
+<br/>
+Посмотрим, как он мог бы это сделать.<br/>
+<img src="https://habrastorage.org/r/w1560/webt/m2/i2/ua/m2i2uadak8sdzbge_pvqlnpu55s.png" data-src="https://habrastorage.org/webt/m2/i2/ua/m2i2uadak8sdzbge_pvqlnpu55s.png"/><br/>
+<br/>
+<strong>Здесь все неправильно относительно всех принципов REST</strong>. Самое интересное, что это работает. Я реально получал API, которые выглядели примерно таким образом. Для заказчика — это велосипедный сарай, для разработчиков — повод похоливарить и поспорить, а для начинающего разработчика — это просто огромный, дивный новый мир, на котором он каждый раз спотыкается, падает, разбивает себе голову. Ему приходится раз за разом переделывать.<br/>
+<img src="https://habrastorage.org/r/w1560/webt/k1/nj/lm/k1njlm8egbrcguim8am6juym76s.png" data-src="https://habrastorage.org/webt/k1/nj/lm/k1njlm8egbrcguim8am6juym76s.png"/><br/>
+<br/>
+Это вариант по REST. По принципам идентификации ресурсов мы работаем с ресурсами — со статьями (articles) и пользуемся HTTP-методами, которые предложил Рой Филдинг. Он не мог не использовать свою предыдущую работу в своей следующей работе.<br/>
+<br/>
+Для обновления статей многие используют метод PUT, у него немножко другая семантика. Метод PATCH обновляет те поля, которые были переданы, а PUT просто заменяет одну статью на другую. По семантике PATCH — это merge, а PUT — это replace.<br/>
+<br/>
+Наш начинающий бэкенд-разработчик упал, его подняли и сказали: «Все в порядке, сделай так», и он честно переделал. Но дальше его ждет огромный большой путь через тернии.<br/>
+<br/>
+<strong>Почему так правильно?</strong><br/>
+<br/>
+<ul>
+<li>потому что так сказал Рой Филдинг;</li>
+<li>потому что это REST;</li>
+<li>потому что это архитектурные принципы, на которых строится наша профессия сейчас.</li>
+</ul><br/>
+Однако это «велосипедный сарай», будет работать и предыдущий способ. Компьютеры общались до REST, и все работало. Но сейчас в индустрии появился стандарт.<br/>
+<br/>
+<h2>Удаляем статью<br/>
+</h2><br/>
+Рассмотрим пример с удалением статьи. Допустим, есть нормальный, ресурсный метод DELETE /articles, который удаляет статью по id. HTTP содержит заголовки. Заголовок Accept принимает тип данных, которые клиент хочет получить в ответ. Наш джуниор написал сервер, который возвращает 200 OK, Content-Type: application/json, и передает пустой body:<br/>
+<br/>
+<code>01.  <b><font color="#c6e90e">DELETE /articles/</font></b>1 НТТР/1.1<br/>
+02.  Accept: <b><font color="#c6e90e">application/json</font></b></code><br/>
+<br/>
+<code>01.  HTTP/1.1 200 OK<br/>
+02.  Content-Type: <b><font color="#c6e90e">application/json</font></b><br/>
+03.  null<br/>
+</code><br/>
+Здесь допущена очень <strong>частая ошибка — пустой body</strong>. Вроде бы все логично — статья удалена, 200 ОК, присутствует заголовок application/json, но клиент, скорее всего, упадет. Он выкинет ошибку, потому что пустой body не валиден. Если вы когда-либо пробовали парсить пустую строку, то сталкивались с тем, что любой парсер json на этом спотыкается и падает.<br/>
+<br/>
+Как можно исправить эту ситуацию? Самый, наверное, лучший вариант — это передать json. Если мы заявили: «Accept, отдай нам json», сервер говорит: «Content-Type, я вам отдаю json», отдайте json. Пустой объект, пустой массив — что-то туда положите — это будет решение, и оно будет работать.<br/>
+<br/>
+Есть еще решение. Помимо 200 OK есть код ответа 204 — no content. С ним можно не передавать тело. Про это не все знают.<br/>
+<br/>
+Так я подвёл к медиатипам.<br/>
+<br/>
+<h3>MIME-типы<br/>
+</h3><br/>
+Медиатипы — это как расширение файлов, только в вебе. Когда мы передаем данные, мы должны сообщить или запросить, какой тип хотим получить в ответ.<br/>
+<br/>
+<ul>
+<li>По умолчанию это text/plain — просто текст.</li>
+<li>Если ничего не указано, то браузер, скорее всего, будет иметь в виду application/octet-stream — просто поток бит.</li>
+</ul><br/>
+Можно указать просто конкретный тип:<br/>
+<br/>
+<ul>
+<li>application/pdf;</li>
+<li>image/png;</li>
+<li>application/json;</li>
+<li>application/xml;</li>
+<li>application/vnd.ms-excel.</li>
+</ul><br/>
+Заголовки Content-Type и Accept есть и важны.<br/>
+<br/>
+<blockquote>API и клиент должны передавать заголовки Content-Type и Accept.<br/>
+</blockquote><br/>
+Если у вас API построен на JSON, передавайте всегда Accept: application/json и Content-Type application/json.<br/>
+<br/>
+Пример типов файлов.<br/>
+<img src="https://habrastorage.org/r/w1560/webt/jd/v_/aa/jdv_aarpo9qnevtro5ddqbgw5ic.png" data-src="https://habrastorage.org/webt/jd/v_/aa/jdv_aarpo9qnevtro5ddqbgw5ic.png"/><br/>
+<br/>
+Медиатипы аналогичны этим типам файлов, только в интернете.<br/>
+<br/>
+<h3>Коды ответов<br/>
+</h3><br/>
+Следующий пример приключений нашего джуниор-разработчика — это коды ответов.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/o4/tc/ci/o4tcci6wnmokubjjdecsy5vwclm.png" data-src="https://habrastorage.org/webt/o4/tc/ci/o4tcci6wnmokubjjdecsy5vwclm.png"/><br/>
+<br/>
+Самый смешной ко<s><u>т</u></s>д ответа — 200 ОК. Его все любят — он означает, что все прошло правильно. У меня даже был случай — мне приходили <strong>ошибки 200 ОК</strong>. Реально на сервере что-то упало, в ответ в response приходит HTML-страница, на которой в HTML сверстана ошибка. Я запрашивал application json с кодом 200 ОК, и думал, как же с этим работать? Идешь по response, ищешь слово «ошибка», считаешь, что это ошибка.<br/>
+<br/>
+Это работает, однако в HTTP существует много других кодов, которые можно использовать, и по REST Рой Филдинг рекомендует их использовать. Например, на создание сущности (статьи) можно ответить:<br/>
+<br/>
+<ul>
+<li><strong>201 Created</strong> — успешный код. Статья создана, в ответ надо вернуть созданную статью.</li>
+<li><strong>202 Accepted</strong> означает, что запрос был принят, но его результат будет позже. Это долгоиграющие операции. На Accepted можно не возвращать никакого body. То есть если вы Content-Type в ответе не отдаете, то и body тоже может не быть. Или Content-Type text/plane — все, никаких вопросов. Пустая строка — это валидный text/plane.</li>
+<li><strong>204 No Content</strong> — тело может вообще отсутствовать.</li>
+<li><strong>403 Forbidden</strong> — вам нельзя создавать эту статью.</li>
+<li><strong>404 Not Found</strong> — вы залезли куда-то не туда, нет такого пути, например.</li>
+<li><strong>409 Conflict</strong> — крайний случай, который мало кто использует. Он бывает нужен, если вы на клиенте, а не на бэкенде генерируете id, а в это время кто-то уже успел создать эту статью. Конфликт — это правильный ответ в таком случае.</li>
+</ul><br/>
+<h3>Создание сущности<br/>
+</h3><br/>
+Следующий пример: мы создаем сущность, говорим Content-Type: application/json, и передаем этот application/json. Это делает клиент — наш фронтенд. Допустим, создаем эту самую статью:<br/>
+<br/>
+<code>01.  POST /articles НТТР/1.1<br/>
+02.  Content-Type: application/json<br/>
+03.  { "id": 1, "title": "Про JSON API"}</code><br/>
+<br/>
+В ответ может прийти код:<br/>
+<br/>
+<ul>
+<li>422 Unprocessable Entity — необрабатываемая сущность. Вроде бы все здорово — семантика, есть код;</li>
+<li>403 Forbidden;</li>
+<li>500 Internal Server Error.</li>
+</ul><br/>
+Но абсолютно непонятно, что конкретно произошло: какая сущность необрабатываемая, почему мне туда нельзя, и что в конце концов случилось с сервером?<br/>
+<br/>
+<h3>Возвращайте ошибки<br/>
+</h3><br/>
+Обязательно (и об этом джуниоры не знают) в ответ возвращайте ошибки. Это семантично и правильно. Про это, кстати, не писал Филдинг, то есть это было придумано позже и построено поверх REST.<br/>
+<br/>
+Бэкенд может в ответ вернуть массив с ошибками, их может быть несколько.<br/>
+<br/>
+<code>01.  HTTP/1.1 422 Unprocessable Entity<br/>
+02.  Content-Type: application/json<br/>
+03. <br/>
+04.  { "errors": [{<br/>
+05.    "status": "422",<br/>
+06.    <b><font color="#c6e90e">"title": "Title already exist",</font></b><br/>
+07.  }]}</code><br/>
+<br/>
+У каждой ошибки может быть свой статус и заголовок. Это здорово, но это уже идет на уровне соглашений поверх REST. Это может быть нашим anti-bikeshedding инструментом, чтобы перестать спорить, а делать сразу хороший правильный API.<br/>
+<br/>
+<h2>Добавим паджинацию<br/>
+</h2><br/>
+Следующий пример: к нашему начинающему бэкенд-разработчику приходят дизайнеры и говорят: «У нас много статей, нам нужна паджинация. Мы нарисовали вот такую».<br/>
+<img src="https://habrastorage.org/r/w1560/webt/fn/6l/9t/fn6l9tjzotvgzehwpbezkd0vcf4.png" data-src="https://habrastorage.org/webt/fn/6l/9t/fn6l9tjzotvgzehwpbezkd0vcf4.png"/><br/>
+<br/>
+Рассмотрим ее подробней. Прежде всего в глаза бросается 336 страниц. Когда я это увидел, то подумал, как эту цифру вообще получить. Откуда взять 336, ведь на запрос списка статей мне приходит список статей. Например, их там 10 тысяч, то есть мне надо загрузить все статьи, поделить на количество страниц и узнать это число. Очень долго я буду грузить эти статьи, нужен способ получить количество записей быстро. Но если наш API отдает список, то куда это количество записей вообще засунуть, потому что в ответ приходит массив статей. Получается, раз количество записей нигде не ставится, то его надо в каждую статью добавлять, чтобы каждая статья говорила: «А нас всех столько-то!».<br/>
+<br/>
+Однако есть соглашение поверх REST API, которое решает эту проблему.<br/>
+<br/>
+<h3>Запрос списка<br/>
+</h3><br/>
+Чтобы API был расширяемый, можно сразу использовать GET-параметры для паджинации: размер текущей страницы и её номер, чтобы нам вернулся ровно тот кусок той страницы, который мы запросили. Это удобно. В ответ можно не сразу давать массив, а добавить дополнительную вложенность. Например, ключ data будет содержать массив, данные, которые мы запросили, а ключ meta, которого до этого не было, будет содержать общее количество.<br/>
+<br/>
+<code>01.  GET /articles?<b><font color="#c6e90e">page[size]=30&amp;page[number]=2</font></b><br/>
+02.  Content-Type: application/json<br/>
+</code><br/>
+<code>01.  HTTP/1.1 200 OK<br/>
+02.  {<br/>
+03.    "data": [{ "id": 1, "title": "JSONAPI"}, ...],<br/>
+04.    "meta": { <b><font color="#c6e90e">"count": 10080</font></b> }<br/>
+05.  }<br/>
+</code><br/>
+Таким образом API может возвращать дополнительную информацию. Помимо count там может быть еще какая-то информация — это расширяемо. Сейчас, если джуниор не сделал так сразу, а только после того, как его попросили сделать паджинацию, то он <strong>совершил обратно несовместимое изменение</strong>, сломал API, и все клиенты должны переделываться — обычно это очень больно.<br/>
+<br/>
+Паджинация бывает разная. Предлагаю несколько лайфхаков, которые можно использовать.<br/>
+<br/>
+<h4>[offset]...[limit]<br/>
+</h4><br/>
+<code>01.  GET /articles?<b><font color="#c6e90e">page[offset]=30&amp;page[limit]=30</font></b><br/>
+02.  Content-Type: application/json<br/>
+</code><br/>
+<code>01.  HTTP/1.1 200 OK<br/>
+02.  {<br/>
+03.    "data": [{ "id": 1, "title": "JSONAPI"}, ...],<br/>
+04.    "meta": { "count": 10080 }<br/>
+05.  }<br/>
+</code><br/>
+У тех, кто работает с базами данных, возможно, уже на подкорке [offset]...[limit]. Использовать его вместо page[size]...page[number] будет проще. Это немножко другой подход.<br/>
+<br/>
+<h4>Курсорная паджинация<br/>
+</h4><br/>
+<code>01. GET /articles?<b><font color="#c6e90e">page[published_at]=1538332156</font></b><br/>
+02. Content-Type: application/json</code><br/>
+<br/>
+<code>01. HTTP/1.1 200 OK<br/>
+02. {<br/>
+03.     "data": [{ "id": 1, "title": "JSONAPI"}, ...],<br/>
+04.     "meta": { "count": 10080 }<br/>
+05. }</code><br/>
+<br/>
+Курсорная паджинация использует указатель на сущность, с которой нужно начать подгружать записи. Например, она очень удобна, когда вы используете паджинацию или подгрузку в списках, которые часто меняются. Допустим, в наш блог постоянно пишут новые статьи. Третья страница сейчас — это не та же самая третья страница, которая будет через минуту, а перейдя на четвертую страницу, мы на ней получим часть записей с третьей страницы, потому что весь список сдвинется.<br/>
+<br/>
+Эту проблему решает курсорная паджинация. Мы говорим: «Подгрузи статьи, которые идут после статьи, опубликованной в это время» — никакого сдвига уже быть не может чисто технологически, и это круто.<br/>
+<br/>
+<h2>Проблема N +1<br/>
+</h2><br/>
+Следующая проблема, с которой обязательно столкнется наш джуниор-разработчик — это проблема N + 1 (бэкендеры поймут). Допустим, нужно вывести список из 10 статей. Мы загружаем список статей, у каждой статьи есть автор, и для каждой нужно загрузить автора. Мы отправляем:<br/>
+<br/>
+<ul>
+<li>1 запрос на получение списка статей;</li>
+<li>10 запросов для получения авторов каждой статьи.</li>
+</ul><br/>
+Итого: 11 запросов, чтобы вывести небольшой список.<br/>
+<br/>
+<h3>Добавляем связи<br/>
+</h3><br/>
+На бэкенде эта проблема решена во всех ORM — надо только не забывать дописывать эту связь. Эти связи можно использовать и на фронтенде. Делается это следующим образом:<br/>
+<br/>
+<code>01.  GET /articles?<b><font color="#c6e90e">include =author</font></b><br/>
+02.  Content-Type: application/json<br/>
+</code><br/>
+Можно использовать специальный GET-параметр, назвать его include (как на бэкенде), говоря, какие связи нам нужно загрузить вместе со статьями. Допустим, мы загружаем статьи, и хотим вместе со статьями сразу же получить еще их автора. Ответ выглядит так:<br/>
+<br/>
+<code>01. НТТР/1.1 200 ОК<br/>
+02. { "data": [{<br/>
+03.   { attributes: { "id": 1, "title": "JSON API" },<br/>
+04.   { relationships: {<br/>
+05.    <b><font color="#c6e90e">"author": { "id": 1, "name": "Avdeev" } }</font></b><br/>
+06.   }, ...<br/>
+07. }]}</code><br/>
+<br/>
+В data перенесены собственные атрибуты статей и добавлен ключ relationships (связи). В этот ключ мы кладем все связи. Таким образом одним запросом мы получили все те данные, которые до этого получали 11 запросами. Это крутой лайфхак, который хорошо решает проблему с N + 1 на фронтенде.<br/>
+<br/>
+<h2>Проблема дублирования данных<br/>
+</h2><br/>
+Допустим, нужно вывести 10 статей с указанием автора, у всех статей один автор, но объект с автором очень большой (например, очень длинная фамилия, которая занимает мегабайт). Один автор включен в ответ 10 раз, и 10 включений одного и того же автора в ответ займет 10 Мбайт.<br/>
+<br/>
+Поскольку все объекты одинаковые, проблема, что один автор включен 10 раз (10 Мбайт), решается с помощью нормализации, которая используется в базах данных. На фронтенде в работе с API тоже можно использовать нормализацию — это очень здорово.<br/>
+<br/>
+<code>01. НТТР/1.1 200 ОК<br/>
+02. { "data": [{<br/>
+03.  "id": "1″, <b><font color="#c6e90e">"type": "article",</font></b><br/>
+04.  "attributes": { "title": "JSON API" },<br/>
+05.  "relationships": { ... }<br/>
+06.   "author": { "id": 1, <b><font color="#c6e90e">"type": "people"</font></b> } }<br/>
+07. }, ... ] <br/>
+08. }</code><br/>
+<br/>
+Мы помечаем все сущности каким-то типом (это тип репрезентации, тип ресурса). Рой Филдинг ввел понятие ресурса, то есть запросили статьи — получили «article». В relationships мы помещаем ссылку на тип people, то есть у нас еще где-то лежит ресурс people. А сам ресурс мы берем в отдельный ключ included, который лежит на одном уровне с data.<br/>
+<br/>
+<code>01. НТТР/1.1 200 ОК<br/>
+02. {<br/>
+03. "data": [ ... ],<br/>
+04.  <b><font color="#c6e90e">"included":</font></b> [{<br/>
+05.   "id": 1, "type": "people",<br/>
+06.   "attributes": { "name": "Avdeev" }<br/>
+07. }]<br/>
+08. }</code><br/>
+<br/>
+Таким образом, все связанные сущности в единственном экземпляре попадают в специальный ключ included. Мы храним только ссылки, а сами сущности хранятся в included.<br/>
+<br/>
+Размер запроса уменьшился. Это лайфхак, про который начинающий бэкендер не знает. Он это узнает потом, когда нужно будет сломать API.<br/>
+<br/>
+<h3>Нужны не все поля ресурса<br/>
+</h3><br/>
+Следующий лайфхак можно применить, когда нужны не все поля ресурса. Делается это при помощи специального GET-параметра, в котором через запятую перечисляются атрибуты, которые нужно вернуть. Например, статья большая, и в поле контента может быть мегабайт, а нам нужно вывести только список заголовков — нам не нужен контент в ответе.<br/>
+<br/>
+<code>GET /articles<b><font color="#c6e90e">?fields[article]=title НТТР/1.1</font></b></code><br/>
+<br/>
+<code>01. НТТР/1.1 200 OK<br/>
+02. { "data": [{<br/>
+03.  "id": "1″, "type": "article",<br/>
+04.  "attributes": { <b><font color="#c6e90e">"title": "Про JSON API"</font></b> },<br/>
+05.   }, ... ]<br/>
+06. }</code><br/>
+<br/>
+Если нужна, например, еще и дата публикации, можно написать через запятую «published date». В ответ в attributes придет два поля. Это соглашение, которое можно использовать как anti-bikeshedding tool.<br/>
+<br/>
+<h3>Поиск по статьям<br/>
+</h3><br/>
+Часто нам нужны поиски и фильтры. Для этого есть соглашения — специальные GET-параметры filters:<br/>
+<br/>
+● <code>GET /articles<b><font color="#c6e90e">?filters[search]=api</font></b> HTTP/1.1</code> — поиск;<br/>
+● <code>GET /articles<b><font color="#c6e90e">?fiIters[from_date]=1538332156</font></b> HTTP/1.1</code> — загрузить статьи с определенной даты;<br/>
+● <code>GET /articles<b><font color="#c6e90e">?filters[is_published]=true</font></b> HTTP/1.1</code> — загрузить статьи, которые только опубликованы; <br/>
+● <code>GET /articles<b><font color="#c6e90e">?fiIters[author]=1</font></b> HTTP/1.1</code> — загрузить статьи с первым автором.<br/>
+<br/>
+<h3>Сортировка статей<br/>
+</h3><br/>
+● <code>GET /articles<b><font color="#c6e90e">?sort=title</font></b> НТТР/1.1</code> — по заголовку;<br/>
+● <code>GET /articles<b><font color="#c6e90e">?sort=published_at</font></b> HTTP/1.1</code> — по дате публикации;<br/>
+● <code>GET /articles<b><font color="#c6e90e">?sort=-published_at</font></b> HTTP/1.1</code> — по дате публикации в обратном направлении;<br/>
+● <code>GET /articles<b><font color="#c6e90e">?sort=author,-publisbed_at</font></b> HTTP/1.1</code> — сначала по автору, потом по дате публикации в обратном направлении, если статьи у одного автора.<br/>
+<br/>
+<h2>Нужно поменять URLs<br/>
+</h2><br/>
+Решение: гипермедиа, которое я уже упоминал, можно сделать следующим образом. Если мы хотим, чтобы объект (ресурс) был самоописываемый, клиент мог бы по гипермедиа понять, что с ним можно делать, и сервер мог бы развиваться независимо от клиента, то можно добавлять ссылки на список статей, на саму статью при помощи специальных ключей links:<br/>
+<br/>
+<code><code>01. GET /articles НТТР/1.1<br/>
+02. {<br/>
+03.  "data": [{<br/>
+04.   ...<br/>
+05.   <b><font color="#c6e90e">"links": { "self": "http://localhost/articles/1" },</font></b><br/>
+06.   "relationships": { ... }<br/>
+07.  }],<br/>
+08.  <b><font color="#c6e90e">"links": { "self": "<code>http://localhost/articles</code>" }</font></b><br/>
+09. }<br/>
+</code><br/>
+Или related, если мы хотим подсказать клиенту, как загрузить комментарий к этой статье:<br/>
+<br/>
+<code><code>01. ...<br/>
+02. "relationships": {<br/>
+03.  "comments": {<br/>
+04.   "links": {<br/>
+05.   <b><font color="#c6e90e">"self": "http://localhost/articles/l/relationships/comments",</font></b><br/>
+06.   <b><font color="#c6e90e">"related": "<code>http://localhost/articles/l/comments</code>"</font></b><br/>
+07.   }<br/>
+08.  } <br/>
+09. }</code><br/>
+Клиент видит, что есть ссылка, переходит по ней, загружает комментарий. Если ссылки нет, значит, комментариев нет. Это удобно, но так мало кто делает. Филдинг придумал принципы REST, но не все из них зашли в нашу индустрию. В основном мы пользуемся двумя-тремя.<br/>
+<br/>
+В 2013 году все лайфхаки, о которых я вам рассказал, Steve Klabnik объединил в спецификацию JSON API и зарегистрировал как <a href="http://www.iana.org/assignments/media-types/application/vnd.api+json"> новый media type поверх JSON</a>. Так наш джуниор бэкенд-разработчик, постепенно эволюционируя, пришел к JSON API.<br/>
+<br/>
+<h2>JSON API<br/>
+</h2><br/>
+На сайте <a href="http://jsonapi.org/implementations/"> http://jsonapi.org/implementations/</a> всё подробно описано: есть даже список 170 различных реализаций спецификаций для 32 языков программирования — и это только добавленные в каталог. Уже написаны библиотеки, парсеры, сериализаторы и пр.<br/>
+<br/>
+Поскольку эта спецификация опенсорсная, в неё все вкладываются. Я, в том числе, что-то сам написал. Уверен, таких людей много. Вы можете сами присоединиться к этому проекту.<br/>
+<br/>
+<h4>Плюсы JSON API<br/>
+</h4><br/>
+Cпецификация JSON API решает ряд проблем — <strong>общее соглашение для всех</strong>. Раз есть общее соглашение, то мы <strong>не спорим внутри команды</strong> — велосипедный сарай задокументирован. У нас есть соглашение, из каких материалов делать велосипедный сарай и как его красить.<br/>
+<br/>
+Теперь, когда разработчик делает что-то неправильно и я это вижу, то не начинаю дискуссию, а говорю: «Не по JSON API!» и показываю на место в спецификации. Меня ненавидят в компании, но постепенно привыкают, и JSON API всем начал нравиться. Новые сервисы по умолчанию мы делаем по этой спецификации. У нас есть ключ date, мы готовы добавлять ключи meta, include. Для фильтров есть зарезервированный GET-параметр filters. Мы не спорим, как назвать фильтр — используем эту спецификацию. В ней описано, как делать URL.<br/>
+<br/>
+Поскольку мы не спорим, а делаем бизнес задачи, <strong>производительность разработки выше</strong>. У нас спецификации описаны, бэкенд разработчик прочитал, сделал API, мы его прикрутили — заказчик счастлив.<br/>
+<br/>
+<strong>Популярные проблемы уже решены</strong>, например, с паджинацией. В спецификации много подсказок.<br/>
+<br/>
+Поскольку это JSON (спасибо Дугласу Крокфорду за этот формат), он лаконичней XML, его довольно <strong>легко читать и понимать</strong>.<br/>
+<br/>
+То, что это <strong>Open Source</strong> может быть и плюсом, и минусом, но я люблю Open Source.<br/>
+<br/>
+<h4>Минусы JSON API<br/>
+</h4><br/>
+Объект разросся (date, attributes, included и пр.) — <strong>фронтенду надо парсить ответы:</strong> уметь перебирать массивы, ходить по объекту и знать, как работает reduce. Не все начинающие разработчики знают эти сложные вещи. Есть библиотеки сериализаторы/десериализаторы, можно пользоваться ими. Вообще это просто работа с данными, но объекты большие.<br/>
+<br/>
+А у <strong>бэкенда </strong>начинается боль:<br/>
+<br/>
+<ul>
+<li>Контроль вложенности — include можно залезть очень далеко;</li>
+<li>Сложность запросов к БД — они строятся иногда автоматически, и получаются очень тяжелыми;</li>
+<li>Безопасность — можно залезть в дебри, особенно если подключить какую-то библиотеку;</li>
+<li>Спецификация сложно читается. Она на английском, и это некоторых отпугнуло, но постепенно все привыкли;</li>
+<li>Не все библиотеки реализуют спецификацию хорошо — это проблема Open Source.</li>
+</ul><br/>
+<h4>Подводные камни JSON API<br/>
+</h4><br/>
+Немножко хардкора.<br/>
+<br/>
+<strong>Количество relationships в выдаче не ограничено. </strong> Если мы делаем include, запрашиваем статьи, добавляя к ним комментарии, то в ответ нам придут все комментарии этой статьи. Есть 10 000 комментариев — получи все 10 000 комментариев:<br/>
+<br/>
+<code>GET /articles/1?include=comments НТТР/1.1</code><br/>
+<br/>
+<code>01. ...<br/>
+02. "relationships": {<br/>
+03.  "comments": {<br/>
+04.   "data": <b><font color="#c6e90e">[0 ... ∞]</font></b><br/>
+05.  }<br/>
+06. }</code><br/>
+<br/>
+Таким образом на наш запрос в ответ пришло реально 5 Мбайт: «В спецификации так и написано — надо правильно переформулировать запрос:<br/>
+<br/>
+<code>GET /comments?<b><font color="#c6e90e">filters[article]=1&amp;</font></b>page[size]=30 HTTP/1.1</code><br/>
+<br/>
+<code>01. {<br/>
+02. "data": <b><font color="#c6e90e">[0 ... 29]</font></b><br/>
+03. }</code><br/>
+<br/>
+Мы запрашиваем комментарии с фильтром по статье, говорим: «30 штучек, пожалуйста» и получаем 30 комментариев. Это и есть неоднозначность.<br/>
+<br/>
+<strong>Одни и те же вещи можно неоднозначно сформулировать</strong>:<br/>
+<br/>
+● <code>GET /articles/1<b><font color="#c6e90e">?include=comments</font></b> HTTP/1.1</code> — запрашиваем статью с комментариями;<br/>
+● <code>GET /articles/1/comments HTTP/1.1</code> — запрашиваем комментарии к статье;<br/>
+● <code>GET /comments<b><font color="#c6e90e">?filters[article]=1</font></b> HTTP/1.1</code> — запрашиваем комментарии с фильтром по статье.<br/>
+<br/>
+Это одно и то же — одни и те же данные, которые получаются по-разному, возникает некоторая неоднозначность. Этот подводный камень сразу не видно.<br/>
+<br/>
+<strong>Полиморфные связи «один ко многим»</strong> очень быстро вылезают в REST.<br/>
+<br/>
+<code>01. GET /comments?include=commentable НТТР/1.1<br/>
+02. <br/>
+03. ...<br/>
+04. "relationships": {<br/>
+05.  <b><font color="#c6e90e">"commentable"</font></b>: {<br/>
+06.   "data": { "type": "article", "id": "1″ }<br/>
+07. }<br/>
+08. }</code><br/>
+<br/>
+На бэкенде есть полиморфная связь commentable — она вылезает в REST. Так и должно произойти, но ее можно замаскировать. В JSON API не замаскируешь — она вылезет.<br/>
+<br/>
+<strong>Сложные связи «многие ко многим» с дополнительными параметрами</strong>. Тоже все связующие таблицы вылезают:<br/>
+<br/>
+<code>01. GET /users?include<b><font color="#c6e90e">=users_comments</font></b> НТТР/1.1<br/>
+02. <br/>
+03. ...<br/>
+04. "relationships": {<br/>
+05.  "users_comments": {<br/>
+06.   "data": [{ "type": "users_comments", "id": "1″ }, ...]<br/>
+07.  },<br/>
+08. }</code><br/>
+<br/>
+<h2>Swagger<br/>
+</h2><br/>
+Swagger — это интерактивный инструмент для написания документации.<br/>
+<br/>
+Допустим, нашего бэкенд-разработчика попросили написать документацию к его API, и он ее написал. Это легко, если API простой. Если же это JSON API, Swagger так легко не напишешь.<br/>
+<br/>
+<strong>Пример:</strong> Swagger магазина животных. Каждый метод можно открыть, посмотреть response и примеры.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/ul/lj/yk/ulljykpo7bhyw85r9ru69k2nuxe.png" data-src="https://habrastorage.org/webt/ul/lj/yk/ulljykpo7bhyw85r9ru69k2nuxe.png"/><br/>
+<br/>
+Так выглядит пример модели Pet. Здесь классный интерфейс, все просто читается.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/i9/rg/ir/i9rgirjcdxgm16ogmtopu6dnjrq.png" data-src="https://habrastorage.org/webt/i9/rg/ir/i9rgirjcdxgm16ogmtopu6dnjrq.png"/><br/>
+<br/>
+А так выглядит создание модели JSON API:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/ty/14/kn/ty14knt_laxzsr2ozusbo0xkk0c.png" data-src="https://habrastorage.org/webt/ty/14/kn/ty14knt_laxzsr2ozusbo0xkk0c.png"/><br/>
+<br/>
+Это уже не так здорово. Нам нужно data, в data что-то с relationships, included содержит 5 типов модели и т.д. Swagger можно написать, Open API — мощная вещь, но сложно.<br/>
+<br/>
+<h2>Альтернатива<br/>
+</h2><br/>
+Есть спецификация OData, которая появилась чуть позже — в 2015 году. Это «The best way to REST», как заверяет официальный сайт. Выглядит следующим образом:<br/>
+<br/>
+<code>01. GET http://services.odata.org/v4/TripRW/People HTTP/1.1</code> — GET-запрос;<br/>
+<code>02. OData-Version: 4.0</code> — специальный заголовок с версией;<br/>
+<code>03. OData-MaxVersion: 4.0</code> — второй специальный заголовок с версией<br/>
+<br/>
+Ответ выглядит так:<br/>
+<br/>
+<code>01. HTTP/1.1 200 OK<br/>
+02. Content-Type: application/json; odata.metadata=minimal<br/>
+03. OData-Version: 4.0<br/>
+04. { <br/>
+05.  ’@odata.context’:  ’http://services.odata.org/V4/<br/>
+06.  ’@odata.nextLink’  : ’http://services.odata.org/V4/<br/>
+07.  ’value’: [{ <br/>
+08.   ’@odata.etag’: 1W/108D1D5BD423E51581′,<br/>
+09.   ’UserName’: ’russellwhyte’,<br/>
+10.   ...<br/>
+</code><br/>
+Здесь расширенный application/json и объект.<br/>
+<br/>
+Мы не стали использовать OData, во-первых, поскольку это то же самое, что JSON API, но он не лаконичный. Там огромные объекты и мне кажется, что все гораздо хуже читается. OData тоже вышел в Open Source, но он сложнее.<br/>
+<br/>
+<h2>Что с GraphQL?<br/>
+</h2><br/>
+Естественно, когда мы искали новый формат API, мы нарвались и на этот хайп.<br/>
+<br/>
+● <strong>Высокий порог входа.</strong><br/>
+<br/>
+С точки зрения фронтенда все выглядит круто, но нового разработчика не посадишь писать GraphQL, потому что его сначала нужно изучить. Это как SQL — нельзя сразу писать SQL, надо хотя бы прочитать, что это такое, пройти туториалы, то есть порог входа увеличивается.<br/>
+<br/>
+● <strong>Эффект большого взрыва.</strong><br/>
+<br/>
+Если в проекте не было никакого API, и мы стали использовать GraphQL, через месяц мы поняли, что он нам не подходит, будет поздно. Придется писать костыли. С JSON API или с OData можно эволюционировать — простейший RESTful, прогрессивно улучшаясь, превращается в JSON API.<br/>
+<br/>
+● <strong>Ад на бэкенде.</strong><br/>
+<br/>
+GraphQL вызывает ад на бэкенде — прямо один в один, как и полностью реализованный JSON API, потому что GraphQL получает полный контроль над запросами, а это библиотека, и вам нужно будет решать кучу вопросов:<br/>
+<br/>
+<ul>
+<li>контроль вложенности;</li>
+<li>рекурсия;</li>
+<li>ограничение частоты;</li>
+<li>контроль доступа.</li>
+</ul><br/>
+<h2>Вместо выводов<br/>
+</h2><br/>
+Рекомендую прекратить спорить по поводу велосипедного сарая, а взять anti-bikeshedding tool в качестве спецификации и просто делать API по хорошей спецификации.<br/>
+<br/>
+Чтобы найти свой стандарт для решения проблемы велосипедного сарая, может посмотреть эти ссылки:<br/>
+<br/>
+● <a href="http://jsonapi.org/">http://jsonapi.org</a><br/>
+● <a href="http://www.odata.org/">http://www.odata.org</a><br/>
+● <a href="https://graphgl.org/">https://graphgl.org</a><br/>
+● <a href="http://xmlrpc.scripting.com/">http://xmlrpc.scripting.com</a><br/>
+● <a href="https://www.jsonrpc.org/">https://www.jsonrpc.org</a><br/>
+<br/>
+<strong>Контакты Спикера Алексея Авдеева:</strong> <a href="https://alexey-avdeev.com/">alexey-avdeev.com</a> и профиль на <a href="https://github.com/avdeev">github</a>.<br/>
+<br/>
+<blockquote>Коллеги, мы <strong>открыли прием докладов</strong> на <a href="https://frontendconf.ru/moscow-rit/2019">Frontend Conf</a>, которая пройдет 27 и 28 мая в рамках <a href="https://ritfest.ru/">РИТ++</a>. Наш программный комитет начал работу, чтобы за следующие три месяца собрать классную программу.<br/>
+<br/>
+<strong>Вам есть что рассказать? </strong> Хотите поделиться с сообществом вашим опытом? Ваш доклад может сделать жизнь многих фронтендеров лучше? Вы эксперт в узкой, но важной теме и хотите поделиться своим знанием?  <a href="https://conf.ontico.ru/lectures/propose/?conference=fc2019-rit"> Подайте заявку</a>!<br/>
+<br/>
+Следите за ходом подготовки через <a href="http://eepurl.com/bb99tn">рассылку</a>, а идеи, кого стоит пригласить, о какой теме поговорить, пишите прямо в комментарии к статье.<br/>
+</blockquote></code></code></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bjson%20api%5D" class="tm-tags-list__link">json api</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bfrontendconf%5D" class="tm-tags-list__link">frontendconf</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/oleg-bunin/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании Конференции Олега Бунина (Онтико)
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/open_source/" class="tm-hubs-list__link">
+    Open source
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/javascript/" class="tm-hubs-list__link">
+    JavaScript
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/programming/" class="tm-hubs-list__link">
+    Программирование
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 71: ↑68 и ↓3</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 71: ↑68 и ↓3" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+65</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">101K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    362
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/oleg-bunin/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/add/eb3/e91/addeb3e91fe453f9d78c7b52b8dc6a90.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/oleg-bunin/profile/" class="tm-company-snippet__title">Конференции Олега Бунина (Онтико)</a> <div class="tm-company-snippet__description">Профессиональные конференции для IT-разработчиков</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="https://facebook.com/oleg.bunin" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Facebook
+    </a><a href="https://facebook.com/HighLoadConference" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Facebook
+    </a><a href="https://twitter.com/HighLoadConf" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Twitter
+    </a><a href="https://telegram.me/HighLoadTalks" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Telegram
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/glebmachine/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/118/ea7/631/118ea7631403936094eafd562562e94d.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 88 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    66
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Глеб Михеев</span> <a href="https://habr.com/ru/users/glebmachine/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @glebmachine
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Фронтенд-разработчик</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/oleg-bunin/blog/433322/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 110 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2007-12-31T21:00:00.000Z" title="2008-01-01, 00:00">1  января  2008</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="http://www.ontico.ru/" target="_blank" class="tm-company-basic-info__link">
+      www.ontico.ru
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    31–50 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2010-02-24T19:37:40.000Z" title="2010-02-24, 22:37">24  февраля  2010</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Представитель</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://habr.com/" class="tm-company-basic-info__link router-link-active">
+      
+    </a></dd></dl></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/oleg-bunin/blog/433322/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/oleg-bunin/blog/433322/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"433322":{"id":"433322","timePublished":"2019-01-28T07:46:52+00:00","isCorporative":true,"lang":"ru","titleHtml":"JSON API – работаем по спецификации","leadData":{"textHtml":"В&nbsp;последнее время веб-разработка разделилась. Теперь мы&nbsp;все не&nbsp;full-stack программисты&nbsp;&mdash; мы&nbsp;фронтендеры и&nbsp;бэкендеры. А&nbsp;самое сложное в&nbsp;этом, как и&nbsp;везде, это проблема взаимодействия и&nbsp;интеграции.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nФронтенд с&nbsp;бэкендом взаимодействуют через API. И&nbsp;от&nbsp;того, какой это API, насколько хорошо или плохо бэкенд и&nbsp;фронтенд договорились между собой, зависит весь результат разработки. Если мы&nbsp;все вместе станем обсуждать, как сделать паджинацию, и&nbsp;потратим на&nbsp;её&nbsp;переделывание целый день, то&nbsp;можем и&nbsp;не&nbsp;добраться до&nbsp;бизнес-задач.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЧтобы не&nbsp;буксовать и&nbsp;не&nbsp;разводить холивары по&nbsp;поводу названия переменных, нужна хорошая спецификация. Давайте поговорим о&nbsp;том, какой она должны быть, чтобы всем жилось легче. Заодно станем экспертами по&nbsp;велосипедным сараям.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fo4\u002Fme\u002F1u\u002Fo4me1uwmahvlwsnvqxyf_rzwa1i.jpeg\"\u002F\u003E\u003Cbr\u002F\u003E\r\n","imageUrl":null,"buttonTextHtml":null,"image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":66,"votesCount":88},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"61891","alias":"glebmachine","fullname":"Глеб Михеев","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F118\u002Fea7\u002F631\u002F118ea7631403936094eafd562562e94d.jpg","speciality":"Фронтенд-разработчик"},"statistics":{"commentsCount":110,"favoritesCount":362,"readingCount":100945,"score":65,"votesCount":71},"hubs":[{"relatedData":null,"id":"14332","alias":"oleg-bunin","type":"corporative","title":"Блог компании Конференции Олега Бунина (Онтико)","titleHtml":"Блог компании Конференции Олега Бунина (Онтико)","isProfiled":false},{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"144","alias":"open_source","type":"collective","title":"Open source","titleHtml":"Open source","isProfiled":true},{"relatedData":null,"id":"357","alias":"javascript","type":"collective","title":"JavaScript","titleHtml":"JavaScript","isProfiled":true},{"relatedData":null,"id":"359","alias":"programming","type":"collective","title":"Программирование","titleHtml":"Программирование","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EВ последнее время веб-разработка разделилась. Теперь мы все не full-stack программисты — мы фронтендеры и бэкендеры. А самое сложное в этом, как и везде, это проблема взаимодействия и интеграции.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nФронтенд с бэкендом взаимодействуют через API. И от того, какой это API, насколько хорошо или плохо бэкенд и фронтенд договорились между собой, зависит весь результат разработки. Если мы все вместе станем обсуждать, как сделать паджинацию, и потратим на её переделывание целый день, то можем и не добраться до бизнес-задач.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЧтобы не буксовать и не разводить холивары по поводу названия переменных, нужна хорошая спецификация. Давайте поговорим о том, какой она должны быть, чтобы всем жилось легче. Заодно станем экспертами по велосипедным сараям.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fo4\u002Fme\u002F1u\u002Fo4me1uwmahvlwsnvqxyf_rzwa1i.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fo4\u002Fme\u002F1u\u002Fo4me1uwmahvlwsnvqxyf_rzwa1i.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nНачнем издалека — с проблемы, которую мы решаем.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДавным-давно, в 1959 году \u003Ca href=\"https:\u002F\u002Fru.wikipedia.org\u002Fwiki\u002F%D0%9F%D0%B0%D1%80%D0%BA%D0%B8%D0%BD%D1%81%D0%BE%D0%BD,_%D0%A1%D0%B8%D1%80%D0%B8%D0%BB_%D0%9D%D0%BE%D1%80%D1%82%D0%BA%D0%BE%D1%82\"\u003E Сирил Паркинсон\u003C\u002Fa\u003E (не путать с болезнью, это писатель и экономический деятель) придумал несколько интересных законов. Например, что расходы растут вместе с доходами и т.д. Один из них называется Законом тривиальности:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EВремя, потраченное на обсуждение пункта, обратно пропорционально рассматриваемой сумме.\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nПаркинсон был экономистом, поэтому он объяснял свои законы в экономических терминах, примерно так. Если вы придете в совет директоров и скажете, что вам нужны 10 млн долларов на строительство атомной электростанции, скорее всего, этот вопрос будет обсуждаться гораздо меньше, чем выделение 100 фунтов на велосипедный сарай для сотрудников. Потому что все знают, как строить велосипедный сарай, у всех есть свое мнение, все чувствуют себя важными и хотят поучаствовать, а атомная электростанция — это что-то абстрактное и далекое, 10 млн тоже никто никогда не видел — вопросов меньше.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ 1999 году закон тривиальности Паркинсона появился в программировании, которое тогда активно развивалось. В программировании этот закон встречался в основном в англоязычной литературе и звучал, как метафора. Назывался он \u003Cstrong\u003EThe Bikeshed effect\u003C\u002Fstrong\u003E (эффект велосипедного сарая), но суть та же самая — велосипедный сарай мы готовы и хотим обсуждать гораздо дольше, чем строительство электростанции.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ программирование этот термин ввел датский разработчик Poul-Henning Kamp, который участвовал в создании FreeBSD. В процессе проектирования команда очень долго обсуждала то, как должна работать функция sleep. Это цитата из \u003Ca href=\"http:\u002F\u002Fphk.freebsd.dk\u002Fsagas\u002Fbikeshed.html\"\u003Eписьма\u003C\u002Fa\u003E Poul-Henning Kamp (разработка тогда велась в e-mail переписке):\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EIt was a proposal to make sleep(1) DTRT If given a non-integer argument that set this particular grass-fire off I’m not going to say any more about it than that, because it is a much smaller item than one would expect from the length of the thread, and it has already received far more attention than some of the *problems* we have around here.\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nВ этом письме он говорит, что есть куча гораздо более важных нерешенных задач: «Давайте не будем заниматься велосипедным сараем, уже что-нибудь с этим сделаем и пойдем дальше!»\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак Poul-Henning Kamp в 1999 году в англоязычную литературу ввел термин bikeshed effect который, можно перефразировать как:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EКоличество шума, создаваемого изменением в коде, обратно пропорционально сложности изменения.\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nЧем более простое добавление или изменение мы делаем, тем больше мнений по этому поводу мы должны выслушать. Думаю, многие с этим встречались. Если решаем простой вопрос, например, как именовать переменные, — для машины это без разницы — этот вопрос вызовет огромное количество холиваров. А серьезные, действительно важные для бизнеса проблемы не обсуждаются и идут фоном.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКак вы думаете, что важнее: то, как мы общаемся между бэкендом и фронтендом, или бизнес задачи, которые мы делаем? Все считают по-разному, но любой заказчик, человек, который ждет, что вы принесете ему деньги, скажет: «Сделайте мне уже наши бизнес-задачи!» Ему абсолютно все равно, как вы будете передавать данные между бэкендом и фронтендом. Возможно, он даже не знает, что такое бэкенд и фронтенд.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПодытожить вступление я хотел бы утверждением: \u003Cstrong\u003EAPI — это велосипедный сарай.\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"oembed\"\u003E\u003Cdiv\u003E\u003Cdiv style=\"left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.2493%;\"\u003E\u003Cdiv class=\"tm-iframe_temp\" data-src=\"https:\u002F\u002Fwww.youtube.com\u002Fembed\u002F1cJVwn44iSc?rel=0&amp;showinfo=1&amp;hl=en-US\" data-style=\"border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;\" id=\"\" width=\"\"\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cem\u003E \u003Ca href=\"http:\u002F\u002Falexey-avdeev.com\u002Fjsonapi-work-according-to-specification\u002F\"\u003E Ссылка \u003C\u002Fa\u003E \u003C\u002Fem\u003E \u003Cem\u003E на презентацию доклада\u003C\u002Fem\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EО спикере:\u003C\u002Fstrong\u003E Алексей Авдеев (\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fru\u002Fusers\u002Favdeev\u002F\" class=\"user_link\"\u003EAvdeev\u003C\u002Fa\u003E) работает в компании Neuron.Digital, которая занимается нейронками и делает для них классный фронтенд. Также Алексей уделяет внимание OpenSource, и всем советует. Занимается разработкой давно — с 2002 года, застал древний интернет, когда компьютеры были большими, интернет маленьким, а отсутствие JS никого не смущало и все верстали сайты на таблицах.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EКак бороться с велосипедными сараями?\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nПосле того, как уважаемый Сирил Паркинсон вывел закон тривиальности, он много обсуждался. Оказывается, эффекта велосипедного сарая здесь можно легко избежать:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E\u003Cstrong\u003EНе слушать советы.\u003C\u002Fstrong\u003E Я думаю, так себе идея — если не слушать советы, можно такого наворотить, особенно в программировании, и особенно если вы начинающий разработчик.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003EДелать так, как хотите.\u003C\u002Fstrong\u003E «Я художник, я так вижу!» — никакого bikeshed эффекта, делается все, что нужно, но на выходе появляются очень странные вещи. Это часто встречается во фрилансе. Наверняка вы сталкивались с задачами, которые приходилось доделывать за другими разработчиком и реализация которых вызывала у вас недоумение.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003EСпросить себя важно ли это?\u003C\u002Fstrong\u003E Если нет, можно просто не обсуждать, но это вопрос личного сознания.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003EИспользовать объективные критерии.\u003C\u002Fstrong\u003E Про этот пункт я как раз буду говорить в докладе. Чтобы избежать эффекта велосипедного сарая, можно использовать критерии, которые объективно скажут, что лучше. Они существуют.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003EНе говорить о том, о чём не хочешь слушать советы. \u003C\u002Fstrong\u003E В нашей компании начинающие бэкенд-разработчики — интроверты, поэтому бывает, что они делают что-то, о чем не рассказывают остальным. В результате мы встречаем сюрпризы. Этот метод работает, но в программировании это не лучший вариант.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003EЕсли вас не волнует проблема, ее можно просто \u003Cstrong\u003Eотпустить или выбрать любой из предлагаемых вариантов,\u003C\u002Fstrong\u003E которые возникли в процессе холиваров.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EAnti-bikeshedding tool\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nЯ хочу рассказать про \u003Cstrong\u003Eобъективные инструменты\u003C\u002Fstrong\u003E для решения проблемы велосипедного сарая. Чтобы продемонстрировать, что такое anti-bikeshedding tool, расскажу небольшую историю.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПредставим, что у нас есть начинающий бэкенд-разработчик. Он недавно пришел в компанию, и ему поручили спроектировать небольшой сервис, например, блог, для чего нужно написать REST-протокол.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fzn\u002F9m\u002Fuk\u002Fzn9muk80uvsd_yuragws16ms70c.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fzn\u002F9m\u002Fuk\u002Fzn9muk80uvsd_yuragws16ms70c.png\"\u002F\u003E\u003Cem\u003EРой Филдинг, автор REST\u003C\u002Fem\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа фото Рой Филдинг, который в 2000 году защитил диссертацию «Архитектурные стили и дизайн сетевых программных архитектур» и тем самым ввел термин REST. Более того, он придумал HTTP и, по сути, является одним из основателей Интернета.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nREST — это набор архитектурных принципов, которые говорят, как нужно проектировать REST протоколы, REST API, RESTful сервисы. Это достаточно абстрактные и сложные архитектурные принципы. Уверен, что никто из вас ни разу не видел API, сделанного полностью по всем RESTful принципам.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EТребования к архитектуре REST\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nПриведу несколько требований к \u003Ca href=\"https:\u002F\u002Fru.wikipedia.org\u002Fwiki\u002FREST\"\u003EREST\u003C\u002Fa\u003E протоколам, на которые потом буду ссылаться и опираться. Их довольно много, в Википедии можно прочитать про это подробней.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n   1. \u003Cstrong\u003EМодель клиент-сервер.\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\nСамый главный принцип REST, то есть нашего с вами взаимодействия с бэкендом. По REST бэкенд является сервером, фронтенд — клиентом, и мы общаемся в формате клиент—сервер. Мобильные устройства тоже являются клиентом. Разработчики под часы, под холодильники, другие сервисы — тоже разрабатывают клиентскую часть. RESTful API — это сервер, к которому обращается клиент.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n   2. \u003Cstrong\u003EОтсутствие состояния.\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\nНа сервере обязательно должно отсутствовать состояние, то есть все, что нужно для ответа, приходит в запросе. Когда на сервере хранится сессия, и в зависимости от этой сессии приходят разные ответы, это нарушение принципа REST.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n   3. \u003Cstrong\u003EЕдинообразие интерфейса.\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\nЭто один из ключевых базовых принципов, по которым должны строиться REST API. Он включает в себя следующее:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EИдентификация ресурсов — то, как мы должны строить URL. По REST мы обращаемся к серверу за каким-то ресурсом.\u003C\u002Fli\u003E\r\n\u003Cli\u003EМанипуляция ресурсами через представление. Сервер возвращает нам представление, которое отличается от того, что лежит в базе данных. Неважно, храните вы информацию в MySQL или PostgreSQL — у нас есть представление.\u003C\u002Fli\u003E\r\n\u003Cli\u003E«Самоописываемые» сообщения — то есть в сообщении лежит id, ссылки, откуда можно еще раз это сообщение получить — все, что нужно, чтобы еще раз работать с этим ресурсом.\u003C\u002Fli\u003E\r\n\u003Cli\u003EГипермедиа — это ссылки на следующие действия с ресурсом. Мне кажется, ни один REST API ее не делает, но она описана Роем Филдингом.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nЕсть еще 3 принципа, которые я не привожу, потому что они не важны для моего рассказа.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003ERESTful-блог\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nВернемся к начинающему бэкенд-разработчику, которого попросили сделать сервис для блога на RESTful. Ниже пример прототипа.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fop\u002Fwi\u002F6l\u002Fopwi6l_tbihj0tvef8tu4feyoo4.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fop\u002Fwi\u002F6l\u002Fopwi6l_tbihj0tvef8tu4feyoo4.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто сайт, на котором есть статьи, их можно комментировать, у статьи и комментариев есть автор — стандартная история. Наш начинающий бэкенд-разработчик будет делать RESTful API для этого блога.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСо всеми данными блога мы работаем по принципу \u003Ca href=\"https:\u002F\u002Fru.wikipedia.org\u002Fwiki\u002FCRUD\"\u003EСRUD\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002F4i\u002Frk\u002Fhm\u002F4irkhm7dcicexgmqomprfdraisu.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F4i\u002Frk\u002Fhm\u002F4irkhm7dcicexgmqomprfdraisu.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\nДолжна быть возможность любой ресурс создавать, читать, обновлять и удалять. Попробуем попросить нашего бэкенд-разработчика построить RESTful AP Iпо принципу СRUD. То есть написать методы, чтобы создавать статьи, получать список статей или отдельную статью, обновлять и удалять.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПосмотрим, как он мог бы это сделать.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fm2\u002Fi2\u002Fua\u002Fm2i2uadak8sdzbge_pvqlnpu55s.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fm2\u002Fi2\u002Fua\u002Fm2i2uadak8sdzbge_pvqlnpu55s.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EЗдесь все неправильно относительно всех принципов REST\u003C\u002Fstrong\u003E. Самое интересное, что это работает. Я реально получал API, которые выглядели примерно таким образом. Для заказчика — это велосипедный сарай, для разработчиков — повод похоливарить и поспорить, а для начинающего разработчика — это просто огромный, дивный новый мир, на котором он каждый раз спотыкается, падает, разбивает себе голову. Ему приходится раз за разом переделывать.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fk1\u002Fnj\u002Flm\u002Fk1njlm8egbrcguim8am6juym76s.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fk1\u002Fnj\u002Flm\u002Fk1njlm8egbrcguim8am6juym76s.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто вариант по REST. По принципам идентификации ресурсов мы работаем с ресурсами — со статьями (articles) и пользуемся HTTP-методами, которые предложил Рой Филдинг. Он не мог не использовать свою предыдущую работу в своей следующей работе.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля обновления статей многие используют метод PUT, у него немножко другая семантика. Метод PATCH обновляет те поля, которые были переданы, а PUT просто заменяет одну статью на другую. По семантике PATCH — это merge, а PUT — это replace.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНаш начинающий бэкенд-разработчик упал, его подняли и сказали: «Все в порядке, сделай так», и он честно переделал. Но дальше его ждет огромный большой путь через тернии.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EПочему так правильно?\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eпотому что так сказал Рой Филдинг;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eпотому что это REST;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eпотому что это архитектурные принципы, на которых строится наша профессия сейчас.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nОднако это «велосипедный сарай», будет работать и предыдущий способ. Компьютеры общались до REST, и все работало. Но сейчас в индустрии появился стандарт.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EУдаляем статью\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nРассмотрим пример с удалением статьи. Допустим, есть нормальный, ресурсный метод DELETE \u002Farticles, который удаляет статью по id. HTTP содержит заголовки. Заголовок Accept принимает тип данных, которые клиент хочет получить в ответ. Наш джуниор написал сервер, который возвращает 200 OK, Content-Type: application\u002Fjson, и передает пустой body:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01.  \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003EDELETE \u002Farticles\u002F\u003C\u002Ffont\u003E\u003C\u002Fb\u003E1 НТТР\u002F1.1\u003Cbr\u002F\u003E\r\n02.  Accept: \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003Eapplication\u002Fjson\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01.  HTTP\u002F1.1 200 OK\u003Cbr\u002F\u003E\r\n02.  Content-Type: \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003Eapplication\u002Fjson\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n03.  null\u003Cbr\u002F\u003E\r\n\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\nЗдесь допущена очень \u003Cstrong\u003Eчастая ошибка — пустой body\u003C\u002Fstrong\u003E. Вроде бы все логично — статья удалена, 200 ОК, присутствует заголовок application\u002Fjson, но клиент, скорее всего, упадет. Он выкинет ошибку, потому что пустой body не валиден. Если вы когда-либо пробовали парсить пустую строку, то сталкивались с тем, что любой парсер json на этом спотыкается и падает.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКак можно исправить эту ситуацию? Самый, наверное, лучший вариант — это передать json. Если мы заявили: «Accept, отдай нам json», сервер говорит: «Content-Type, я вам отдаю json», отдайте json. Пустой объект, пустой массив — что-то туда положите — это будет решение, и оно будет работать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсть еще решение. Помимо 200 OK есть код ответа 204 — no content. С ним можно не передавать тело. Про это не все знают.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак я подвёл к медиатипам.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EMIME-типы\u003Cbr\u002F\u003E\r\n\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nМедиатипы — это как расширение файлов, только в вебе. Когда мы передаем данные, мы должны сообщить или запросить, какой тип хотим получить в ответ.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EПо умолчанию это text\u002Fplain — просто текст.\u003C\u002Fli\u003E\r\n\u003Cli\u003EЕсли ничего не указано, то браузер, скорее всего, будет иметь в виду application\u002Foctet-stream — просто поток бит.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nМожно указать просто конкретный тип:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eapplication\u002Fpdf;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eimage\u002Fpng;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eapplication\u002Fjson;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eapplication\u002Fxml;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eapplication\u002Fvnd.ms-excel.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nЗаголовки Content-Type и Accept есть и важны.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EAPI и клиент должны передавать заголовки Content-Type и Accept.\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nЕсли у вас API построен на JSON, передавайте всегда Accept: application\u002Fjson и Content-Type application\u002Fjson.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПример типов файлов.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fjd\u002Fv_\u002Faa\u002Fjdv_aarpo9qnevtro5ddqbgw5ic.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fjd\u002Fv_\u002Faa\u002Fjdv_aarpo9qnevtro5ddqbgw5ic.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМедиатипы аналогичны этим типам файлов, только в интернете.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EКоды ответов\u003Cbr\u002F\u003E\r\n\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nСледующий пример приключений нашего джуниор-разработчика — это коды ответов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fo4\u002Ftc\u002Fci\u002Fo4tcci6wnmokubjjdecsy5vwclm.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fo4\u002Ftc\u002Fci\u002Fo4tcci6wnmokubjjdecsy5vwclm.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСамый смешной ко\u003Cs\u003E\u003Cu\u003Eт\u003C\u002Fu\u003E\u003C\u002Fs\u003Eд ответа — 200 ОК. Его все любят — он означает, что все прошло правильно. У меня даже был случай — мне приходили \u003Cstrong\u003Eошибки 200 ОК\u003C\u002Fstrong\u003E. Реально на сервере что-то упало, в ответ в response приходит HTML-страница, на которой в HTML сверстана ошибка. Я запрашивал application json с кодом 200 ОК, и думал, как же с этим работать? Идешь по response, ищешь слово «ошибка», считаешь, что это ошибка.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто работает, однако в HTTP существует много других кодов, которые можно использовать, и по REST Рой Филдинг рекомендует их использовать. Например, на создание сущности (статьи) можно ответить:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cstrong\u003E201 Created\u003C\u002Fstrong\u003E — успешный код. Статья создана, в ответ надо вернуть созданную статью.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003E202 Accepted\u003C\u002Fstrong\u003E означает, что запрос был принят, но его результат будет позже. Это долгоиграющие операции. На Accepted можно не возвращать никакого body. То есть если вы Content-Type в ответе не отдаете, то и body тоже может не быть. Или Content-Type text\u002Fplane — все, никаких вопросов. Пустая строка — это валидный text\u002Fplane.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003E204 No Content\u003C\u002Fstrong\u003E — тело может вообще отсутствовать.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003E403 Forbidden\u003C\u002Fstrong\u003E — вам нельзя создавать эту статью.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003E404 Not Found\u003C\u002Fstrong\u003E — вы залезли куда-то не туда, нет такого пути, например.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003E409 Conflict\u003C\u002Fstrong\u003E — крайний случай, который мало кто использует. Он бывает нужен, если вы на клиенте, а не на бэкенде генерируете id, а в это время кто-то уже успел создать эту статью. Конфликт — это правильный ответ в таком случае.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EСоздание сущности\u003Cbr\u002F\u003E\r\n\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nСледующий пример: мы создаем сущность, говорим Content-Type: application\u002Fjson, и передаем этот application\u002Fjson. Это делает клиент — наш фронтенд. Допустим, создаем эту самую статью:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01.  POST \u002Farticles НТТР\u002F1.1\u003Cbr\u002F\u003E\r\n02.  Content-Type: application\u002Fjson\u003Cbr\u002F\u003E\r\n03.  { \"id\": 1, \"title\": \"Про JSON API\"}\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ ответ может прийти код:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E422 Unprocessable Entity — необрабатываемая сущность. Вроде бы все здорово — семантика, есть код;\u003C\u002Fli\u003E\r\n\u003Cli\u003E403 Forbidden;\u003C\u002Fli\u003E\r\n\u003Cli\u003E500 Internal Server Error.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nНо абсолютно непонятно, что конкретно произошло: какая сущность необрабатываемая, почему мне туда нельзя, и что в конце концов случилось с сервером?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EВозвращайте ошибки\u003Cbr\u002F\u003E\r\n\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nОбязательно (и об этом джуниоры не знают) в ответ возвращайте ошибки. Это семантично и правильно. Про это, кстати, не писал Филдинг, то есть это было придумано позже и построено поверх REST.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nБэкенд может в ответ вернуть массив с ошибками, их может быть несколько.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01.  HTTP\u002F1.1 422 Unprocessable Entity\u003Cbr\u002F\u003E\r\n02.  Content-Type: application\u002Fjson\u003Cbr\u002F\u003E\r\n03. \u003Cbr\u002F\u003E\r\n04.  { \"errors\": [{\u003Cbr\u002F\u003E\r\n05.    \"status\": \"422\",\u003Cbr\u002F\u003E\r\n06.    \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E\"title\": \"Title already exist\",\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n07.  }]}\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУ каждой ошибки может быть свой статус и заголовок. Это здорово, но это уже идет на уровне соглашений поверх REST. Это может быть нашим anti-bikeshedding инструментом, чтобы перестать спорить, а делать сразу хороший правильный API.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EДобавим паджинацию\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nСледующий пример: к нашему начинающему бэкенд-разработчику приходят дизайнеры и говорят: «У нас много статей, нам нужна паджинация. Мы нарисовали вот такую».\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Ffn\u002F6l\u002F9t\u002Ffn6l9tjzotvgzehwpbezkd0vcf4.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ffn\u002F6l\u002F9t\u002Ffn6l9tjzotvgzehwpbezkd0vcf4.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРассмотрим ее подробней. Прежде всего в глаза бросается 336 страниц. Когда я это увидел, то подумал, как эту цифру вообще получить. Откуда взять 336, ведь на запрос списка статей мне приходит список статей. Например, их там 10 тысяч, то есть мне надо загрузить все статьи, поделить на количество страниц и узнать это число. Очень долго я буду грузить эти статьи, нужен способ получить количество записей быстро. Но если наш API отдает список, то куда это количество записей вообще засунуть, потому что в ответ приходит массив статей. Получается, раз количество записей нигде не ставится, то его надо в каждую статью добавлять, чтобы каждая статья говорила: «А нас всех столько-то!».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОднако есть соглашение поверх REST API, которое решает эту проблему.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EЗапрос списка\u003Cbr\u002F\u003E\r\n\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЧтобы API был расширяемый, можно сразу использовать GET-параметры для паджинации: размер текущей страницы и её номер, чтобы нам вернулся ровно тот кусок той страницы, который мы запросили. Это удобно. В ответ можно не сразу давать массив, а добавить дополнительную вложенность. Например, ключ data будет содержать массив, данные, которые мы запросили, а ключ meta, которого до этого не было, будет содержать общее количество.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01.  GET \u002Farticles?\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003Epage[size]=30&amp;page[number]=2\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n02.  Content-Type: application\u002Fjson\u003Cbr\u002F\u003E\r\n\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01.  HTTP\u002F1.1 200 OK\u003Cbr\u002F\u003E\r\n02.  {\u003Cbr\u002F\u003E\r\n03.    \"data\": [{ \"id\": 1, \"title\": \"JSONAPI\"}, ...],\u003Cbr\u002F\u003E\r\n04.    \"meta\": { \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E\"count\": 10080\u003C\u002Ffont\u003E\u003C\u002Fb\u003E }\u003Cbr\u002F\u003E\r\n05.  }\u003Cbr\u002F\u003E\r\n\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\nТаким образом API может возвращать дополнительную информацию. Помимо count там может быть еще какая-то информация — это расширяемо. Сейчас, если джуниор не сделал так сразу, а только после того, как его попросили сделать паджинацию, то он \u003Cstrong\u003Eсовершил обратно несовместимое изменение\u003C\u002Fstrong\u003E, сломал API, и все клиенты должны переделываться — обычно это очень больно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПаджинация бывает разная. Предлагаю несколько лайфхаков, которые можно использовать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003E[offset]...[limit]\u003Cbr\u002F\u003E\r\n\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01.  GET \u002Farticles?\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003Epage[offset]=30&amp;page[limit]=30\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n02.  Content-Type: application\u002Fjson\u003Cbr\u002F\u003E\r\n\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01.  HTTP\u002F1.1 200 OK\u003Cbr\u002F\u003E\r\n02.  {\u003Cbr\u002F\u003E\r\n03.    \"data\": [{ \"id\": 1, \"title\": \"JSONAPI\"}, ...],\u003Cbr\u002F\u003E\r\n04.    \"meta\": { \"count\": 10080 }\u003Cbr\u002F\u003E\r\n05.  }\u003Cbr\u002F\u003E\r\n\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\nУ тех, кто работает с базами данных, возможно, уже на подкорке [offset]...[limit]. Использовать его вместо page[size]...page[number] будет проще. Это немножко другой подход.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EКурсорная паджинация\u003Cbr\u002F\u003E\r\n\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01. GET \u002Farticles?\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003Epage[published_at]=1538332156\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n02. Content-Type: application\u002Fjson\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01. HTTP\u002F1.1 200 OK\u003Cbr\u002F\u003E\r\n02. {\u003Cbr\u002F\u003E\r\n03.     \"data\": [{ \"id\": 1, \"title\": \"JSONAPI\"}, ...],\u003Cbr\u002F\u003E\r\n04.     \"meta\": { \"count\": 10080 }\u003Cbr\u002F\u003E\r\n05. }\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКурсорная паджинация использует указатель на сущность, с которой нужно начать подгружать записи. Например, она очень удобна, когда вы используете паджинацию или подгрузку в списках, которые часто меняются. Допустим, в наш блог постоянно пишут новые статьи. Третья страница сейчас — это не та же самая третья страница, которая будет через минуту, а перейдя на четвертую страницу, мы на ней получим часть записей с третьей страницы, потому что весь список сдвинется.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭту проблему решает курсорная паджинация. Мы говорим: «Подгрузи статьи, которые идут после статьи, опубликованной в это время» — никакого сдвига уже быть не может чисто технологически, и это круто.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EПроблема N +1\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nСледующая проблема, с которой обязательно столкнется наш джуниор-разработчик — это проблема N + 1 (бэкендеры поймут). Допустим, нужно вывести список из 10 статей. Мы загружаем список статей, у каждой статьи есть автор, и для каждой нужно загрузить автора. Мы отправляем:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E1 запрос на получение списка статей;\u003C\u002Fli\u003E\r\n\u003Cli\u003E10 запросов для получения авторов каждой статьи.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nИтого: 11 запросов, чтобы вывести небольшой список.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EДобавляем связи\u003Cbr\u002F\u003E\r\n\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nНа бэкенде эта проблема решена во всех ORM — надо только не забывать дописывать эту связь. Эти связи можно использовать и на фронтенде. Делается это следующим образом:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01.  GET \u002Farticles?\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003Einclude =author\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n02.  Content-Type: application\u002Fjson\u003Cbr\u002F\u003E\r\n\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\nМожно использовать специальный GET-параметр, назвать его include (как на бэкенде), говоря, какие связи нам нужно загрузить вместе со статьями. Допустим, мы загружаем статьи, и хотим вместе со статьями сразу же получить еще их автора. Ответ выглядит так:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01. НТТР\u002F1.1 200 ОК\u003Cbr\u002F\u003E\r\n02. { \"data\": [{\u003Cbr\u002F\u003E\r\n03.   { attributes: { \"id\": 1, \"title\": \"JSON API\" },\u003Cbr\u002F\u003E\r\n04.   { relationships: {\u003Cbr\u002F\u003E\r\n05.    \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E\"author\": { \"id\": 1, \"name\": \"Avdeev\" } }\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n06.   }, ...\u003Cbr\u002F\u003E\r\n07. }]}\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ data перенесены собственные атрибуты статей и добавлен ключ relationships (связи). В этот ключ мы кладем все связи. Таким образом одним запросом мы получили все те данные, которые до этого получали 11 запросами. Это крутой лайфхак, который хорошо решает проблему с N + 1 на фронтенде.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EПроблема дублирования данных\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nДопустим, нужно вывести 10 статей с указанием автора, у всех статей один автор, но объект с автором очень большой (например, очень длинная фамилия, которая занимает мегабайт). Один автор включен в ответ 10 раз, и 10 включений одного и того же автора в ответ займет 10 Мбайт.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоскольку все объекты одинаковые, проблема, что один автор включен 10 раз (10 Мбайт), решается с помощью нормализации, которая используется в базах данных. На фронтенде в работе с API тоже можно использовать нормализацию — это очень здорово.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01. НТТР\u002F1.1 200 ОК\u003Cbr\u002F\u003E\r\n02. { \"data\": [{\u003Cbr\u002F\u003E\r\n03.  \"id\": \"1″, \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E\"type\": \"article\",\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n04.  \"attributes\": { \"title\": \"JSON API\" },\u003Cbr\u002F\u003E\r\n05.  \"relationships\": { ... }\u003Cbr\u002F\u003E\r\n06.   \"author\": { \"id\": 1, \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E\"type\": \"people\"\u003C\u002Ffont\u003E\u003C\u002Fb\u003E } }\u003Cbr\u002F\u003E\r\n07. }, ... ] \u003Cbr\u002F\u003E\r\n08. }\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМы помечаем все сущности каким-то типом (это тип репрезентации, тип ресурса). Рой Филдинг ввел понятие ресурса, то есть запросили статьи — получили «article». В relationships мы помещаем ссылку на тип people, то есть у нас еще где-то лежит ресурс people. А сам ресурс мы берем в отдельный ключ included, который лежит на одном уровне с data.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01. НТТР\u002F1.1 200 ОК\u003Cbr\u002F\u003E\r\n02. {\u003Cbr\u002F\u003E\r\n03. \"data\": [ ... ],\u003Cbr\u002F\u003E\r\n04.  \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E\"included\":\u003C\u002Ffont\u003E\u003C\u002Fb\u003E [{\u003Cbr\u002F\u003E\r\n05.   \"id\": 1, \"type\": \"people\",\u003Cbr\u002F\u003E\r\n06.   \"attributes\": { \"name\": \"Avdeev\" }\u003Cbr\u002F\u003E\r\n07. }]\u003Cbr\u002F\u003E\r\n08. }\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТаким образом, все связанные сущности в единственном экземпляре попадают в специальный ключ included. Мы храним только ссылки, а сами сущности хранятся в included.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРазмер запроса уменьшился. Это лайфхак, про который начинающий бэкендер не знает. Он это узнает потом, когда нужно будет сломать API.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EНужны не все поля ресурса\u003Cbr\u002F\u003E\r\n\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nСледующий лайфхак можно применить, когда нужны не все поля ресурса. Делается это при помощи специального GET-параметра, в котором через запятую перечисляются атрибуты, которые нужно вернуть. Например, статья большая, и в поле контента может быть мегабайт, а нам нужно вывести только список заголовков — нам не нужен контент в ответе.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EGET \u002Farticles\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E?fields[article]=title НТТР\u002F1.1\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01. НТТР\u002F1.1 200 OK\u003Cbr\u002F\u003E\r\n02. { \"data\": [{\u003Cbr\u002F\u003E\r\n03.  \"id\": \"1″, \"type\": \"article\",\u003Cbr\u002F\u003E\r\n04.  \"attributes\": { \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E\"title\": \"Про JSON API\"\u003C\u002Ffont\u003E\u003C\u002Fb\u003E },\u003Cbr\u002F\u003E\r\n05.   }, ... ]\u003Cbr\u002F\u003E\r\n06. }\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли нужна, например, еще и дата публикации, можно написать через запятую «published date». В ответ в attributes придет два поля. Это соглашение, которое можно использовать как anti-bikeshedding tool.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EПоиск по статьям\u003Cbr\u002F\u003E\r\n\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЧасто нам нужны поиски и фильтры. Для этого есть соглашения — специальные GET-параметры filters:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n● \u003Ccode\u003EGET \u002Farticles\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E?filters[search]=api\u003C\u002Ffont\u003E\u003C\u002Fb\u003E HTTP\u002F1.1\u003C\u002Fcode\u003E — поиск;\u003Cbr\u002F\u003E\r\n● \u003Ccode\u003EGET \u002Farticles\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E?fiIters[from_date]=1538332156\u003C\u002Ffont\u003E\u003C\u002Fb\u003E HTTP\u002F1.1\u003C\u002Fcode\u003E — загрузить статьи с определенной даты;\u003Cbr\u002F\u003E\r\n● \u003Ccode\u003EGET \u002Farticles\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E?filters[is_published]=true\u003C\u002Ffont\u003E\u003C\u002Fb\u003E HTTP\u002F1.1\u003C\u002Fcode\u003E — загрузить статьи, которые только опубликованы; \u003Cbr\u002F\u003E\r\n● \u003Ccode\u003EGET \u002Farticles\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E?fiIters[author]=1\u003C\u002Ffont\u003E\u003C\u002Fb\u003E HTTP\u002F1.1\u003C\u002Fcode\u003E — загрузить статьи с первым автором.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EСортировка статей\u003Cbr\u002F\u003E\r\n\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n● \u003Ccode\u003EGET \u002Farticles\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E?sort=title\u003C\u002Ffont\u003E\u003C\u002Fb\u003E НТТР\u002F1.1\u003C\u002Fcode\u003E — по заголовку;\u003Cbr\u002F\u003E\r\n● \u003Ccode\u003EGET \u002Farticles\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E?sort=published_at\u003C\u002Ffont\u003E\u003C\u002Fb\u003E HTTP\u002F1.1\u003C\u002Fcode\u003E — по дате публикации;\u003Cbr\u002F\u003E\r\n● \u003Ccode\u003EGET \u002Farticles\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E?sort=-published_at\u003C\u002Ffont\u003E\u003C\u002Fb\u003E HTTP\u002F1.1\u003C\u002Fcode\u003E — по дате публикации в обратном направлении;\u003Cbr\u002F\u003E\r\n● \u003Ccode\u003EGET \u002Farticles\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E?sort=author,-publisbed_at\u003C\u002Ffont\u003E\u003C\u002Fb\u003E HTTP\u002F1.1\u003C\u002Fcode\u003E — сначала по автору, потом по дате публикации в обратном направлении, если статьи у одного автора.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EНужно поменять URLs\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nРешение: гипермедиа, которое я уже упоминал, можно сделать следующим образом. Если мы хотим, чтобы объект (ресурс) был самоописываемый, клиент мог бы по гипермедиа понять, что с ним можно делать, и сервер мог бы развиваться независимо от клиента, то можно добавлять ссылки на список статей, на саму статью при помощи специальных ключей links:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E\u003Ccode\u003E01. GET \u002Farticles НТТР\u002F1.1\u003Cbr\u002F\u003E\r\n02. {\u003Cbr\u002F\u003E\r\n03.  \"data\": [{\u003Cbr\u002F\u003E\r\n04.   ...\u003Cbr\u002F\u003E\r\n05.   \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E\"links\": { \"self\": \"http:\u002F\u002Flocalhost\u002Farticles\u002F1\" },\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n06.   \"relationships\": { ... }\u003Cbr\u002F\u003E\r\n07.  }],\u003Cbr\u002F\u003E\r\n08.  \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E\"links\": { \"self\": \"\u003Ccode\u003Ehttp:\u002F\u002Flocalhost\u002Farticles\u003C\u002Fcode\u003E\" }\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n09. }\u003Cbr\u002F\u003E\r\n\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\nИли related, если мы хотим подсказать клиенту, как загрузить комментарий к этой статье:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E\u003Ccode\u003E01. ...\u003Cbr\u002F\u003E\r\n02. \"relationships\": {\u003Cbr\u002F\u003E\r\n03.  \"comments\": {\u003Cbr\u002F\u003E\r\n04.   \"links\": {\u003Cbr\u002F\u003E\r\n05.   \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E\"self\": \"http:\u002F\u002Flocalhost\u002Farticles\u002Fl\u002Frelationships\u002Fcomments\",\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n06.   \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E\"related\": \"\u003Ccode\u003Ehttp:\u002F\u002Flocalhost\u002Farticles\u002Fl\u002Fcomments\u003C\u002Fcode\u003E\"\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n07.   }\u003Cbr\u002F\u003E\r\n08.  } \u003Cbr\u002F\u003E\r\n09. }\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\nКлиент видит, что есть ссылка, переходит по ней, загружает комментарий. Если ссылки нет, значит, комментариев нет. Это удобно, но так мало кто делает. Филдинг придумал принципы REST, но не все из них зашли в нашу индустрию. В основном мы пользуемся двумя-тремя.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ 2013 году все лайфхаки, о которых я вам рассказал, Steve Klabnik объединил в спецификацию JSON API и зарегистрировал как \u003Ca href=\"http:\u002F\u002Fwww.iana.org\u002Fassignments\u002Fmedia-types\u002Fapplication\u002Fvnd.api+json\"\u003E новый media type поверх JSON\u003C\u002Fa\u003E. Так наш джуниор бэкенд-разработчик, постепенно эволюционируя, пришел к JSON API.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EJSON API\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nНа сайте \u003Ca href=\"http:\u002F\u002Fjsonapi.org\u002Fimplementations\u002F\"\u003E http:\u002F\u002Fjsonapi.org\u002Fimplementations\u002F\u003C\u002Fa\u003E всё подробно описано: есть даже список 170 различных реализаций спецификаций для 32 языков программирования — и это только добавленные в каталог. Уже написаны библиотеки, парсеры, сериализаторы и пр.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоскольку эта спецификация опенсорсная, в неё все вкладываются. Я, в том числе, что-то сам написал. Уверен, таких людей много. Вы можете сами присоединиться к этому проекту.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EПлюсы JSON API\u003Cbr\u002F\u003E\r\n\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nCпецификация JSON API решает ряд проблем — \u003Cstrong\u003Eобщее соглашение для всех\u003C\u002Fstrong\u003E. Раз есть общее соглашение, то мы \u003Cstrong\u003Eне спорим внутри команды\u003C\u002Fstrong\u003E — велосипедный сарай задокументирован. У нас есть соглашение, из каких материалов делать велосипедный сарай и как его красить.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТеперь, когда разработчик делает что-то неправильно и я это вижу, то не начинаю дискуссию, а говорю: «Не по JSON API!» и показываю на место в спецификации. Меня ненавидят в компании, но постепенно привыкают, и JSON API всем начал нравиться. Новые сервисы по умолчанию мы делаем по этой спецификации. У нас есть ключ date, мы готовы добавлять ключи meta, include. Для фильтров есть зарезервированный GET-параметр filters. Мы не спорим, как назвать фильтр — используем эту спецификацию. В ней описано, как делать URL.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоскольку мы не спорим, а делаем бизнес задачи, \u003Cstrong\u003Eпроизводительность разработки выше\u003C\u002Fstrong\u003E. У нас спецификации описаны, бэкенд разработчик прочитал, сделал API, мы его прикрутили — заказчик счастлив.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EПопулярные проблемы уже решены\u003C\u002Fstrong\u003E, например, с паджинацией. В спецификации много подсказок.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоскольку это JSON (спасибо Дугласу Крокфорду за этот формат), он лаконичней XML, его довольно \u003Cstrong\u003Eлегко читать и понимать\u003C\u002Fstrong\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТо, что это \u003Cstrong\u003EOpen Source\u003C\u002Fstrong\u003E может быть и плюсом, и минусом, но я люблю Open Source.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EМинусы JSON API\u003Cbr\u002F\u003E\r\n\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nОбъект разросся (date, attributes, included и пр.) — \u003Cstrong\u003Eфронтенду надо парсить ответы:\u003C\u002Fstrong\u003E уметь перебирать массивы, ходить по объекту и знать, как работает reduce. Не все начинающие разработчики знают эти сложные вещи. Есть библиотеки сериализаторы\u002Fдесериализаторы, можно пользоваться ими. Вообще это просто работа с данными, но объекты большие.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nА у \u003Cstrong\u003Eбэкенда \u003C\u002Fstrong\u003Eначинается боль:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EКонтроль вложенности — include можно залезть очень далеко;\u003C\u002Fli\u003E\r\n\u003Cli\u003EСложность запросов к БД — они строятся иногда автоматически, и получаются очень тяжелыми;\u003C\u002Fli\u003E\r\n\u003Cli\u003EБезопасность — можно залезть в дебри, особенно если подключить какую-то библиотеку;\u003C\u002Fli\u003E\r\n\u003Cli\u003EСпецификация сложно читается. Она на английском, и это некоторых отпугнуло, но постепенно все привыкли;\u003C\u002Fli\u003E\r\n\u003Cli\u003EНе все библиотеки реализуют спецификацию хорошо — это проблема Open Source.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EПодводные камни JSON API\u003Cbr\u002F\u003E\r\n\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nНемножко хардкора.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EКоличество relationships в выдаче не ограничено. \u003C\u002Fstrong\u003E Если мы делаем include, запрашиваем статьи, добавляя к ним комментарии, то в ответ нам придут все комментарии этой статьи. Есть 10 000 комментариев — получи все 10 000 комментариев:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EGET \u002Farticles\u002F1?include=comments НТТР\u002F1.1\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01. ...\u003Cbr\u002F\u003E\r\n02. \"relationships\": {\u003Cbr\u002F\u003E\r\n03.  \"comments\": {\u003Cbr\u002F\u003E\r\n04.   \"data\": \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E[0 ... ∞]\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n05.  }\u003Cbr\u002F\u003E\r\n06. }\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТаким образом на наш запрос в ответ пришло реально 5 Мбайт: «В спецификации так и написано — надо правильно переформулировать запрос:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EGET \u002Fcomments?\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003Efilters[article]=1&amp;\u003C\u002Ffont\u003E\u003C\u002Fb\u003Epage[size]=30 HTTP\u002F1.1\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01. {\u003Cbr\u002F\u003E\r\n02. \"data\": \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E[0 ... 29]\u003C\u002Ffont\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n03. }\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМы запрашиваем комментарии с фильтром по статье, говорим: «30 штучек, пожалуйста» и получаем 30 комментариев. Это и есть неоднозначность.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EОдни и те же вещи можно неоднозначно сформулировать\u003C\u002Fstrong\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n● \u003Ccode\u003EGET \u002Farticles\u002F1\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E?include=comments\u003C\u002Ffont\u003E\u003C\u002Fb\u003E HTTP\u002F1.1\u003C\u002Fcode\u003E — запрашиваем статью с комментариями;\u003Cbr\u002F\u003E\r\n● \u003Ccode\u003EGET \u002Farticles\u002F1\u002Fcomments HTTP\u002F1.1\u003C\u002Fcode\u003E — запрашиваем комментарии к статье;\u003Cbr\u002F\u003E\r\n● \u003Ccode\u003EGET \u002Fcomments\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E?filters[article]=1\u003C\u002Ffont\u003E\u003C\u002Fb\u003E HTTP\u002F1.1\u003C\u002Fcode\u003E — запрашиваем комментарии с фильтром по статье.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто одно и то же — одни и те же данные, которые получаются по-разному, возникает некоторая неоднозначность. Этот подводный камень сразу не видно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EПолиморфные связи «один ко многим»\u003C\u002Fstrong\u003E очень быстро вылезают в REST.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01. GET \u002Fcomments?include=commentable НТТР\u002F1.1\u003Cbr\u002F\u003E\r\n02. \u003Cbr\u002F\u003E\r\n03. ...\u003Cbr\u002F\u003E\r\n04. \"relationships\": {\u003Cbr\u002F\u003E\r\n05.  \u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E\"commentable\"\u003C\u002Ffont\u003E\u003C\u002Fb\u003E: {\u003Cbr\u002F\u003E\r\n06.   \"data\": { \"type\": \"article\", \"id\": \"1″ }\u003Cbr\u002F\u003E\r\n07. }\u003Cbr\u002F\u003E\r\n08. }\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа бэкенде есть полиморфная связь commentable — она вылезает в REST. Так и должно произойти, но ее можно замаскировать. В JSON API не замаскируешь — она вылезет.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EСложные связи «многие ко многим» с дополнительными параметрами\u003C\u002Fstrong\u003E. Тоже все связующие таблицы вылезают:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01. GET \u002Fusers?include\u003Cb\u003E\u003Cfont color=\"#c6e90e\"\u003E=users_comments\u003C\u002Ffont\u003E\u003C\u002Fb\u003E НТТР\u002F1.1\u003Cbr\u002F\u003E\r\n02. \u003Cbr\u002F\u003E\r\n03. ...\u003Cbr\u002F\u003E\r\n04. \"relationships\": {\u003Cbr\u002F\u003E\r\n05.  \"users_comments\": {\u003Cbr\u002F\u003E\r\n06.   \"data\": [{ \"type\": \"users_comments\", \"id\": \"1″ }, ...]\u003Cbr\u002F\u003E\r\n07.  },\u003Cbr\u002F\u003E\r\n08. }\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003ESwagger\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nSwagger — это интерактивный инструмент для написания документации.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДопустим, нашего бэкенд-разработчика попросили написать документацию к его API, и он ее написал. Это легко, если API простой. Если же это JSON API, Swagger так легко не напишешь.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EПример:\u003C\u002Fstrong\u003E Swagger магазина животных. Каждый метод можно открыть, посмотреть response и примеры.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Ful\u002Flj\u002Fyk\u002Fulljykpo7bhyw85r9ru69k2nuxe.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ful\u002Flj\u002Fyk\u002Fulljykpo7bhyw85r9ru69k2nuxe.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак выглядит пример модели Pet. Здесь классный интерфейс, все просто читается.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fi9\u002Frg\u002Fir\u002Fi9rgirjcdxgm16ogmtopu6dnjrq.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fi9\u002Frg\u002Fir\u002Fi9rgirjcdxgm16ogmtopu6dnjrq.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nА так выглядит создание модели JSON API:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fty\u002F14\u002Fkn\u002Fty14knt_laxzsr2ozusbo0xkk0c.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fty\u002F14\u002Fkn\u002Fty14knt_laxzsr2ozusbo0xkk0c.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто уже не так здорово. Нам нужно data, в data что-то с relationships, included содержит 5 типов модели и т.д. Swagger можно написать, Open API — мощная вещь, но сложно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EАльтернатива\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nЕсть спецификация OData, которая появилась чуть позже — в 2015 году. Это «The best way to REST», как заверяет официальный сайт. Выглядит следующим образом:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01. GET http:\u002F\u002Fservices.odata.org\u002Fv4\u002FTripRW\u002FPeople HTTP\u002F1.1\u003C\u002Fcode\u003E — GET-запрос;\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E02. OData-Version: 4.0\u003C\u002Fcode\u003E — специальный заголовок с версией;\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E03. OData-MaxVersion: 4.0\u003C\u002Fcode\u003E — второй специальный заголовок с версией\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОтвет выглядит так:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E01. HTTP\u002F1.1 200 OK\u003Cbr\u002F\u003E\r\n02. Content-Type: application\u002Fjson; odata.metadata=minimal\u003Cbr\u002F\u003E\r\n03. OData-Version: 4.0\u003Cbr\u002F\u003E\r\n04. { \u003Cbr\u002F\u003E\r\n05.  ’@odata.context’:  ’http:\u002F\u002Fservices.odata.org\u002FV4\u002F\u003Cbr\u002F\u003E\r\n06.  ’@odata.nextLink’  : ’http:\u002F\u002Fservices.odata.org\u002FV4\u002F\u003Cbr\u002F\u003E\r\n07.  ’value’: [{ \u003Cbr\u002F\u003E\r\n08.   ’@odata.etag’: 1W\u002F108D1D5BD423E51581′,\u003Cbr\u002F\u003E\r\n09.   ’UserName’: ’russellwhyte’,\u003Cbr\u002F\u003E\r\n10.   ...\u003Cbr\u002F\u003E\r\n\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\nЗдесь расширенный application\u002Fjson и объект.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМы не стали использовать OData, во-первых, поскольку это то же самое, что JSON API, но он не лаконичный. Там огромные объекты и мне кажется, что все гораздо хуже читается. OData тоже вышел в Open Source, но он сложнее.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EЧто с GraphQL?\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nЕстественно, когда мы искали новый формат API, мы нарвались и на этот хайп.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n● \u003Cstrong\u003EВысокий порог входа.\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nС точки зрения фронтенда все выглядит круто, но нового разработчика не посадишь писать GraphQL, потому что его сначала нужно изучить. Это как SQL — нельзя сразу писать SQL, надо хотя бы прочитать, что это такое, пройти туториалы, то есть порог входа увеличивается.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n● \u003Cstrong\u003EЭффект большого взрыва.\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли в проекте не было никакого API, и мы стали использовать GraphQL, через месяц мы поняли, что он нам не подходит, будет поздно. Придется писать костыли. С JSON API или с OData можно эволюционировать — простейший RESTful, прогрессивно улучшаясь, превращается в JSON API.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n● \u003Cstrong\u003EАд на бэкенде.\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nGraphQL вызывает ад на бэкенде — прямо один в один, как и полностью реализованный JSON API, потому что GraphQL получает полный контроль над запросами, а это библиотека, и вам нужно будет решать кучу вопросов:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eконтроль вложенности;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eрекурсия;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eограничение частоты;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eконтроль доступа.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EВместо выводов\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nРекомендую прекратить спорить по поводу велосипедного сарая, а взять anti-bikeshedding tool в качестве спецификации и просто делать API по хорошей спецификации.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЧтобы найти свой стандарт для решения проблемы велосипедного сарая, может посмотреть эти ссылки:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n● \u003Ca href=\"http:\u002F\u002Fjsonapi.org\u002F\"\u003Ehttp:\u002F\u002Fjsonapi.org\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n● \u003Ca href=\"http:\u002F\u002Fwww.odata.org\u002F\"\u003Ehttp:\u002F\u002Fwww.odata.org\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n● \u003Ca href=\"https:\u002F\u002Fgraphgl.org\u002F\"\u003Ehttps:\u002F\u002Fgraphgl.org\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n● \u003Ca href=\"http:\u002F\u002Fxmlrpc.scripting.com\u002F\"\u003Ehttp:\u002F\u002Fxmlrpc.scripting.com\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n● \u003Ca href=\"https:\u002F\u002Fwww.jsonrpc.org\u002F\"\u003Ehttps:\u002F\u002Fwww.jsonrpc.org\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EКонтакты Спикера Алексея Авдеева:\u003C\u002Fstrong\u003E \u003Ca href=\"https:\u002F\u002Falexey-avdeev.com\u002F\"\u003Ealexey-avdeev.com\u003C\u002Fa\u003E и профиль на \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Favdeev\"\u003Egithub\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EКоллеги, мы \u003Cstrong\u003Eоткрыли прием докладов\u003C\u002Fstrong\u003E на \u003Ca href=\"https:\u002F\u002Ffrontendconf.ru\u002Fmoscow-rit\u002F2019\"\u003EFrontend Conf\u003C\u002Fa\u003E, которая пройдет 27 и 28 мая в рамках \u003Ca href=\"https:\u002F\u002Fritfest.ru\u002F\"\u003EРИТ++\u003C\u002Fa\u003E. Наш программный комитет начал работу, чтобы за следующие три месяца собрать классную программу.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EВам есть что рассказать? \u003C\u002Fstrong\u003E Хотите поделиться с сообществом вашим опытом? Ваш доклад может сделать жизнь многих фронтендеров лучше? Вы эксперт в узкой, но важной теме и хотите поделиться своим знанием?  \u003Ca href=\"https:\u002F\u002Fconf.ontico.ru\u002Flectures\u002Fpropose\u002F?conference=fc2019-rit\"\u003E Подайте заявку\u003C\u002Fa\u003E!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСледите за ходом подготовки через \u003Ca href=\"http:\u002F\u002Feepurl.com\u002Fbb99tn\"\u003Eрассылку\u003C\u002Fa\u003E, а идеи, кого стоит пригласить, о какой теме поговорить, пишите прямо в комментарии к статье.\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003C\u002Fcode\u003E\u003C\u002Fcode\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"json api"},{"titleHtml":"frontendconf"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F433322\u002F2fa5f9c9de4fd1ff1156ae97983b0c0e\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F433322\u002F2fa5f9c9de4fd1ff1156ae97983b0c0e\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Foleg-bunin\\\u002Fblog\\\u002F433322\\\u002F\"},\"headline\":\"JSON API – работаем по спецификации\",\"datePublished\":\"2019-01-28T10:46:52+03:00\",\"dateModified\":\"2019-01-28T11:37:02+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Глеб Михеев\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"В&nbsp;последнее время веб-разработка разделилась. Теперь мы&nbsp;все не&nbsp;full-stack программисты&nbsp;&mdash; мы&nbsp;фронтендеры и&nbsp;бэкендеры. А&nbsp;самое сложное в&nbsp;этом, как и&nbsp;везде, это про...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Foleg-bunin\\\u002Fblog\\\u002F433322\\\u002F#post-content-body\",\"about\":[\"c_oleg-bunin\",\"h_webdev\",\"h_open_source\",\"h_javascript\",\"h_programming\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fo4\\\u002Fme\\\u002F1u\\\u002Fo4me1uwmahvlwsnvqxyf_rzwa1i.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fzn\\\u002F9m\\\u002Fuk\\\u002Fzn9muk80uvsd_yuragws16ms70c.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fop\\\u002Fwi\\\u002F6l\\\u002Fopwi6l_tbihj0tvef8tu4feyoo4.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F4i\\\u002Frk\\\u002Fhm\\\u002F4irkhm7dcicexgmqomprfdraisu.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fm2\\\u002Fi2\\\u002Fua\\\u002Fm2i2uadak8sdzbge_pvqlnpu55s.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fk1\\\u002Fnj\\\u002Flm\\\u002Fk1njlm8egbrcguim8am6juym76s.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fjd\\\u002Fv_\\\u002Faa\\\u002Fjdv_aarpo9qnevtro5ddqbgw5ic.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fo4\\\u002Ftc\\\u002Fci\\\u002Fo4tcci6wnmokubjjdecsy5vwclm.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Ffn\\\u002F6l\\\u002F9t\\\u002Ffn6l9tjzotvgzehwpbezkd0vcf4.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Ful\\\u002Flj\\\u002Fyk\\\u002Fulljykpo7bhyw85r9ru69k2nuxe.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fi9\\\u002Frg\\\u002Fir\\\u002Fi9rgirjcdxgm16ogmtopu6dnjrq.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fty\\\u002F14\\\u002Fkn\\\u002Fty14knt_laxzsr2ozusbo0xkk0c.png\"]}","metaDescription":"В&nbsp;последнее время веб-разработка разделилась. Теперь мы&nbsp;все не&nbsp;full-stack программисты&nbsp;&mdash; мы&nbsp;фронтендеры и&nbsp;бэкендеры. А&nbsp;самое сложное в&nbsp;этом, как...","mainImageUrl":null,"amp":false,"customTrackerLinks":["https:\u002F\u002Fvk.com\u002Frtrg?p=VK-RTRG-200244-Qc4X"]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"oleg-bunin":{"alias":"oleg-bunin","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002Fadd\u002Feb3\u002Fe91\u002Faddeb3e91fe453f9d78c7b52b8dc6a90.png","titleHtml":"Конференции Олега Бунина (Онтико)","descriptionHtml":"Профессиональные конференции для IT-разработчиков","relatedData":null,"statistics":{"postsCount":727,"newsCount":9,"vacanciesCount":0,"employeesCount":104,"careerRating":null,"subscribersCount":50773,"rating":349.95,"invest":null},"foundationDate":{"year":"2008","month":"01","day":"01"},"location":{"city":{"id":"447159","title":"Москва"},"region":{"id":"1885","title":"Москва и Московская обл."},"country":{"id":"168","title":"Россия"}},"siteUrl":"http:\u002F\u002Fwww.ontico.ru\u002F","staffNumber":"31–50 человек","registrationDate":"2010-02-24T19:37:40+00:00","representativeUser":[],"contacts":[{"title":"Facebook","url":"https:\u002F\u002Ffacebook.com\u002Foleg.bunin"},{"title":"Facebook","url":"https:\u002F\u002Ffacebook.com\u002FHighLoadConference"},{"title":"Twitter","url":"https:\u002F\u002Ftwitter.com\u002FHighLoadConf"},{"title":"Telegram","url":"https:\u002F\u002Ftelegram.me\u002FHighLoadTalks"}],"settings":{"analyticsSettings":[{"type":"ym","trackingId":"55760638"}],"branding":null,"status":"active","isStartup":false},"metadata":{"titleHtml":"Конференции Олега Бунина (Онтико), Москва - Профессиональные конференции для IT-разработчиков с 1 января 2008 г.","title":"Конференции Олега Бунина (Онтико), Москва - Профессиональные конференции для IT-разработчиков с 1 января 2008 г.","keywords":["Конференции","Высокая производительность","Управление разработкой","Программирование","Управление персоналом","highload++","devops","конференции","highload","управление людьми","teamleadconf","python","frontendconf","appsconf","frontend","тимлид","конференция","рит++","интервью","devopsconf","php","управление командой","postgresql","программирование","javascript"],"descriptionHtml":"727 статей от авторов компании Конференции Олега Бунина (Онтико)","description":"727 статей от авторов компании Конференции Олега Бунина (Онтико)"},"aDeskSettings":null,"careerAlias":"ontico"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

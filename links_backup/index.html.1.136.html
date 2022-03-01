@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Apache Kafka – мой конспект / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/354486\/"},"headline":"Apache Kafka – мой конспект","datePublished":"2018-05-01T05:37:26+03:00","dateModified":"2018-05-05T06:59:09+03:00","author":{"@type":"Person","name":"Александр Рыльков"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Это мой конспект, в котором коротко и по сути затрону такие понятия Kafka как:    &mdash; Тема (Topic)  &mdash; Подписчики (consumer)  &mdash; Издатель (producer)   &mdash; Группа (grou...","url":"https:\/\/habr.com\/ru\/post\/354486\/#post-content-body","about":["h_instant_messaging","h_java","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/354486\/f60d29dd3d42f7a04e4b49b4a02c1786\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Apache Kafka – мой конспект" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Apache Kafka – мой конспект" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Apache Kafka – мой конспект" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Это мой конспект, в котором коротко и по сути затрону такие понятия Kafka как: 
+
+ — Тема (Topic)
+ — Подписчики (consumer)
+ — Издатель (producer) 
+ — Группа (group), раздел (partition) 
+ — Потоки..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Это мой конспект, в котором коротко и по сути затрону такие понятия Kafka как: 
+
+ — Тема (Topic)
+ — Подписчики (consumer)
+ — Издатель (producer) 
+ — Группа (group), раздел (partition) 
+ — Потоки..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Это мой конспект, в котором коротко и по сути затрону такие понятия Kafka как: 
+
+ — Тема (Topic)
+ — Подписчики (consumer)
+ — Издатель (producer) 
+ — Группа (group), раздел (partition) 
+ — Потоки..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Это мой конспект, в котором коротко и по сути затрону такие понятия Kafka как: 
+
+ — Тема (Topic)
+ — Подписчики (consumer)
+ — Издатель (producer) 
+ — Группа (group), раздел (partition) 
+ — Потоки..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Это мой конспект, в котором коротко и по сути затрону такие понятия Kafka как: 
+
+ — Тема (Topic)
+ — Подписчики (consumer)
+ — Издатель (producer) 
+ — Группа (group), раздел (partition) 
+ — Потоки..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/354486/f60d29dd3d42f7a04e4b49b4a02c1786/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/354486/f60d29dd3d42f7a04e4b49b4a02c1786/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/354486/f60d29dd3d42f7a04e4b49b4a02c1786/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/354486/f60d29dd3d42f7a04e4b49b4a02c1786/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/354486/f60d29dd3d42f7a04e4b49b4a02c1786/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="354486" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2018-05-01T02:37:26.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/354486/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="Java, Apache Kafka, Streams, Consumer, Producer">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/354486/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.136.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/354486/f60d29dd3d42f7a04e4b49b4a02c1786/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/arylkov/" title="arylkov" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/eb2/2b4/5e6/eb22b45e60696819f9f4bf11cf377682.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/arylkov/" class="tm-user-info__username">
+      arylkov
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2018-05-01T02:37:26.000Z" title="2018-05-01, 05:37">1  мая  2018 в 05:37</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Apache Kafka – мой конспект</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/instant_messaging/" class="tm-article-snippet__hubs-item-link"><span>Мессенджеры</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/java/" class="tm-article-snippet__hubs-item-link"><span>Java</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">Это мой конспект, в котором коротко и по сути затрону такие понятия Kafka как: <br/>
+<br/>
+ — Тема (Topic)<br/>
+ — Подписчики (consumer)<br/>
+ — Издатель (producer) <br/>
+ — Группа (group), раздел (partition) <br/>
+ — Потоки (streams) <br/>
+<br/>
+<h3>Kafka — основное </h3><br/>
+При изучении Kafka возникали вопросы, ответы на которые мне приходилось эксперементально получать на примерах, вот это и изложено в этом конспекте. Как стартовать и с чего начать я дам одну из ссылок ниже в материалах. <br/>
+<br/>
+Apache Kafka – диспетчер сообщений на Java платформе. В Kafka есть <b>тема </b>сообщения в которую <b>издатели </b>пишут сообщения и есть <b>подписчики </b>в темах, которые читают эти сообщения, все сообщения в процессе диспетчеризации пишутся на диск и не зависит от потребителей. <br/>
+<a name="habracut"></a><br/>
+<img src="https://habrastorage.org/r/w780q1/webt/g3/lj/mb/g3ljmbhk1e_6ugq_nscpos5xeuk.jpeg" alt="image" data-src="https://habrastorage.org/webt/g3/lj/mb/g3ljmbhk1e_6ugq_nscpos5xeuk.jpeg" data-blurred="true"/><br/>
+<br/>
+В состав Kafka входят набор утилит по созданию тем, разделов, готовые издатели, подписчики для примеров и др. Для работы Kafka необходим координатор «ZooKeeper», поэтому вначале стартуем ZooKeeper (zkServer.cmd) затем сервер Kafka (kafka-server-start.bat), командные файлы находятся в соответствующих папках bin, там же и утилиты. <br/>
+<br/>
+Создадим тему Kafka утилитой, ходящей в состав<br/>
+<blockquote>kafka-topics.bat --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic out-topic<br/>
+</blockquote>здесь указываем сервер zookeeper, replication-factor это количество реплик журнала сообщений, partitions – количество разделов в теме (об этом ниже) и собственно сама тема – “out-topic”.<br/>
+<br/>
+Для простого тестирования можно использовать входящие в состав готовые приложения «kafka-console-consumer» и «kafka-console-producer», но я сделаю свои. Подписчики на практике объединяют в группы, это позволит разным приложениям читать сообщения из темы параллельно.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/-g/7u/gn/-g7ugnarc1bpr1wiwv4l5_kdvo0.jpeg" alt="image" data-src="https://habrastorage.org/webt/-g/7u/gn/-g7ugnarc1bpr1wiwv4l5_kdvo0.jpeg" data-blurred="true"/><br/>
+<br/>
+Для каждого приложения будет организованна своя очередь, читая из которой оно выполняет перемещения указателя последнего прочитанного сообщения (offset), это называется фиксацией (commit) чтения. И так если издатель отправит сообщение в тему, то оно будет гарантированно прочитано получателем этой темы если он запущен или, как только он подключится. Причем если есть разные клиенты (client.id), которые читают из одной темы, но в разных группах, то сообщения они получат не зависимо друг от друга и в то время, когда будут готовы. <br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/ex/cw/6g/excw6gbtxqkqvmcfcqodzmggwp8.jpeg" alt="image" data-src="https://habrastorage.org/webt/ex/cw/6g/excw6gbtxqkqvmcfcqodzmggwp8.jpeg" data-blurred="true"/><br/>
+<br/>
+Так можно представить последователь сообщений и независимое чтение их потребителями из одной темы.<br/>
+<br/>
+Но есть ситуация, когда сообщения в тему могут начать поступать быстрее чем уходить, т.е. потребители обрабатывают их дольше. Для этого в теме можно предусмотреть разделы (partitions) и запускать потребителей в одной группе для этой темы. <br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/xs/jq/bq/xsjqbqelhvg-kkcjshyuqusxlj0.jpeg" alt="image" data-src="https://habrastorage.org/webt/xs/jq/bq/xsjqbqelhvg-kkcjshyuqusxlj0.jpeg" data-blurred="true"/><br/>
+<br/>
+Тогда произойдет распределение нагрузки и не все сообщения в теме и группе пойдут через одного потребителя. И тогда уже будет выбрана стратегия, как распределять сообщения по разделам. Есть несколько стратегий: round-robin – это по кругу, по хэш значению ключа, или явное указание номера раздела куда писать. Подписчики в этом случае распределяются равномерно по разделам. Если, например, подписчиков будет в группе будет больше чем разделов, то кто-то не получит сообщения. Таким образом разделы делаются для улучшения масштабируемости. <br/>
+<br/>
+Например после создания темы с одним разделом я изменил на два раздела.<br/>
+<blockquote>kafka-topics.bat --zookeeper localhost:2181 --alter --topic out-topic --partitions 2</blockquote> Запустил своего издателя и двух подписчиков в одной группе на одну тему (примеры java программ будут ниже). Конфигурировать имена групп и ИД клиентов не надо, Kafka берет это на себя. <br/>
+<blockquote>my_kafka_run.cmd com.home.SimpleProducer out-topic (издатель)<br/>
+my_kafka_run.cmd com.home.SimpleConsumer out-topic testGroup01 client01 (первый подписчик)<br/>
+my_kafka_run.cmd com.home.SimpleConsumer out-topic testGroup01 client02 (второй подписчик)<br/>
+</blockquote> Начав вводить в издателе пары ключ: значение можно наблюдать кто их получает. Так, например, по стратегии распределения по хэшу ключа сообщение m:1 попало клиенту client01<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/i1/l1/nt/i1l1ntorry2kmki6i357ciockru.jpeg" alt="image" data-src="https://habrastorage.org/webt/i1/l1/nt/i1l1ntorry2kmki6i357ciockru.jpeg" data-blurred="true"/><br/>
+<br/>
+а сообщение n:1 клиенту client02<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/ml/4c/py/ml4cpybtevragz6jgcq3jryi1l0.jpeg" alt="image" data-src="https://habrastorage.org/webt/ml/4c/py/ml4cpybtevragz6jgcq3jryi1l0.jpeg" data-blurred="true"/><br/>
+<br/>
+Если начну вводить без указания пар ключ: значение (такую возможность сделал в издателе), будет выбрана стратегия по кругу. Первое сообщение «m» попало client01, а уже втрое client02.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/ng/q4/gj/ngq4gjsweo6esfmjb0rvs33qaxo.jpeg" alt="image" data-src="https://habrastorage.org/webt/ng/q4/gj/ngq4gjsweo6esfmjb0rvs33qaxo.jpeg" data-blurred="true"/><br/>
+<br/>
+И еще вариант с указанием раздела, например в таком формате key:value:partition<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/z2/_z/5h/z2_z5hja_dypmam2i-06kmp26ga.jpeg" alt="image" data-src="https://habrastorage.org/webt/z2/_z/5h/z2_z5hja_dypmam2i-06kmp26ga.jpeg" data-blurred="true"/><br/>
+<br/>
+Ранее в стратегии по хэш, m:1 уходил другому клиенту (client01), теперь при явном указании раздела (№1, нумеруются с 0) — к client02.<br/>
+<br/>
+Если запустить подписчика с другим именем группы testGroup02 и для той же темы, то сообщения будут уходить параллельно и независимо подписчикам, т.е. если первый прочитал, а второй не был активен, то он прочитает, как только станет активен. <br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/0o/qw/3d/0oqw3dey87kzs-ymc_yelwjq4we.jpeg" alt="image" data-src="https://habrastorage.org/webt/0o/qw/3d/0oqw3dey87kzs-ymc_yelwjq4we.jpeg" data-blurred="true"/><br/>
+<br/>
+Можно посмотреть описания групп, темы соответственно: <br/>
+<blockquote>kafka-consumer-groups.bat --bootstrap-server localhost:9092 --describe --group testGroup01</blockquote><br/>
+<img src="https://habrastorage.org/r/w780q1/webt/z1/st/n0/z1stn0zo2vehplme6wx4x8ltyji.jpeg" alt="image" data-src="https://habrastorage.org/webt/z1/st/n0/z1stn0zo2vehplme6wx4x8ltyji.jpeg" data-blurred="true"/><br/>
+<blockquote>kafka-topics.bat --describe --zookeeper localhost:2181 --topic out-topic</blockquote><br/>
+<img src="https://habrastorage.org/r/w780q1/webt/2z/-6/pe/2z-6pe9kfn6-uxqaicotgw1yhku.jpeg" alt="image" data-src="https://habrastorage.org/webt/2z/-6/pe/2z-6pe9kfn6-uxqaicotgw1yhku.jpeg" data-blurred="true"/><br/>
+<br/>
+<div class="spoiler"><b class="spoiler_title">Код SimpleProducer</b><div class="spoiler_text"><pre><code class="java">public class SimpleProducer {
+
+    public static void main(String[] args) throws Exception {
+
+        // Check arguments length value
+        if (args.length == 0) {
+            System.out.println("Enter topic name");
+            return;
+        }
+
+        //Assign topicName to string variable
+        String topicName = args[0].toString();
+        System.out.println("Producer topic=" + topicName);
+
+        // create instance for properties to access producer configs
+        Properties props = new Properties();
+        //Assign localhost id
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        //Set acknowledgements for producer requests.
+        props.put("acks", "all");
+        //If the request fails, the producer can automatically retry,
+        props.put("retries", 0);
+        //Specify buffer size in config
+        props.put("batch.size", 16384);
+        //Reduce the no of requests less than 0
+        props.put("linger.ms", 1);
+        //The buffer.memory controls the total amount of memory available to the producer for buffering.
+        props.put("buffer.memory", 33554432);
+        props.put("key.serializer",
+                "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer",
+                "org.apache.kafka.common.serialization.StringSerializer");
+        Producer&lt;String, String> producer = new KafkaProducer(props);
+
+        BufferedReader br = null;
+        br = new BufferedReader(new InputStreamReader(System.in));
+
+        System.out.println("Enter key:value, q - Exit");
+        while (true) {
+            String input = br.readLine();
+            String[] split = input.split(":");
+
+            if ("q".equals(input)) {
+                producer.close();
+                System.out.println("Exit!");
+                System.exit(0);
+            } else {
+                switch (split.length) {
+                    case 1:
+                        // strategy by round
+                        producer.send(new ProducerRecord(topicName, split[0]));
+                        break;
+                    case 2:
+                        // strategy by hash
+                        producer.send(new ProducerRecord(topicName, split[0], split[1]));
+                        break;
+                    case 3:
+                        // strategy by partition
+                        producer.send(new ProducerRecord(topicName, Integer.valueOf(split[2]), split[0], split[1]));
+                        break;
+                    default:
+                        System.out.println("Enter key:value, q - Exit");
+                }
+            }
+        }
+    }
+}
+</code></pre><br/>
+</div></div><br/>
+<div class="spoiler"><b class="spoiler_title">Код SimpleConsumer</b><div class="spoiler_text"><pre><code class="java">public class SimpleConsumer {
+    public static void main(String[] args) throws Exception {
+        if (args.length != 3) {
+            System.out.println("Enter topic name, groupId, clientId");
+            return;
+        }
+        //Kafka consumer configuration settings
+        final String topicName = args[0].toString();
+        final String groupId = args[1].toString();
+        final String clientId = args[2].toString();
+
+        Properties props = new Properties();
+
+        props.put("bootstrap.servers", "localhost:9092");
+        props.put("group.id", groupId);
+        props.put("client.id", clientId);
+        props.put("enable.auto.commit", "true");
+        props.put("auto.commit.interval.ms", "1000");
+        props.put("session.timeout.ms", "30000");
+        //props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+        //props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+        props.put("key.deserializer",
+                "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer",
+                "org.apache.kafka.common.serialization.StringDeserializer");
+        KafkaConsumer&lt;String, String> consumer = new KafkaConsumer&lt;String, String>(props);
+
+        //Kafka Consumer subscribes list of topics here.
+        consumer.subscribe(Arrays.asList(topicName));
+
+        //print the topic name
+        System.out.println("Subscribed to topic=" + topicName + ", group=" + groupId + ", clientId=" + clientId);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+
+		// looping until ctrl-c
+		while (true) {
+			ConsumerRecords&lt;String, String> records = consumer.poll(100);
+			for (ConsumerRecord&lt;String, String> record : records)
+
+				// print the offset,key and value for the consumer records.
+				System.out.printf("offset = %d, key = %s, value = %s,  time = %s \n",
+						record.offset(), record.key(), record.value(), sdf.format(new Date()));
+		}
+
+    }
+}
+</code></pre><br/>
+</div></div><br/>
+Для запуска своих программ я сделал командный файл — my_kafka_run.cmd<br/>
+<br/>
+<pre><code class="bash">@echo off
+
+set CLASSPATH="C:\Project\myKafka\target\classes";
+
+for %%i in (C:\kafka_2.11-1.1.0\libs\*) do (
+	call :concat "%%i"        
+)
+
+set COMMAND=java -classpath %CLASSPATH% %*
+%COMMAND%
+
+:concat
+IF not defined CLASSPATH (
+  set CLASSPATH="%~1"
+) ELSE (
+  set CLASSPATH=%CLASSPATH%;"%~1"
+)
+</code></pre><br/>
+пример запуска:<br/>
+<blockquote>my_kafka_run.cmd com.home.SimpleConsumer out-topic testGroup02 client01</blockquote> <h3>Kafka Streams</h3><br/>
+Итак, потоки в Kafka это последовательность событий, которые получают из темы, над которой можно выполнять определенные операции, трансформации и затем результат отдать далее, например, в другую тему или сохранить в БД, в общем куда угодно. Операции могут быть как например фильтрации (filter), преобразования (map), так и агрегации (count, sum, avg). Для этого есть соответствующие классы KStream, KTable, где KTable можно представить как таблицу с текущими агрегированными значениями которые постоянно обновляются по мере поступления новых сообщений в тему. Как это происходит? <br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/zc/h3/gx/zch3gx2xjr7d611l2lsw7wgcu4a.jpeg" alt="image" data-src="https://habrastorage.org/webt/zc/h3/gx/zch3gx2xjr7d611l2lsw7wgcu4a.jpeg" data-blurred="true"/><br/>
+<br/>
+Например, издатель пишет в тему события (сообщения), Kafka все сообщения сохраняет в журнале сообщений, который имеет политику хранения (Retention Policy), например 7 дней. Например события изменения котировки это поток, далее хотим узнать среднее значение, тогда создадим Stream который возьмет историю из журнала и посчитает среднее, где ключом будет акция, а значением – среднее (это уже таблица с состоянием). Тут есть особенность – операции агрегирования в отличии от операций, например, фильтрации, сохраняют состояние. Поэтому вновь поступающие сообщения (события) в тему, будут подвержены вычислению, а результат будет сохраняться (state store), далее вновь поступающие будут писаться в журнал, Stream их будет обрабатывать, добавлять изменения к уже сохраненному состоянию. Операции фильтрации не требуют сохранения состояния. И тут тоже stream будет делать это не зависимо от издателя. Например, издатель пишет сообщения, а программа — stream в это время не работает, ничего не пропадет, все сообщения будут сохранены в журнале и как только программа-stream станет активной, она сделает вычисления, сохранит состояние, выполнит смещение для прочитанных сообщений (пометит что они прочитаны) и в дальнейшем она уже к ним не вернется, более того эти сообщения уйдут из журнала (kafka-logs). Тут видимо главное, чтобы журнал (kafka-logs) и его политика хранения позволило это. По умолчанию состояние Kafka Stream хранит в RocksDB. Журнал сообщений и все с ним связанное (темы, смещения, потоки, клиенты и др.) располагается по пути указанном в параметре «log.dirs=kafka-logs» файла конфигурации «config\server.properties», там же указывается политика хранения журнала «log.retention.hours=48». Пример лога<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/kh/wk/oc/khwkoc2nstwvlbke_ft_p764-xi.jpeg" alt="image" data-src="https://habrastorage.org/webt/kh/wk/oc/khwkoc2nstwvlbke_ft_p764-xi.jpeg" data-blurred="true"/><br/>
+<br/>
+А путь к базе с состояниями stream указывается в параметре приложения<br/>
+<blockquote>config.put(StreamsConfig.STATE_DIR_CONFIG, «C:/kafka_2.11-1.1.0/state»);</blockquote> Состояния хранятся по ИД приложениям независимо (<i>StreamsConfig.APPLICATION_ID_CONFIG</i>). Пример<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/ox/at/l5/oxatl5sjdouku6haanke110p4tw.jpeg" alt="image" data-src="https://habrastorage.org/webt/ox/at/l5/oxatl5sjdouku6haanke110p4tw.jpeg" data-blurred="true"/><br/>
+<br/>
+Проверим теперь как работает Stream. Подготовим приложение Stream из примера, который есть поставке (с некоторой доработкой для эксперимента), которое считает количество одинаковых слов и приложение издатель и подписчик. Писать будет в тему in-topic<br/>
+<blockquote>my_kafka_run.cmd com.home.SimpleProducer in-topic</blockquote> Приложение Stream будет читать эту тему считать кол-во одинаковых слов, не явно для нас сохранять состояние и перенаправлять в другую тему out-topic. Тут я хочу прояснить связь журнала и состояния (state store). И так ZooKeeper и сервер Kafka запущены. Запускаю Stream с App-ID = app_01<br/>
+<blockquote>my_kafka_run.cmd com.home.KafkaCountStream in-topic app_01</blockquote> издатель и подписчик соответственно<br/>
+<blockquote>my_kafka_run.cmd com.home.SimpleProducer in-topic<br/>
+my_kafka_run.cmd com.home.SimpleConsumer out-topic testGroup01 client01<br/>
+</blockquote>Вот они:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/2n/yj/q9/2nyjq9k30vvyzrsq0crlgdbszkw.jpeg" alt="image" data-src="https://habrastorage.org/webt/2n/yj/q9/2nyjq9k30vvyzrsq0crlgdbszkw.jpeg" data-blurred="true"/><br/>
+<br/>
+Начинаем вводить слова и видим их подсчет с указанием какой Stream App-ID их подсчитал<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/hq/zx/ak/hqzxak-4rkummgtmjzap67p_x8g.jpeg" alt="image" data-src="https://habrastorage.org/webt/hq/zx/ak/hqzxak-4rkummgtmjzap67p_x8g.jpeg" data-blurred="true"/><br/>
+<br/>
+Работа будет идти независимо, можно остановить Stream и продолжать писать в тему, он потом при старте посчитает. А теперь подключим второй Stream c App-ID = app_02 (это тоже приложение, но с другим ИД), он прочитает журнал (последовательность событий, которая сохраняется согласно политике Retention), подсчитает кол-во, сохранит состояние и выдаст результат. Таким образом два потока начав работать в разное время пришли к одному результату.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/o7/xg/fc/o7xgfcyyqnxbwsfza2ttctrifwk.jpeg" alt="image" data-src="https://habrastorage.org/webt/o7/xg/fc/o7xgfcyyqnxbwsfza2ttctrifwk.jpeg" data-blurred="true"/><br/>
+<br/>
+А теперь представим наш журнал устарел (Retention политика) или мы его удалили (что бывает надо делать) и подключаем третий stream с App-ID = app_03 (я для этого остановил Kafka, удалил kafka-logs и вновь стартовал) и вводим в тему новое сообщение и видим первый (app_01) поток продолжил подсчет а новый третий начал с нуля.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/ke/gc/5h/kegc5hkigqqmnjgyjxdqrb7gufg.jpeg" alt="image" data-src="https://habrastorage.org/webt/ke/gc/5h/kegc5hkigqqmnjgyjxdqrb7gufg.jpeg" data-blurred="true"/><br/>
+<br/>
+Если затем запустим поток app_02, то он догонит первый и они будут равны в значениях. Из примера стало понятно, как Kafka обрабатывает текущий журнал, добавляет к ранее сохраненному состоянию и так далее. <br/>
+<div class="spoiler"><b class="spoiler_title">Код KafkaCountStream</b><div class="spoiler_text"><pre><code class="java">public class KafkaCountStream {
+    public static void main(final String[] args) throws Exception {
+
+        // Check arguments length value
+        if (args.length != 2) {
+            System.out.println("Enter topic name, appId");
+            return;
+        }
+
+        String topicName = args[0];
+        String appId = args[1];
+        System.out.println("Count stream topic=" + topicName +", app=" + appId);
+
+        Properties config = new Properties();
+        config.put(StreamsConfig.APPLICATION_ID_CONFIG, appId);
+        config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+        config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+        config.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 2000);
+        config.put(StreamsConfig.STATE_DIR_CONFIG, "C:/kafka_2.11-1.1.0/state");
+
+        StreamsBuilder builder = new StreamsBuilder();
+        KStream&lt;String, String> textLines = builder.stream(topicName);
+        // State store
+        KTable&lt;String, Long> wordCounts = textLines
+                .flatMapValues(textLine -> Arrays.asList(textLine.toLowerCase().split("\\W+")))
+                .groupBy((key, word) -> word)
+                .count();
+
+        // out to another topic
+        KStream&lt;String, String> stringKStream = wordCounts.toStream()
+                .map((k, v) -> new KeyValue&lt;>(appId + "." + k, v.toString()));
+        stringKStream.to("out-topic", Produced.with(Serdes.String(), Serdes.String()));
+
+        KafkaStreams streams = new KafkaStreams(builder.build(), config);
+
+        // additional to complete the work
+        final CountDownLatch latch = new CountDownLatch(1);
+        // attach shutdown handler to catch control-c
+        Runtime.getRuntime().addShutdownHook(new Thread("streams-shutdown-hook") {
+            @Override
+            public void run() {
+                System.out.println("Kafka Stream close");
+                streams.close();
+                latch.countDown();
+            }
+        });
+
+        try {
+            System.out.println("Kafka Stream start");
+            streams.start();
+            latch.await();
+        } catch (Throwable e) {
+            System.exit(1);
+        }
+        System.out.println("Kafka Stream exit");
+        System.exit(0);
+    }
+
+}
+</code></pre><br/>
+</div></div><br/>
+<br/>
+Тема Kafka очень обширна, я для себя сделал первое общее представление :-)<br/>
+<br/>
+Материалы:<br/>
+<br/>
+<a href="http://www.w3ii.com/ru/apache_kafka/apache_kafka_introduction.html">Как стартовать и с чего начать</a></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BJava%5D" class="tm-tags-list__link">Java</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BApache%20Kafka%5D" class="tm-tags-list__link">Apache Kafka</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BStreams%5D" class="tm-tags-list__link">Streams</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BConsumer%5D" class="tm-tags-list__link">Consumer</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BProducer%5D" class="tm-tags-list__link">Producer</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/instant_messaging/" class="tm-hubs-list__link">
+    Мессенджеры
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/java/" class="tm-hubs-list__link">
+    Java
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 16: ↑15 и ↓1</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 16: ↑15 и ↓1" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+14</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">281K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    405
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/arylkov/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/eb2/2b4/5e6/eb22b45e60696819f9f4bf11cf377682.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 30 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    22
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Александр Рыльков</span> <a href="https://habr.com/ru/users/arylkov/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @arylkov
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Разработчик</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/354486/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 10 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner4509" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner4510" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/java_developer" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Java разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        589
+    вакансий
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/354486/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/354486/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"354486":{"id":"354486","timePublished":"2018-05-01T02:37:26+00:00","isCorporative":false,"lang":"ru","titleHtml":"Apache Kafka – мой конспект","leadData":{"textHtml":"Это мой конспект, в котором коротко и по сути затрону такие понятия Kafka как: \u003Cbr\u003E\r\n\u003Cbr\u003E\r\n — Тема (Topic)\u003Cbr\u003E\r\n — Подписчики (consumer)\u003Cbr\u003E\r\n — Издатель (producer) \u003Cbr\u003E\r\n — Группа (group), раздел (partition) \u003Cbr\u003E\r\n — Потоки (streams) \u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Ch3\u003EKafka — основное \u003C\u002Fh3\u003E\u003Cbr\u003E\r\nПри изучении Kafka возникали вопросы, ответы на которые мне приходилось эксперементально получать на примерах, вот это и изложено в этом конспекте. Как стартовать и с чего начать я дам одну из ссылок ниже в материалах. \u003Cbr\u003E\r\n\u003Cbr\u003E\r\nApache Kafka – диспетчер сообщений на Java платформе. В Kafka есть \u003Cb\u003Eтема \u003C\u002Fb\u003Eсообщения в которую \u003Cb\u003Eиздатели \u003C\u002Fb\u003Eпишут сообщения и есть \u003Cb\u003Eподписчики \u003C\u002Fb\u003Eв темах, которые читают эти сообщения, все сообщения в процессе диспетчеризации пишутся на диск и не зависит от потребителей. \u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":22,"votesCount":30},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"394986","alias":"arylkov","fullname":"Александр Рыльков","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002Feb2\u002F2b4\u002F5e6\u002Feb22b45e60696819f9f4bf11cf377682.jpg","speciality":"Разработчик"},"statistics":{"commentsCount":10,"favoritesCount":405,"readingCount":280531,"score":14,"votesCount":16},"hubs":[{"relatedData":null,"id":"92","alias":"instant_messaging","type":"collective","title":"Мессенджеры","titleHtml":"Мессенджеры","isProfiled":true},{"relatedData":null,"id":"375","alias":"java","type":"collective","title":"Java","titleHtml":"Java","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EЭто мой конспект, в котором коротко и по сути затрону такие понятия Kafka как: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n — Тема (Topic)\u003Cbr\u002F\u003E\r\n — Подписчики (consumer)\u003Cbr\u002F\u003E\r\n — Издатель (producer) \u003Cbr\u002F\u003E\r\n — Группа (group), раздел (partition) \u003Cbr\u002F\u003E\r\n — Потоки (streams) \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EKafka — основное \u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nПри изучении Kafka возникали вопросы, ответы на которые мне приходилось эксперементально получать на примерах, вот это и изложено в этом конспекте. Как стартовать и с чего начать я дам одну из ссылок ниже в материалах. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nApache Kafka – диспетчер сообщений на Java платформе. В Kafka есть \u003Cb\u003Eтема \u003C\u002Fb\u003Eсообщения в которую \u003Cb\u003Eиздатели \u003C\u002Fb\u003Eпишут сообщения и есть \u003Cb\u003Eподписчики \u003C\u002Fb\u003Eв темах, которые читают эти сообщения, все сообщения в процессе диспетчеризации пишутся на диск и не зависит от потребителей. \u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fg3\u002Flj\u002Fmb\u002Fg3ljmbhk1e_6ugq_nscpos5xeuk.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fg3\u002Flj\u002Fmb\u002Fg3ljmbhk1e_6ugq_nscpos5xeuk.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ состав Kafka входят набор утилит по созданию тем, разделов, готовые издатели, подписчики для примеров и др. Для работы Kafka необходим координатор «ZooKeeper», поэтому вначале стартуем ZooKeeper (zkServer.cmd) затем сервер Kafka (kafka-server-start.bat), командные файлы находятся в соответствующих папках bin, там же и утилиты. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСоздадим тему Kafka утилитой, ходящей в состав\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003Ekafka-topics.bat --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic out-topic\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003Eздесь указываем сервер zookeeper, replication-factor это количество реплик журнала сообщений, partitions – количество разделов в теме (об этом ниже) и собственно сама тема – “out-topic”.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля простого тестирования можно использовать входящие в состав готовые приложения «kafka-console-consumer» и «kafka-console-producer», но я сделаю свои. Подписчики на практике объединяют в группы, это позволит разным приложениям читать сообщения из темы параллельно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F-g\u002F7u\u002Fgn\u002F-g7ugnarc1bpr1wiwv4l5_kdvo0.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F-g\u002F7u\u002Fgn\u002F-g7ugnarc1bpr1wiwv4l5_kdvo0.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля каждого приложения будет организованна своя очередь, читая из которой оно выполняет перемещения указателя последнего прочитанного сообщения (offset), это называется фиксацией (commit) чтения. И так если издатель отправит сообщение в тему, то оно будет гарантированно прочитано получателем этой темы если он запущен или, как только он подключится. Причем если есть разные клиенты (client.id), которые читают из одной темы, но в разных группах, то сообщения они получат не зависимо друг от друга и в то время, когда будут готовы. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fex\u002Fcw\u002F6g\u002Fexcw6gbtxqkqvmcfcqodzmggwp8.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fex\u002Fcw\u002F6g\u002Fexcw6gbtxqkqvmcfcqodzmggwp8.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак можно представить последователь сообщений и независимое чтение их потребителями из одной темы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо есть ситуация, когда сообщения в тему могут начать поступать быстрее чем уходить, т.е. потребители обрабатывают их дольше. Для этого в теме можно предусмотреть разделы (partitions) и запускать потребителей в одной группе для этой темы. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fxs\u002Fjq\u002Fbq\u002Fxsjqbqelhvg-kkcjshyuqusxlj0.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fxs\u002Fjq\u002Fbq\u002Fxsjqbqelhvg-kkcjshyuqusxlj0.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТогда произойдет распределение нагрузки и не все сообщения в теме и группе пойдут через одного потребителя. И тогда уже будет выбрана стратегия, как распределять сообщения по разделам. Есть несколько стратегий: round-robin – это по кругу, по хэш значению ключа, или явное указание номера раздела куда писать. Подписчики в этом случае распределяются равномерно по разделам. Если, например, подписчиков будет в группе будет больше чем разделов, то кто-то не получит сообщения. Таким образом разделы делаются для улучшения масштабируемости. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНапример после создания темы с одним разделом я изменил на два раздела.\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003Ekafka-topics.bat --zookeeper localhost:2181 --alter --topic out-topic --partitions 2\u003C\u002Fblockquote\u003E Запустил своего издателя и двух подписчиков в одной группе на одну тему (примеры java программ будут ниже). Конфигурировать имена групп и ИД клиентов не надо, Kafka берет это на себя. \u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003Emy_kafka_run.cmd com.home.SimpleProducer out-topic (издатель)\u003Cbr\u002F\u003E\r\nmy_kafka_run.cmd com.home.SimpleConsumer out-topic testGroup01 client01 (первый подписчик)\u003Cbr\u002F\u003E\r\nmy_kafka_run.cmd com.home.SimpleConsumer out-topic testGroup01 client02 (второй подписчик)\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E Начав вводить в издателе пары ключ: значение можно наблюдать кто их получает. Так, например, по стратегии распределения по хэшу ключа сообщение m:1 попало клиенту client01\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fi1\u002Fl1\u002Fnt\u002Fi1l1ntorry2kmki6i357ciockru.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fi1\u002Fl1\u002Fnt\u002Fi1l1ntorry2kmki6i357ciockru.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nа сообщение n:1 клиенту client02\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fml\u002F4c\u002Fpy\u002Fml4cpybtevragz6jgcq3jryi1l0.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fml\u002F4c\u002Fpy\u002Fml4cpybtevragz6jgcq3jryi1l0.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли начну вводить без указания пар ключ: значение (такую возможность сделал в издателе), будет выбрана стратегия по кругу. Первое сообщение «m» попало client01, а уже втрое client02.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fng\u002Fq4\u002Fgj\u002Fngq4gjsweo6esfmjb0rvs33qaxo.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fng\u002Fq4\u002Fgj\u002Fngq4gjsweo6esfmjb0rvs33qaxo.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИ еще вариант с указанием раздела, например в таком формате key:value:partition\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fz2\u002F_z\u002F5h\u002Fz2_z5hja_dypmam2i-06kmp26ga.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fz2\u002F_z\u002F5h\u002Fz2_z5hja_dypmam2i-06kmp26ga.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРанее в стратегии по хэш, m:1 уходил другому клиенту (client01), теперь при явном указании раздела (№1, нумеруются с 0) — к client02.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли запустить подписчика с другим именем группы testGroup02 и для той же темы, то сообщения будут уходить параллельно и независимо подписчикам, т.е. если первый прочитал, а второй не был активен, то он прочитает, как только станет активен. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F0o\u002Fqw\u002F3d\u002F0oqw3dey87kzs-ymc_yelwjq4we.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F0o\u002Fqw\u002F3d\u002F0oqw3dey87kzs-ymc_yelwjq4we.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМожно посмотреть описания групп, темы соответственно: \u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003Ekafka-consumer-groups.bat --bootstrap-server localhost:9092 --describe --group testGroup01\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fz1\u002Fst\u002Fn0\u002Fz1stn0zo2vehplme6wx4x8ltyji.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fz1\u002Fst\u002Fn0\u002Fz1stn0zo2vehplme6wx4x8ltyji.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003Ekafka-topics.bat --describe --zookeeper localhost:2181 --topic out-topic\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F2z\u002F-6\u002Fpe\u002F2z-6pe9kfn6-uxqaicotgw1yhku.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F2z\u002F-6\u002Fpe\u002F2z-6pe9kfn6-uxqaicotgw1yhku.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EКод SimpleProducer\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"java\"\u003Epublic class SimpleProducer {\n\n    public static void main(String[] args) throws Exception {\n\n        \u002F\u002F Check arguments length value\n        if (args.length == 0) {\n            System.out.println(\"Enter topic name\");\n            return;\n        }\n\n        \u002F\u002FAssign topicName to string variable\n        String topicName = args[0].toString();\n        System.out.println(\"Producer topic=\" + topicName);\n\n        \u002F\u002F create instance for properties to access producer configs\n        Properties props = new Properties();\n        \u002F\u002FAssign localhost id\n        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, \"localhost:9092\");\n        \u002F\u002FSet acknowledgements for producer requests.\n        props.put(\"acks\", \"all\");\n        \u002F\u002FIf the request fails, the producer can automatically retry,\n        props.put(\"retries\", 0);\n        \u002F\u002FSpecify buffer size in config\n        props.put(\"batch.size\", 16384);\n        \u002F\u002FReduce the no of requests less than 0\n        props.put(\"linger.ms\", 1);\n        \u002F\u002FThe buffer.memory controls the total amount of memory available to the producer for buffering.\n        props.put(\"buffer.memory\", 33554432);\n        props.put(\"key.serializer\",\n                \"org.apache.kafka.common.serialization.StringSerializer\");\n        props.put(\"value.serializer\",\n                \"org.apache.kafka.common.serialization.StringSerializer\");\n        Producer&lt;String, String\u003E producer = new KafkaProducer(props);\n\n        BufferedReader br = null;\n        br = new BufferedReader(new InputStreamReader(System.in));\n\n        System.out.println(\"Enter key:value, q - Exit\");\n        while (true) {\n            String input = br.readLine();\n            String[] split = input.split(\":\");\n\n            if (\"q\".equals(input)) {\n                producer.close();\n                System.out.println(\"Exit!\");\n                System.exit(0);\n            } else {\n                switch (split.length) {\n                    case 1:\n                        \u002F\u002F strategy by round\n                        producer.send(new ProducerRecord(topicName, split[0]));\n                        break;\n                    case 2:\n                        \u002F\u002F strategy by hash\n                        producer.send(new ProducerRecord(topicName, split[0], split[1]));\n                        break;\n                    case 3:\n                        \u002F\u002F strategy by partition\n                        producer.send(new ProducerRecord(topicName, Integer.valueOf(split[2]), split[0], split[1]));\n                        break;\n                    default:\n                        System.out.println(\"Enter key:value, q - Exit\");\n                }\n            }\n        }\n    }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EКод SimpleConsumer\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"java\"\u003Epublic class SimpleConsumer {\n    public static void main(String[] args) throws Exception {\n        if (args.length != 3) {\n            System.out.println(\"Enter topic name, groupId, clientId\");\n            return;\n        }\n        \u002F\u002FKafka consumer configuration settings\n        final String topicName = args[0].toString();\n        final String groupId = args[1].toString();\n        final String clientId = args[2].toString();\n\n        Properties props = new Properties();\n\n        props.put(\"bootstrap.servers\", \"localhost:9092\");\n        props.put(\"group.id\", groupId);\n        props.put(\"client.id\", clientId);\n        props.put(\"enable.auto.commit\", \"true\");\n        props.put(\"auto.commit.interval.ms\", \"1000\");\n        props.put(\"session.timeout.ms\", \"30000\");\n        \u002F\u002Fprops.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());\n        \u002F\u002Fprops.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());\n        props.put(\"key.deserializer\",\n                \"org.apache.kafka.common.serialization.StringDeserializer\");\n        props.put(\"value.deserializer\",\n                \"org.apache.kafka.common.serialization.StringDeserializer\");\n        KafkaConsumer&lt;String, String\u003E consumer = new KafkaConsumer&lt;String, String\u003E(props);\n\n        \u002F\u002FKafka Consumer subscribes list of topics here.\n        consumer.subscribe(Arrays.asList(topicName));\n\n        \u002F\u002Fprint the topic name\n        System.out.println(\"Subscribed to topic=\" + topicName + \", group=\" + groupId + \", clientId=\" + clientId);\n\n        SimpleDateFormat sdf = new SimpleDateFormat(\"HH:mm:ss\");\n\n\t\t\u002F\u002F looping until ctrl-c\n\t\twhile (true) {\n\t\t\tConsumerRecords&lt;String, String\u003E records = consumer.poll(100);\n\t\t\tfor (ConsumerRecord&lt;String, String\u003E record : records)\n\n\t\t\t\t\u002F\u002F print the offset,key and value for the consumer records.\n\t\t\t\tSystem.out.printf(\"offset = %d, key = %s, value = %s,  time = %s \\n\",\n\t\t\t\t\t\trecord.offset(), record.key(), record.value(), sdf.format(new Date()));\n\t\t}\n\n    }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nДля запуска своих программ я сделал командный файл — my_kafka_run.cmd\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E@echo off\n\nset CLASSPATH=\"C:\\Project\\myKafka\\target\\classes\";\n\nfor %%i in (C:\\kafka_2.11-1.1.0\\libs\\*) do (\n\tcall :concat \"%%i\"        \n)\n\nset COMMAND=java -classpath %CLASSPATH% %*\n%COMMAND%\n\n:concat\nIF not defined CLASSPATH (\n  set CLASSPATH=\"%~1\"\n) ELSE (\n  set CLASSPATH=%CLASSPATH%;\"%~1\"\n)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nпример запуска:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003Emy_kafka_run.cmd com.home.SimpleConsumer out-topic testGroup02 client01\u003C\u002Fblockquote\u003E \u003Ch3\u003EKafka Streams\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nИтак, потоки в Kafka это последовательность событий, которые получают из темы, над которой можно выполнять определенные операции, трансформации и затем результат отдать далее, например, в другую тему или сохранить в БД, в общем куда угодно. Операции могут быть как например фильтрации (filter), преобразования (map), так и агрегации (count, sum, avg). Для этого есть соответствующие классы KStream, KTable, где KTable можно представить как таблицу с текущими агрегированными значениями которые постоянно обновляются по мере поступления новых сообщений в тему. Как это происходит? \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fzc\u002Fh3\u002Fgx\u002Fzch3gx2xjr7d611l2lsw7wgcu4a.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fzc\u002Fh3\u002Fgx\u002Fzch3gx2xjr7d611l2lsw7wgcu4a.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНапример, издатель пишет в тему события (сообщения), Kafka все сообщения сохраняет в журнале сообщений, который имеет политику хранения (Retention Policy), например 7 дней. Например события изменения котировки это поток, далее хотим узнать среднее значение, тогда создадим Stream который возьмет историю из журнала и посчитает среднее, где ключом будет акция, а значением – среднее (это уже таблица с состоянием). Тут есть особенность – операции агрегирования в отличии от операций, например, фильтрации, сохраняют состояние. Поэтому вновь поступающие сообщения (события) в тему, будут подвержены вычислению, а результат будет сохраняться (state store), далее вновь поступающие будут писаться в журнал, Stream их будет обрабатывать, добавлять изменения к уже сохраненному состоянию. Операции фильтрации не требуют сохранения состояния. И тут тоже stream будет делать это не зависимо от издателя. Например, издатель пишет сообщения, а программа — stream в это время не работает, ничего не пропадет, все сообщения будут сохранены в журнале и как только программа-stream станет активной, она сделает вычисления, сохранит состояние, выполнит смещение для прочитанных сообщений (пометит что они прочитаны) и в дальнейшем она уже к ним не вернется, более того эти сообщения уйдут из журнала (kafka-logs). Тут видимо главное, чтобы журнал (kafka-logs) и его политика хранения позволило это. По умолчанию состояние Kafka Stream хранит в RocksDB. Журнал сообщений и все с ним связанное (темы, смещения, потоки, клиенты и др.) располагается по пути указанном в параметре «log.dirs=kafka-logs» файла конфигурации «config\\server.properties», там же указывается политика хранения журнала «log.retention.hours=48». Пример лога\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fkh\u002Fwk\u002Foc\u002Fkhwkoc2nstwvlbke_ft_p764-xi.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fkh\u002Fwk\u002Foc\u002Fkhwkoc2nstwvlbke_ft_p764-xi.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nА путь к базе с состояниями stream указывается в параметре приложения\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003Econfig.put(StreamsConfig.STATE_DIR_CONFIG, «C:\u002Fkafka_2.11-1.1.0\u002Fstate»);\u003C\u002Fblockquote\u003E Состояния хранятся по ИД приложениям независимо (\u003Ci\u003EStreamsConfig.APPLICATION_ID_CONFIG\u003C\u002Fi\u003E). Пример\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fox\u002Fat\u002Fl5\u002Foxatl5sjdouku6haanke110p4tw.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fox\u002Fat\u002Fl5\u002Foxatl5sjdouku6haanke110p4tw.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПроверим теперь как работает Stream. Подготовим приложение Stream из примера, который есть поставке (с некоторой доработкой для эксперимента), которое считает количество одинаковых слов и приложение издатель и подписчик. Писать будет в тему in-topic\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003Emy_kafka_run.cmd com.home.SimpleProducer in-topic\u003C\u002Fblockquote\u003E Приложение Stream будет читать эту тему считать кол-во одинаковых слов, не явно для нас сохранять состояние и перенаправлять в другую тему out-topic. Тут я хочу прояснить связь журнала и состояния (state store). И так ZooKeeper и сервер Kafka запущены. Запускаю Stream с App-ID = app_01\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003Emy_kafka_run.cmd com.home.KafkaCountStream in-topic app_01\u003C\u002Fblockquote\u003E издатель и подписчик соответственно\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003Emy_kafka_run.cmd com.home.SimpleProducer in-topic\u003Cbr\u002F\u003E\r\nmy_kafka_run.cmd com.home.SimpleConsumer out-topic testGroup01 client01\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003EВот они:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F2n\u002Fyj\u002Fq9\u002F2nyjq9k30vvyzrsq0crlgdbszkw.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F2n\u002Fyj\u002Fq9\u002F2nyjq9k30vvyzrsq0crlgdbszkw.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНачинаем вводить слова и видим их подсчет с указанием какой Stream App-ID их подсчитал\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fhq\u002Fzx\u002Fak\u002Fhqzxak-4rkummgtmjzap67p_x8g.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fhq\u002Fzx\u002Fak\u002Fhqzxak-4rkummgtmjzap67p_x8g.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРабота будет идти независимо, можно остановить Stream и продолжать писать в тему, он потом при старте посчитает. А теперь подключим второй Stream c App-ID = app_02 (это тоже приложение, но с другим ИД), он прочитает журнал (последовательность событий, которая сохраняется согласно политике Retention), подсчитает кол-во, сохранит состояние и выдаст результат. Таким образом два потока начав работать в разное время пришли к одному результату.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fo7\u002Fxg\u002Ffc\u002Fo7xgfcyyqnxbwsfza2ttctrifwk.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fo7\u002Fxg\u002Ffc\u002Fo7xgfcyyqnxbwsfza2ttctrifwk.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nА теперь представим наш журнал устарел (Retention политика) или мы его удалили (что бывает надо делать) и подключаем третий stream с App-ID = app_03 (я для этого остановил Kafka, удалил kafka-logs и вновь стартовал) и вводим в тему новое сообщение и видим первый (app_01) поток продолжил подсчет а новый третий начал с нуля.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fke\u002Fgc\u002F5h\u002Fkegc5hkigqqmnjgyjxdqrb7gufg.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fke\u002Fgc\u002F5h\u002Fkegc5hkigqqmnjgyjxdqrb7gufg.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли затем запустим поток app_02, то он догонит первый и они будут равны в значениях. Из примера стало понятно, как Kafka обрабатывает текущий журнал, добавляет к ранее сохраненному состоянию и так далее. \u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EКод KafkaCountStream\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"java\"\u003Epublic class KafkaCountStream {\n    public static void main(final String[] args) throws Exception {\n\n        \u002F\u002F Check arguments length value\n        if (args.length != 2) {\n            System.out.println(\"Enter topic name, appId\");\n            return;\n        }\n\n        String topicName = args[0];\n        String appId = args[1];\n        System.out.println(\"Count stream topic=\" + topicName +\", app=\" + appId);\n\n        Properties config = new Properties();\n        config.put(StreamsConfig.APPLICATION_ID_CONFIG, appId);\n        config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, \"localhost:9092\");\n        config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());\n        config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());\n        config.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 2000);\n        config.put(StreamsConfig.STATE_DIR_CONFIG, \"C:\u002Fkafka_2.11-1.1.0\u002Fstate\");\n\n        StreamsBuilder builder = new StreamsBuilder();\n        KStream&lt;String, String\u003E textLines = builder.stream(topicName);\n        \u002F\u002F State store\n        KTable&lt;String, Long\u003E wordCounts = textLines\n                .flatMapValues(textLine -\u003E Arrays.asList(textLine.toLowerCase().split(\"\\\\W+\")))\n                .groupBy((key, word) -\u003E word)\n                .count();\n\n        \u002F\u002F out to another topic\n        KStream&lt;String, String\u003E stringKStream = wordCounts.toStream()\n                .map((k, v) -\u003E new KeyValue&lt;\u003E(appId + \".\" + k, v.toString()));\n        stringKStream.to(\"out-topic\", Produced.with(Serdes.String(), Serdes.String()));\n\n        KafkaStreams streams = new KafkaStreams(builder.build(), config);\n\n        \u002F\u002F additional to complete the work\n        final CountDownLatch latch = new CountDownLatch(1);\n        \u002F\u002F attach shutdown handler to catch control-c\n        Runtime.getRuntime().addShutdownHook(new Thread(\"streams-shutdown-hook\") {\n            @Override\n            public void run() {\n                System.out.println(\"Kafka Stream close\");\n                streams.close();\n                latch.countDown();\n            }\n        });\n\n        try {\n            System.out.println(\"Kafka Stream start\");\n            streams.start();\n            latch.await();\n        } catch (Throwable e) {\n            System.exit(1);\n        }\n        System.out.println(\"Kafka Stream exit\");\n        System.exit(0);\n    }\n\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТема Kafka очень обширна, я для себя сделал первое общее представление :-)\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМатериалы:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fwww.w3ii.com\u002Fru\u002Fapache_kafka\u002Fapache_kafka_introduction.html\"\u003EКак стартовать и с чего начать\u003C\u002Fa\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"Java"},{"titleHtml":"Apache Kafka"},{"titleHtml":"Streams"},{"titleHtml":"Consumer"},{"titleHtml":"Producer"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F354486\u002Ff60d29dd3d42f7a04e4b49b4a02c1786\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F354486\u002Ff60d29dd3d42f7a04e4b49b4a02c1786\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F354486\\\u002F\"},\"headline\":\"Apache Kafka – мой конспект\",\"datePublished\":\"2018-05-01T05:37:26+03:00\",\"dateModified\":\"2018-05-05T06:59:09+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Александр Рыльков\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Это мой конспект, в котором коротко и по сути затрону такие понятия Kafka как:    &mdash; Тема (Topic)  &mdash; Подписчики (consumer)  &mdash; Издатель (producer)   &mdash; Группа (grou...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F354486\\\u002F#post-content-body\",\"about\":[\"h_instant_messaging\",\"h_java\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F354486\\\u002Ff60d29dd3d42f7a04e4b49b4a02c1786\\\u002F\"]}","metaDescription":"Это мой конспект, в котором коротко и по сути затрону такие понятия Kafka как: \r\n\r\n — Тема (Topic)\r\n — Подписчики (consumer)\r\n — Издатель (producer) \r\n — Группа (group), раздел (partition) \r\n — Потоки...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"Java разработчик","vacanciesCount":589,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fjava_developer","itemHubs":["java","javame_dev","gradle"]}],"hubs":"instant_messaging,java"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

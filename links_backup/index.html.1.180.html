@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Введение в Javascript Source Maps / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/148098\/"},"headline":"Введение в Javascript Source Maps","datePublished":"2012-07-20T12:15:45+04:00","dateModified":"2012-07-20T12:15:45+04:00","author":{"@type":"Person","name":"bullgare"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Вы когда-нибудь думали, как было бы здорово, если бы слитый в один файл и минифицированный яваскрипт код в production-окружении можено было удобно читать и даже...","url":"https:\/\/habr.com\/ru\/post\/148098\/#post-content-body","about":["h_javascript","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/148098\/5f0bbb1bc96d53cea37e653b101d64b0\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Введение в Javascript Source Maps" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Введение в Javascript Source Maps" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Введение в Javascript Source Maps" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Вы когда-нибудь думали, как было бы здорово, если бы слитый в один файл и минифицированный яваскрипт код в production-окружении можено было удобно читать и даже отлаживать без ущерба..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Вы когда-нибудь думали, как было бы здорово, если бы слитый в один файл и минифицированный яваскрипт код в production-окружении можено было удобно читать и даже отлаживать без ущерба..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Вы когда-нибудь думали, как было бы здорово, если бы слитый в один файл и минифицированный яваскрипт код в production-окружении можено было удобно читать и даже отлаживать без ущерба..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Вы когда-нибудь думали, как было бы здорово, если бы слитый в один файл и минифицированный яваскрипт код в production-окружении можено было удобно читать и даже отлаживать без ущерба..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Вы когда-нибудь думали, как было бы здорово, если бы слитый в один файл и минифицированный яваскрипт код в production-окружении можено было удобно читать и даже отлаживать без ущерба..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/148098/5f0bbb1bc96d53cea37e653b101d64b0/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/148098/5f0bbb1bc96d53cea37e653b101d64b0/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/148098/5f0bbb1bc96d53cea37e653b101d64b0/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/148098/5f0bbb1bc96d53cea37e653b101d64b0/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/148098/5f0bbb1bc96d53cea37e653b101d64b0/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="148098" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2012-07-20T08:15:45.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/148098/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="javascript, sourceMappingURL, SourceMap, html5, minification, closure compiler">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/148098/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.180.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/148098/5f0bbb1bc96d53cea37e653b101d64b0/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/bullgare/" title="bullgare" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_lilac"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/bullgare/" class="tm-user-info__username">
+      bullgare
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2012-07-20T08:15:45.000Z" title="2012-07-20, 12:15">20  июля  2012 в 12:15</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Введение в Javascript Source Maps</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/javascript/" class="tm-article-snippet__hubs-item-link"><span>JavaScript</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-translation"><span>
+        Перевод
+      </span></div></div> <!----> <!----></div></div> <div class="tm-article-presenter__origin"><a href="http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/" target="_blank" class="tm-article-presenter__origin-link">
+                Автор оригинала:
+                <span>
+                  Ryan Seddon
+                </span></a></div> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">Вы когда-нибудь думали, как было бы здорово, если бы слитый в один файл и минифицированный яваскрипт код в production-окружении можено было удобно читать и даже отлаживать без ущерба производительности? Теперь это возможно, если использовать штуку под названием <a href="https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit?hl=en_US&amp;pli=1&amp;pli=1">source maps</a>.<br/>
+<br/>
+Если коротко, то это способ связать минифицированный/объединённый файл с файлами, из которых он получился. Во время сборки для боевого окружения помимо минификации и объединения файлов также генерируется файл-маппер, который содержит информацию об исходных файлах. Когда производится обращение к конкретному месту в минифицированном файле, то производится поиск в маппере, по которому вычисляется строка и символ в исходном файле. Developer Tools (WebKit nightly builds или Google Chrome Canary) умеет парсить этот файл автоматически и прозрачно подменять файлы, как будто ведётся работа с исходными файлами. На момент написания (<i>оригинальной статьи — прим. перев.</i>) Firefox заблокировал развитие поддержки Source Map. Подробнее — на <a href="https://wiki.mozilla.org/DevTools/Features/SourceMap">MozillaWiki Source Map</a>.<br/>
+<a name="habracut"></a><br/>
+<a href="http://www.thecssninja.com/demo/source_mapping/">Пример — правильное определение места в исходном коде</a><br/>
+<br/>
+В этом примере можно ткнуть в любом месте textarea правой кнопкой и выбрать пункт «Get original location». При этом будет произведено обращение к файлу-мапперу с передачей строки и номера символа в минифицированном коде, и будет показан соответствующий кусок кода из исходного файла. В консоль будут выведены номер строки и номер символа в исходном файле и другая интересная информация.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/04e/10e/02f/04e10e02fd4a900ec4dc8e1da57465de.png" alt="image" data-src="https://habrastorage.org/getpro/habr/post_images/04e/10e/02f/04e10e02fd4a900ec4dc8e1da57465de.png"/><br/>
+<br/>
+<h4>Реальное использование</h4><br/>
+Прежде чем смотреть следующий пример, нужно активировать просмотр source maps в Chrome Canary или WebKit nightly, для этого в свойствах активировать пункт «Enable source maps» (см. скриншот)<br/>
+<img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/8d3/c75/7ec/8d3c757ec23eb877080d4650a61e8f9b.png" alt="image" data-src="https://habrastorage.org/getpro/habr/post_images/8d3/c75/7ec/8d3c757ec23eb877080d4650a61e8f9b.png"/><br/>
+<br/>
+Продолжим. Предыдущий пример был интересным, но как это можно использовать? Зайдите на <a href="http://dev.fontdragr.com/">dev.fontdragr.com</a> настроенным браузером Google Chrome и вы увидите, что яваскрипты на странице не скомпилированы и можно смотреть отдельные js-файлы. Это всё благодаря использованию маппера, а на самом деле код на странице скомпилирован. Все ошибки, выводы в лог и точки останова будут маппиться на исходный код, и отлаживать код будет очень удобно. В итоге можно работать с production-сайтом как с тестовым.<br/>
+<br/>
+<a href="http://dev.fontdragr.com">Пример — посмотрите в консоль на fontdragr.com</a><br/>
+<br/>
+<h4>Зачем вообще нужны Source Maps?</h4><br/>
+Сейчас маппинг работает только между исходными файлами и сжатой/объединённой версией, но ведутся разговоры о том, чтобы сделать маппинг для языков, компилируемых в JavaScript (например, CoffeeScript), и даже о поддержке CSS-препроцессоров, таких как SASS и LESS. <br/>
+В будущем мы могли бы легко использовать почти любой язык, как если бы он поддерживался браузером нативно:<br/>
+<ul>
+<li>CoffeeScript</li>
+<li>ECMAScript 6 и выше</li>
+<li>SASS/LESS и т.п.</li>
+<li>Практически любой язык, который компилируется в JavaScript</li>
+</ul><br/>
+Посмотрите скринкаст, в котором CoffeeScript отлаживается в экспериментальной сборке консоли Firefox:<br/>
+<div class="tm-iframe_temp" data-src="https://www.youtube.com/embed/2aQw1dSIYko?feature=oembed" data-style="" id="" width="560"></div><br/>
+<br/>
+Google Web Toolkit (GWT) недавно добавил поддержку <a href="http://code.google.com/p/google-web-toolkit/wiki/SourceMaps">Source Maps</a> и Ray Cromwell из GWT сделал отличный скринкаст, показывающий работу Source Map в действии.<br/>
+<div class="tm-iframe_temp" data-src="https://www.youtube.com/embed/-xJl22Kvgjg?feature=oembed" data-style="" id="" width="560"></div><br/>
+<br/>
+Другой пример использует библиотеку Google <a href="http://code.google.com/p/traceur-compiler/">Traceur</a>, которая позволяет писать на ES6 (ECMAScript 6) и компилировать в ES3-совместимый код. Компилятор Traceur также генерирует source map. Посмотрите на <a href="http://www.thecssninja.com/demo/source_mapping/ES6/">пример</a> использования особенностей ES6 (классов и traits), как если бы они поддерживались браузером нативно. Textarea в примере также позволяет писать ES6-код, который будет компилироваться на лету в ES3 и также будет создаваться файл-маппер.<br/>
+<a href="http://www.thecssninja.com/demo/source_mapping/ES6/"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/8fb/9d6/ef1/8fb9d6ef1f4a5e841fedc51923270775.png" alt="image" data-src="https://habrastorage.org/getpro/habr/post_images/8fb/9d6/ef1/8fb9d6ef1f4a5e841fedc51923270775.png"/></a><br/>
+<a href="http://www.thecssninja.com/demo/source_mapping/ES6/">Пример — можно написать код на ES6 и сразу посмотреть в отладчике</a><br/>
+<br/>
+<h4>Как это работает?</h4><br/>
+Единственный пока компилятор/минификатор с поддержкой Source Map — Closure compiler (как при компиляции сгенерировать маппер — написано ниже). При минификации JavaScript будет создан и файл-маппер. Пока Closure compiler не добавляет в конец файла специальный комментарий для Google Chrome Canary dev tools о том, что доступен файл-маппер:<br/>
+<pre><code class="javascript">//@ sourceMappingURL=/path/to/file.js.map
+</code></pre><br/>
+Такой комментарий позволяет браузеру искать нужное место в исходном файле, используя файл-маппер. Если идея использовать странные комментарии вам не нравится, то можно добавить к скомпилированному файлу специальный заголовок:<br/>
+<pre><code class="html">X-SourceMap: /path/to/file.js.map
+</code></pre><br/>
+Как и комментарий, это скажет клиенту, где искать маппер для этого файла. Использование заголовка также позволяет работать с языками, которые не поддерживают однострочные комментарии.<br/>
+<img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/9fb/228/cd0/9fb228cd0d50d0ee16514e3aff6864a8.png" alt="image" data-src="https://habrastorage.org/getpro/habr/post_images/9fb/228/cd0/9fb228cd0d50d0ee16514e3aff6864a8.png"/><br/>
+Файл-маппер будет скачан только если включено свойство и открыта консоль. Ну и конечно нужно будет залить исходные файлы, чтобы они были доступны по указанным в маппере путям.<br/>
+<br/>
+<h4>Как сгенерировать файл-маппер?</h4><br/>
+Как уже говорилось выше, нужен будет <a href="https://developers.google.com/closure/compiler/">Closure compiler</a> для минификаци, склейки и генерации файла-маппера для нужных JavaScript-файлов. Для этого нужно выполнить команду:<br/>
+<pre><code class="bash">java -jar compiler.jar \ 
+     --js script.js \
+     --create_source_map ./script-min.js.map \
+     --source_map_format=V3 \
+     --js_output_file script-min.js
+</code></pre><br/>
+Нужные флаги — это <code>--create_source_map</code> и <code>--source_map_format</code>. Последний нужен, т.к. по умолчанию маппер создаётся в формате V2, а нам нужен V3.<br/>
+<br/>
+<h4>Внутреннее устройство Source Map</h4><br/>
+Чтобы лучше понять Source Map, возьмём для примера небольшой файл-маппер и подробно разберём, как устроена «адресация». Ниже приведён немного модифицированный пример из <a href="https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit?hl=en_US&amp;pli=1&amp;pli=1">V3 spec</a>:<br/>
+<pre><code class="javascript">{
+    version : 3,
+    file: "out.js",
+    sourceRoot : "",
+    sources: ["foo.js", "bar.js"],
+    names: ["src", "maps", "are", "fun"],
+    mappings: "AAgBC,SAAQ,CAAEA"
+}
+</code></pre><br/>
+<br/>
+Можно заметить, что это обычный литерал объекта, содержащий всю нужную информацию:<br/>
+<ul>
+<li>Версию маппера</li>
+<li>Название минифицированного/объединённого файла для production</li>
+<li><code>sourceRoot</code> позволяет дописывать префикс в путь к исходным файлам</li>
+<li><code>sources</code> содержит названия исходных файлов</li>
+<li><code>names</code> содержит все настоящие названия переменных/функций из полученного файла</li>
+<li>а <code>mappings</code> — это соответствующие минифицированные названия</li>
+</ul><br/>
+<br/>
+<h4>BASE64 VLQ или как сделать Source Map маленьким</h4><br/>
+Изначально в спецификации был описан очень подробный вывод всех зависимостей, что делало файл-маппер в 10 раз больше размером, чем сгенерированный файл. Вторая версия уменьшила размер файла вполовину, а третья версия — уменьшила ещё раз вполовину. Теперь для 133kB файла генерируется ~300kB файл-маппер. Как же удалось добиться такого уменьшения и при этом уметь отслеживать сложные зависимости?<br/>
+Используется <a href="http://en.wikipedia.org/wiki/Variable-length_quantity">VLQ</a> (Variable Length Quantity) и Base64-кодирование. Свойство <code>mappings</code> — это одна очень большая строка. Внутри этой строки точки с запятой (;) отделяют номера строк в сгенерированном файле. Внутри получившейся строки используются запятые для отделения сегментов кода. Каждый из сегментов представляет собой 1, 4 или 5 VLQ-полей. Некоторые могут быть длиннее за счёт бита продолжения. Каждый сегмент строится на основе предыдущего, что помогает уменьшить размер файла.<br/>
+<img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/d42/13a/568/d4213a5680213f9540b0e4f63eac1761.png" alt="image" data-src="https://habrastorage.org/getpro/habr/post_images/d42/13a/568/d4213a5680213f9540b0e4f63eac1761.png"/><br/>
+Как говорилось раньше, каждый сегмент может быть 1, 4 или пятью VLQ. На диаграмме показаны 4 VLQ с одним битом продолжения. Разберём её подробнее и покажем, как маппер вычисляет положение в исходном файле. Сегмент состоит из пяти вещей:<br/>
+<ul>
+<li>Номер символа в сгенерированном файле</li>
+<li>Исходный файл</li>
+<li>Номер строки в исходном файле</li>
+<li>Номер символа в исходном файле</li>
+<li>Исходное название (если есть)</li>
+</ul><br/>
+(<i>прим. перев.: не осилил до конца перевести эту часть статьи, полностью можно прочесть в оригинале; если есть желающие помочь — пишите, буду благодарен</i>)<br/>
+<br/>
+<h4>Потенциальные проблемы с XSSI</h4><br/>
+В спецификации говорится о возможных проблемах с внедрением XSS при использовании Source Map. Избавиться от неё можно, написав в начале своего map-файла "<code>)]}</code>", чтобы сделать это js-файл невалидным и вызвать ошибку. WebKit dev tools уже умеет её забарывать:<br/>
+<pre><code class="javascript">if (response.slice(0, 3) === ")]}") {
+    response = response.substring(response.indexOf('\n'));
+}
+</code></pre><br/>
+Как видно, первые три символа обрезаются и производится проверка их на соответствие указанному в спецификации невалидному коду и в этом случае вырезается всё до следующего символа перевода строки.<br/>
+<br/>
+<h4><code>@sourceURL</code> и <code>displayName</code> в действии: <code>eval</code> и анонимные функции</h4><br/>
+Эти два соглашения хотя пока и не входят в спецификацию Source Map, но позволяют серьёзно упростить работу с <code>eval</code> и анонимными функциями.<br/>
+Первый хелпер очень похож на свойство <code>//@ sourceMappingURL</code> и вообще-то в спецификации (V3) упоминается. Включив этот специальный комментарий в код, который потом будет выполнен через <code>eval</code>, можно назвать <code>eval</code>-ы, что даст им более логичные имена при работе в консоли. Ниже приведён простой пример с использованием компилятора CoffeeScript:<br/>
+<br/>
+<a href="http://www.thecssninja.com/demo/source_mapping/compile.html">Пример — пропущенный через eval код со сгенерированным именем</a><br/>
+<img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/5f4/0be/d81/5f40bed817e4b72ce75073280419be70.png" alt="image" data-src="https://habrastorage.org/getpro/habr/post_images/5f4/0be/d81/5f40bed817e4b72ce75073280419be70.png"/><br/>
+<br/>
+Другой хелпер позволяет давать имена анонимным функциям при помощи свойства <code>displayName</code>, указанного в контексте этой функции. Попрофилируйте <a href="http://www.thecssninja.com/demo/source_mapping/displayName.html">этот пример</a>, чтобы увидеть <code>displayName</code> в действии.<br/>
+<br/>
+<a href="http://www.thecssninja.com/demo/source_mapping/displayName.html">Пример — названия для анонимных функций через <code>displayName</code> (только WebKit NIghtly)</a><br/>
+<img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/5ad/cdc/5e0/5adcdc5e0ffc23bb5bbdd03e0716c3f6.png" alt="image" data-src="https://habrastorage.org/getpro/habr/post_images/5ad/cdc/5e0/5adcdc5e0ffc23bb5bbdd03e0716c3f6.png"/><br/>
+При профилировании будут показываться красивые названия вместо <code>(anonymous function)</code>. Но скорее всего <code>displayName</code> не будет включён в финальную сборку Google Chrome. Хотя надежды ещё остаются, предлагают также переименовать свойство в <a href="http://code.google.com/p/chromium/issues/detail?id=116220">debugName</a>.<br/>
+К моменту написания статьи присваивание названий коду, выполненному через <code>eval</code>, поддерживают только Firefox и Google Chrome. Свойство <code>displayName</code> доступно только в ночных сборках Google Chrome.<br/>
+<br/>
+<h4>Вливайтесь</h4><br/>
+Есть очень длинное <a href="https://github.com/jashkenas/coffee-script/issues/558">обсуждение по поддержке Source Map в CoffeeScript</a>. <br/>
+У UglifyJS также есть <a href="https://github.com/mishoo/UglifyJS/issues/315">тикет про поддержку Source Map</a>.<br/>
+Вы можете помочь, если примете участие в обсуждении и выскажете мнение по поводу нужности поддержки Source Map. Чем больше будет инструментов, поддерживающих эту технологию, тем будет проще работать, так что требуйте её поддержки в вашем любимом OpenSource-проекте.<br/>
+<br/>
+<h4>Source Map не идеален</h4><br/>
+Есть одна неприятность с использованием Source Map для нормальной отладки. Проблема заключается в том, что при попытке проверить значение аргумента или переменной, определённой в контексте исходного файла, контекст ничего не вернёт, т.к. он на самом деле не существует. Нужен какой-то обратный маппинг, чтобы проверить значение соответствующей переменной/аргумента в минифицированном коде и сопоставить его исходному коду.<br/>
+Проблема решаемая, а при должном внимании к Source Map могут появиться ещё более интересные его применения.<br/>
+<br/>
+<h4>Инструменты и ресурсы</h4><br/>
+<ul>
+<li>Nick Fitzgerald сделал форк <a href="https://github.com/fitzgen/UglifyJS/tree/source-maps">UglifyJS</a> с поддержкой Source Map</li>
+<li>Paul Irish сделал простое <a href="http://dl.dropbox.com/u/39519/sourcemapapp/index.html">демо</a> Source Map</li>
+<li>Conrad Irwin написал удобный <a href="https://github.com/ConradIrwin/ruby-source_map">Source Map gem</a> для Ruby-разработчиков</li>
+<li>Что ещё почитать про <a href="http://blog.getfirebug.com/2009/08/11/give-your-eval-a-name-with-sourceurl/">именование eval</a> и <a href="http://www.alertdebugging.com/2009/04/29/building-a-better-javascript-profiler-with-webkit/">свойство displayName</a></li>
+<li>Можно посмотреть <a href="http://code.google.com/p/closure-compiler/source/browse/trunk/src/com/google/debugging/sourcemap/SourceMapGeneratorV3.java">исходный код Closure Compiler</a> создания Source Map</li>
+<li>Несколько скриншотов и разговор о поддержке <a href="https://plus.google.com/110412141990454266397/posts/iqXo5AyHkyd">GWT source maps</a></li>
+</ul><br/>
+<br/>
+Source Map — мощный инструмент для разработчика. Он позволяет держать production-код максимально сжатым, но при этом позволяет его отлаживать. Так же полезен для начинающих разработчиков, чтобы посмотреть код, написанный опытными разработчиками, чтобы поучиться правильному структурированию и написанию своего кода без необходимости продираться сквозь минифицированный код. Так чего же вы ждёте? Сгенерируйте Source Map для своего проекта!</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bjavascript%5D" class="tm-tags-list__link">javascript</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BsourceMappingURL%5D" class="tm-tags-list__link">sourceMappingURL</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BSourceMap%5D" class="tm-tags-list__link">SourceMap</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bhtml5%5D" class="tm-tags-list__link">html5</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bminification%5D" class="tm-tags-list__link">minification</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bclosure%20compiler%5D" class="tm-tags-list__link">closure compiler</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/javascript/" class="tm-hubs-list__link">
+    JavaScript
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 35: ↑35 и ↓0</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 35: ↑35 и ↓0" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+35</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">120K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    306
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/bullgare/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_lilac"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 45 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    29
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">bullgare</span> <a href="https://habr.com/ru/users/bullgare/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @bullgare
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/148098/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 12 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner5320" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner5321" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/react_razrabotchik" target="_blank" class="tm-vacancies-block__vacancy-title">
+        React разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        276
+    вакансий
+      </div></div><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/programmist_javascript" target="_blank" class="tm-vacancies-block__vacancy-title">
+        JavaScript разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        554
+    вакансии
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/148098/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/148098/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"148098":{"id":"148098","timePublished":"2012-07-20T08:15:45+00:00","isCorporative":false,"lang":"ru","titleHtml":"Введение в Javascript Source Maps","leadData":{"textHtml":"Вы когда-нибудь думали, как было бы здорово, если бы слитый в один файл и минифицированный яваскрипт код в production-окружении можено было удобно читать и даже отлаживать без ущерба производительности? Теперь это возможно, если использовать штуку под названием \u003Ca href=\"https:\u002F\u002Fdocs.google.com\u002Fdocument\u002Fd\u002F1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k\u002Fedit?hl=en_US&amp;pli=1&amp;pli=1\"\u003Esource maps\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли коротко, то это способ связать минифицированный\u002Fобъединённый файл с файлами, из которых он получился. Во время сборки для боевого окружения помимо минификации и объединения файлов также генерируется файл-маппер, который содержит информацию об исходных файлах. Когда производится обращение к конкретному месту в минифицированном файле, то производится поиск в маппере, по которому вычисляется строка и символ в исходном файле. Developer Tools (WebKit nightly builds или Google Chrome Canary) умеет парсить этот файл автоматически и прозрачно подменять файлы, как будто ведётся работа с исходными файлами. На момент написания (\u003Ci\u003Eоригинальной статьи — прим. перев.\u003C\u002Fi\u003E) Firefox заблокировал развитие поддержки Source Map. Подробнее — на \u003Ca href=\"https:\u002F\u002Fwiki.mozilla.org\u002FDevTools\u002FFeatures\u002FSourceMap\"\u003EMozillaWiki Source Map\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"translation","data":{"originalAuthorName":"Ryan Seddon","originalUrl":"http:\u002F\u002Fwww.html5rocks.com\u002Fen\u002Ftutorials\u002Fdevelopertools\u002Fsourcemaps\u002F"}}],"author":{"scoreStats":{"score":29,"votesCount":45},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"26237","alias":"bullgare","fullname":"bullgare","avatarUrl":null,"speciality":"Пользователь"},"statistics":{"commentsCount":12,"favoritesCount":306,"readingCount":120409,"score":35,"votesCount":35},"hubs":[{"relatedData":null,"id":"357","alias":"javascript","type":"collective","title":"JavaScript","titleHtml":"JavaScript","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EВы когда-нибудь думали, как было бы здорово, если бы слитый в один файл и минифицированный яваскрипт код в production-окружении можено было удобно читать и даже отлаживать без ущерба производительности? Теперь это возможно, если использовать штуку под названием \u003Ca href=\"https:\u002F\u002Fdocs.google.com\u002Fdocument\u002Fd\u002F1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k\u002Fedit?hl=en_US&amp;pli=1&amp;pli=1\"\u003Esource maps\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли коротко, то это способ связать минифицированный\u002Fобъединённый файл с файлами, из которых он получился. Во время сборки для боевого окружения помимо минификации и объединения файлов также генерируется файл-маппер, который содержит информацию об исходных файлах. Когда производится обращение к конкретному месту в минифицированном файле, то производится поиск в маппере, по которому вычисляется строка и символ в исходном файле. Developer Tools (WebKit nightly builds или Google Chrome Canary) умеет парсить этот файл автоматически и прозрачно подменять файлы, как будто ведётся работа с исходными файлами. На момент написания (\u003Ci\u003Eоригинальной статьи — прим. перев.\u003C\u002Fi\u003E) Firefox заблокировал развитие поддержки Source Map. Подробнее — на \u003Ca href=\"https:\u002F\u002Fwiki.mozilla.org\u002FDevTools\u002FFeatures\u002FSourceMap\"\u003EMozillaWiki Source Map\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fwww.thecssninja.com\u002Fdemo\u002Fsource_mapping\u002F\"\u003EПример — правильное определение места в исходном коде\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ этом примере можно ткнуть в любом месте textarea правой кнопкой и выбрать пункт «Get original location». При этом будет произведено обращение к файлу-мапперу с передачей строки и номера символа в минифицированном коде, и будет показан соответствующий кусок кода из исходного файла. В консоль будут выведены номер строки и номер символа в исходном файле и другая интересная информация.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F04e\u002F10e\u002F02f\u002F04e10e02fd4a900ec4dc8e1da57465de.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F04e\u002F10e\u002F02f\u002F04e10e02fd4a900ec4dc8e1da57465de.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EРеальное использование\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nПрежде чем смотреть следующий пример, нужно активировать просмотр source maps в Chrome Canary или WebKit nightly, для этого в свойствах активировать пункт «Enable source maps» (см. скриншот)\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F8d3\u002Fc75\u002F7ec\u002F8d3c757ec23eb877080d4650a61e8f9b.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F8d3\u002Fc75\u002F7ec\u002F8d3c757ec23eb877080d4650a61e8f9b.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПродолжим. Предыдущий пример был интересным, но как это можно использовать? Зайдите на \u003Ca href=\"http:\u002F\u002Fdev.fontdragr.com\u002F\"\u003Edev.fontdragr.com\u003C\u002Fa\u003E настроенным браузером Google Chrome и вы увидите, что яваскрипты на странице не скомпилированы и можно смотреть отдельные js-файлы. Это всё благодаря использованию маппера, а на самом деле код на странице скомпилирован. Все ошибки, выводы в лог и точки останова будут маппиться на исходный код, и отлаживать код будет очень удобно. В итоге можно работать с production-сайтом как с тестовым.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fdev.fontdragr.com\"\u003EПример — посмотрите в консоль на fontdragr.com\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EЗачем вообще нужны Source Maps?\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСейчас маппинг работает только между исходными файлами и сжатой\u002Fобъединённой версией, но ведутся разговоры о том, чтобы сделать маппинг для языков, компилируемых в JavaScript (например, CoffeeScript), и даже о поддержке CSS-препроцессоров, таких как SASS и LESS. \u003Cbr\u002F\u003E\r\nВ будущем мы могли бы легко использовать почти любой язык, как если бы он поддерживался браузером нативно:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003ECoffeeScript\u003C\u002Fli\u003E\r\n\u003Cli\u003EECMAScript 6 и выше\u003C\u002Fli\u003E\r\n\u003Cli\u003ESASS\u002FLESS и т.п.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПрактически любой язык, который компилируется в JavaScript\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nПосмотрите скринкаст, в котором CoffeeScript отлаживается в экспериментальной сборке консоли Firefox:\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"tm-iframe_temp\" data-src=\"https:\u002F\u002Fwww.youtube.com\u002Fembed\u002F2aQw1dSIYko?feature=oembed\" data-style=\"\" id=\"\" width=\"560\"\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nGoogle Web Toolkit (GWT) недавно добавил поддержку \u003Ca href=\"http:\u002F\u002Fcode.google.com\u002Fp\u002Fgoogle-web-toolkit\u002Fwiki\u002FSourceMaps\"\u003ESource Maps\u003C\u002Fa\u003E и Ray Cromwell из GWT сделал отличный скринкаст, показывающий работу Source Map в действии.\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"tm-iframe_temp\" data-src=\"https:\u002F\u002Fwww.youtube.com\u002Fembed\u002F-xJl22Kvgjg?feature=oembed\" data-style=\"\" id=\"\" width=\"560\"\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДругой пример использует библиотеку Google \u003Ca href=\"http:\u002F\u002Fcode.google.com\u002Fp\u002Ftraceur-compiler\u002F\"\u003ETraceur\u003C\u002Fa\u003E, которая позволяет писать на ES6 (ECMAScript 6) и компилировать в ES3-совместимый код. Компилятор Traceur также генерирует source map. Посмотрите на \u003Ca href=\"http:\u002F\u002Fwww.thecssninja.com\u002Fdemo\u002Fsource_mapping\u002FES6\u002F\"\u003Eпример\u003C\u002Fa\u003E использования особенностей ES6 (классов и traits), как если бы они поддерживались браузером нативно. Textarea в примере также позволяет писать ES6-код, который будет компилироваться на лету в ES3 и также будет создаваться файл-маппер.\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fwww.thecssninja.com\u002Fdemo\u002Fsource_mapping\u002FES6\u002F\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F8fb\u002F9d6\u002Fef1\u002F8fb9d6ef1f4a5e841fedc51923270775.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F8fb\u002F9d6\u002Fef1\u002F8fb9d6ef1f4a5e841fedc51923270775.png\"\u002F\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fwww.thecssninja.com\u002Fdemo\u002Fsource_mapping\u002FES6\u002F\"\u003EПример — можно написать код на ES6 и сразу посмотреть в отладчике\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EКак это работает?\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nЕдинственный пока компилятор\u002Fминификатор с поддержкой Source Map — Closure compiler (как при компиляции сгенерировать маппер — написано ниже). При минификации JavaScript будет создан и файл-маппер. Пока Closure compiler не добавляет в конец файла специальный комментарий для Google Chrome Canary dev tools о том, что доступен файл-маппер:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E\u002F\u002F@ sourceMappingURL=\u002Fpath\u002Fto\u002Ffile.js.map\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТакой комментарий позволяет браузеру искать нужное место в исходном файле, используя файл-маппер. Если идея использовать странные комментарии вам не нравится, то можно добавить к скомпилированному файлу специальный заголовок:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"html\"\u003EX-SourceMap: \u002Fpath\u002Fto\u002Ffile.js.map\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКак и комментарий, это скажет клиенту, где искать маппер для этого файла. Использование заголовка также позволяет работать с языками, которые не поддерживают однострочные комментарии.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F9fb\u002F228\u002Fcd0\u002F9fb228cd0d50d0ee16514e3aff6864a8.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F9fb\u002F228\u002Fcd0\u002F9fb228cd0d50d0ee16514e3aff6864a8.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\nФайл-маппер будет скачан только если включено свойство и открыта консоль. Ну и конечно нужно будет залить исходные файлы, чтобы они были доступны по указанным в маппере путям.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EКак сгенерировать файл-маппер?\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nКак уже говорилось выше, нужен будет \u003Ca href=\"https:\u002F\u002Fdevelopers.google.com\u002Fclosure\u002Fcompiler\u002F\"\u003EClosure compiler\u003C\u002Fa\u003E для минификаци, склейки и генерации файла-маппера для нужных JavaScript-файлов. Для этого нужно выполнить команду:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Ejava -jar compiler.jar \\ \n     --js script.js \\\n     --create_source_map .\u002Fscript-min.js.map \\\n     --source_map_format=V3 \\\n     --js_output_file script-min.js\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nНужные флаги — это \u003Ccode\u003E--create_source_map\u003C\u002Fcode\u003E и \u003Ccode\u003E--source_map_format\u003C\u002Fcode\u003E. Последний нужен, т.к. по умолчанию маппер создаётся в формате V2, а нам нужен V3.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EВнутреннее устройство Source Map\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nЧтобы лучше понять Source Map, возьмём для примера небольшой файл-маппер и подробно разберём, как устроена «адресация». Ниже приведён немного модифицированный пример из \u003Ca href=\"https:\u002F\u002Fdocs.google.com\u002Fdocument\u002Fd\u002F1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k\u002Fedit?hl=en_US&amp;pli=1&amp;pli=1\"\u003EV3 spec\u003C\u002Fa\u003E:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E{\n    version : 3,\n    file: \"out.js\",\n    sourceRoot : \"\",\n    sources: [\"foo.js\", \"bar.js\"],\n    names: [\"src\", \"maps\", \"are\", \"fun\"],\n    mappings: \"AAgBC,SAAQ,CAAEA\"\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМожно заметить, что это обычный литерал объекта, содержащий всю нужную информацию:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EВерсию маппера\u003C\u002Fli\u003E\r\n\u003Cli\u003EНазвание минифицированного\u002Fобъединённого файла для production\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003EsourceRoot\u003C\u002Fcode\u003E позволяет дописывать префикс в путь к исходным файлам\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Esources\u003C\u002Fcode\u003E содержит названия исходных файлов\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Enames\u003C\u002Fcode\u003E содержит все настоящие названия переменных\u002Fфункций из полученного файла\u003C\u002Fli\u003E\r\n\u003Cli\u003Eа \u003Ccode\u003Emappings\u003C\u002Fcode\u003E — это соответствующие минифицированные названия\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EBASE64 VLQ или как сделать Source Map маленьким\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nИзначально в спецификации был описан очень подробный вывод всех зависимостей, что делало файл-маппер в 10 раз больше размером, чем сгенерированный файл. Вторая версия уменьшила размер файла вполовину, а третья версия — уменьшила ещё раз вполовину. Теперь для 133kB файла генерируется ~300kB файл-маппер. Как же удалось добиться такого уменьшения и при этом уметь отслеживать сложные зависимости?\u003Cbr\u002F\u003E\r\nИспользуется \u003Ca href=\"http:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FVariable-length_quantity\"\u003EVLQ\u003C\u002Fa\u003E (Variable Length Quantity) и Base64-кодирование. Свойство \u003Ccode\u003Emappings\u003C\u002Fcode\u003E — это одна очень большая строка. Внутри этой строки точки с запятой (;) отделяют номера строк в сгенерированном файле. Внутри получившейся строки используются запятые для отделения сегментов кода. Каждый из сегментов представляет собой 1, 4 или 5 VLQ-полей. Некоторые могут быть длиннее за счёт бита продолжения. Каждый сегмент строится на основе предыдущего, что помогает уменьшить размер файла.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fd42\u002F13a\u002F568\u002Fd4213a5680213f9540b0e4f63eac1761.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fd42\u002F13a\u002F568\u002Fd4213a5680213f9540b0e4f63eac1761.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\nКак говорилось раньше, каждый сегмент может быть 1, 4 или пятью VLQ. На диаграмме показаны 4 VLQ с одним битом продолжения. Разберём её подробнее и покажем, как маппер вычисляет положение в исходном файле. Сегмент состоит из пяти вещей:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EНомер символа в сгенерированном файле\u003C\u002Fli\u003E\r\n\u003Cli\u003EИсходный файл\u003C\u002Fli\u003E\r\n\u003Cli\u003EНомер строки в исходном файле\u003C\u002Fli\u003E\r\n\u003Cli\u003EНомер символа в исходном файле\u003C\u002Fli\u003E\r\n\u003Cli\u003EИсходное название (если есть)\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n(\u003Ci\u003Eприм. перев.: не осилил до конца перевести эту часть статьи, полностью можно прочесть в оригинале; если есть желающие помочь — пишите, буду благодарен\u003C\u002Fi\u003E)\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EПотенциальные проблемы с XSSI\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВ спецификации говорится о возможных проблемах с внедрением XSS при использовании Source Map. Избавиться от неё можно, написав в начале своего map-файла \"\u003Ccode\u003E)]}\u003C\u002Fcode\u003E\", чтобы сделать это js-файл невалидным и вызвать ошибку. WebKit dev tools уже умеет её забарывать:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eif (response.slice(0, 3) === \")]}\") {\n    response = response.substring(response.indexOf('\\n'));\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКак видно, первые три символа обрезаются и производится проверка их на соответствие указанному в спецификации невалидному коду и в этом случае вырезается всё до следующего символа перевода строки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003E\u003Ccode\u003E@sourceURL\u003C\u002Fcode\u003E и \u003Ccode\u003EdisplayName\u003C\u002Fcode\u003E в действии: \u003Ccode\u003Eeval\u003C\u002Fcode\u003E и анонимные функции\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nЭти два соглашения хотя пока и не входят в спецификацию Source Map, но позволяют серьёзно упростить работу с \u003Ccode\u003Eeval\u003C\u002Fcode\u003E и анонимными функциями.\u003Cbr\u002F\u003E\r\nПервый хелпер очень похож на свойство \u003Ccode\u003E\u002F\u002F@ sourceMappingURL\u003C\u002Fcode\u003E и вообще-то в спецификации (V3) упоминается. Включив этот специальный комментарий в код, который потом будет выполнен через \u003Ccode\u003Eeval\u003C\u002Fcode\u003E, можно назвать \u003Ccode\u003Eeval\u003C\u002Fcode\u003E-ы, что даст им более логичные имена при работе в консоли. Ниже приведён простой пример с использованием компилятора CoffeeScript:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fwww.thecssninja.com\u002Fdemo\u002Fsource_mapping\u002Fcompile.html\"\u003EПример — пропущенный через eval код со сгенерированным именем\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F5f4\u002F0be\u002Fd81\u002F5f40bed817e4b72ce75073280419be70.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F5f4\u002F0be\u002Fd81\u002F5f40bed817e4b72ce75073280419be70.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДругой хелпер позволяет давать имена анонимным функциям при помощи свойства \u003Ccode\u003EdisplayName\u003C\u002Fcode\u003E, указанного в контексте этой функции. Попрофилируйте \u003Ca href=\"http:\u002F\u002Fwww.thecssninja.com\u002Fdemo\u002Fsource_mapping\u002FdisplayName.html\"\u003Eэтот пример\u003C\u002Fa\u003E, чтобы увидеть \u003Ccode\u003EdisplayName\u003C\u002Fcode\u003E в действии.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fwww.thecssninja.com\u002Fdemo\u002Fsource_mapping\u002FdisplayName.html\"\u003EПример — названия для анонимных функций через \u003Ccode\u003EdisplayName\u003C\u002Fcode\u003E (только WebKit NIghtly)\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F5ad\u002Fcdc\u002F5e0\u002F5adcdc5e0ffc23bb5bbdd03e0716c3f6.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F5ad\u002Fcdc\u002F5e0\u002F5adcdc5e0ffc23bb5bbdd03e0716c3f6.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\nПри профилировании будут показываться красивые названия вместо \u003Ccode\u003E(anonymous function)\u003C\u002Fcode\u003E. Но скорее всего \u003Ccode\u003EdisplayName\u003C\u002Fcode\u003E не будет включён в финальную сборку Google Chrome. Хотя надежды ещё остаются, предлагают также переименовать свойство в \u003Ca href=\"http:\u002F\u002Fcode.google.com\u002Fp\u002Fchromium\u002Fissues\u002Fdetail?id=116220\"\u003EdebugName\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\nК моменту написания статьи присваивание названий коду, выполненному через \u003Ccode\u003Eeval\u003C\u002Fcode\u003E, поддерживают только Firefox и Google Chrome. Свойство \u003Ccode\u003EdisplayName\u003C\u002Fcode\u003E доступно только в ночных сборках Google Chrome.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EВливайтесь\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nЕсть очень длинное \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fjashkenas\u002Fcoffee-script\u002Fissues\u002F558\"\u003Eобсуждение по поддержке Source Map в CoffeeScript\u003C\u002Fa\u003E. \u003Cbr\u002F\u003E\r\nУ UglifyJS также есть \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fmishoo\u002FUglifyJS\u002Fissues\u002F315\"\u003Eтикет про поддержку Source Map\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\nВы можете помочь, если примете участие в обсуждении и выскажете мнение по поводу нужности поддержки Source Map. Чем больше будет инструментов, поддерживающих эту технологию, тем будет проще работать, так что требуйте её поддержки в вашем любимом OpenSource-проекте.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003ESource Map не идеален\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nЕсть одна неприятность с использованием Source Map для нормальной отладки. Проблема заключается в том, что при попытке проверить значение аргумента или переменной, определённой в контексте исходного файла, контекст ничего не вернёт, т.к. он на самом деле не существует. Нужен какой-то обратный маппинг, чтобы проверить значение соответствующей переменной\u002Fаргумента в минифицированном коде и сопоставить его исходному коду.\u003Cbr\u002F\u003E\r\nПроблема решаемая, а при должном внимании к Source Map могут появиться ещё более интересные его применения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EИнструменты и ресурсы\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003ENick Fitzgerald сделал форк \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Ffitzgen\u002FUglifyJS\u002Ftree\u002Fsource-maps\"\u003EUglifyJS\u003C\u002Fa\u003E с поддержкой Source Map\u003C\u002Fli\u003E\r\n\u003Cli\u003EPaul Irish сделал простое \u003Ca href=\"http:\u002F\u002Fdl.dropbox.com\u002Fu\u002F39519\u002Fsourcemapapp\u002Findex.html\"\u003Eдемо\u003C\u002Fa\u003E Source Map\u003C\u002Fli\u003E\r\n\u003Cli\u003EConrad Irwin написал удобный \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FConradIrwin\u002Fruby-source_map\"\u003ESource Map gem\u003C\u002Fa\u003E для Ruby-разработчиков\u003C\u002Fli\u003E\r\n\u003Cli\u003EЧто ещё почитать про \u003Ca href=\"http:\u002F\u002Fblog.getfirebug.com\u002F2009\u002F08\u002F11\u002Fgive-your-eval-a-name-with-sourceurl\u002F\"\u003Eименование eval\u003C\u002Fa\u003E и \u003Ca href=\"http:\u002F\u002Fwww.alertdebugging.com\u002F2009\u002F04\u002F29\u002Fbuilding-a-better-javascript-profiler-with-webkit\u002F\"\u003Eсвойство displayName\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EМожно посмотреть \u003Ca href=\"http:\u002F\u002Fcode.google.com\u002Fp\u002Fclosure-compiler\u002Fsource\u002Fbrowse\u002Ftrunk\u002Fsrc\u002Fcom\u002Fgoogle\u002Fdebugging\u002Fsourcemap\u002FSourceMapGeneratorV3.java\"\u003Eисходный код Closure Compiler\u003C\u002Fa\u003E создания Source Map\u003C\u002Fli\u003E\r\n\u003Cli\u003EНесколько скриншотов и разговор о поддержке \u003Ca href=\"https:\u002F\u002Fplus.google.com\u002F110412141990454266397\u002Fposts\u002FiqXo5AyHkyd\"\u003EGWT source maps\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nSource Map — мощный инструмент для разработчика. Он позволяет держать production-код максимально сжатым, но при этом позволяет его отлаживать. Так же полезен для начинающих разработчиков, чтобы посмотреть код, написанный опытными разработчиками, чтобы поучиться правильному структурированию и написанию своего кода без необходимости продираться сквозь минифицированный код. Так чего же вы ждёте? Сгенерируйте Source Map для своего проекта!\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"javascript"},{"titleHtml":"sourceMappingURL"},{"titleHtml":"SourceMap"},{"titleHtml":"html5"},{"titleHtml":"minification"},{"titleHtml":"closure compiler"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F148098\u002F5f0bbb1bc96d53cea37e653b101d64b0\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F148098\u002F5f0bbb1bc96d53cea37e653b101d64b0\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F148098\\\u002F\"},\"headline\":\"Введение в Javascript Source Maps\",\"datePublished\":\"2012-07-20T12:15:45+04:00\",\"dateModified\":\"2012-07-20T12:15:45+04:00\",\"author\":{\"@type\":\"Person\",\"name\":\"bullgare\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Вы когда-нибудь думали, как было бы здорово, если бы слитый в один файл и минифицированный яваскрипт код в production-окружении можено было удобно читать и даже...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F148098\\\u002F#post-content-body\",\"about\":[\"h_javascript\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F148098\\\u002F5f0bbb1bc96d53cea37e653b101d64b0\\\u002F\"]}","metaDescription":"Вы когда-нибудь думали, как было бы здорово, если бы слитый в один файл и минифицированный яваскрипт код в production-окружении можено было удобно читать и даже отлаживать без ущерба...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"React разработчик","vacanciesCount":276,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Freact_razrabotchik","itemHubs":["javascript","reactjs"]},{"title":"JavaScript разработчик","vacanciesCount":554,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fprogrammist_javascript","itemHubs":["javascript","reactjs","nodejs","typescript","vuejs","angular","sveltejs"]}],"hubs":"javascript"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

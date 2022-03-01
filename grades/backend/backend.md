@@ -918,7 +918,7 @@ Code-review
 
 Theory  
 JWT  
-[Пять простых шагов для понимания JSON Web Tokens (JWT)](https://habr.com/ru/post/340146/)  
+[Пять простых шагов для понимания JSON Web Tokens JWT](https://habr.com/ru/post/340146/)  
 :pushpin:[Зачем нужен Refresh Token, если есть Access Token?](https://habr.com/ru/company/voximplant/blog/323160/)  
 :pushpin:[Добавляем Refresh Token](https://habr.com/ru/post/466929/)  
 :pushpin:[Про токены, JSON Web Tokens, аутентификацию и авторизацию. Token-Based Authentication](https://gist.github.com/zmts/802dc9c3510d79fd40f9dc38a12bccfc)  
@@ -943,7 +943,7 @@ Framework
 ***
 
 Testing  
-[BDD](https://ru.wikipedia.org/wiki/BDD_(программирование))  
+[BDD](https://en.wikipedia.org/wiki/Behavior-driven_development)  
 [Что такое TDD и BDD на пальцах](https://medium.com/@lucyhackwrench/что-такое-tdd-и-bdd-на-пальцах-и-что-должен-знать-о-них-фронтендер-701a10e06bb9#:~:text=BDD%20(Behavior%20Driven%20Development)%20—,%2C%20является%20расширением%20TDD-подхода.)  
 ***
 
@@ -951,7 +951,7 @@ Storage
 [Представления](https://www.sql.ru/docs/sql/u_sql/ch20.shtml)  
 [Понятие о партиционировании таблиц](https://ru.wikipedia.org/wiki/Секционирование)  
 :pushpin:[Партиционирование в PostgreSQL – Что? Зачем? Как?](https://habr.com/ru/post/273933/)  
-:pushpin:[Партиционирование таблиц в mySQL](https://habr.com/ru/post/66151/#:~:text=Партиционирование%20(partitioning)%20—%20это%20разбиение,файл%20индексов%2C%20файл%20данных)  
+:pushpin:[Партиционирование таблиц в mySQL](https://habr.com/ru/post/66151/)  
 
 ***
 
@@ -1082,8 +1082,8 @@ Theory
 [Микросервисная архитектура](https://habr.com/ru/post/249183/)  
 :pushpin:[Микросервисы глазами аналитика](https://habr.com/ru/post/583136/)  
 
-[JSON API (статья)](https://habr.com/ru/company/oleg-bunin/blog/433322/)  
-:pushpin:[JSON API (спецификация)](https://jsonapi.org/)  
+[JSON API статья](https://habr.com/ru/company/oleg-bunin/blog/433322/)  
+:pushpin:[JSON API cпецификация](https://jsonapi.org/)  
 
 [GraphQL](https://graphql.org/)  
 :pushpin:[Что же такое этот GraphQL?](https://habr.com/ru/post/326986/)  
@@ -1091,7 +1091,7 @@ Theory
 
 [Принципы разработки: SOLID](https://web-creator.ru/articles/solid)  
 :pushpin:[Хороший дизайн должен быть SOLID: TOP-5 архитектурных принципов](http://igor.quatrocode.com/2008/09/solid-top-5.html)  
-:pushpin:[Принципы проектирования классов (S.O.L.I.D.)](https://blog.byndyu.ru/2009/10/solid.html)  
+:pushpin:[Принципы проектирования классов S.O.L.I.D.](https://blog.byndyu.ru/2009/10/solid.html)  
 :pushpin:[Шпаргалка по SOLID принципам](http://sergeyteplyakov.blogspot.com/2014/10/solid.html)  
 
 ***
@@ -1148,7 +1148,7 @@ Misc
 
 Theory  
 Принципы разработки: GRASP  
-[GRASP (General Responsibility Assignment Software Patterns)](http://phpforum.su/index.php?showtopic=87687)
+[GRASP - General Responsibility Assignment Software Patterns](http://phpforum.su/index.php?showtopic=87687)
 [ООП для ООП: GRASP](https://habr.com/ru/post/38323/)  
 
 Domain Driven Design
@@ -1156,14 +1156,14 @@ Domain Driven Design
 
 DDD Inversion of Control  
 
-***
+***f
 
 Language  
 Реализация GRASP
-[GRASP (General Responsibility Assignment Software Patterns)](http://phpforum.su/index.php?showtopic=87687)  
+
 Value Object DTO POCO
 [DTO vs POCO vs Value Object](https://habr.com/ru/post/268371/)
-[Наглядный пример различия DTO, POCO (POJO) и Value Object](https://ru.stackoverflow.com/questions/456623/%D0%9D%D0%B0%D0%B3%D0%BB%D1%8F%D0%B4%D0%BD%D1%8B%D0%B9-%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80-%D1%80%D0%B0%D0%B7%D0%BB%D0%B8%D1%87%D0%B8%D1%8F-dto-poco-pojo-%D0%B8-value-object)
+[Наглядный пример различия DTO, POCO POJO и Value Object](https://ru.stackoverflow.com/questions/456623/%D0%9D%D0%B0%D0%B3%D0%BB%D1%8F%D0%B4%D0%BD%D1%8B%D0%B9-%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80-%D1%80%D0%B0%D0%B7%D0%BB%D0%B8%D1%87%D0%B8%D1%8F-dto-poco-pojo-%D0%B8-value-object)
 DDD: DI  
 
 ***
@@ -1223,7 +1223,7 @@ Theory
 
 CI/CD  
 ['Hello World' вам в облако](https://habr.com/ru/post/465149/)
-[Просто о CI/CD (Непрерывная интеграция и доставка)](https://www.youtube.com/watch?v=7S1ndRRht6M)
+[Просто о CI/CD - Непрерывная интеграция и доставка](https://www.youtube.com/watch?v=7S1ndRRht6M)
 
 ***
 
@@ -1323,6 +1323,6 @@ Power BI
 Практика  
 - Language: Реализовать многопоточность на другом языке программирования  
 - Framework: Реализовать REST API микро-сервиса на другом языке программирования  
-- Couchbase: Взаимодействовать с БД (запись/чтение данных)  
+- Couchbase: Взаимодействовать с БД запись/чтение данных  
 - Frontend: Использовать в разработке Framework  
-- BI: Реализовать OLAP куб на PostgreSQL - ??? (решение о включении задания будет принято позже)  
+- BI: Реализовать OLAP куб на PostgreSQL - ??? решение о включении задания будет принято позже  

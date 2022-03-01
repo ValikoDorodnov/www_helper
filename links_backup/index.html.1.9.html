@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Linux pipes tips &amp; tricks / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/195152\/"},"headline":"Linux pipes tips & tricks","datePublished":"2013-09-25T13:22:58+04:00","dateModified":"2013-09-25T16:48:01+04:00","author":{"@type":"Person","name":"Ковалев Денис"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Pipe &mdash; что это? Pipe (конвеер) &ndash; это однонаправленный канал межпроцессного взаимодействия. Термин был придуман Дугласом Макилроем для командной оболочки Unix и н...","url":"https:\/\/habr.com\/ru\/post\/195152\/#post-content-body","about":["h_linux","f_admin"],"image":["https:\/\/habr.com\/share\/publication\/195152\/41035eb07c1351968d4c8c2d2449d6c5\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Linux pipes tips &amp; tricks" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Linux pipes tips &amp; tricks" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Linux pipes tips &amp; tricks" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Pipe — что это?
+Pipe (конвеер) – это однонаправленный канал межпроцессного взаимодействия. Термин был придуман Дугласом Макилроем для командной оболочки Unix и назван по аналогии с трубопроводом...." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Pipe — что это?
+Pipe (конвеер) – это однонаправленный канал межпроцессного взаимодействия. Термин был придуман Дугласом Макилроем для командной оболочки Unix и назван по аналогии с трубопроводом...." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Pipe — что это?
+Pipe (конвеер) – это однонаправленный канал межпроцессного взаимодействия. Термин был придуман Дугласом Макилроем для командной оболочки Unix и назван по аналогии с трубопроводом...." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Pipe — что это?
+Pipe (конвеер) – это однонаправленный канал межпроцессного взаимодействия. Термин был придуман Дугласом Макилроем для командной оболочки Unix и назван по аналогии с трубопроводом...." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Pipe — что это?
+Pipe (конвеер) – это однонаправленный канал межпроцессного взаимодействия. Термин был придуман Дугласом Макилроем для командной оболочки Unix и назван по аналогии с трубопроводом...." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/195152/41035eb07c1351968d4c8c2d2449d6c5/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/195152/41035eb07c1351968d4c8c2d2449d6c5/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/195152/41035eb07c1351968d4c8c2d2449d6c5/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/195152/41035eb07c1351968d4c8c2d2449d6c5/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/195152/41035eb07c1351968d4c8c2d2449d6c5/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="195152" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2013-09-25T09:22:58.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/195152/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="Linux, pipe, bash">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/195152/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.9.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/195152/41035eb07c1351968d4c8c2d2449d6c5/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/aikikode/" title="aikikode" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/267/87a/13a/26787a13a787e7dd0fd259b1932d4cf1.png" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/aikikode/" class="tm-user-info__username">
+      aikikode
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2013-09-25T09:22:58.000Z" title="2013-09-25, 13:22">25  сентября  2013 в 13:22</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Linux pipes tips & tricks</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/linux/" class="tm-article-snippet__hubs-item-link"><span>Настройка Linux</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-sandbox"><span>
+        Из песочницы
+      </span></div><div class="tm-article-snippet__label tm-article-snippet__label_variant-tutorial"><span>
+        Tutorial
+      </span></div></div> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><h4>Pipe — что это?</h4><br/>
+Pipe (конвеер) – это однонаправленный канал межпроцессного взаимодействия. Термин был придуман <a href="http://ru.wikipedia.org/wiki/%D0%9C%D0%B0%D0%BA%D0%B8%D0%BB%D1%80%D0%BE%D0%B9,_%D0%94%D1%83%D0%B3%D0%BB%D0%B0%D1%81">Дугласом Макилроем</a> для командной оболочки Unix и назван по аналогии с трубопроводом. Конвейеры чаще всего используются в shell-скриптах для связи нескольких команд путем перенаправления вывода одной команды (stdout) на вход (stdin) последующей, используя символ конвеера ‘|’:<br/>
+<pre><code class="bash">cmd1 | cmd2 | .... | cmdN
+</code></pre><br/>
+Например:<br/>
+<pre><code class="bash">$ grep -i “error” ./log | wc -l
+43
+</code></pre><br/>
+grep выполняет регистронезависимый поиск строки “error” в файле log, но результат поиска не выводится на экран, а перенаправляется на вход (stdin) команды wc, которая в свою очередь выполняет подсчет количества строк.<br/>
+<br/>
+<h4>Логика</h4><br/>
+Конвеер обеспечивает асинхронное выполнение команд с использованием буферизации ввода/вывода. Таким образом все команды в конвейере работают параллельно, каждая в своем процессе.<br/>
+<br/>
+Размер буфера начиная с ядра версии 2.6.11 составляет 65536 байт (64Кб) и равен странице памяти в более старых ядрах. При попытке чтения из пустого буфера процесс чтения блокируется до появления данных. Аналогично при попытке записи в заполненный буфер процесс записи будет заблокирован до освобождения необходимого места.<br/>
+Важно, что несмотря на то, что конвейер оперирует файловыми дескрипторами потоков ввода/вывода, все операции выполняются в памяти, без нагрузки на диск.<br/>
+Вся информация, приведенная ниже, касается оболочки bash-4.2 и ядра 3.10.10.<br/>
+<br/>
+<h4>Простой дебаг</h4><br/>
+Утилита strace позволяет отследить системные вызовы в процессе выполнения программы:<br/>
+<pre><code class="bash">$ strace -f bash -c ‘/bin/echo foo | grep bar’
+....
+getpid() = 13726                   &lt;– PID основного процесса
+...
+pipe([3,  4])                       &lt;– системный вызов для создания конвеера
+....
+clone(....) = 13727                &lt;– подпроцесс для первой команды конвеера (echo)
+...
+[pid 13727] execve("/bin/echo",  ["/bin/echo",  "foo"],  [/* 61 vars */] 
+.....
+[pid 13726] clone(....) = 13728    &lt;– подпроцесс для второй команды (grep) создается так же основным процессом
+...
+[pid 13728] stat("/home/aikikode/bin/grep",   
+...
+</code></pre>Видно, что для создания конвеера используется системный вызов pipe(), а также, что оба процесса выполняются параллельно в разных потоках.<br/>
+<a name="habracut"></a><br/>
+<div class="spoiler"><b class="spoiler_title">Много исходного кода bash и ядра</b><div class="spoiler_text"><h4>Исходный код, уровень 1, shell</h4><br/>
+Т. к. лучшая документация — исходный код, обратимся к нему. Bash использует Yacc для парсинга входных команд и возвращает ‘command_connect()’, когда встречает символ ‘|’.<br/>
+<a href="http://git.savannah.gnu.org/cgit/bash.git/tree/parse.y?id=bash-4.2#n1242">parse.y</a>:<br/>
+<pre><code class="cpp">1242 pipeline:   pipeline ‘|’ newline_list pipeline
+1243             { $$ = command_connect ($1,  $4,  ‘|’); }
+1244     |       pipeline BAR_AND newline_list pipeline
+1245             {
+1246               /* Make cmd1 |&amp; cmd2 equivalent to cmd1 2>&amp;1 | cmd2 */
+1247               COMMAND *tc;
+1248               REDIRECTEE rd,  sd;
+1249               REDIRECT *r;
+1250 
+1251               tc = $1->type == cm_simple ? (COMMAND *)$1->value.Simple : $1;
+1252               sd.dest = 2;
+1253               rd.dest = 1;
+1254               r = make_redirection (sd,  r_duplicating_output,  rd,  0);
+1255               if (tc->redirects)
+1256               {
+1257                   register REDIRECT *t;
+1258                   for (t = tc->redirects; t->next; t = t->next)
+1259                       ;
+1260                   t->next = r;
+1261               }
+1262               else
+1263                   tc->redirects = r;
+1264 
+1265               $$ = command_connect ($1,  $4,  ‘|’);
+1266             }
+1267     |       command
+1268             { $$ = $1; }
+1269     ;
+</code></pre>Также здесь мы видим обработку пары символов ‘|&amp;’, что эквивалентно перенаправлению как stdout, так и stderr в конвеер. Далее обратимся к command_connect():<a href="http://git.savannah.gnu.org/cgit/bash.git/tree/make_cmd.c?id=bash-4.2#n194">make_cmd.c</a>:<br/>
+<pre><code class="cpp">194 COMMAND *
+195 command_connect (com1,  com2,  connector)
+196      COMMAND *com1,  *com2;
+197      int connector;
+198 {
+199   CONNECTION *temp;
+200 
+201   temp = (CONNECTION *)xmalloc (sizeof (CONNECTION));
+202   temp->connector = connector;
+203   temp->first = com1;
+204   temp->second = com2;
+205   return (make_command (cm_connection,  (SIMPLE_COM *)temp));
+206 }
+</code></pre>где connector это символ ‘|’ как int. При выполнении последовательности команд (связанных через ‘&amp;’, ‘|’, ‘;’, и т. д.) вызывается execute_connection():<a href="http://git.savannah.gnu.org/cgit/bash.git/tree/execute_cmd.c?id=bash-4.2#n2255">execute_cmd.c</a>:<br/>
+<pre><code class="cpp">2325     case ‘|’:
+...
+2331       exec_result = execute_pipeline (command,  asynchronous,  pipe_in,  pipe_out,  fds_to_close);
+</code></pre><br/>
+PIPE_IN и PIPE_OUT — файловые дескрипторы, содержащие информацию о входном и выходном потоках. Они могут принимать значение NO_PIPE, которое означает, что I/O является stdin/stdout.<br/>
+execute_pipeline() довольно объемная функция, имплементация которой содержится в <a href="http://git.savannah.gnu.org/cgit/bash.git/tree/execute_cmd.c?id=bash-4.2#n2094">execute_cmd.c</a>. Мы рассмотрим наиболее интересные для нас части.<br/>
+<a href="http://git.savannah.gnu.org/cgit/bash.git/tree/execute_cmd.c?id=bash-4.2#n2112">execute_cmd.c</a>: <br/>
+<pre><code class="cpp">2112   prev = pipe_in;
+2113   cmd = command;
+2114
+2115   while (cmd &amp;&amp; cmd->type == cm_connection &amp;&amp;
+2116   cmd->value.Connection &amp;&amp; cmd->value.Connection->connector == ‘|’)
+2117     {
+2118       /* Создание конвеера между двумя командами */
+2119       if (pipe (fildes) &lt; 0)
+2120       { /* возвращаем ошибку */ }
+.......
+           /* Выполняем первую команду из конвейера,  используя в качестве
+              входных данных prev — вывод предыдущей команды,  а в качестве
+              выходных fildes[1] — выходной файловый дескриптор,  полученный
+              в результате вызова pipe() */
+2178       execute_command_internal (cmd->value.Connection->first,  asynchronous, 
+2179         prev,  fildes[1],  fd_bitmap);
+2180 
+2181       if (prev >= 0)
+2182           close (prev);
+2183 
+2184       prev = fildes[0];    /* Наш вывод становится вводом для следующей команды */
+2185       close (fildes[1]);
+.......
+2190       cmd = cmd->value.Connection->second;  /* “Сдвигаемся” на следующую команду из конвейера */
+2191     }
+</code></pre>Таким образом, bash обрабатывает символ конвейера путем системного вызова pipe() для каждого встретившегося символа ‘|’ и выполняет каждую команду в отдельном процессе с использованием соответствующих файловых дескрипторов в качестве входного и выходного потоков.<br/>
+<br/>
+<h4>Исходный код, уровень 2, ядро</h4><br/>
+Обратимся к коду ядра и посмотрим на имплементацию функции pipe(). В статье рассматривается ядро версии 3.10.10 stable.<br/>
+<a href="https://git.kernel.org/cgit/linux/kernel/git/stable/linux-stable.git/tree/fs/pipe.c?id=refs/tags/v3.10.10">fs/pipe.c</a> (пропущены незначительные для данной статьи участки кода):<br/>
+<pre><code class="cpp">/*
+    Максимальный размер буфера конвейера для непривилегированного пользователя.
+    Может быть выставлен рутом в файле /proc/sys/fs/pipe-max-size
+  */
+  35 unsigned int pipe_max_size = 1048576; 
+   /*
+     Минимальный размер буфера конвеера,  согласно рекомендации POSIX
+     равен размеру одной страницы памяти,  т.е. 4Кб
+    */
+  40 unsigned int pipe_min_size = PAGE_SIZE;
+
+ 869 int create_pipe_files(struct file **res,  int flags)
+ 870 {
+ 871     int err;
+ 872     struct inode *inode = get_pipe_inode();
+ 873     struct file *f;
+ 874     struct path path;
+ 875     static struct qstr name = {. name = “” };
+         /* Выделяем dentry в dcache */
+ 881     path.dentry = d_alloc_pseudo(pipe_mnt->mnt_sb,  &amp;name);
+         /* Выделяем и инициализируем структуру file. Обратите внимание
+            на FMODE_WRITE,  а также на флаг O_WRONLY,  т.е. эта структура
+            только для записи и будет использоваться как выходной поток
+            в конвеере. К флагу O_NONBLOCK мы еще вернемся. */
+ 889     f = alloc_file(&amp;path,  FMODE_WRITE,  &amp;pipefifo_fops);
+ 893     f->f_flags = O_WRONLY | (flags &amp; (O_NONBLOCK | O_DIRECT));
+         /* Аналогично выделяем и инициализируем структуру file для чтения
+            (см. FMODE_READ и флаг O_RDONLY) */
+ 896     res[0] = alloc_file(&amp;path,  FMODE_READ,  &amp;pipefifo_fops);
+ 902     res[0]->f_flags = O_RDONLY | (flags &amp; O_NONBLOCK);
+ 903     res[1] = f;
+ 904     return 0;
+ 917 }
+ 918
+ 919 static int __do_pipe_flags(int *fd,  struct file **files,  int flags)
+ 920 {
+ 921     int error;
+ 922     int fdw,  fdr;
+         /* Создаем структуры file для файловых дескрипторов конвеера
+            (см. функцию выше) */ 
+ 927     error = create_pipe_files(files,  flags);
+         /* Выбираем свободные файловые дескрипторы */
+ 931     fdr = get_unused_fd_flags(flags);
+ 936     fdw = get_unused_fd_flags(flags);
+ 941     audit_fd_pair(fdr,  fdw);
+ 942     fd[0] = fdr;
+ 943     fd[1] = fdw;
+ 944     return 0;
+ 952 }
+     /* Непосредственно имплементация функций
+        int pipe2(int pipefd[2],  int flags)... */
+ 969 SYSCALL_DEFINE2(pipe2,  int __user *,  fildes,  int,  flags)
+ 970 {
+ 971     struct file *files[2];
+ 972     int fd[2];
+         /* Создаем структуры для ввода/вывода и ищем свободные дескрипторы */
+ 975     __do_pipe_flags(fd,  files,  flags);
+         /* Копируем файловые дескрипторы из kernel space в user space */
+ 977     copy_to_user(fildes,  fd,  sizeof(fd));
+         /* Назначаем файловые дескрипторы указателям на структуры */
+ 984     fd_install(fd[0],  files[0]);
+ 985     fd_install(fd[1],  files[1]);
+ 989 }
+     /* ...и int pipe(int pipefd[2]),  которая по сути является
+        оболочкой для вызова pipe2 с дефолтными флагами; */
+ 991 SYSCALL_DEFINE1(pipe,  int __user *,  fildes)
+ 992 {
+ 993     return sys_pipe2(fildes,  0);
+ 994 }
+</code></pre>Если вы обратили внимание, в коде идет проверка на флаг O_NONBLOCK. Его можно выставить используя операцию F_SETFL в fcntl. Он отвечает за переход в режим без блокировки I/O потоков в конвеере. В этом режиме вместо блокировки процесс чтения/записи в поток будет завершаться с errno кодом EAGAIN.<br/>
+<br/>
+Максимальный размер блока данных, который будет записан в конвейер, равен одной странице памяти (4Кб) для архитектуры arm:<br/>
+<a href="https://git.kernel.org/cgit/linux/kernel/git/stable/linux-stable.git/tree/arch/arm/include/asm/limits.h?id=refs/tags/v3.10.10">arch/arm/include/asm/limits.h</a>:<br/>
+<pre><code class="cpp"> 8 #define PIPE_BUF    PAGE_SIZE
+</code></pre>Для ядер >= 2.6.35 можно изменить размер буфера конвейера:<br/>
+<pre><code class="bash">fcntl(fd,  F_SETPIPE_SZ,  &lt;size>)
+</code></pre>Максимально допустимый размер буфера, как мы видели выше, указан в файле /proc/sys/fs/pipe-max-size.<br/>
+</div></div><br/>
+<h4>Tips &amp; trics</h4><br/>
+В примерах ниже будем выполнять ls на существующую директорию Documents и два несуществующих файла: ./non-existent_file и. /other_non-existent_file.<br/>
+<br/>
+<ol>
+<li><h5>Перенаправление и stdout, и stderr в pipe</h5><br/>
+<pre><code class="bash">ls -d ./Documents ./non-existent_file ./other_non-existent_file 2>&amp;1 | egrep “Doc|other”
+ls: cannot access ./other_non-existent_file: No such file or directory
+./Documents
+</code></pre>или же можно использовать комбинацию символов ‘|&amp;’ (о ней можно узнать как из документации к оболочке (man bash), так и из исходников выше, где мы разбирали Yacc парсер bash):<br/>
+<pre><code class="bash">ls -d ./Documents ./non-existent_file ./other_non-existent_file |&amp; egrep “Doc|other”
+ls: cannot access ./other_non-existent_file: No such file or directory
+./Documents
+</code></pre><br/>
+</li>
+<li><h5>Перенаправление _только_ stderr в pipe</h5><br/>
+<pre><code class="bash">$ ls -d ./Documents ./non-existent_file ./other_non-existent_file 2>&amp;1 >/dev/null | egrep “Doc|other”
+ls: cannot access ./other_non-existent_file: No such file or directory
+</code></pre><i><b>Shoot yourself in the foot</b><br/>
+Важно соблюдать порядок перенаправления stdout и stderr. Например, комбинация ‘>/dev/null 2>&amp;1′ перенаправит и stdout, и stderr в /dev/null.</i><br/>
+<br/>
+</li>
+<li><h5>Получение корректного кода завершения конвейра</h5><br/>
+По умолчанию, код завершения конвейера — код завершения последней команды в конвеере. Например, возьмем исходную команду, которая завершается с ненулевым кодом:<br/>
+<pre><code class="bash">$ ls -d ./non-existent_file 2>/dev/null; echo $?
+2
+</code></pre>И поместим ее в pipe:<br/>
+<pre><code class="bash">$ ls -d ./non-existent_file 2>/dev/null | wc; echo $?
+      0       0       0
+0
+</code></pre>Теперь код завершения конвейера — это код завершения команды wc, т.е. 0.<br/>
+<br/>
+Обычно же нам нужно знать, если в процессе выполнения конвейера произошла ошибка. Для этого следует выставить опцию pipefail, которая указывает оболочке, что код завершения конвейера будет совпадать с первым ненулевым кодом завершения одной из команд конвейера или же нулю в случае, если все команды завершились корректно:<br/>
+<pre><code class="bash">$ set -o pipefail
+$ ls -d ./non-existent_file 2>/dev/null | wc; echo $?
+      0       0       0
+2
+</code></pre><i><b>Shoot yourself in the foot</b><br/>
+Следует иметь в виду “безобидные” команды, которые могут вернуть не ноль. Это касается не только работы с конвейерами. Например, рассмотрим пример с grep:<br/>
+<pre><code class="bash">$ egrep “^foo=[0-9]+” ./config | awk ‘{print “new_”$0;}’
+</code></pre>Здесь мы печатаем все найденные строки, приписав ‘new_’ в начале каждой строки, либо не печатаем ничего, если ни одной строки нужного формата не нашлось. Проблема в том, что grep завершается с кодом 1, если не было найдено ни одного совпадения, поэтому если в нашем скрипте выставлена опция pipefail, этот пример завершится с кодом 1:<br/>
+<pre><code class="bash">$ set -o pipefail
+$ egrep “^foo=[0-9]+” ./config | awk ‘{print “new_”$0;}’ >/dev/null; echo $?
+1
+</code></pre>В больших скриптах со сложными конструкциями и длинными конвеерами можно упустить этот момент из виду, что может привести к некорректным результатам.</i><br/>
+<br/>
+</li>
+<li><h5>Присвоение значений переменным в конвейере</h5><br/>
+Для начала вспомним, что все команды в конвейере выполняются в отдельных процессах, полученных вызовом clone(). Как правило, это не создает проблем, за исключением случаев изменения значений переменных.<br/>
+Рассмотрим следующий пример:<br/>
+<pre><code class="bash">$ a=aaa
+$ b=bbb
+$ echo “one two” | read a b
+</code></pre>Мы ожидаем, что теперь значения переменных a и b будут “one” и “two” соответственно. На самом деле они останутся “aaa” и “bbb”. Вообще любое изменение значений переменных в конвейере за его пределами оставит переменные без изменений:<br/>
+<pre><code class="bash">$ filefound=0
+$ find . -type f -size +100k |
+    while true
+    do
+        read f
+        echo “$f is over 100KB”
+        filefound=1
+        break          # выходим после первого найденного файла
+    done
+$ echo $filefound;
+</code></pre>Даже если find найдет файл больше 100Кб, флаг filefound все равно будет иметь значение 0.<br/>
+Возможны несколько решений этой проблемы:<br/>
+<ul>
+<li>использовать<pre><code class="bash">set -- $var
+</code></pre><br/>
+Данная конструкция выставит позиционные переменные согласно содержимому переменной var. Например, как в первом примере выше:<br/>
+<pre><code class="bash">$ var=”one two”
+$ set -- $var
+$ a=$1   # “one”
+$ b=$2   # “two”
+</code></pre>Нужно иметь в виду, что в скрипте при этом будут утеряны оригинальные позиционные параметры, с которыми он был вызван.</li>
+<li>перенести всю логику обработки значения переменной в тот же подпроцесс в конвейере:<br/>
+<pre><code class="bash">$ echo “one” | (read a; echo $a;)
+one 
+</code></pre></li>
+<li>изменить логику, чтобы избежать присваивания переменных внутри конвеера.<br/>
+Например, изменим наш пример с find:<br/>
+<pre><code class="bash">$ filefound=0
+$ for f in $(find . -type f -size +100k)  # мы убрали конвейер,  заменив его на цикл
+    do
+        read f
+        echo “$f is over 100KB”
+        filefound=1
+        break
+    done
+$ echo $filefound;
+</code></pre></li>
+<li>(только для bash-4.2 и новее) использовать опцию lastpipe<br/>
+Опция lastpipe дает указание оболочке выполнить последнюю команду конвейера в основном процессе.<br/>
+<pre><code class="bash">$ (shopt -s lastpipe; a=”aaa”; echo “one” | read a; echo $a)
+one
+</code></pre>Важно, что в командной строке необходимо выставить опцию lastpipe в том же процессе, где будет вызываться и соответствующий конвейер, поэтому скобки в примере выше обязательны. В скриптах скобки не обязательны.</li>
+</ul></li>
+</ol><br/>
+<h4>Дополнительная информация</h4><br/>
+<ul>
+<li>подробное описание синтаксиса конвеера: <a href="http://linux.die.net/man/1/bash">linux.die.net/man/1/bash</a> (секция Pipelines), или ‘man bash’ в терминале.</li>
+<li>логика работы конвеера: <a href="http://linux.die.net/man/7/pipe">linux.die.net/man/7/pipe</a> или ‘man 7 pipe’</li>
+<li>исходный код оболочки bash: <a href="http://ftp.gnu.org/gnu/bash/">ftp.gnu.org/gnu/bash</a>, репозиторий: <a href="http://git.savannah.gnu.org/cgit/bash.git">git.savannah.gnu.org/cgit/bash.git</a></li>
+<li>ядро Linux: <a href="https://www.kernel.org/">www.kernel.org</a></li>
+</ul></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BLinux%5D" class="tm-tags-list__link">Linux</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bpipe%5D" class="tm-tags-list__link">pipe</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bbash%5D" class="tm-tags-list__link">bash</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/linux/" class="tm-hubs-list__link">
+    Настройка Linux
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 105: ↑97 и ↓8</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 105: ↑97 и ↓8" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+89</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">140K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    550
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/aikikode/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/267/87a/13a/26787a13a787e7dd0fd259b1932d4cf1.png" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 25 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    25
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Ковалев Денис</span> <a href="https://habr.com/ru/users/aikikode/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @aikikode
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Консультант</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <div class="tm-article-author__user-contacts"><a href="http://aikikode.me" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Сайт
+    </a></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/195152/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 36 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner692" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner693" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/195152/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/195152/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"195152":{"id":"195152","timePublished":"2013-09-25T09:22:58+00:00","isCorporative":false,"lang":"ru","titleHtml":"Linux pipes tips & tricks","leadData":{"textHtml":"\u003Ch4\u003EPipe — что это?\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nPipe (конвеер) – это однонаправленный канал межпроцессного взаимодействия. Термин был придуман \u003Ca href=\"http:\u002F\u002Fru.wikipedia.org\u002Fwiki\u002F%D0%9C%D0%B0%D0%BA%D0%B8%D0%BB%D1%80%D0%BE%D0%B9,_%D0%94%D1%83%D0%B3%D0%BB%D0%B0%D1%81\"\u003EДугласом Макилроем\u003C\u002Fa\u003E для командной оболочки Unix и назван по аналогии с трубопроводом. Конвейеры чаще всего используются в shell-скриптах для связи нескольких команд путем перенаправления вывода одной команды (stdout) на вход (stdin) последующей, используя символ конвеера ‘|’:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Ecmd1 | cmd2 | .... | cmdN\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nНапример:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ grep -i “error” .\u002Flog | wc -l\n43\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\ngrep выполняет регистронезависимый поиск строки “error” в файле log, но результат поиска не выводится на экран, а перенаправляется на вход (stdin) команды wc, которая в свою очередь выполняет подсчет количества строк.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EЛогика\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nКонвеер обеспечивает асинхронное выполнение команд с использованием буферизации ввода\u002Fвывода. Таким образом все команды в конвейере работают параллельно, каждая в своем процессе.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРазмер буфера начиная с ядра версии 2.6.11 составляет 65536 байт (64Кб) и равен странице памяти в более старых ядрах. При попытке чтения из пустого буфера процесс чтения блокируется до появления данных. Аналогично при попытке записи в заполненный буфер процесс записи будет заблокирован до освобождения необходимого места.\u003Cbr\u002F\u003E\r\nВажно, что несмотря на то, что конвейер оперирует файловыми дескрипторами потоков ввода\u002Fвывода, все операции выполняются в памяти, без нагрузки на диск.\u003Cbr\u002F\u003E\r\nВся информация, приведенная ниже, касается оболочки bash-4.2 и ядра 3.10.10.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EПростой дебаг\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nУтилита strace позволяет отследить системные вызовы в процессе выполнения программы:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ strace -f bash -c ‘\u002Fbin\u002Fecho foo | grep bar’\n....\ngetpid() = 13726                   &lt;– PID основного процесса\n...\npipe([3,  4])                       &lt;– системный вызов для создания конвеера\n....\nclone(....) = 13727                &lt;– подпроцесс для первой команды конвеера (echo)\n...\n[pid 13727] execve(&quot;\u002Fbin\u002Fecho&quot;,  [&quot;\u002Fbin\u002Fecho&quot;,  &quot;foo&quot;],  [\u002F* 61 vars *\u002F] \n.....\n[pid 13726] clone(....) = 13728    &lt;– подпроцесс для второй команды (grep) создается так же основным процессом\n...\n[pid 13728] stat(&quot;\u002Fhome\u002Faikikode\u002Fbin\u002Fgrep&quot;,   \n...\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EВидно, что для создания конвеера используется системный вызов pipe(), а также, что оба процесса выполняются параллельно в разных потоках.\u003Cbr\u002F\u003E\r\n","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"sandbox","data":null},{"type":"tutorial","data":null}],"author":{"scoreStats":{"score":25,"votesCount":25},"rating":0,"relatedData":null,"contacts":[{"title":"Сайт","url":"http:\u002F\u002Faikikode.me","value":"http:\u002F\u002Faikikode.me"}],"authorContacts":[{"title":"Сайт","url":"http:\u002F\u002Faikikode.me","value":"http:\u002F\u002Faikikode.me"}],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"114204","alias":"aikikode","fullname":"Ковалев Денис","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F267\u002F87a\u002F13a\u002F26787a13a787e7dd0fd259b1932d4cf1.png","speciality":"Консультант"},"statistics":{"commentsCount":36,"favoritesCount":550,"readingCount":139862,"score":89,"votesCount":105},"hubs":[{"relatedData":null,"id":"36","alias":"linux","type":"collective","title":"Настройка Linux","titleHtml":"Настройка Linux","isProfiled":true}],"flows":[{"id":"6","alias":"admin","title":"Администрирование"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Ch4\u003EPipe — что это?\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nPipe (конвеер) – это однонаправленный канал межпроцессного взаимодействия. Термин был придуман \u003Ca href=\"http:\u002F\u002Fru.wikipedia.org\u002Fwiki\u002F%D0%9C%D0%B0%D0%BA%D0%B8%D0%BB%D1%80%D0%BE%D0%B9,_%D0%94%D1%83%D0%B3%D0%BB%D0%B0%D1%81\"\u003EДугласом Макилроем\u003C\u002Fa\u003E для командной оболочки Unix и назван по аналогии с трубопроводом. Конвейеры чаще всего используются в shell-скриптах для связи нескольких команд путем перенаправления вывода одной команды (stdout) на вход (stdin) последующей, используя символ конвеера ‘|’:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Ecmd1 | cmd2 | .... | cmdN\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nНапример:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ grep -i “error” .\u002Flog | wc -l\n43\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\ngrep выполняет регистронезависимый поиск строки “error” в файле log, но результат поиска не выводится на экран, а перенаправляется на вход (stdin) команды wc, которая в свою очередь выполняет подсчет количества строк.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EЛогика\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nКонвеер обеспечивает асинхронное выполнение команд с использованием буферизации ввода\u002Fвывода. Таким образом все команды в конвейере работают параллельно, каждая в своем процессе.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРазмер буфера начиная с ядра версии 2.6.11 составляет 65536 байт (64Кб) и равен странице памяти в более старых ядрах. При попытке чтения из пустого буфера процесс чтения блокируется до появления данных. Аналогично при попытке записи в заполненный буфер процесс записи будет заблокирован до освобождения необходимого места.\u003Cbr\u002F\u003E\r\nВажно, что несмотря на то, что конвейер оперирует файловыми дескрипторами потоков ввода\u002Fвывода, все операции выполняются в памяти, без нагрузки на диск.\u003Cbr\u002F\u003E\r\nВся информация, приведенная ниже, касается оболочки bash-4.2 и ядра 3.10.10.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EПростой дебаг\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nУтилита strace позволяет отследить системные вызовы в процессе выполнения программы:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ strace -f bash -c ‘\u002Fbin\u002Fecho foo | grep bar’\n....\ngetpid() = 13726                   &lt;– PID основного процесса\n...\npipe([3,  4])                       &lt;– системный вызов для создания конвеера\n....\nclone(....) = 13727                &lt;– подпроцесс для первой команды конвеера (echo)\n...\n[pid 13727] execve(\"\u002Fbin\u002Fecho\",  [\"\u002Fbin\u002Fecho\",  \"foo\"],  [\u002F* 61 vars *\u002F] \n.....\n[pid 13726] clone(....) = 13728    &lt;– подпроцесс для второй команды (grep) создается так же основным процессом\n...\n[pid 13728] stat(\"\u002Fhome\u002Faikikode\u002Fbin\u002Fgrep\",   \n...\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EВидно, что для создания конвеера используется системный вызов pipe(), а также, что оба процесса выполняются параллельно в разных потоках.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EМного исходного кода bash и ядра\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003E\u003Ch4\u003EИсходный код, уровень 1, shell\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nТ. к. лучшая документация — исходный код, обратимся к нему. Bash использует Yacc для парсинга входных команд и возвращает ‘command_connect()’, когда встречает символ ‘|’.\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fgit.savannah.gnu.org\u002Fcgit\u002Fbash.git\u002Ftree\u002Fparse.y?id=bash-4.2#n1242\"\u003Eparse.y\u003C\u002Fa\u003E:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003E1242 pipeline:   pipeline ‘|’ newline_list pipeline\n1243             { $$ = command_connect ($1,  $4,  ‘|’); }\n1244     |       pipeline BAR_AND newline_list pipeline\n1245             {\n1246               \u002F* Make cmd1 |&amp; cmd2 equivalent to cmd1 2\u003E&amp;1 | cmd2 *\u002F\n1247               COMMAND *tc;\n1248               REDIRECTEE rd,  sd;\n1249               REDIRECT *r;\n1250 \n1251               tc = $1-\u003Etype == cm_simple ? (COMMAND *)$1-\u003Evalue.Simple : $1;\n1252               sd.dest = 2;\n1253               rd.dest = 1;\n1254               r = make_redirection (sd,  r_duplicating_output,  rd,  0);\n1255               if (tc-\u003Eredirects)\n1256               {\n1257                   register REDIRECT *t;\n1258                   for (t = tc-\u003Eredirects; t-\u003Enext; t = t-\u003Enext)\n1259                       ;\n1260                   t-\u003Enext = r;\n1261               }\n1262               else\n1263                   tc-\u003Eredirects = r;\n1264 \n1265               $$ = command_connect ($1,  $4,  ‘|’);\n1266             }\n1267     |       command\n1268             { $$ = $1; }\n1269     ;\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EТакже здесь мы видим обработку пары символов ‘|&amp;’, что эквивалентно перенаправлению как stdout, так и stderr в конвеер. Далее обратимся к command_connect():\u003Ca href=\"http:\u002F\u002Fgit.savannah.gnu.org\u002Fcgit\u002Fbash.git\u002Ftree\u002Fmake_cmd.c?id=bash-4.2#n194\"\u003Emake_cmd.c\u003C\u002Fa\u003E:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003E194 COMMAND *\n195 command_connect (com1,  com2,  connector)\n196      COMMAND *com1,  *com2;\n197      int connector;\n198 {\n199   CONNECTION *temp;\n200 \n201   temp = (CONNECTION *)xmalloc (sizeof (CONNECTION));\n202   temp-\u003Econnector = connector;\n203   temp-\u003Efirst = com1;\n204   temp-\u003Esecond = com2;\n205   return (make_command (cm_connection,  (SIMPLE_COM *)temp));\n206 }\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003Eгде connector это символ ‘|’ как int. При выполнении последовательности команд (связанных через ‘&amp;’, ‘|’, ‘;’, и т. д.) вызывается execute_connection():\u003Ca href=\"http:\u002F\u002Fgit.savannah.gnu.org\u002Fcgit\u002Fbash.git\u002Ftree\u002Fexecute_cmd.c?id=bash-4.2#n2255\"\u003Eexecute_cmd.c\u003C\u002Fa\u003E:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003E2325     case ‘|’:\n...\n2331       exec_result = execute_pipeline (command,  asynchronous,  pipe_in,  pipe_out,  fds_to_close);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nPIPE_IN и PIPE_OUT — файловые дескрипторы, содержащие информацию о входном и выходном потоках. Они могут принимать значение NO_PIPE, которое означает, что I\u002FO является stdin\u002Fstdout.\u003Cbr\u002F\u003E\r\nexecute_pipeline() довольно объемная функция, имплементация которой содержится в \u003Ca href=\"http:\u002F\u002Fgit.savannah.gnu.org\u002Fcgit\u002Fbash.git\u002Ftree\u002Fexecute_cmd.c?id=bash-4.2#n2094\"\u003Eexecute_cmd.c\u003C\u002Fa\u003E. Мы рассмотрим наиболее интересные для нас части.\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fgit.savannah.gnu.org\u002Fcgit\u002Fbash.git\u002Ftree\u002Fexecute_cmd.c?id=bash-4.2#n2112\"\u003Eexecute_cmd.c\u003C\u002Fa\u003E: \u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003E2112   prev = pipe_in;\n2113   cmd = command;\n2114\n2115   while (cmd &amp;&amp; cmd-\u003Etype == cm_connection &amp;&amp;\n2116   cmd-\u003Evalue.Connection &amp;&amp; cmd-\u003Evalue.Connection-\u003Econnector == ‘|’)\n2117     {\n2118       \u002F* Создание конвеера между двумя командами *\u002F\n2119       if (pipe (fildes) &lt; 0)\n2120       { \u002F* возвращаем ошибку *\u002F }\n.......\n           \u002F* Выполняем первую команду из конвейера,  используя в качестве\n              входных данных prev — вывод предыдущей команды,  а в качестве\n              выходных fildes[1] — выходной файловый дескриптор,  полученный\n              в результате вызова pipe() *\u002F\n2178       execute_command_internal (cmd-\u003Evalue.Connection-\u003Efirst,  asynchronous, \n2179         prev,  fildes[1],  fd_bitmap);\n2180 \n2181       if (prev \u003E= 0)\n2182           close (prev);\n2183 \n2184       prev = fildes[0];    \u002F* Наш вывод становится вводом для следующей команды *\u002F\n2185       close (fildes[1]);\n.......\n2190       cmd = cmd-\u003Evalue.Connection-\u003Esecond;  \u002F* “Сдвигаемся” на следующую команду из конвейера *\u002F\n2191     }\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EТаким образом, bash обрабатывает символ конвейера путем системного вызова pipe() для каждого встретившегося символа ‘|’ и выполняет каждую команду в отдельном процессе с использованием соответствующих файловых дескрипторов в качестве входного и выходного потоков.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EИсходный код, уровень 2, ядро\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nОбратимся к коду ядра и посмотрим на имплементацию функции pipe(). В статье рассматривается ядро версии 3.10.10 stable.\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fgit.kernel.org\u002Fcgit\u002Flinux\u002Fkernel\u002Fgit\u002Fstable\u002Flinux-stable.git\u002Ftree\u002Ffs\u002Fpipe.c?id=refs\u002Ftags\u002Fv3.10.10\"\u003Efs\u002Fpipe.c\u003C\u002Fa\u003E (пропущены незначительные для данной статьи участки кода):\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003E\u002F*\n    Максимальный размер буфера конвейера для непривилегированного пользователя.\n    Может быть выставлен рутом в файле \u002Fproc\u002Fsys\u002Ffs\u002Fpipe-max-size\n  *\u002F\n  35 unsigned int pipe_max_size = 1048576; \n   \u002F*\n     Минимальный размер буфера конвеера,  согласно рекомендации POSIX\n     равен размеру одной страницы памяти,  т.е. 4Кб\n    *\u002F\n  40 unsigned int pipe_min_size = PAGE_SIZE;\n\n 869 int create_pipe_files(struct file **res,  int flags)\n 870 {\n 871     int err;\n 872     struct inode *inode = get_pipe_inode();\n 873     struct file *f;\n 874     struct path path;\n 875     static struct qstr name = {. name = “” };\n         \u002F* Выделяем dentry в dcache *\u002F\n 881     path.dentry = d_alloc_pseudo(pipe_mnt-\u003Emnt_sb,  &amp;name);\n         \u002F* Выделяем и инициализируем структуру file. Обратите внимание\n            на FMODE_WRITE,  а также на флаг O_WRONLY,  т.е. эта структура\n            только для записи и будет использоваться как выходной поток\n            в конвеере. К флагу O_NONBLOCK мы еще вернемся. *\u002F\n 889     f = alloc_file(&amp;path,  FMODE_WRITE,  &amp;pipefifo_fops);\n 893     f-\u003Ef_flags = O_WRONLY | (flags &amp; (O_NONBLOCK | O_DIRECT));\n         \u002F* Аналогично выделяем и инициализируем структуру file для чтения\n            (см. FMODE_READ и флаг O_RDONLY) *\u002F\n 896     res[0] = alloc_file(&amp;path,  FMODE_READ,  &amp;pipefifo_fops);\n 902     res[0]-\u003Ef_flags = O_RDONLY | (flags &amp; O_NONBLOCK);\n 903     res[1] = f;\n 904     return 0;\n 917 }\n 918\n 919 static int __do_pipe_flags(int *fd,  struct file **files,  int flags)\n 920 {\n 921     int error;\n 922     int fdw,  fdr;\n         \u002F* Создаем структуры file для файловых дескрипторов конвеера\n            (см. функцию выше) *\u002F \n 927     error = create_pipe_files(files,  flags);\n         \u002F* Выбираем свободные файловые дескрипторы *\u002F\n 931     fdr = get_unused_fd_flags(flags);\n 936     fdw = get_unused_fd_flags(flags);\n 941     audit_fd_pair(fdr,  fdw);\n 942     fd[0] = fdr;\n 943     fd[1] = fdw;\n 944     return 0;\n 952 }\n     \u002F* Непосредственно имплементация функций\n        int pipe2(int pipefd[2],  int flags)... *\u002F\n 969 SYSCALL_DEFINE2(pipe2,  int __user *,  fildes,  int,  flags)\n 970 {\n 971     struct file *files[2];\n 972     int fd[2];\n         \u002F* Создаем структуры для ввода\u002Fвывода и ищем свободные дескрипторы *\u002F\n 975     __do_pipe_flags(fd,  files,  flags);\n         \u002F* Копируем файловые дескрипторы из kernel space в user space *\u002F\n 977     copy_to_user(fildes,  fd,  sizeof(fd));\n         \u002F* Назначаем файловые дескрипторы указателям на структуры *\u002F\n 984     fd_install(fd[0],  files[0]);\n 985     fd_install(fd[1],  files[1]);\n 989 }\n     \u002F* ...и int pipe(int pipefd[2]),  которая по сути является\n        оболочкой для вызова pipe2 с дефолтными флагами; *\u002F\n 991 SYSCALL_DEFINE1(pipe,  int __user *,  fildes)\n 992 {\n 993     return sys_pipe2(fildes,  0);\n 994 }\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EЕсли вы обратили внимание, в коде идет проверка на флаг O_NONBLOCK. Его можно выставить используя операцию F_SETFL в fcntl. Он отвечает за переход в режим без блокировки I\u002FO потоков в конвеере. В этом режиме вместо блокировки процесс чтения\u002Fзаписи в поток будет завершаться с errno кодом EAGAIN.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМаксимальный размер блока данных, который будет записан в конвейер, равен одной странице памяти (4Кб) для архитектуры arm:\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fgit.kernel.org\u002Fcgit\u002Flinux\u002Fkernel\u002Fgit\u002Fstable\u002Flinux-stable.git\u002Ftree\u002Farch\u002Farm\u002Finclude\u002Fasm\u002Flimits.h?id=refs\u002Ftags\u002Fv3.10.10\"\u003Earch\u002Farm\u002Finclude\u002Fasm\u002Flimits.h\u003C\u002Fa\u003E:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003E 8 #define PIPE_BUF    PAGE_SIZE\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EДля ядер \u003E= 2.6.35 можно изменить размер буфера конвейера:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Efcntl(fd,  F_SETPIPE_SZ,  &lt;size\u003E)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EМаксимально допустимый размер буфера, как мы видели выше, указан в файле \u002Fproc\u002Fsys\u002Ffs\u002Fpipe-max-size.\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003ETips &amp; trics\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВ примерах ниже будем выполнять ls на существующую директорию Documents и два несуществующих файла: .\u002Fnon-existent_file и. \u002Fother_non-existent_file.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E\u003Ch5\u003EПеренаправление и stdout, и stderr в pipe\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Els -d .\u002FDocuments .\u002Fnon-existent_file .\u002Fother_non-existent_file 2\u003E&amp;1 | egrep “Doc|other”\nls: cannot access .\u002Fother_non-existent_file: No such file or directory\n.\u002FDocuments\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003Eили же можно использовать комбинацию символов ‘|&amp;’ (о ней можно узнать как из документации к оболочке (man bash), так и из исходников выше, где мы разбирали Yacc парсер bash):\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Els -d .\u002FDocuments .\u002Fnon-existent_file .\u002Fother_non-existent_file |&amp; egrep “Doc|other”\nls: cannot access .\u002Fother_non-existent_file: No such file or directory\n.\u002FDocuments\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ch5\u003EПеренаправление _только_ stderr в pipe\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ ls -d .\u002FDocuments .\u002Fnon-existent_file .\u002Fother_non-existent_file 2\u003E&amp;1 \u003E\u002Fdev\u002Fnull | egrep “Doc|other”\nls: cannot access .\u002Fother_non-existent_file: No such file or directory\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Ci\u003E\u003Cb\u003EShoot yourself in the foot\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nВажно соблюдать порядок перенаправления stdout и stderr. Например, комбинация ‘\u003E\u002Fdev\u002Fnull 2\u003E&amp;1′ перенаправит и stdout, и stderr в \u002Fdev\u002Fnull.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ch5\u003EПолучение корректного кода завершения конвейра\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nПо умолчанию, код завершения конвейера — код завершения последней команды в конвеере. Например, возьмем исходную команду, которая завершается с ненулевым кодом:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ ls -d .\u002Fnon-existent_file 2\u003E\u002Fdev\u002Fnull; echo $?\n2\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EИ поместим ее в pipe:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ ls -d .\u002Fnon-existent_file 2\u003E\u002Fdev\u002Fnull | wc; echo $?\n      0       0       0\n0\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EТеперь код завершения конвейера — это код завершения команды wc, т.е. 0.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОбычно же нам нужно знать, если в процессе выполнения конвейера произошла ошибка. Для этого следует выставить опцию pipefail, которая указывает оболочке, что код завершения конвейера будет совпадать с первым ненулевым кодом завершения одной из команд конвейера или же нулю в случае, если все команды завершились корректно:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ set -o pipefail\n$ ls -d .\u002Fnon-existent_file 2\u003E\u002Fdev\u002Fnull | wc; echo $?\n      0       0       0\n2\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Ci\u003E\u003Cb\u003EShoot yourself in the foot\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nСледует иметь в виду “безобидные” команды, которые могут вернуть не ноль. Это касается не только работы с конвейерами. Например, рассмотрим пример с grep:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ egrep “^foo=[0-9]+” .\u002Fconfig | awk ‘{print “new_”$0;}’\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EЗдесь мы печатаем все найденные строки, приписав ‘new_’ в начале каждой строки, либо не печатаем ничего, если ни одной строки нужного формата не нашлось. Проблема в том, что grep завершается с кодом 1, если не было найдено ни одного совпадения, поэтому если в нашем скрипте выставлена опция pipefail, этот пример завершится с кодом 1:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ set -o pipefail\n$ egrep “^foo=[0-9]+” .\u002Fconfig | awk ‘{print “new_”$0;}’ \u003E\u002Fdev\u002Fnull; echo $?\n1\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EВ больших скриптах со сложными конструкциями и длинными конвеерами можно упустить этот момент из виду, что может привести к некорректным результатам.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ch5\u003EПрисвоение значений переменным в конвейере\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nДля начала вспомним, что все команды в конвейере выполняются в отдельных процессах, полученных вызовом clone(). Как правило, это не создает проблем, за исключением случаев изменения значений переменных.\u003Cbr\u002F\u003E\r\nРассмотрим следующий пример:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ a=aaa\n$ b=bbb\n$ echo “one two” | read a b\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EМы ожидаем, что теперь значения переменных a и b будут “one” и “two” соответственно. На самом деле они останутся “aaa” и “bbb”. Вообще любое изменение значений переменных в конвейере за его пределами оставит переменные без изменений:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ filefound=0\n$ find . -type f -size +100k |\n    while true\n    do\n        read f\n        echo “$f is over 100KB”\n        filefound=1\n        break          # выходим после первого найденного файла\n    done\n$ echo $filefound;\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EДаже если find найдет файл больше 100Кб, флаг filefound все равно будет иметь значение 0.\u003Cbr\u002F\u003E\r\nВозможны несколько решений этой проблемы:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eиспользовать\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Eset -- $var\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДанная конструкция выставит позиционные переменные согласно содержимому переменной var. Например, как в первом примере выше:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ var=”one two”\n$ set -- $var\n$ a=$1   # “one”\n$ b=$2   # “two”\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EНужно иметь в виду, что в скрипте при этом будут утеряны оригинальные позиционные параметры, с которыми он был вызван.\u003C\u002Fli\u003E\r\n\u003Cli\u003Eперенести всю логику обработки значения переменной в тот же подпроцесс в конвейере:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ echo “one” | (read a; echo $a;)\none \n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003Eизменить логику, чтобы избежать присваивания переменных внутри конвеера.\u003Cbr\u002F\u003E\r\nНапример, изменим наш пример с find:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ filefound=0\n$ for f in $(find . -type f -size +100k)  # мы убрали конвейер,  заменив его на цикл\n    do\n        read f\n        echo “$f is over 100KB”\n        filefound=1\n        break\n    done\n$ echo $filefound;\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E(только для bash-4.2 и новее) использовать опцию lastpipe\u003Cbr\u002F\u003E\r\nОпция lastpipe дает указание оболочке выполнить последнюю команду конвейера в основном процессе.\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ (shopt -s lastpipe; a=”aaa”; echo “one” | read a; echo $a)\none\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EВажно, что в командной строке необходимо выставить опцию lastpipe в том же процессе, где будет вызываться и соответствующий конвейер, поэтому скобки в примере выше обязательны. В скриптах скобки не обязательны.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EДополнительная информация\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eподробное описание синтаксиса конвеера: \u003Ca href=\"http:\u002F\u002Flinux.die.net\u002Fman\u002F1\u002Fbash\"\u003Elinux.die.net\u002Fman\u002F1\u002Fbash\u003C\u002Fa\u003E (секция Pipelines), или ‘man bash’ в терминале.\u003C\u002Fli\u003E\r\n\u003Cli\u003Eлогика работы конвеера: \u003Ca href=\"http:\u002F\u002Flinux.die.net\u002Fman\u002F7\u002Fpipe\"\u003Elinux.die.net\u002Fman\u002F7\u002Fpipe\u003C\u002Fa\u003E или ‘man 7 pipe’\u003C\u002Fli\u003E\r\n\u003Cli\u003Eисходный код оболочки bash: \u003Ca href=\"http:\u002F\u002Fftp.gnu.org\u002Fgnu\u002Fbash\u002F\"\u003Eftp.gnu.org\u002Fgnu\u002Fbash\u003C\u002Fa\u003E, репозиторий: \u003Ca href=\"http:\u002F\u002Fgit.savannah.gnu.org\u002Fcgit\u002Fbash.git\"\u003Egit.savannah.gnu.org\u002Fcgit\u002Fbash.git\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003Eядро Linux: \u003Ca href=\"https:\u002F\u002Fwww.kernel.org\u002F\"\u003Ewww.kernel.org\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"Linux"},{"titleHtml":"pipe"},{"titleHtml":"bash"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F195152\u002F41035eb07c1351968d4c8c2d2449d6c5\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F195152\u002F41035eb07c1351968d4c8c2d2449d6c5\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F195152\\\u002F\"},\"headline\":\"Linux pipes tips & tricks\",\"datePublished\":\"2013-09-25T13:22:58+04:00\",\"dateModified\":\"2013-09-25T16:48:01+04:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Ковалев Денис\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Pipe &mdash; что это? Pipe (конвеер) &ndash; это однонаправленный канал межпроцессного взаимодействия. Термин был придуман Дугласом Макилроем для командной оболочки Unix и н...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F195152\\\u002F#post-content-body\",\"about\":[\"h_linux\",\"f_admin\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F195152\\\u002F41035eb07c1351968d4c8c2d2449d6c5\\\u002F\"]}","metaDescription":"Pipe — что это?\r\nPipe (конвеер) – это однонаправленный канал межпроцессного взаимодействия. Термин был придуман Дугласом Макилроем для командной оболочки Unix и назван по аналогии с трубопроводом....","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":"linux"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

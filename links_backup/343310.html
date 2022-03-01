@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Регулярные выражения для самых маленьких / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/badoo\/blog\/343310\/"},"headline":"Регулярные выражения для самых маленьких","datePublished":"2017-11-27T16:46:35+03:00","dateModified":"2018-09-11T15:27:13+03:00","author":{"@type":"Person","name":"Виталий Котов"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Привет, Хабр.  Меня зовут Виталий Котов и я немного знаю о регулярных выражениях. Под катом я расскажу основы работы с ними. На эту тему написано много теоретиче...","url":"https:\/\/habr.com\/ru\/company\/badoo\/blog\/343310\/#post-content-body","about":["c_badoo","h_php","h_javascript","h_programming","h_regex","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/343310\/d0f23bf9e323113108590f77ea1a8b9f\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Регулярные выражения для самых маленьких" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Регулярные выражения для самых маленьких" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Регулярные выражения для самых маленьких" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Привет, Хабр.
+
+Меня зовут Виталий Котов и я немного знаю о регулярных выражениях. Под катом я расскажу основы работы с ними. На эту тему написано много теоретических статей. В этой статье я решил..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Привет, Хабр.
+
+Меня зовут Виталий Котов и я немного знаю о регулярных выражениях. Под катом я расскажу основы работы с ними. На эту тему написано много теоретических статей. В этой статье я решил..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Привет, Хабр.
+
+Меня зовут Виталий Котов и я немного знаю о регулярных выражениях. Под катом я расскажу основы работы с ними. На эту тему написано много теоретических статей. В этой статье я решил..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Привет, Хабр.
+
+Меня зовут Виталий Котов и я немного знаю о регулярных выражениях. Под катом я расскажу основы работы с ними. На эту тему написано много теоретических статей. В этой статье я решил..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Привет, Хабр.
+
+Меня зовут Виталий Котов и я немного знаю о регулярных выражениях. Под катом я расскажу основы работы с ними. На эту тему написано много теоретических статей. В этой статье я решил..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/343310/d0f23bf9e323113108590f77ea1a8b9f/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/343310/d0f23bf9e323113108590f77ea1a8b9f/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/343310/d0f23bf9e323113108590f77ea1a8b9f/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/343310/d0f23bf9e323113108590f77ea1a8b9f/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/343310/d0f23bf9e323113108590f77ea1a8b9f/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="343310" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2017-11-27T13:46:35.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/badoo/blog/343310/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="regexp, javascript, junior developer, php">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/343310/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="343310.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/343310/d0f23bf9e323113108590f77ea1a8b9f/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="badoo" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><div class="tm-company-card__branding tm-company-article__branding tm-company-card__branding_loading"><div class="tm-company-card__branding-placeholder"><!----></div> <a href="https://tech.badoo.com/"><img src="https://habrastorage.org/getpro/habr/branding/760/e1e/777/760e1e777c1a4ef5a44a2da009719a85.png" width="100%" class="tm-company-card__branding-image"></a></div></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/badoo/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/69e/0a4/840/69e0a4840cbfdc565559f6af093b5835.png" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">121.53</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/badoo/profile/" class="tm-company-card__name">
+      Badoo
+    </a> <div class="tm-company-card__description">Big Dating</div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/nizkopal/" title="nizkopal" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/8be/a2c/cd9/8bea2ccd98bb83c38b71765c893ef1c7.png" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/nizkopal/" class="tm-user-info__username">
+      nizkopal
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2017-11-27T13:46:35.000Z" title="2017-11-27, 16:46">27  ноября  2017 в 16:46</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Регулярные выражения для самых маленьких</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/badoo/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании Badoo</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/php/" class="tm-article-snippet__hubs-item-link"><span>PHP</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/javascript/" class="tm-article-snippet__hubs-item-link"><span>JavaScript</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/programming/" class="tm-article-snippet__hubs-item-link"><span>Программирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/regex/" class="tm-article-snippet__hubs-item-link"><span>Регулярные выражения</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">Привет, Хабр.<br/>
+<br/>
+Меня зовут Виталий Котов и я немного знаю о регулярных выражениях. Под катом я расскажу основы работы с ними. На эту тему написано много теоретических статей. В этой статье я решил сделать упор на количество примеров. Мне кажется, что это лучший способ показать возможности этого инструмента.<br/>
+<br/>
+Некоторые из них для наглядности будут показаны на примере языков программирования PHP или JavaScript, но в целом они работают независимо от ЯП.<br/>
+<br/>
+Из названия понятно, что статья ориентирована на самый начальный уровень — тех, кто еще ни разу не использовал регулярные выражения в своих программах или делал это без должного понимания.<br/>
+<br/>
+В конце статьи я в двух словах расскажу, какие задачи нельзя решить регулярными выражениями и какие инструменты для этого стоит использовать.<br/>
+<br/>
+Поехали!<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/h1/9i/4n/h19i4ng_7n8_7mpap5spiy-fe8o.jpeg" data-src="https://habrastorage.org/webt/h1/9i/4n/h19i4ng_7n8_7mpap5spiy-fe8o.jpeg" data-blurred="true"/><br/>
+<a name="habracut"></a><br/>
+<h2>Вступление</h2><br/>
+<b>Регулярные выражения</b> — язык поиска подстроки или подстрок в тексте. Для поиска используется паттерн (шаблон, маска), состоящий из символов и метасимволов (символы, которые обозначают не сами себя, а набор символов).<br/>
+<br/>
+Это довольно мощный инструмент, который может пригодиться во многих случая — поиск, проверка на корректность строки и т.д. Спектр его возможностей трудно уместить в одну статью.<br/>
+<br/>
+В PHP работа с регулярными выражениями заключается в наборе функций, из которых я чаще всего использую следующие: <br/>
+<br/>
+<ul>
+<li>preg_match (<a href="http://php.net/manual/en/function.preg-match.php">http://php.net/manual/en/function.preg-match.php</a>)</li>
+<li>preg_match_all (<a href="http://php.net/manual/en/function.preg-match-all.php">http://php.net/manual/en/function.preg-match-all.php</a>)</li>
+<li>preg_replace (<a href="http://php.net/manual/en/function.preg-replace.php">http://php.net/manual/en/function.preg-replace.php</a>)</li>
+</ul><br/>
+Для работы с ними нужен текст, в котором мы будем искать или заменять подстроки, а также само регулярное выражение, описывающее правило поиска.<br/>
+<br/>
+Функции на match возвращают число найденных подстрок или false в случае ошибок. Функция на replace возвращает измененную строку/массив или null в случае ошибки. Результат можно привести к bool (false, если не было найдено значений и true, если было) и использовать вместе с if или assertTrue для обработки результата работы.<br/>
+<br/>
+В JS чаще всего мне приходится использовать:<br/>
+<br/>
+<ul>
+<li>match (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match</a>)</li>
+<li>test (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test</a>)</li>
+<li>replace (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace</a>)</li>
+</ul><br/>
+Все дальнейшие примеры предлагаю смотреть в <a href="https://regex101.com/">https://regex101.com/</a>. Это удобный и наглядный интерфейс для работы с регулярными выражениями.<br/>
+<br/>
+<h2>Пример использования функций</h2><br/>
+В PHP регулярное выражение — это строка, которая начинается и заканчивается символом-разделителем. Все, что находится между разделителями и есть регулярное выражение. <br/>
+<br/>
+Часто используемыми разделителями являются косые черты “/”, знаки решетки “#” и тильды “~”. Ниже представлены примеры шаблонов с корректными разделителями:<br/>
+<br/>
+<ul>
+<li>/foo bar/</li>
+<li>#^[^0-9]$#</li>
+<li>%[a-zA-Z0-9_-]%</li>
+</ul><br/>
+Если необходимо использовать разделитель внутри шаблона, его нужно проэкранировать с помощью обратной косой черты. Если разделитель часто используется в шаблоне, в целях удобочитаемости, лучше выбрать другой разделитель для этого шаблона.<br/>
+<br/>
+<ul>
+<li>/http:\/\//</li>
+<li>#http://#</li>
+</ul><br/>
+В JavaScript регулярные выражения реализованы отдельным объектом RegExp и интегрированы в методы строк.<br/>
+<br/>
+Создать регулярное выражение можно так:<br/>
+<br/>
+<pre><code class="javascript">let regexp = new RegExp("шаблон", "флаги");
+</code></pre><br/>
+Или более короткий вариант:<br/>
+<br/>
+<pre><code class="javascript">let regexp = /шаблон/; // без флагов
+</code></pre><br/>
+<pre><code class="javascript">let regexp = /шаблон/gmi; // с флагами gmi (изучим их дальше)
+</code></pre><br/>
+Пример самого простого регулярного выражения для поиска:<br/>
+<br/>
+<pre><code class="php">RegExp: /o/
+Text: hello world
+</code></pre><br/>
+В этом примере мы просто ищем все символы “o”.<br/>
+<br/>
+В PHP разница между preg_match и preg_match_all в том, что первая функция найдет только первый match и закончит поиск, в то время как вторая функция вернет все вхождения.<br/>
+<br/>
+Пример кода на PHP:<br/>
+<br/>
+<pre><code class="php">&lt;?php
+$text = ‘hello world’;
+$regexp = ‘/o/’;
+$result = preg_match($regexp, $text, $match);
+var_dump(
+    $result,
+    $match
+);
+</code></pre><br/>
+<pre><code class="php">int(1)  // нам вернулось одно вхождение, т.к. после функция заканчивает работу
+array(1) {
+  [0]=>
+  string(1) "o" // нам вернулось вхождение, аналогичное запросу, так как метасимволов мы пока не использовали
+}
+</code></pre><br/>
+Пробуем то же самое для второй функции:<br/>
+<br/>
+<pre><code class="php">&lt;?php
+$text = ‘hello world’;
+$regexp = ‘/o/’;
+$result = preg_match_all($regexp, $text, $match);
+var_dump(
+    $result,
+    $match
+);
+</code></pre><br/>
+<pre><code class="php">int(2)
+array(1) {
+  [0]=>
+  array(2) {
+    [0]=>
+    string(1) "o"
+    [1]=>
+    string(1) "o"
+  }
+}
+</code></pre><br/>
+В последнем случае функция вернула все вхождения, которые есть в нашем тексте.<br/>
+<br/>
+Тот же пример на JavaScript:<br/>
+<br/>
+<pre><code class="javascript">let str = 'Hello world';
+let result = str.match(/o/);
+console.log(result);
+</code></pre><br/>
+<pre><code class="php">["o", index: 4, input: "Hello world"]
+</code></pre><br/>
+<h2>Модификаторы шаблонов</h2><br/>
+Для регулярных выражений существует набор модификаторов, которые меняют работу поиска. Они обозначаются одиночной буквой латинского алфавита и ставятся в конце регулярного выражения, после закрывающего “/”.<br/>
+<br/>
+<ul>
+<li>i — символы в шаблоне соответствуют символам как верхнего, так и нижнего регистра.</li>
+<li>m — по умолчанию текст обрабатывается, как однострочная символьная строка. Метасимвол начала строки '^' соответствует только началу обрабатываемого текста, в то время как метасимвол конца строки '$' соответствует концу текста. Если этот модификатор используется, метасимволы «начало строки» и «конец строки» также соответствуют позициям перед произвольным символом перевода и строки и, соответственно, после, как и в самом начале, и в самом конце строки.</li>
+</ul><br/>
+Об остальных модификаторах, используемых в PHP, можно <a href="http://php.net/manual/en/reference.pcre.pattern.modifiers.php">почитать тут</a>.<br/>
+<br/>
+В JavaScript — <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp">тут</a>.<br/>
+<br/>
+О том, какие вообще бывают модификаторы, можно <a href="https://ru.wikipedia.org/wiki/%D0%A0%D0%B5%D0%B3%D1%83%D0%BB%D1%8F%D1%80%D0%BD%D1%8B%D0%B5_%D0%B2%D1%8B%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F#%D0%9C%D0%BE%D0%B4%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%82%D0%BE%D1%80%D1%8B">почитать тут</a>.<br/>
+<br/>
+Пример предыдущего регулярного выражения с модификатором на JavaScript:<br/>
+<br/>
+<pre><code class="javascript">let str = "hello world \
+              How is it going?"
+let result = str.match(/o/g);
+console.log(result);
+</code></pre><br/>
+<pre><code class="php">["o", "o", "o", "o"]
+</code></pre><br/>
+<h2>Метасимволы в регулярных выражениях</h2><br/>
+Примеры по началу будут довольно примитивные, потому что мы знакомимся с самыми основами. Чем больше мы узнаем, тем ближе к реалиям будут примеры.<br/>
+<br/>
+Чаще всего мы заранее не знаем, какой текст нам придется парсить. Заранее известен только примерный набор правил. Будь то пинкод в смс, email в письме и т.п.<br/>
+<br/>
+Первый пример, нам надо получить все числа из текста:<br/>
+<br/>
+<pre><code class="php">Текст: “Привет, твой номер 1528. Запомни его.”
+</code></pre><br/>
+Чтобы выбрать любое число, надо собрать все числа, указав “[0123456789]”. Более коротко можно задать вот так: “[0-9]”. Для всех цифр существует метасимвол “\d”. Он работает идентично.<br/>
+<br/>
+Но если мы укажем регулярное выражение “/\d/”, то нам вернётся только первая цифра. Мы, конечно, можем использовать модификатор “g”, но в таком случае каждая цифра вернется отдельным элементом массива, поскольку будет считаться новым вхождением.<br/>
+<br/>
+Для того, чтобы вывести подстроку единым вхождением, существуют символы плюс “+” и звездочка “*”. Первый указывает, что нам подойдет подстрока, где есть как минимум один подходящий под набор символ. Второй — что данный набор символов может быть, а может и не быть, и это нормально. Помимо этого мы можем указать точное значение подходящих символов вот так: “{N}”, где N — нужное количество. Или задать “от” и “до”, указав вот так: “{N, M}”.<br/>
+<br/>
+Сейчас будет пара примеров, чтобы это уложилось в голове:<br/>
+<br/>
+<pre><code class="php">Текст: “Я хочу ходить на работу 2 раза в неделю.”
+Надо получить цифру из тексте.
+RegExp: “/\d/”
+</code></pre><br/>
+<pre><code class="php">Текст: “Ваш пинкод: 24356” или “У вас нет пинкода.”
+Надо получить пинкод или ничего, если его нет.
+RegExp: “/\d*/”
+</code></pre><br/>
+<pre><code class="php">Текст: “Номер телефона 89091534357”
+Надо получить первые 11 символов, или FALSE, если их меньше.
+RegExp: “/\d{11}/”
+</code></pre><br/>
+Примерно так же мы работает с буквами, не забывая, что у них бывает регистр. Вот так можно задавать буквы:<br/>
+<br/>
+<ul>
+<li>[a-z]</li>
+<li>[a-zA-Z]</li>
+<li>[а-яА-Я]</li>
+</ul><br/>
+C кириллицей указанный диапазон работает по-разному для разных кодировок. В юникоде, например, в этот диапазон не входит буква “ё”. Подробнее об этом <a href="https://unicode-table.com/en/blocks/cyrillic/">тут</a>.<br/>
+<br/>
+Пара примеров:<br/>
+<br/>
+<pre><code class="php">Текст: “Вот бежит олень” или “Вот ваш индюк”
+Надо выбрать либо слово “олень”, либо слово “индюк”.
+RegExp: “/[а-яА-Я]+/”
+</code></pre><br/>
+Такое выражение выберет все слова, которые есть в предложении и написаны кириллицей. Нам нужно третье слово.<br/>
+<br/>
+Помимо букв и цифр у нас могут быть еще важные символы, такие как:<br/>
+<br/>
+<ul>
+<li>\s — пробел</li>
+<li>^ — начало строки</li>
+<li>$ — конец строки</li>
+<li>| — “или”</li>
+</ul><br/>
+Предыдущий пример стал проще:<br/>
+<br/>
+<pre><code class="php">Текст: “Вот бежит олень” или “Вот бежит индюк”
+Надо выбрать либо “олень”, либо “индюк”.
+RegExp: “/[а-яА-Я]+$/”
+</code></pre><br/>
+Если мы точно знаем, что искомое слово последнее, мы ставим “$” и результатом работы будет только тот набор символов, после которого идет конец строки.<br/>
+<br/>
+То же самое с началом строки:<br/>
+<br/>
+<pre><code class="php">Текст: “Олень вкусный” или “Индюк вкусный”
+Надо выбрать либо “олень”, либо “индюк”.
+RegExp:  “/^[а-яА-Я]+/”
+</code></pre><br/>
+Прежде, чем знакомиться с метасимволами дальше, надо отдельно обсудить символ “^”, потому что он у нас ходит на две работы сразу (это чтобы было интереснее). В некоторых случаях он обозначает начало строки, но в некоторых — отрицание.<br/>
+<br/>
+Это нужно для тех случаев, когда проще указать символы, которые нас не устраивают, чем те, которые устраивают.<br/>
+<br/>
+Допустим, мы собрали набор символов, которые нам подходят: “[a-z0-9]” (нас устроит любая маленькая латинская буква или цифра). А теперь предположим, что нас устроит любой символ, кроме этого. Это будет обозначаться вот так: “[^a-z0-9]”.<br/>
+<br/>
+Пример:<br/>
+<br/>
+<pre><code class="php">Текст: “Я люблю кушать суп”
+Надо выбрать все слова.
+RegExp: “[^\s]+”
+</code></pre><br/>
+Выбираем все “не пробелы”.<br/>
+<br/>
+Итак, вот список основных метасимволов:<br/>
+<br/>
+<ul>
+<li>\d — соответствует любой цифре; эквивалент [0-9]</li>
+<li>\D — соответствует любому не числовому символу; эквивалент [^0-9]</li>
+<li>\s — соответствует любому символу whitespace; эквивалент [ \t\n\r\f\v]</li>
+<li>\S — соответствует любому не-whitespace символу; эквивалент [^ \t\n\r\f\v]</li>
+<li>\w — соответствует любой букве или цифре; эквивалент [a-zA-Z0-9_]</li>
+<li>\W — наоборот; эквивалент [^a-zA-Z0-9_]</li>
+<li>. — (просто точка) любой символ, кроме перевода “каретки”</li>
+</ul><br/>
+<h2>Операторы [] и ()</h2><br/>
+По описанному выше можно было догадаться, что [] используется для группировки нескольких символов вместе. Так мы говорим, что нас устроит любой символ из набора.<br/>
+<br/>
+Пример:<br/>
+<br/>
+<pre><code class="php">Текст: “Не могу перевести I dont know, помогите!”
+Надо получить весь английский текст.
+RegExp: “/[A-Za-z\s]{2,}/”
+</code></pre><br/>
+Тут мы собрали в группу (между символами []) все латинские буквы и пробел. При помощи {} указали, что нас интересуют вхождения, где <i>минимум</i> 2 символа, чтобы исключить вхождения из пустых пробелов.<br/>
+<br/>
+Аналогично мы могли бы получить все русские слова, сделав инверсию: “[^A-Za-z\s]{2,}”.<br/>
+<br/>
+В отличие от [], символы () собирают отмеченные выражения. Их иногда называют “захватом”. <br/>
+<br/>
+Они нужны для того, чтобы передать выбранный кусок (который, возможно, состоит из нескольких вхождений [] в результат выдачи).<br/>
+<br/>
+Пример:<br/>
+<br/>
+<pre><code class="php">Текст: ‘Email you sent was ololo@example.com Is it correct?’
+Нам надо выбрать email.
+</code></pre><br/>
+Существует много решений. Пример ниже — это <i>приближенный</i> вариант, который просто покажет возможности регулярных выражений. На самом деле есть <a href="https://en.wikipedia.org/wiki/Request_for_Comments">RFC</a>, который определяет правильность email. И есть “регулярки” по RFC — <a href="https://fightingforalostcause.net/content/misc/2006/compare-email-regex.php">вот примеры</a>.<br/>
+<br/>
+Мы выбираем все, что не пробел (потому что первая часть email может содержать любой набор символов), далее должен идти символ @, далее что угодно, кроме точки и пробела, далее точка, далее любой символ латиницы в нижнем регистре…<br/>
+<br/>
+Итак, поехали:<br/>
+<br/>
+<ul>
+<li>мы выбираем все, что не пробел: “[^\s]+”</li>
+<li>мы выбираем знак @: “@”</li>
+<li>мы выбираем что угодно, кроме точки и пробела: “[^\s\.]+”</li>
+<li>мы выбираем точку: “\.” (обратный слеш нужен для экранирования метасимвола, так как знак точки описывает любой символ — см. выше)<br/>
+</li>
+<li>мы выбираем любой символ латиницы в нижнем регистре: “[a-z]+”</li>
+</ul><br/>
+Оказалось не так сложно. Теперь у нас есть email, собранный по частям. Рассмотрим на примере результата работы preg_match в PHP:<br/>
+<br/>
+<pre><code class="php">&lt;?php
+$text = ‘Email you sent was ololo@example.com. Is it correct?’;
+$regexp = ‘/[^\s]+@[^\s\.]+\.[a-z]+/’;
+$result = preg_match_all($regexp, $text, $match);
+var_dump(
+    $result,
+    $match
+);
+</code></pre><br/>
+<pre><code class="php">int(1)
+array(1) {
+  [0]=>
+  array(1) {
+    [0]=>
+    string(13) "ololo@example.com"
+  }
+}
+</code></pre><br/>
+Получилось! Но что, если теперь нам надо по отдельности получить домен и имя по email? И как-то использовать дальше в коде? Вот тут нам поможет “захват”. Мы просто выбираем, что нам нужно, и оборачиваем знаками (), как в примере:<br/>
+<br/>
+Было: <br/>
+<br/>
+<pre><code class="php">/[^\s]+@[^\s\.]+\.[a-z]+/
+</code></pre><br/>
+Стало: <br/>
+<br/>
+<pre><code class="php">/([^\s]+)@([^\s\.]+\.[a-z]+)/
+</code></pre><br/>
+Пробуем:<br/>
+<br/>
+<pre><code class="php">&lt;?php
+$text = ‘Email you sent was ololo@example.com. Is it correct?’;
+$regexp = ‘/([^\s]+)@([^\s\.]+\.[a-z]+)/’;
+$result = preg_match_all($regexp, $text, $match);
+var_dump(
+    $result,
+    $match
+);
+</code></pre><br/>
+<pre><code class="php">int(1)
+array(3) {
+  [0]=>
+  array(1) {
+    [0]=>
+    string(13) "ololo@example.com"
+  }
+  [1]=>
+  array(1) {
+    [0]=>
+    string(5) "ololo"
+  }
+  [2]=>
+  array(1) {
+    [0]=>
+    string(7) "example.com"
+  }
+}
+</code></pre><br/>
+В массиве match нулевым элементом всегда идет полное вхождение регулярного выражения. А дальше по очереди идут “захваты”.<br/>
+<br/>
+В PHP можно именовать “захваты”, используя следующий синтаксис:<br/>
+<br/>
+<pre><code class="php">/(?&lt;mail>[^\s]+)@(?&lt;domain>[^\s\.]+\.[a-z]+)/
+</code></pre><br/>
+Тогда массив матча станет ассоциативным:<br/>
+<br/>
+<pre><code class="php">&lt;?php
+$text = ‘Email you sent was ololo@example.com. Is it correct?’;
+$regexp = ‘/(?&lt;mail>[^\s]+)@(?&lt;domain>[^\s\.]+\.[a-z]+)/’;
+$result = preg_match_all($regexp, $text, $match);
+var_dump(
+    $result,
+    $match
+);
+</code></pre><br/>
+<pre><code class="php">int(1)
+array(5) {
+  [0]=>
+  array(1) {
+    [0]=>
+    string(13) "ololo@example.com"
+  }
+  ["mail"]=>
+  array(1) {
+    [0]=>
+    string(5) "ololo"
+  }
+  ["domain"]=>
+  array(1) {
+    [0]=>
+    string(7) "example.com"
+  }
+}
+</code></pre><br/>
+Это сразу +100 к читаемости и кода, и регулярки.<br/>
+<br/>
+<h2>Примеры из реальной жизни</h2><br/>
+<h3>Парсим письмо в поисках нового пароля:</h3><br/>
+Есть письмо с HTML-кодом, надо выдернуть из него новый пароль. Текст может быть либо на английском, либо на русском:<br/>
+<br/>
+<pre><code class="php">Текст: “пароль: &lt;b>f23f43tgt4&lt;/b>” или “password: &lt;b>wh4k38f4&lt;/b>”
+RegExp: “(password|пароль):\s&lt;b>([^&lt;]+)&lt;\/b>”
+</code></pre><br/>
+Сначала мы говорим, что текст перед паролем может быть двух вариантов, использовав “или”. <br/>
+Вариантов можно перечислять сколько угодно:<br/>
+<br/>
+<pre><code class="php">(password|пароль)
+</code></pre><br/>
+Далее у нас знак двоеточия и один пробел:<br/>
+<br/>
+<pre><code class="php">:\s
+</code></pre><br/>
+Далее знак тега b:<br/>
+<br/>
+<pre><code class="php">&lt;b>
+</code></pre><br/>
+А дальше нас интересует все, что не символ “&lt;”, поскольку он будет свидетельствовать о том, что тег b закрывается:<br/>
+<br/>
+<pre><code class="php">([^&lt;]+)
+</code></pre><br/>
+Мы оборачиваем его в захват, потому что именно он нам и нужен.<br/>
+Далее мы пишем закрывающий тег b, проэкранировав символ “/”, так как это спецсимвол:<br/>
+<br/>
+<pre><code class="php">&lt;\/b>
+</code></pre><br/>
+Все довольно просто.<br/>
+<br/>
+<h3>Парсим URL:</h3><br/>
+В PHP есть клевая функция, которая помогает работать с урлом, разбирая его на составные части:<br/>
+<br/>
+<pre><code class="php">&lt;?php
+$URL = "https://hello.world.ru/uri/starts/here?get_params=here#anchor";
+$parsed = parse_url($URL);
+var_dump($parsed);
+</code></pre><br/>
+<pre><code class="php">array(5) {
+  ["scheme"]=>
+  string(5) "https"
+  ["host"]=>
+  string(14) "hello.world.ru"
+  ["path"]=>
+  string(16) "/uri/starts/here"
+  ["query"]=>
+  string(15) "get_params=here"
+  ["fragment"]=>
+  string(6) "anchor"
+}
+</code></pre><br/>
+Давай сделаем то же самое, только регуляркой? :)<br/>
+<br/>
+Любой урл начинается со схемы. Для нас это протокол http/https. Можно было бы сделать логическое “или”:<br/>
+<br/>
+<pre><code class="php">(http|https)
+</code></pre><br/>
+Но можно схитрить и сделать вот так:<br/>
+<br/>
+<pre><code class="php">http[s]?
+</code></pre><br/>
+В данном случае символ “?” означает, что “s” может есть, может нет…<br/>
+<br/>
+Далее у нас идет “://”, но символ “/” нам придется экранировать (см. выше):<br/>
+<br/>
+<pre><code class="php">“:\/\/”
+</code></pre><br/>
+Далее у нас до знака “/” или до конца строки идет домен. Он может состоять из цифр, букв, знака подчеркивания, тире и точки:<br/>
+<br/>
+<pre><code class="php">[\w\.-]+
+</code></pre><br/>
+Тут мы собрали в единую группу метасимвол “\w”, точку ”\.” и тире ”-”.<br/>
+<br/>
+Далее идет URI. Тут все просто, мы берем все до вопросительного знака или конца строки:<br/>
+<br/>
+<pre><code class="php">[^?$]+
+</code></pre><br/>
+Теперь знак вопроса, который может быть, а может не быть:<br/>
+<br/>
+<pre><code class="php">[?]?
+</code></pre><br/>
+Далее все до конца строки или начала якоря (символ #) — не забываем о том, что этой части тоже может не быть:<br/>
+<br/>
+<pre><code class="php">[^#$]+
+</code></pre><br/>
+Далее может быть #, а может не быть:<br/>
+<br/>
+<pre><code class="php">[#]?
+</code></pre><br/>
+Дальше все до конца строки, если есть:<br/>
+<br/>
+<pre><code class="php">[^$]+
+</code></pre><br/>
+Вся красота в итоге выглядит так (к сожалению, я не придумал, как вставить эту часть так, чтобы Habr не считал часть строки — комментарием):<br/>
+<br/>
+<pre><code class="php">/(?&lt;scheme>http[s]?):\/\/(?&lt;domain>[\w\.-]+)(?&lt;path>[^?$]+)?(?&lt;query>[^#$]+)?[#]?(?&lt;fragment>[^$]+)?/
+</code></pre><br/>
+Главное не моргать! :)<br/>
+<br/>
+<pre><code class="php">&lt;?php
+$URL = "https://hello.world.ru/uri/starts/here?get_params=here#anchor";
+$regexp = “/(?&lt;scheme>http[s]?):\/\/(?&lt;domain>[\w\.-]+)(?&lt;path>[^?$]+)?(?&lt;query>[^#$]+)?[#]?(?&lt;fragment>[^$]+)?/”;
+$result = preg_match($regexp, $URL, $match);
+var_dump(
+    $result,
+    $match
+);
+</code></pre><br/>
+<pre><code class="php">array(11) {
+  [0]=>
+  string(61) "https://hello.world.ru/uri/starts/here?get_params=here#anchor"
+  ["scheme"]=>
+  string(5) "https"
+  ["domain"]=>
+  string(14) "hello.world.ru"
+  ["URI"]=>
+  string(16) "/uri/starts/here"
+  ["params"]=>
+  string(15) "get_params=here"
+  ["anchor"]=>
+  string(6) "anchor"
+}
+</code></pre><br/>
+Получилось примерно то же самое, только своими руками.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/qf/qo/1o/qfqo1ogxyrwja740mtg4en7de7e.png" data-src="https://habrastorage.org/webt/qf/qo/1o/qfqo1ogxyrwja740mtg4en7de7e.png"/><br/>
+<br/>
+<h2>Какие задачи не решаются регулярными выражениями</h2><br/>
+На первый взгляд кажется, что регулярными выражениями можно описать и распарсить любой текст. Но, к сожалению, это не так.<br/>
+<br/>
+Регулярные выражении — это подвид формальных языков, который в иерархии Хомского принадлежат 3-ому типу, самому простому. Об этом <a href="https://ru.wikipedia.org/wiki/%D0%98%D0%B5%D1%80%D0%B0%D1%80%D1%85%D0%B8%D1%8F_%D0%A5%D0%BE%D0%BC%D1%81%D0%BA%D0%BE%D0%B3%D0%BE">тут</a>.<br/>
+<br/>
+При помощи этого языка мы не можем, например, парсить синтаксис языков программирования с вложенной грамматикой. Или HTML код.<br/>
+<br/>
+<h3>Примеры задач:</h3><br/>
+У нас есть span, внутри которых много других span и мы не знаем сколько. Надо выбрать все, что находится внутри этого span:<br/>
+<br/>
+<pre><code class="php">&lt;span>
+    &lt;span>ololo1&lt;/span>
+    &lt;span>ololo2&lt;/span>
+    &lt;span>ololo3&lt;/span>
+    &lt;span>ololo4&lt;/span>
+    &lt;span>ololo5&lt;/span>
+    &lt;...>
+&lt;/span>
+</code></pre><br/>
+Само собой, если мы парсим HTML, где есть не только этот span. :)<br/>
+<br/>
+Суть в том, что мы не можем начать с какого-то момента “считать” символы span и /span, подразумевая, что открывающих и закрывающих символов должно быть равное количество. И “понять”, что закрывающий символ, для которого ранее не было пары — тот самый закрывающий, который обосабливает блок.<br/>
+<br/>
+То же самое с кодом и символами {}.<br/>
+<br/>
+Например:<br/>
+<br/>
+<pre><code class="php">function methodA() {
+    function() {&lt;...>}
+    if () { if () {&lt;...>} }
+}
+</code></pre><br/>
+В такой структуре мы не сможем при помощи только регулярного выражения отличить закрывающую фигурную скобку внутри кода от той, которая завершает начальную функцию (если код состоит не только из этой функции).<br/>
+<br/>
+Для решение таких задач используются языки более высокого уровня.<br/>
+<br/>
+<h2>Заключение</h2><br/>
+Я постарался довольно подробно рассказать об азах мира регулярных выражений. Конечно невозможно в одну статью уместить все. Дальнейшая работа с ними — вопрос опыта и умения гуглить.<br/>
+<br/>
+Спасибо за внимание.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bregexp%5D" class="tm-tags-list__link">regexp</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bjavascript%5D" class="tm-tags-list__link">javascript</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bjunior%20developer%5D" class="tm-tags-list__link">junior developer</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bphp%5D" class="tm-tags-list__link">php</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/badoo/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании Badoo
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/php/" class="tm-hubs-list__link">
+    PHP
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/javascript/" class="tm-hubs-list__link">
+    JavaScript
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/programming/" class="tm-hubs-list__link">
+    Программирование
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/regex/" class="tm-hubs-list__link">
+    Регулярные выражения
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 67: ↑64 и ↓3</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 67: ↑64 и ↓3" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+61</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">183K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    488
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/badoo/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/69e/0a4/840/69e0a4840cbfdc565559f6af093b5835.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/badoo/profile/" class="tm-company-snippet__title">Badoo</a> <div class="tm-company-snippet__description">Big Dating</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="https://tech.badoo.com/" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Сайт
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/nizkopal/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/8be/a2c/cd9/8bea2ccd98bb83c38b71765c893ef1c7.png" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 75 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    75
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Виталий Котов</span> <a href="https://habr.com/ru/users/nizkopal/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @nizkopal
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Lead Automation QA Engineer at Badoo</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/badoo/blog/343310/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 55 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><span>
+      2006
+    </span></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="http://badoo.com/" target="_blank" class="tm-company-basic-info__link">
+      badoo.com
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    501–1 000 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2009-12-14T21:34:10.000Z" title="2009-12-15, 00:34">15  декабря  2009</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Представитель</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://habr.com/ru/users/Yulcifer/" class="tm-company-basic-info__link">
+      Yuliya Telezhkina
+    </a></dd></dl></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/badoo/blog/343310/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/badoo/blog/343310/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"343310":{"id":"343310","timePublished":"2017-11-27T13:46:35+00:00","isCorporative":true,"lang":"ru","titleHtml":"Регулярные выражения для самых маленьких","leadData":{"textHtml":"Привет, Хабр.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nМеня зовут Виталий Котов и я немного знаю о регулярных выражениях. Под катом я расскажу основы работы с ними. На эту тему написано много теоретических статей. В этой статье я решил сделать упор на количество примеров. Мне кажется, что это лучший способ показать возможности этого инструмента.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nНекоторые из них для наглядности будут показаны на примере языков программирования PHP или JavaScript, но в целом они работают независимо от ЯП.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nИз названия понятно, что статья ориентирована на самый начальный уровень — тех, кто еще ни разу не использовал регулярные выражения в своих программах или делал это без должного понимания.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nВ конце статьи я в двух словах расскажу, какие задачи нельзя решить регулярными выражениями и какие инструменты для этого стоит использовать.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nПоехали!\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fh1\u002F9i\u002F4n\u002Fh19i4ng_7n8_7mpap5spiy-fe8o.jpeg\"\u003E\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":75,"votesCount":75},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1270350","alias":"nizkopal","fullname":"Виталий Котов","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F8be\u002Fa2c\u002Fcd9\u002F8bea2ccd98bb83c38b71765c893ef1c7.png","speciality":"Lead Automation QA Engineer at Badoo"},"statistics":{"commentsCount":55,"favoritesCount":488,"readingCount":182977,"score":61,"votesCount":67},"hubs":[{"relatedData":null,"id":"13276","alias":"badoo","type":"corporative","title":"Блог компании Badoo","titleHtml":"Блог компании Badoo","isProfiled":false},{"relatedData":null,"id":"260","alias":"php","type":"collective","title":"PHP","titleHtml":"PHP","isProfiled":true},{"relatedData":null,"id":"357","alias":"javascript","type":"collective","title":"JavaScript","titleHtml":"JavaScript","isProfiled":true},{"relatedData":null,"id":"359","alias":"programming","type":"collective","title":"Программирование","titleHtml":"Программирование","isProfiled":true},{"relatedData":null,"id":"9457","alias":"regex","type":"collective","title":"Регулярные выражения","titleHtml":"Регулярные выражения","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EПривет, Хабр.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМеня зовут Виталий Котов и я немного знаю о регулярных выражениях. Под катом я расскажу основы работы с ними. На эту тему написано много теоретических статей. В этой статье я решил сделать упор на количество примеров. Мне кажется, что это лучший способ показать возможности этого инструмента.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНекоторые из них для наглядности будут показаны на примере языков программирования PHP или JavaScript, но в целом они работают независимо от ЯП.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИз названия понятно, что статья ориентирована на самый начальный уровень — тех, кто еще ни разу не использовал регулярные выражения в своих программах или делал это без должного понимания.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ конце статьи я в двух словах расскажу, какие задачи нельзя решить регулярными выражениями и какие инструменты для этого стоит использовать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоехали!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fh1\u002F9i\u002F4n\u002Fh19i4ng_7n8_7mpap5spiy-fe8o.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fh1\u002F9i\u002F4n\u002Fh19i4ng_7n8_7mpap5spiy-fe8o.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EВступление\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cb\u003EРегулярные выражения\u003C\u002Fb\u003E — язык поиска подстроки или подстрок в тексте. Для поиска используется паттерн (шаблон, маска), состоящий из символов и метасимволов (символы, которые обозначают не сами себя, а набор символов).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто довольно мощный инструмент, который может пригодиться во многих случая — поиск, проверка на корректность строки и т.д. Спектр его возможностей трудно уместить в одну статью.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ PHP работа с регулярными выражениями заключается в наборе функций, из которых я чаще всего использую следующие: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Epreg_match (\u003Ca href=\"http:\u002F\u002Fphp.net\u002Fmanual\u002Fen\u002Ffunction.preg-match.php\"\u003Ehttp:\u002F\u002Fphp.net\u002Fmanual\u002Fen\u002Ffunction.preg-match.php\u003C\u002Fa\u003E)\u003C\u002Fli\u003E\r\n\u003Cli\u003Epreg_match_all (\u003Ca href=\"http:\u002F\u002Fphp.net\u002Fmanual\u002Fen\u002Ffunction.preg-match-all.php\"\u003Ehttp:\u002F\u002Fphp.net\u002Fmanual\u002Fen\u002Ffunction.preg-match-all.php\u003C\u002Fa\u003E)\u003C\u002Fli\u003E\r\n\u003Cli\u003Epreg_replace (\u003Ca href=\"http:\u002F\u002Fphp.net\u002Fmanual\u002Fen\u002Ffunction.preg-replace.php\"\u003Ehttp:\u002F\u002Fphp.net\u002Fmanual\u002Fen\u002Ffunction.preg-replace.php\u003C\u002Fa\u003E)\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nДля работы с ними нужен текст, в котором мы будем искать или заменять подстроки, а также само регулярное выражение, описывающее правило поиска.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nФункции на match возвращают число найденных подстрок или false в случае ошибок. Функция на replace возвращает измененную строку\u002Fмассив или null в случае ошибки. Результат можно привести к bool (false, если не было найдено значений и true, если было) и использовать вместе с if или assertTrue для обработки результата работы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ JS чаще всего мне приходится использовать:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Ematch (\u003Ca href=\"https:\u002F\u002Fdeveloper.mozilla.org\u002Fen-US\u002Fdocs\u002FWeb\u002FJavaScript\u002FReference\u002FGlobal_Objects\u002FString\u002Fmatch\"\u003Ehttps:\u002F\u002Fdeveloper.mozilla.org\u002Fen-US\u002Fdocs\u002FWeb\u002FJavaScript\u002FReference\u002FGlobal_Objects\u002FString\u002Fmatch\u003C\u002Fa\u003E)\u003C\u002Fli\u003E\r\n\u003Cli\u003Etest (\u003Ca href=\"https:\u002F\u002Fdeveloper.mozilla.org\u002Fen-US\u002Fdocs\u002FWeb\u002FJavaScript\u002FReference\u002FGlobal_Objects\u002FRegExp\u002Ftest\"\u003Ehttps:\u002F\u002Fdeveloper.mozilla.org\u002Fen-US\u002Fdocs\u002FWeb\u002FJavaScript\u002FReference\u002FGlobal_Objects\u002FRegExp\u002Ftest\u003C\u002Fa\u003E)\u003C\u002Fli\u003E\r\n\u003Cli\u003Ereplace (\u003Ca href=\"https:\u002F\u002Fdeveloper.mozilla.org\u002Fen-US\u002Fdocs\u002FWeb\u002FJavaScript\u002FReference\u002FGlobal_Objects\u002FString\u002Freplace\"\u003Ehttps:\u002F\u002Fdeveloper.mozilla.org\u002Fen-US\u002Fdocs\u002FWeb\u002FJavaScript\u002FReference\u002FGlobal_Objects\u002FString\u002Freplace\u003C\u002Fa\u003E)\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nВсе дальнейшие примеры предлагаю смотреть в \u003Ca href=\"https:\u002F\u002Fregex101.com\u002F\"\u003Ehttps:\u002F\u002Fregex101.com\u002F\u003C\u002Fa\u003E. Это удобный и наглядный интерфейс для работы с регулярными выражениями.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EПример использования функций\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nВ PHP регулярное выражение — это строка, которая начинается и заканчивается символом-разделителем. Все, что находится между разделителями и есть регулярное выражение. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЧасто используемыми разделителями являются косые черты “\u002F”, знаки решетки “#” и тильды “~”. Ниже представлены примеры шаблонов с корректными разделителями:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u002Ffoo bar\u002F\u003C\u002Fli\u003E\r\n\u003Cli\u003E#^[^0-9]$#\u003C\u002Fli\u003E\r\n\u003Cli\u003E%[a-zA-Z0-9_-]%\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nЕсли необходимо использовать разделитель внутри шаблона, его нужно проэкранировать с помощью обратной косой черты. Если разделитель часто используется в шаблоне, в целях удобочитаемости, лучше выбрать другой разделитель для этого шаблона.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u002Fhttp:\\\u002F\\\u002F\u002F\u003C\u002Fli\u003E\r\n\u003Cli\u003E#http:\u002F\u002F#\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nВ JavaScript регулярные выражения реализованы отдельным объектом RegExp и интегрированы в методы строк.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСоздать регулярное выражение можно так:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Elet regexp = new RegExp(\"шаблон\", \"флаги\");\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nИли более короткий вариант:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Elet regexp = \u002Fшаблон\u002F; \u002F\u002F без флагов\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Elet regexp = \u002Fшаблон\u002Fgmi; \u002F\u002F с флагами gmi (изучим их дальше)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПример самого простого регулярного выражения для поиска:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003ERegExp: \u002Fo\u002F\nText: hello world\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ этом примере мы просто ищем все символы “o”.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ PHP разница между preg_match и preg_match_all в том, что первая функция найдет только первый match и закончит поиск, в то время как вторая функция вернет все вхождения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПример кода на PHP:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E&lt;?php\n$text = ‘hello world’;\n$regexp = ‘\u002Fo\u002F’;\n$result = preg_match($regexp, $text, $match);\nvar_dump(\n    $result,\n    $match\n);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003Eint(1)  \u002F\u002F нам вернулось одно вхождение, т.к. после функция заканчивает работу\narray(1) {\n  [0]=\u003E\n  string(1) \"o\" \u002F\u002F нам вернулось вхождение, аналогичное запросу, так как метасимволов мы пока не использовали\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПробуем то же самое для второй функции:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E&lt;?php\n$text = ‘hello world’;\n$regexp = ‘\u002Fo\u002F’;\n$result = preg_match_all($regexp, $text, $match);\nvar_dump(\n    $result,\n    $match\n);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003Eint(2)\narray(1) {\n  [0]=\u003E\n  array(2) {\n    [0]=\u003E\n    string(1) \"o\"\n    [1]=\u003E\n    string(1) \"o\"\n  }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ последнем случае функция вернула все вхождения, которые есть в нашем тексте.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТот же пример на JavaScript:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Elet str = 'Hello world';\nlet result = str.match(\u002Fo\u002F);\nconsole.log(result);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E[\"o\", index: 4, input: \"Hello world\"]\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EМодификаторы шаблонов\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nДля регулярных выражений существует набор модификаторов, которые меняют работу поиска. Они обозначаются одиночной буквой латинского алфавита и ставятся в конце регулярного выражения, после закрывающего “\u002F”.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Ei — символы в шаблоне соответствуют символам как верхнего, так и нижнего регистра.\u003C\u002Fli\u003E\r\n\u003Cli\u003Em — по умолчанию текст обрабатывается, как однострочная символьная строка. Метасимвол начала строки '^' соответствует только началу обрабатываемого текста, в то время как метасимвол конца строки '$' соответствует концу текста. Если этот модификатор используется, метасимволы «начало строки» и «конец строки» также соответствуют позициям перед произвольным символом перевода и строки и, соответственно, после, как и в самом начале, и в самом конце строки.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nОб остальных модификаторах, используемых в PHP, можно \u003Ca href=\"http:\u002F\u002Fphp.net\u002Fmanual\u002Fen\u002Freference.pcre.pattern.modifiers.php\"\u003Eпочитать тут\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ JavaScript — \u003Ca href=\"https:\u002F\u002Fdeveloper.mozilla.org\u002Fen-US\u002Fdocs\u002FWeb\u002FJavaScript\u002FReference\u002FGlobal_Objects\u002FRegExp\"\u003Eтут\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nО том, какие вообще бывают модификаторы, можно \u003Ca href=\"https:\u002F\u002Fru.wikipedia.org\u002Fwiki\u002F%D0%A0%D0%B5%D0%B3%D1%83%D0%BB%D1%8F%D1%80%D0%BD%D1%8B%D0%B5_%D0%B2%D1%8B%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F#%D0%9C%D0%BE%D0%B4%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%82%D0%BE%D1%80%D1%8B\"\u003Eпочитать тут\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПример предыдущего регулярного выражения с модификатором на JavaScript:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Elet str = \"hello world \\\n              How is it going?\"\nlet result = str.match(\u002Fo\u002Fg);\nconsole.log(result);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E[\"o\", \"o\", \"o\", \"o\"]\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EМетасимволы в регулярных выражениях\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nПримеры по началу будут довольно примитивные, потому что мы знакомимся с самыми основами. Чем больше мы узнаем, тем ближе к реалиям будут примеры.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЧаще всего мы заранее не знаем, какой текст нам придется парсить. Заранее известен только примерный набор правил. Будь то пинкод в смс, email в письме и т.п.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПервый пример, нам надо получить все числа из текста:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003EТекст: “Привет, твой номер 1528. Запомни его.”\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЧтобы выбрать любое число, надо собрать все числа, указав “[0123456789]”. Более коротко можно задать вот так: “[0-9]”. Для всех цифр существует метасимвол “\\d”. Он работает идентично.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо если мы укажем регулярное выражение “\u002F\\d\u002F”, то нам вернётся только первая цифра. Мы, конечно, можем использовать модификатор “g”, но в таком случае каждая цифра вернется отдельным элементом массива, поскольку будет считаться новым вхождением.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля того, чтобы вывести подстроку единым вхождением, существуют символы плюс “+” и звездочка “*”. Первый указывает, что нам подойдет подстрока, где есть как минимум один подходящий под набор символ. Второй — что данный набор символов может быть, а может и не быть, и это нормально. Помимо этого мы можем указать точное значение подходящих символов вот так: “{N}”, где N — нужное количество. Или задать “от” и “до”, указав вот так: “{N, M}”.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСейчас будет пара примеров, чтобы это уложилось в голове:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003EТекст: “Я хочу ходить на работу 2 раза в неделю.”\nНадо получить цифру из тексте.\nRegExp: “\u002F\\d\u002F”\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003EТекст: “Ваш пинкод: 24356” или “У вас нет пинкода.”\nНадо получить пинкод или ничего, если его нет.\nRegExp: “\u002F\\d*\u002F”\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003EТекст: “Номер телефона 89091534357”\nНадо получить первые 11 символов, или FALSE, если их меньше.\nRegExp: “\u002F\\d{11}\u002F”\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПримерно так же мы работает с буквами, не забывая, что у них бывает регистр. Вот так можно задавать буквы:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E[a-z]\u003C\u002Fli\u003E\r\n\u003Cli\u003E[a-zA-Z]\u003C\u002Fli\u003E\r\n\u003Cli\u003E[а-яА-Я]\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nC кириллицей указанный диапазон работает по-разному для разных кодировок. В юникоде, например, в этот диапазон не входит буква “ё”. Подробнее об этом \u003Ca href=\"https:\u002F\u002Funicode-table.com\u002Fen\u002Fblocks\u002Fcyrillic\u002F\"\u003Eтут\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПара примеров:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003EТекст: “Вот бежит олень” или “Вот ваш индюк”\nНадо выбрать либо слово “олень”, либо слово “индюк”.\nRegExp: “\u002F[а-яА-Я]+\u002F”\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТакое выражение выберет все слова, которые есть в предложении и написаны кириллицей. Нам нужно третье слово.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПомимо букв и цифр у нас могут быть еще важные символы, такие как:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\\s — пробел\u003C\u002Fli\u003E\r\n\u003Cli\u003E^ — начало строки\u003C\u002Fli\u003E\r\n\u003Cli\u003E$ — конец строки\u003C\u002Fli\u003E\r\n\u003Cli\u003E| — “или”\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nПредыдущий пример стал проще:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003EТекст: “Вот бежит олень” или “Вот бежит индюк”\nНадо выбрать либо “олень”, либо “индюк”.\nRegExp: “\u002F[а-яА-Я]+$\u002F”\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЕсли мы точно знаем, что искомое слово последнее, мы ставим “$” и результатом работы будет только тот набор символов, после которого идет конец строки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТо же самое с началом строки:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003EТекст: “Олень вкусный” или “Индюк вкусный”\nНадо выбрать либо “олень”, либо “индюк”.\nRegExp:  “\u002F^[а-яА-Я]+\u002F”\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПрежде, чем знакомиться с метасимволами дальше, надо отдельно обсудить символ “^”, потому что он у нас ходит на две работы сразу (это чтобы было интереснее). В некоторых случаях он обозначает начало строки, но в некоторых — отрицание.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто нужно для тех случаев, когда проще указать символы, которые нас не устраивают, чем те, которые устраивают.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДопустим, мы собрали набор символов, которые нам подходят: “[a-z0-9]” (нас устроит любая маленькая латинская буква или цифра). А теперь предположим, что нас устроит любой символ, кроме этого. Это будет обозначаться вот так: “[^a-z0-9]”.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПример:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003EТекст: “Я люблю кушать суп”\nНадо выбрать все слова.\nRegExp: “[^\\s]+”\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВыбираем все “не пробелы”.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИтак, вот список основных метасимволов:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\\d — соответствует любой цифре; эквивалент [0-9]\u003C\u002Fli\u003E\r\n\u003Cli\u003E\\D — соответствует любому не числовому символу; эквивалент [^0-9]\u003C\u002Fli\u003E\r\n\u003Cli\u003E\\s — соответствует любому символу whitespace; эквивалент [ \\t\\n\\r\\f\\v]\u003C\u002Fli\u003E\r\n\u003Cli\u003E\\S — соответствует любому не-whitespace символу; эквивалент [^ \\t\\n\\r\\f\\v]\u003C\u002Fli\u003E\r\n\u003Cli\u003E\\w — соответствует любой букве или цифре; эквивалент [a-zA-Z0-9_]\u003C\u002Fli\u003E\r\n\u003Cli\u003E\\W — наоборот; эквивалент [^a-zA-Z0-9_]\u003C\u002Fli\u003E\r\n\u003Cli\u003E. — (просто точка) любой символ, кроме перевода “каретки”\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EОператоры [] и ()\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nПо описанному выше можно было догадаться, что [] используется для группировки нескольких символов вместе. Так мы говорим, что нас устроит любой символ из набора.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПример:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003EТекст: “Не могу перевести I dont know, помогите!”\nНадо получить весь английский текст.\nRegExp: “\u002F[A-Za-z\\s]{2,}\u002F”\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТут мы собрали в группу (между символами []) все латинские буквы и пробел. При помощи {} указали, что нас интересуют вхождения, где \u003Ci\u003Eминимум\u003C\u002Fi\u003E 2 символа, чтобы исключить вхождения из пустых пробелов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nАналогично мы могли бы получить все русские слова, сделав инверсию: “[^A-Za-z\\s]{2,}”.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ отличие от [], символы () собирают отмеченные выражения. Их иногда называют “захватом”. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОни нужны для того, чтобы передать выбранный кусок (который, возможно, состоит из нескольких вхождений [] в результат выдачи).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПример:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003EТекст: ‘Email you sent was ololo@example.com Is it correct?’\nНам надо выбрать email.\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nСуществует много решений. Пример ниже — это \u003Ci\u003Eприближенный\u003C\u002Fi\u003E вариант, который просто покажет возможности регулярных выражений. На самом деле есть \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FRequest_for_Comments\"\u003ERFC\u003C\u002Fa\u003E, который определяет правильность email. И есть “регулярки” по RFC — \u003Ca href=\"https:\u002F\u002Ffightingforalostcause.net\u002Fcontent\u002Fmisc\u002F2006\u002Fcompare-email-regex.php\"\u003Eвот примеры\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМы выбираем все, что не пробел (потому что первая часть email может содержать любой набор символов), далее должен идти символ @, далее что угодно, кроме точки и пробела, далее точка, далее любой символ латиницы в нижнем регистре…\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИтак, поехали:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eмы выбираем все, что не пробел: “[^\\s]+”\u003C\u002Fli\u003E\r\n\u003Cli\u003Eмы выбираем знак @: “@”\u003C\u002Fli\u003E\r\n\u003Cli\u003Eмы выбираем что угодно, кроме точки и пробела: “[^\\s\\.]+”\u003C\u002Fli\u003E\r\n\u003Cli\u003Eмы выбираем точку: “\\.” (обратный слеш нужен для экранирования метасимвола, так как знак точки описывает любой символ — см. выше)\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003Eмы выбираем любой символ латиницы в нижнем регистре: “[a-z]+”\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nОказалось не так сложно. Теперь у нас есть email, собранный по частям. Рассмотрим на примере результата работы preg_match в PHP:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E&lt;?php\n$text = ‘Email you sent was ololo@example.com. Is it correct?’;\n$regexp = ‘\u002F[^\\s]+@[^\\s\\.]+\\.[a-z]+\u002F’;\n$result = preg_match_all($regexp, $text, $match);\nvar_dump(\n    $result,\n    $match\n);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003Eint(1)\narray(1) {\n  [0]=\u003E\n  array(1) {\n    [0]=\u003E\n    string(13) \"ololo@example.com\"\n  }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПолучилось! Но что, если теперь нам надо по отдельности получить домен и имя по email? И как-то использовать дальше в коде? Вот тут нам поможет “захват”. Мы просто выбираем, что нам нужно, и оборачиваем знаками (), как в примере:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nБыло: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E\u002F[^\\s]+@[^\\s\\.]+\\.[a-z]+\u002F\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nСтало: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E\u002F([^\\s]+)@([^\\s\\.]+\\.[a-z]+)\u002F\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПробуем:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E&lt;?php\n$text = ‘Email you sent was ololo@example.com. Is it correct?’;\n$regexp = ‘\u002F([^\\s]+)@([^\\s\\.]+\\.[a-z]+)\u002F’;\n$result = preg_match_all($regexp, $text, $match);\nvar_dump(\n    $result,\n    $match\n);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003Eint(1)\narray(3) {\n  [0]=\u003E\n  array(1) {\n    [0]=\u003E\n    string(13) \"ololo@example.com\"\n  }\n  [1]=\u003E\n  array(1) {\n    [0]=\u003E\n    string(5) \"ololo\"\n  }\n  [2]=\u003E\n  array(1) {\n    [0]=\u003E\n    string(7) \"example.com\"\n  }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ массиве match нулевым элементом всегда идет полное вхождение регулярного выражения. А дальше по очереди идут “захваты”.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ PHP можно именовать “захваты”, используя следующий синтаксис:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E\u002F(?&lt;mail\u003E[^\\s]+)@(?&lt;domain\u003E[^\\s\\.]+\\.[a-z]+)\u002F\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТогда массив матча станет ассоциативным:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E&lt;?php\n$text = ‘Email you sent was ololo@example.com. Is it correct?’;\n$regexp = ‘\u002F(?&lt;mail\u003E[^\\s]+)@(?&lt;domain\u003E[^\\s\\.]+\\.[a-z]+)\u002F’;\n$result = preg_match_all($regexp, $text, $match);\nvar_dump(\n    $result,\n    $match\n);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003Eint(1)\narray(5) {\n  [0]=\u003E\n  array(1) {\n    [0]=\u003E\n    string(13) \"ololo@example.com\"\n  }\n  [\"mail\"]=\u003E\n  array(1) {\n    [0]=\u003E\n    string(5) \"ololo\"\n  }\n  [\"domain\"]=\u003E\n  array(1) {\n    [0]=\u003E\n    string(7) \"example.com\"\n  }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭто сразу +100 к читаемости и кода, и регулярки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EПримеры из реальной жизни\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EПарсим письмо в поисках нового пароля:\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЕсть письмо с HTML-кодом, надо выдернуть из него новый пароль. Текст может быть либо на английском, либо на русском:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003EТекст: “пароль: &lt;b\u003Ef23f43tgt4&lt;\u002Fb\u003E” или “password: &lt;b\u003Ewh4k38f4&lt;\u002Fb\u003E”\nRegExp: “(password|пароль):\\s&lt;b\u003E([^&lt;]+)&lt;\\\u002Fb\u003E”\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nСначала мы говорим, что текст перед паролем может быть двух вариантов, использовав “или”. \u003Cbr\u002F\u003E\r\nВариантов можно перечислять сколько угодно:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E(password|пароль)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДалее у нас знак двоеточия и один пробел:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E:\\s\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДалее знак тега b:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E&lt;b\u003E\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nА дальше нас интересует все, что не символ “&lt;”, поскольку он будет свидетельствовать о том, что тег b закрывается:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E([^&lt;]+)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nМы оборачиваем его в захват, потому что именно он нам и нужен.\u003Cbr\u002F\u003E\r\nДалее мы пишем закрывающий тег b, проэкранировав символ “\u002F”, так как это спецсимвол:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E&lt;\\\u002Fb\u003E\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВсе довольно просто.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EПарсим URL:\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВ PHP есть клевая функция, которая помогает работать с урлом, разбирая его на составные части:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E&lt;?php\n$URL = \"https:\u002F\u002Fhello.world.ru\u002Furi\u002Fstarts\u002Fhere?get_params=here#anchor\";\n$parsed = parse_url($URL);\nvar_dump($parsed);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003Earray(5) {\n  [\"scheme\"]=\u003E\n  string(5) \"https\"\n  [\"host\"]=\u003E\n  string(14) \"hello.world.ru\"\n  [\"path\"]=\u003E\n  string(16) \"\u002Furi\u002Fstarts\u002Fhere\"\n  [\"query\"]=\u003E\n  string(15) \"get_params=here\"\n  [\"fragment\"]=\u003E\n  string(6) \"anchor\"\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДавай сделаем то же самое, только регуляркой? :)\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЛюбой урл начинается со схемы. Для нас это протокол http\u002Fhttps. Можно было бы сделать логическое “или”:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E(http|https)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nНо можно схитрить и сделать вот так:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003Ehttp[s]?\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ данном случае символ “?” означает, что “s” может есть, может нет…\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДалее у нас идет “:\u002F\u002F”, но символ “\u002F” нам придется экранировать (см. выше):\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E“:\\\u002F\\\u002F”\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДалее у нас до знака “\u002F” или до конца строки идет домен. Он может состоять из цифр, букв, знака подчеркивания, тире и точки:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E[\\w\\.-]+\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТут мы собрали в единую группу метасимвол “\\w”, точку ”\\.” и тире ”-”.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДалее идет URI. Тут все просто, мы берем все до вопросительного знака или конца строки:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E[^?$]+\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТеперь знак вопроса, который может быть, а может не быть:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E[?]?\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДалее все до конца строки или начала якоря (символ #) — не забываем о том, что этой части тоже может не быть:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E[^#$]+\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДалее может быть #, а может не быть:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E[#]?\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДальше все до конца строки, если есть:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E[^$]+\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВся красота в итоге выглядит так (к сожалению, я не придумал, как вставить эту часть так, чтобы Habr не считал часть строки — комментарием):\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E\u002F(?&lt;scheme\u003Ehttp[s]?):\\\u002F\\\u002F(?&lt;domain\u003E[\\w\\.-]+)(?&lt;path\u003E[^?$]+)?(?&lt;query\u003E[^#$]+)?[#]?(?&lt;fragment\u003E[^$]+)?\u002F\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nГлавное не моргать! :)\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E&lt;?php\n$URL = \"https:\u002F\u002Fhello.world.ru\u002Furi\u002Fstarts\u002Fhere?get_params=here#anchor\";\n$regexp = “\u002F(?&lt;scheme\u003Ehttp[s]?):\\\u002F\\\u002F(?&lt;domain\u003E[\\w\\.-]+)(?&lt;path\u003E[^?$]+)?(?&lt;query\u003E[^#$]+)?[#]?(?&lt;fragment\u003E[^$]+)?\u002F”;\n$result = preg_match($regexp, $URL, $match);\nvar_dump(\n    $result,\n    $match\n);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003Earray(11) {\n  [0]=\u003E\n  string(61) \"https:\u002F\u002Fhello.world.ru\u002Furi\u002Fstarts\u002Fhere?get_params=here#anchor\"\n  [\"scheme\"]=\u003E\n  string(5) \"https\"\n  [\"domain\"]=\u003E\n  string(14) \"hello.world.ru\"\n  [\"URI\"]=\u003E\n  string(16) \"\u002Furi\u002Fstarts\u002Fhere\"\n  [\"params\"]=\u003E\n  string(15) \"get_params=here\"\n  [\"anchor\"]=\u003E\n  string(6) \"anchor\"\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПолучилось примерно то же самое, только своими руками.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fqf\u002Fqo\u002F1o\u002Fqfqo1ogxyrwja740mtg4en7de7e.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fqf\u002Fqo\u002F1o\u002Fqfqo1ogxyrwja740mtg4en7de7e.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EКакие задачи не решаются регулярными выражениями\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nНа первый взгляд кажется, что регулярными выражениями можно описать и распарсить любой текст. Но, к сожалению, это не так.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРегулярные выражении — это подвид формальных языков, который в иерархии Хомского принадлежат 3-ому типу, самому простому. Об этом \u003Ca href=\"https:\u002F\u002Fru.wikipedia.org\u002Fwiki\u002F%D0%98%D0%B5%D1%80%D0%B0%D1%80%D1%85%D0%B8%D1%8F_%D0%A5%D0%BE%D0%BC%D1%81%D0%BA%D0%BE%D0%B3%D0%BE\"\u003Eтут\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПри помощи этого языка мы не можем, например, парсить синтаксис языков программирования с вложенной грамматикой. Или HTML код.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EПримеры задач:\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nУ нас есть span, внутри которых много других span и мы не знаем сколько. Надо выбрать все, что находится внутри этого span:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E&lt;span\u003E\n    &lt;span\u003Eololo1&lt;\u002Fspan\u003E\n    &lt;span\u003Eololo2&lt;\u002Fspan\u003E\n    &lt;span\u003Eololo3&lt;\u002Fspan\u003E\n    &lt;span\u003Eololo4&lt;\u002Fspan\u003E\n    &lt;span\u003Eololo5&lt;\u002Fspan\u003E\n    &lt;...\u003E\n&lt;\u002Fspan\u003E\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nСамо собой, если мы парсим HTML, где есть не только этот span. :)\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСуть в том, что мы не можем начать с какого-то момента “считать” символы span и \u002Fspan, подразумевая, что открывающих и закрывающих символов должно быть равное количество. И “понять”, что закрывающий символ, для которого ранее не было пары — тот самый закрывающий, который обосабливает блок.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТо же самое с кодом и символами {}.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНапример:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003Efunction methodA() {\n    function() {&lt;...\u003E}\n    if () { if () {&lt;...\u003E} }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ такой структуре мы не сможем при помощи только регулярного выражения отличить закрывающую фигурную скобку внутри кода от той, которая завершает начальную функцию (если код состоит не только из этой функции).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля решение таких задач используются языки более высокого уровня.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EЗаключение\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nЯ постарался довольно подробно рассказать об азах мира регулярных выражений. Конечно невозможно в одну статью уместить все. Дальнейшая работа с ними — вопрос опыта и умения гуглить.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСпасибо за внимание.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"regexp"},{"titleHtml":"javascript"},{"titleHtml":"junior developer"},{"titleHtml":"php"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F343310\u002Fd0f23bf9e323113108590f77ea1a8b9f\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F343310\u002Fd0f23bf9e323113108590f77ea1a8b9f\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fbadoo\\\u002Fblog\\\u002F343310\\\u002F\"},\"headline\":\"Регулярные выражения для самых маленьких\",\"datePublished\":\"2017-11-27T16:46:35+03:00\",\"dateModified\":\"2018-09-11T15:27:13+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Виталий Котов\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Привет, Хабр.  Меня зовут Виталий Котов и я немного знаю о регулярных выражениях. Под катом я расскажу основы работы с ними. На эту тему написано много теоретиче...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fbadoo\\\u002Fblog\\\u002F343310\\\u002F#post-content-body\",\"about\":[\"c_badoo\",\"h_php\",\"h_javascript\",\"h_programming\",\"h_regex\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F343310\\\u002Fd0f23bf9e323113108590f77ea1a8b9f\\\u002F\"]}","metaDescription":"Привет, Хабр.\r\n\r\nМеня зовут Виталий Котов и я немного знаю о регулярных выражениях. Под катом я расскажу основы работы с ними. На эту тему написано много теоретических статей. В этой статье я решил...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"badoo":{"alias":"badoo","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002F69e\u002F0a4\u002F840\u002F69e0a4840cbfdc565559f6af093b5835.png","titleHtml":"Badoo","descriptionHtml":"Big Dating","relatedData":null,"statistics":{"postsCount":367,"newsCount":0,"vacanciesCount":0,"employeesCount":152,"careerRating":null,"subscribersCount":82866,"rating":121.53,"invest":null},"foundationDate":{"year":"2006","month":null,"day":null},"location":{"city":{"id":"447159","title":"Москва"},"region":{"id":"1885","title":"Москва и Московская обл."},"country":{"id":"168","title":"Россия"}},"siteUrl":"http:\u002F\u002Fbadoo.com\u002F","staffNumber":"501–1 000 человек","registrationDate":"2009-12-14T21:34:10+00:00","representativeUser":{"alias":"Yulcifer","fullname":"Yuliya Telezhkina"},"contacts":[{"title":"Сайт","url":"https:\u002F\u002Ftech.badoo.com\u002F"}],"settings":{"analyticsSettings":[{"type":"ym","trackingId":"83229820"}],"branding":{"imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fbranding\u002F760\u002Fe1e\u002F777\u002F760e1e777c1a4ef5a44a2da009719a85.png","linkUrl":"https:\u002F\u002Ftech.badoo.com\u002F","pixelUrl":null},"status":"active","isStartup":false},"metadata":{"titleHtml":"Badoo, Москва - Big Dating с 2006 год","title":"Badoo, Москва - Big Dating с 2006 год","keywords":["Программирование","Разработка под Android","Тестирование мобильных приложений","Kotlin","Управление разработкой","badoo","php","баду","android","ios","go","qa","meetup","тестирование","javascript","highload","kotlin","митап","автоматизация тестирования","swift","управление людьми","разработка","c","конференции","mysql"],"descriptionHtml":"367 статей от авторов компании Badoo","description":"367 статей от авторов компании Badoo"},"aDeskSettings":null,"careerAlias":"badoo"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

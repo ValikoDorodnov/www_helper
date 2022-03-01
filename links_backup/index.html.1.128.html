@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Готовим полнотекстовый поиск в Postgres. Часть 1 / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/442170\/"},"headline":"Готовим полнотекстовый поиск в Postgres. Часть 1","datePublished":"2019-03-12T09:09:54+03:00","dateModified":"2019-03-12T18:58:42+03:00","author":{"@type":"Person","name":"Егор Комаров"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"UPD. Часть 2 Эта статья &mdash; первая из небольшой серии статей о том, как оптимально настроить полнотекстовый поиск в PostgreSQL. Мне пришлось недавно решать подобну...","url":"https:\/\/habr.com\/ru\/post\/442170\/#post-content-body","about":["h_webdev","h_postgresql","h_db_admins","f_develop","f_admin"],"image":["https:\/\/habr.com\/share\/publication\/442170\/7ed6b9e5d68d96d7a57425afee97c524\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Готовим полнотекстовый поиск в Postgres. Часть 1" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Готовим полнотекстовый поиск в Postgres. Часть 1" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Готовим полнотекстовый поиск в Postgres. Часть 1" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="UPD. Часть 2
+Эта статья — первая из небольшой серии статей о том, как оптимально настроить полнотекстовый поиск в PostgreSQL. Мне пришлось недавно решать подобную задачу на работе — и я был очень..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="UPD. Часть 2
+Эта статья — первая из небольшой серии статей о том, как оптимально настроить полнотекстовый поиск в PostgreSQL. Мне пришлось недавно решать подобную задачу на работе — и я был очень..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="UPD. Часть 2
+Эта статья — первая из небольшой серии статей о том, как оптимально настроить полнотекстовый поиск в PostgreSQL. Мне пришлось недавно решать подобную задачу на работе — и я был очень..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="UPD. Часть 2
+Эта статья — первая из небольшой серии статей о том, как оптимально настроить полнотекстовый поиск в PostgreSQL. Мне пришлось недавно решать подобную задачу на работе — и я был очень..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="UPD. Часть 2
+Эта статья — первая из небольшой серии статей о том, как оптимально настроить полнотекстовый поиск в PostgreSQL. Мне пришлось недавно решать подобную задачу на работе — и я был очень..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/442170/7ed6b9e5d68d96d7a57425afee97c524/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/442170/7ed6b9e5d68d96d7a57425afee97c524/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/442170/7ed6b9e5d68d96d7a57425afee97c524/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/442170/7ed6b9e5d68d96d7a57425afee97c524/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/442170/7ed6b9e5d68d96d7a57425afee97c524/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="442170" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2019-03-12T06:09:54.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/442170/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="postgresql, fulltext search, web-разработка">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/442170/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.128.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/442170/7ed6b9e5d68d96d7a57425afee97c524/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/geoolekom/" title="geoolekom" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/f7b/a9d/881/f7ba9d8815ae325f42e536aed8c0bbe3.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/geoolekom/" class="tm-user-info__username">
+      geoolekom
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2019-03-12T06:09:54.000Z" title="2019-03-12, 09:09">12  марта  2019 в 09:09</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Готовим полнотекстовый поиск в Postgres. Часть 1</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/postgresql/" class="tm-article-snippet__hubs-item-link"><span>PostgreSQL</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/db_admins/" class="tm-article-snippet__hubs-item-link"><span>Администрирование баз данных</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-tutorial"><span>
+        Tutorial
+      </span></div></div> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><p><strong>UPD.</strong> <a href="https://habr.com/ru/post/443368/">Часть 2</a></p><br/>
+<p>Эта статья — первая из небольшой серии статей о том, как <em>оптимально</em> настроить полнотекстовый поиск в PostgreSQL. Мне пришлось недавно решать подобную задачу на работе — и я был очень удивлен отсутствию хоть сколько-нибудь вменяемых материалов по этому поводу. Мой опыт борьбы под катом.</p><a name="habracut"></a><br/>
+<h2 id="zavyazka">Завязка</h2><br/>
+<p>Я поддерживаю относительно большой проект, в котором есть публичный поиск по документам. В базе лежит ~500 тысяч документов общим объемом ~3,6 Гб. Суть поиска такова: пользователь заполняет форму, в которой есть и полнотекстовый запрос, и фильтрация по множеству полей в БД, в том числе и с join-ами. </p><br/>
+<p>Поиск работает (точнее, работал) через Sphinx, и работал не очень хорошо. Основные проблемы были такими:</p><br/>
+<ol>
+<li>Индексирование отъедало порядка 8 Гб оперативной памяти. На сервере с 8 Гб ОЗУ это проблема. Память свопилась, это приводило к <em>ужасной</em> производительности. </li>
+<li>Индекс строился примерно 40 минут. Ни о какой консистентности поисковых результатов речи не шло, индексирование запускалось раз в день.</li>
+<li>Поиск работал <em>долго</em>. Особенно долго осуществлялись запросы, которым соответствовало большое количество документов: огромное количестов id-шников приходилось передавать из сфинкса в базу, и сортировать по релевантности на бэкэнде. </li>
+</ol><br/>
+<p>Из-за этих проблем возникла задача — оптимизировать полнотекстовый поиск. У этой задачи есть два решения: </p><br/>
+<ol>
+<li>Подтюнить Sphinx: настроить realtime-индекс, хранить в индексе атрибуты для фильтрации.</li>
+<li>Использовать встроенный FTS PostgreSQL.</li>
+</ol><br/>
+<p>Решено было реализовывать второе решение: так можно нативно обеспечить автообновление индекса, избавиться от <em>долгого</em> общения между двумя сервисами и мониторить один сервис вместо двух.</p><br/>
+<p>Казалось бы, хорошее решение. Но проблемы поджидали впереди. </p><br/>
+<p>Начнем с самого начала.</p><br/>
+<h2 id="naivno-ispolzuem-polnotekstovyy-poisk">Наивно используем полнотекстовый поиск</h2><br/>
+<p>Как гласит документация, для полнотекстового поиска требуется использовать типы <code>tsvector</code> и <code>tsquery</code>. Первый хранит текст документа в оптимизированном для поиска виде, второй — хранит полнотекстовый запрос. </p><br/>
+<p>Для поиска в PostgreSQL есть функции <code>to_tsvector</code>, <code>plainto_tsquery</code>, <code>to_tsquery</code>. Для ранжирования результатов есть <code>ts_rank</code>. Их использование интуитивно понятно и они хорошо описаны в <a href="https://www.postgresql.org/docs/10/textsearch.html">документации</a>, поэтому на подробностях их использования останавливаться не будем.</p><br/>
+<p>Традиционный поисковый запрос с помощью них будет выглядеть так:</p><br/>
+<pre><code class="pgsql">SELECT id, ts_rank(to_tsvector("document_text"), plainto_tsquery('запрос'))
+FROM documents_document
+WHERE to_tsvector("document_text") @@ plainto_tsquery('запрос')
+ORDER BY ts_rank(to_tsvector("document_text"), plainto_tsquery('запрос')) DESC;</code></pre><br/>
+<p>Мы вывели id-ы документов, в тексте которых есть слово "запрос", и отсортировали их по убыванию релевантности. Кажется, всё хорошо? Нет.</p><br/>
+<p>У подхода выше есть много недостатков:</p><br/>
+<ol>
+<li>Мы не используем индекс для поиска.</li>
+<li>Функция ts_vector вызывается для каждой строки таблицы. </li>
+<li>Функция ts_rank вызывается для каждой строки таблицы. </li>
+</ol><br/>
+<p>Это все приводит к тому, что поиск выполняется <em>реально</em> долго. Результаты <code>EXPLAIN</code> на боевой базе:</p><br/>
+<pre><code class="plaintext">Gather Merge (actual time=420289.477..420313.969 rows=58742 loops=1)
+  Workers Planned: 2
+  Workers Launched: 2
+  ->  Sort (actual time=420266.150..420267.935 rows=19581 loops=3)
+        Sort Key: (ts_rank(to_tsvector(document_text), plainto_tsquery('запрос'::text))) DESC
+        Sort Method: quicksort  Memory: 2278kB
+        ->  Parallel Seq Scan on documents_document (actual time=65.454..420235.446 rows=19581 loops=3)
+              Filter: (to_tsvector(document_text) @@ plainto_tsquery('запрос'::text))
+              Rows Removed by Filter: 140636
+Planning time: 3.706 ms
+Execution time: 420315.895 ms</code></pre><br/>
+<p>420 секунд! На один запрос!</p><br/>
+<p>Ещё база генерит множество ворнингов вида <code>[54000] word is too long to be indexed</code>. В этом ничего страшного нет. Причина в том, что в моей базе лежат документы, созданные в WYSIWYG-редакторе. Он вставляет множество <code>&amp;nbsp;</code> всюду, где можно, и их бывает по 54 тысячи штук подряд. Postgres слова такой длины игнорирует и пишет ворнинг, который нельзя отключить.</p><br/>
+<p>Попробуем исправить все замеченные проблемы и ускорить поиск. </p><br/>
+<h2 id="naivno-optimiziruem-poisk">Наивно оптимизируем поиск</h2><br/>
+<p>Играться с боевой базой мы не будем, конечно — создадим тестовую базу. В ней ~12 тысяч документов. Запрос из примера там выполняется ~35 секунд. Непростительно долго!</p><br/>
+<div class="spoiler"><b class="spoiler_title">Результаты EXPLAIN</b><div class="spoiler_text"><pre><code class="plaintext">Sort (actual time=35431.874..35432.208 rows=3593 loops=1)
+  Sort Key: (ts_rank(to_tsvector(document_text), plainto_tsquery('запрос'::text))) DESC
+  Sort Method: quicksort  Memory: 377kB
+  ->  Seq Scan on documents_document (actual time=8.470..35429.261 rows=3593 loops=1)
+        Filter: (to_tsvector(document_text) @@ plainto_tsquery('запрос'::text))
+        Rows Removed by Filter: 9190
+Planning time: 0.200 ms
+Execution time: 35432.294 ms</code></pre></div></div><br/>
+<h3 id="indeks">Индекс</h3><br/>
+<p>В первую очередь, конечно, надо добавить индекс. Самый простой способ: функциональный индекс. </p><br/>
+<pre><code class="pgsql">CREATE INDEX idx_gin_document 
+ON documents_document 
+USING gin (to_tsvector('russian', "document_text"));</code></pre><br/>
+<p>Создаваться такой индекс будет долго — на тестовой базе ему понадобилось ~26 секунд. Ему надо пройтись по базе и вызвать функцию to_tsvector для каждой записи. Хотя поиск он всё же ускоряет до 12 секунд, это всё ещё непростительно долго!</p><br/>
+<div class="spoiler"><b class="spoiler_title">Результаты EXPLAIN</b><div class="spoiler_text"><pre><code class="plaintext">Sort (actual time=12213.943..12214.327 rows=3593 loops=1)
+  Sort Key: (ts_rank(to_tsvector('russian'::regconfig, document_text), plainto_tsquery('запрос'::text))) DESC
+  Sort Method: quicksort  Memory: 377kB
+  ->  Bitmap Heap Scan on documents_document (actual time=3.849..12212.248 rows=3593 loops=1)
+        Recheck Cond: (to_tsvector('russian'::regconfig, document_text) @@ plainto_tsquery('запрос'::text))
+        Heap Blocks: exact=946
+        ->  Bitmap Index Scan on idx_gin_document (actual time=0.427..0.427 rows=3593 loops=1)
+              Index Cond: (to_tsvector('russian'::regconfig, document_text) @@ plainto_tsquery('запрос'::text))
+Planning time: 0.109 ms
+Execution time: 12214.452 ms</code></pre></div></div><br/>
+<h3 id="mnogokratnyy-vyzov-to_tsvector">Многократный вызов <code>to_tsvector</code></h3><br/>
+<p>Для решения этой проблемы нужно хранить <code>tsvector</code> в базе. При изменении данных в таблице с документами, конечно, надо обновлять его — через триггеры в БД, с помощью бэкэнда.</p><br/>
+<p>Сделать это можно двумя способами: </p><br/>
+<ol>
+<li>Добавить колонку типа <code>tsvector</code> в таблицу с документами. </li>
+<li>Создать отдельную таблицу с one-to-one связью с таблицей документов, и хранить там вектора. </li>
+</ol><br/>
+<p>Плюсы первого подхода: отсутствие join-ов при поиске.<br/>
+Плюсы второго подхода: отсутствие лишних данных в таблице с документами, она остается такого же размера, как и раньше. При бэкапе не придется тратить время и место на <code>tsvector</code>, которые бэкапить вообще не нужно. </p><br/>
+<p>Оба похода ведут к тому, что данных на диске становится вдвое больше: хранятся тексты документов и их вектора. </p><br/>
+<p>Я для себя выбрал второй подход, его преимущества для меня весомей. </p><br/>
+<div class="spoiler"><b class="spoiler_title">Создание индекса</b><div class="spoiler_text"><pre><code class="pgsql">CREATE INDEX idx_gin_document 
+ON documents_documentvector 
+USING gin ("document_text");</code></pre></div></div><br/>
+<div class="spoiler"><b class="spoiler_title">Новый поисковый запрос</b><div class="spoiler_text"><pre><code class="pgsql">SELECT documents_document.id, ts_rank("text", plainto_tsquery('запрос'))
+FROM documents_document
+  LEFT JOIN documents_documentvector ON documents_document.id = documents_documentvector.document_id
+WHERE "text" @@ plainto_tsquery('запрос')
+ORDER BY ts_rank("text", plainto_tsquery('запрос')) DESC;</code></pre></div></div><br/>
+<p>Добавим данные в связанную таблицу и создадим индекс. Добавление данных заняло 24 секунды на тестовой базе, а создание индекса — всего <em>2,7 секунды</em>. Обновление индекса и данных, как видим, существенно не ускорилось, но сам индекс теперь можно обновить <em>очень</em> быстро.</p><br/>
+<p>А во сколько раз ускорился сам поиск?</p><br/>
+<pre><code class="plaintext">Sort (actual time=48.147..48.432 rows=3593 loops=1)
+  Sort Key: (ts_rank(documents_documentvector.text, plainto_tsquery('запрос'::text))) DESC
+  Sort Method: quicksort  Memory: 377kB
+  ->  Hash Join (actual time=2.281..47.389 rows=3593 loops=1)
+        Hash Cond: (documents_document.id = documents_documentvector.document_id)
+        ->  Seq Scan on documents_document (actual time=0.003..2.190 rows=12783 loops=1)
+        ->  Hash (actual time=2.252..2.252 rows=3593 loops=1)
+              Buckets: 4096  Batches: 1  Memory Usage: 543kB
+              ->  Bitmap Heap Scan on documents_documentvector (actual time=0.465..1.641 rows=3593 loops=1)
+                    Recheck Cond: (text @@ plainto_tsquery('запрос'::text))
+                    Heap Blocks: exact=577
+                    ->  Bitmap Index Scan on idx_gin_document (actual time=0.404..0.404 rows=3593 loops=1)
+                          Index Cond: (text @@ plainto_tsquery('запрос'::text))
+Planning time: 0.410 ms
+Execution time: 48.573 ms</code></pre><br/>
+<div class="spoiler"><b class="spoiler_title">Метрики без join</b><div class="spoiler_text"><p>Запрос:</p><br/>
+<pre><code class="pgsql">SELECT id, ts_rank("text", plainto_tsquery('запрос')) AS rank
+FROM documents_documentvector
+WHERE "text" @@ plainto_tsquery('запрос')
+ORDER BY rank;</code></pre><br/>
+<p>Результат:</p><br/>
+<pre>Sort (actual time=44.339..44.487 rows=3593 loops=1)
+  Sort Key: (ts_rank(text, plainto_tsquery('запрос'::text)))
+  Sort Method: quicksort  Memory: 265kB
+  ->  Bitmap Heap Scan on documents_documentvector (actual time=0.692..43.682 rows=3593 loops=1)
+        Recheck Cond: (text @@ plainto_tsquery('запрос'::text))
+        Heap Blocks: exact=577
+        ->  Bitmap Index Scan on idx_gin_document (actual time=0.577..0.577 rows=3593 loops=1)
+              Index Cond: (text @@ plainto_tsquery('запрос'::text))
+Planning time: 0.182 ms
+Execution time: 44.610 ms
+</pre></div></div><br/>
+<p>Невероятно! И это несмотря на join и <code>ts_rank</code>. Уже вполне приемлемый результат, большую часть времени отнимет не поиск, а вычисление <code>ts_rank</code> для каждой из строк.</p><br/>
+<h3 id="mnogokratnyy-vyzov-ts_rank">Многократный вызов <code>ts_rank</code></h3><br/>
+<p>Кажется, мы успешно решили все наши проблемы, кроме этой. 44 миллисекунды — вполне достойное время выполнения. Кажется, хэппи-энд близок? Не тут-то было!</p><br/>
+<p>Запустим тот же самый запрос без <code>ts_rank</code> и сравним результаты. </p><br/>
+<div class="spoiler"><b class="spoiler_title">Без ts_rank</b><div class="spoiler_text"><p>Запрос:</p><br/>
+<pre><code class="pgsql">SELECT document_id, 1 AS rank
+FROM documents_documentvector
+WHERE "text" @@ plainto_tsquery('запрос')
+ORDER BY rank;</code></pre><br/>
+<p>Результат:</p><br/>
+<pre><code class="plaintext">Bitmap Heap Scan on documents_documentvector (actual time=0.503..1.609 rows=3593 loops=1)
+  Recheck Cond: (text @@ plainto_tsquery('запрос'::text))
+  Heap Blocks: exact=577
+  ->  Bitmap Index Scan on idx_gin_document (actual time=0.439..0.439 rows=3593 loops=1)
+        Index Cond: (text @@ plainto_tsquery('запрос'::text))
+Planning time: 0.147 ms
+Execution time: 1.715 ms</code></pre></div></div><br/>
+<p>1,7 мс! В тридцать раз быстрее! Для боевой базы результаты ~150 мс и 1,5 секунды. Разница в любом случае на порядок, и 1,5 секунды — не то время, которое хочется ждать ответа от базы. Что же делать?</p><br/>
+<p>Выключить сортировку по релевантности нельзя, сократить количество строк для подсчета — нельзя (база должна вычислить <code>ts_rank</code> для всех совпавших документов, иначе их нельзя отсортировать).</p><br/>
+<p>Кое-где в интернете рекомендуют кэшировать наиболее частые запросы (и, соответственно, вызов ts_rank). Но мне подобный подход не нравится: правильно отобрать нужные запросы довольно сложно, и поиск все равно будет тормозить на запросах неправильных. </p><br/>
+<p>Очень хотелось бы, чтобы после прохода по индексу данные приходили в уже отсортированном виде, как это делает тот же Sphinx. К сожалению, из коробки в PostgreSQL ничего такого сделать не получится.</p><br/>
+<p>Но нам повезло — так умеет делать индекс RUM. Подробно о нём можно почитать, например, в <a href="https://pgconf.ru/media/2017/04/03/20170316H3_Korotkov-rum.pdf">презентации его авторов</a>. Он хранит дополнительную информацию о запросе, которая позволяет прямо в индексе оценивать т.н. "расстояние" между <code>tsvector</code> и <code>tsquery</code> и выдавать сортированный результат сразу после сканирования индекса. </p><br/>
+<p>Но выкидывать GIN и устанавливать RUM сразу не стоит. У него есть минусы, плюсы и границы применения — об этом я напишу в следующей статье.</p></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bpostgresql%5D" class="tm-tags-list__link">postgresql</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bfulltext%20search%5D" class="tm-tags-list__link">fulltext search</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bweb-%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0%5D" class="tm-tags-list__link">web-разработка</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/postgresql/" class="tm-hubs-list__link">
+    PostgreSQL
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/db_admins/" class="tm-hubs-list__link">
+    Администрирование баз данных
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 27: ↑26 и ↓1</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 27: ↑26 и ↓1" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+25</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">38K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    160
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/geoolekom/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/f7b/a9d/881/f7ba9d8815ae325f42e536aed8c0bbe3.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 16 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    10
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Егор Комаров</span> <a href="https://habr.com/ru/users/geoolekom/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @geoolekom
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Веб-разработчик</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/442170/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 10 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner483" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner484" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/administrator_baz_dannykh" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Администратор баз данных
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        191
+    вакансия
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/442170/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/442170/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"442170":{"id":"442170","timePublished":"2019-03-12T06:09:54+00:00","isCorporative":false,"lang":"ru","titleHtml":"Готовим полнотекстовый поиск в Postgres. Часть 1","leadData":{"textHtml":"\u003Cp\u003E\u003Cstrong\u003EUPD.\u003C\u002Fstrong\u003E \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fru\u002Fpost\u002F443368\u002F\"\u003EЧасть 2\u003C\u002Fa\u003E\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EЭта статья — первая из небольшой серии статей о том, как \u003Cem\u003Eоптимально\u003C\u002Fem\u003E настроить полнотекстовый поиск в PostgreSQL. Мне пришлось недавно решать подобную задачу на работе — и я был очень удивлен отсутствию хоть сколько-нибудь вменяемых материалов по этому поводу. Мой опыт борьбы под катом.\u003C\u002Fp\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"tutorial","data":null}],"author":{"scoreStats":{"score":10,"votesCount":16},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1362010","alias":"geoolekom","fullname":"Егор Комаров","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002Ff7b\u002Fa9d\u002F881\u002Ff7ba9d8815ae325f42e536aed8c0bbe3.jpg","speciality":"Веб-разработчик"},"statistics":{"commentsCount":10,"favoritesCount":160,"readingCount":37813,"score":25,"votesCount":27},"hubs":[{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"358","alias":"postgresql","type":"collective","title":"PostgreSQL","titleHtml":"PostgreSQL","isProfiled":true},{"relatedData":null,"id":"17681","alias":"db_admins","type":"collective","title":"Администрирование баз данных","titleHtml":"Администрирование баз данных","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"},{"id":"6","alias":"admin","title":"Администрирование"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cp\u003E\u003Cstrong\u003EUPD.\u003C\u002Fstrong\u003E \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fru\u002Fpost\u002F443368\u002F\"\u003EЧасть 2\u003C\u002Fa\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЭта статья — первая из небольшой серии статей о том, как \u003Cem\u003Eоптимально\u003C\u002Fem\u003E настроить полнотекстовый поиск в PostgreSQL. Мне пришлось недавно решать подобную задачу на работе — и я был очень удивлен отсутствию хоть сколько-нибудь вменяемых материалов по этому поводу. Мой опыт борьбы под катом.\u003C\u002Fp\u003E\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"zavyazka\"\u003EЗавязка\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЯ поддерживаю относительно большой проект, в котором есть публичный поиск по документам. В базе лежит ~500 тысяч документов общим объемом ~3,6 Гб. Суть поиска такова: пользователь заполняет форму, в которой есть и полнотекстовый запрос, и фильтрация по множеству полей в БД, в том числе и с join-ами. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПоиск работает (точнее, работал) через Sphinx, и работал не очень хорошо. Основные проблемы были такими:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EИндексирование отъедало порядка 8 Гб оперативной памяти. На сервере с 8 Гб ОЗУ это проблема. Память свопилась, это приводило к \u003Cem\u003Eужасной\u003C\u002Fem\u003E производительности. \u003C\u002Fli\u003E\r\n\u003Cli\u003EИндекс строился примерно 40 минут. Ни о какой консистентности поисковых результатов речи не шло, индексирование запускалось раз в день.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПоиск работал \u003Cem\u003Eдолго\u003C\u002Fem\u003E. Особенно долго осуществлялись запросы, которым соответствовало большое количество документов: огромное количестов id-шников приходилось передавать из сфинкса в базу, и сортировать по релевантности на бэкэнде. \u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИз-за этих проблем возникла задача — оптимизировать полнотекстовый поиск. У этой задачи есть два решения: \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EПодтюнить Sphinx: настроить realtime-индекс, хранить в индексе атрибуты для фильтрации.\u003C\u002Fli\u003E\r\n\u003Cli\u003EИспользовать встроенный FTS PostgreSQL.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EРешено было реализовывать второе решение: так можно нативно обеспечить автообновление индекса, избавиться от \u003Cem\u003Eдолгого\u003C\u002Fem\u003E общения между двумя сервисами и мониторить один сервис вместо двух.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКазалось бы, хорошее решение. Но проблемы поджидали впереди. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНачнем с самого начала.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"naivno-ispolzuem-polnotekstovyy-poisk\"\u003EНаивно используем полнотекстовый поиск\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКак гласит документация, для полнотекстового поиска требуется использовать типы \u003Ccode\u003Etsvector\u003C\u002Fcode\u003E и \u003Ccode\u003Etsquery\u003C\u002Fcode\u003E. Первый хранит текст документа в оптимизированном для поиска виде, второй — хранит полнотекстовый запрос. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДля поиска в PostgreSQL есть функции \u003Ccode\u003Eto_tsvector\u003C\u002Fcode\u003E, \u003Ccode\u003Eplainto_tsquery\u003C\u002Fcode\u003E, \u003Ccode\u003Eto_tsquery\u003C\u002Fcode\u003E. Для ранжирования результатов есть \u003Ccode\u003Ets_rank\u003C\u002Fcode\u003E. Их использование интуитивно понятно и они хорошо описаны в \u003Ca href=\"https:\u002F\u002Fwww.postgresql.org\u002Fdocs\u002F10\u002Ftextsearch.html\"\u003Eдокументации\u003C\u002Fa\u003E, поэтому на подробностях их использования останавливаться не будем.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТрадиционный поисковый запрос с помощью них будет выглядеть так:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"pgsql\"\u003ESELECT id, ts_rank(to_tsvector(\"document_text\"), plainto_tsquery('запрос'))\nFROM documents_document\nWHERE to_tsvector(\"document_text\") @@ plainto_tsquery('запрос')\nORDER BY ts_rank(to_tsvector(\"document_text\"), plainto_tsquery('запрос')) DESC;\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EМы вывели id-ы документов, в тексте которых есть слово \"запрос\", и отсортировали их по убыванию релевантности. Кажется, всё хорошо? Нет.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EУ подхода выше есть много недостатков:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EМы не используем индекс для поиска.\u003C\u002Fli\u003E\r\n\u003Cli\u003EФункция ts_vector вызывается для каждой строки таблицы. \u003C\u002Fli\u003E\r\n\u003Cli\u003EФункция ts_rank вызывается для каждой строки таблицы. \u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЭто все приводит к тому, что поиск выполняется \u003Cem\u003Eреально\u003C\u002Fem\u003E долго. Результаты \u003Ccode\u003EEXPLAIN\u003C\u002Fcode\u003E на боевой базе:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EGather Merge (actual time=420289.477..420313.969 rows=58742 loops=1)\n  Workers Planned: 2\n  Workers Launched: 2\n  -\u003E  Sort (actual time=420266.150..420267.935 rows=19581 loops=3)\n        Sort Key: (ts_rank(to_tsvector(document_text), plainto_tsquery('запрос'::text))) DESC\n        Sort Method: quicksort  Memory: 2278kB\n        -\u003E  Parallel Seq Scan on documents_document (actual time=65.454..420235.446 rows=19581 loops=3)\n              Filter: (to_tsvector(document_text) @@ plainto_tsquery('запрос'::text))\n              Rows Removed by Filter: 140636\nPlanning time: 3.706 ms\nExecution time: 420315.895 ms\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E420 секунд! На один запрос!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕщё база генерит множество ворнингов вида \u003Ccode\u003E[54000] word is too long to be indexed\u003C\u002Fcode\u003E. В этом ничего страшного нет. Причина в том, что в моей базе лежат документы, созданные в WYSIWYG-редакторе. Он вставляет множество \u003Ccode\u003E&amp;nbsp;\u003C\u002Fcode\u003E всюду, где можно, и их бывает по 54 тысячи штук подряд. Postgres слова такой длины игнорирует и пишет ворнинг, который нельзя отключить.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПопробуем исправить все замеченные проблемы и ускорить поиск. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"naivno-optimiziruem-poisk\"\u003EНаивно оптимизируем поиск\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИграться с боевой базой мы не будем, конечно — создадим тестовую базу. В ней ~12 тысяч документов. Запрос из примера там выполняется ~35 секунд. Непростительно долго!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EРезультаты EXPLAIN\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003ESort (actual time=35431.874..35432.208 rows=3593 loops=1)\n  Sort Key: (ts_rank(to_tsvector(document_text), plainto_tsquery('запрос'::text))) DESC\n  Sort Method: quicksort  Memory: 377kB\n  -\u003E  Seq Scan on documents_document (actual time=8.470..35429.261 rows=3593 loops=1)\n        Filter: (to_tsvector(document_text) @@ plainto_tsquery('запрос'::text))\n        Rows Removed by Filter: 9190\nPlanning time: 0.200 ms\nExecution time: 35432.294 ms\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"indeks\"\u003EИндекс\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ первую очередь, конечно, надо добавить индекс. Самый простой способ: функциональный индекс. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"pgsql\"\u003ECREATE INDEX idx_gin_document \nON documents_document \nUSING gin (to_tsvector('russian', \"document_text\"));\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСоздаваться такой индекс будет долго — на тестовой базе ему понадобилось ~26 секунд. Ему надо пройтись по базе и вызвать функцию to_tsvector для каждой записи. Хотя поиск он всё же ускоряет до 12 секунд, это всё ещё непростительно долго!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EРезультаты EXPLAIN\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003ESort (actual time=12213.943..12214.327 rows=3593 loops=1)\n  Sort Key: (ts_rank(to_tsvector('russian'::regconfig, document_text), plainto_tsquery('запрос'::text))) DESC\n  Sort Method: quicksort  Memory: 377kB\n  -\u003E  Bitmap Heap Scan on documents_document (actual time=3.849..12212.248 rows=3593 loops=1)\n        Recheck Cond: (to_tsvector('russian'::regconfig, document_text) @@ plainto_tsquery('запрос'::text))\n        Heap Blocks: exact=946\n        -\u003E  Bitmap Index Scan on idx_gin_document (actual time=0.427..0.427 rows=3593 loops=1)\n              Index Cond: (to_tsvector('russian'::regconfig, document_text) @@ plainto_tsquery('запрос'::text))\nPlanning time: 0.109 ms\nExecution time: 12214.452 ms\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"mnogokratnyy-vyzov-to_tsvector\"\u003EМногократный вызов \u003Ccode\u003Eto_tsvector\u003C\u002Fcode\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДля решения этой проблемы нужно хранить \u003Ccode\u003Etsvector\u003C\u002Fcode\u003E в базе. При изменении данных в таблице с документами, конечно, надо обновлять его — через триггеры в БД, с помощью бэкэнда.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСделать это можно двумя способами: \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EДобавить колонку типа \u003Ccode\u003Etsvector\u003C\u002Fcode\u003E в таблицу с документами. \u003C\u002Fli\u003E\r\n\u003Cli\u003EСоздать отдельную таблицу с one-to-one связью с таблицей документов, и хранить там вектора. \u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПлюсы первого подхода: отсутствие join-ов при поиске.\u003Cbr\u002F\u003E\r\nПлюсы второго подхода: отсутствие лишних данных в таблице с документами, она остается такого же размера, как и раньше. При бэкапе не придется тратить время и место на \u003Ccode\u003Etsvector\u003C\u002Fcode\u003E, которые бэкапить вообще не нужно. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОба похода ведут к тому, что данных на диске становится вдвое больше: хранятся тексты документов и их вектора. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЯ для себя выбрал второй подход, его преимущества для меня весомей. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EСоздание индекса\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"pgsql\"\u003ECREATE INDEX idx_gin_document \nON documents_documentvector \nUSING gin (\"document_text\");\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EНовый поисковый запрос\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"pgsql\"\u003ESELECT documents_document.id, ts_rank(\"text\", plainto_tsquery('запрос'))\nFROM documents_document\n  LEFT JOIN documents_documentvector ON documents_document.id = documents_documentvector.document_id\nWHERE \"text\" @@ plainto_tsquery('запрос')\nORDER BY ts_rank(\"text\", plainto_tsquery('запрос')) DESC;\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДобавим данные в связанную таблицу и создадим индекс. Добавление данных заняло 24 секунды на тестовой базе, а создание индекса — всего \u003Cem\u003E2,7 секунды\u003C\u002Fem\u003E. Обновление индекса и данных, как видим, существенно не ускорилось, но сам индекс теперь можно обновить \u003Cem\u003Eочень\u003C\u002Fem\u003E быстро.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EА во сколько раз ускорился сам поиск?\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003ESort (actual time=48.147..48.432 rows=3593 loops=1)\n  Sort Key: (ts_rank(documents_documentvector.text, plainto_tsquery('запрос'::text))) DESC\n  Sort Method: quicksort  Memory: 377kB\n  -\u003E  Hash Join (actual time=2.281..47.389 rows=3593 loops=1)\n        Hash Cond: (documents_document.id = documents_documentvector.document_id)\n        -\u003E  Seq Scan on documents_document (actual time=0.003..2.190 rows=12783 loops=1)\n        -\u003E  Hash (actual time=2.252..2.252 rows=3593 loops=1)\n              Buckets: 4096  Batches: 1  Memory Usage: 543kB\n              -\u003E  Bitmap Heap Scan on documents_documentvector (actual time=0.465..1.641 rows=3593 loops=1)\n                    Recheck Cond: (text @@ plainto_tsquery('запрос'::text))\n                    Heap Blocks: exact=577\n                    -\u003E  Bitmap Index Scan on idx_gin_document (actual time=0.404..0.404 rows=3593 loops=1)\n                          Index Cond: (text @@ plainto_tsquery('запрос'::text))\nPlanning time: 0.410 ms\nExecution time: 48.573 ms\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EМетрики без join\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003E\u003Cp\u003EЗапрос:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"pgsql\"\u003ESELECT id, ts_rank(\"text\", plainto_tsquery('запрос')) AS rank\nFROM documents_documentvector\nWHERE \"text\" @@ plainto_tsquery('запрос')\nORDER BY rank;\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EРезультат:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003ESort (actual time=44.339..44.487 rows=3593 loops=1)\n  Sort Key: (ts_rank(text, plainto_tsquery('запрос'::text)))\n  Sort Method: quicksort  Memory: 265kB\n  -\u003E  Bitmap Heap Scan on documents_documentvector (actual time=0.692..43.682 rows=3593 loops=1)\n        Recheck Cond: (text @@ plainto_tsquery('запрос'::text))\n        Heap Blocks: exact=577\n        -\u003E  Bitmap Index Scan on idx_gin_document (actual time=0.577..0.577 rows=3593 loops=1)\n              Index Cond: (text @@ plainto_tsquery('запрос'::text))\nPlanning time: 0.182 ms\nExecution time: 44.610 ms\n\u003C\u002Fpre\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНевероятно! И это несмотря на join и \u003Ccode\u003Ets_rank\u003C\u002Fcode\u003E. Уже вполне приемлемый результат, большую часть времени отнимет не поиск, а вычисление \u003Ccode\u003Ets_rank\u003C\u002Fcode\u003E для каждой из строк.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"mnogokratnyy-vyzov-ts_rank\"\u003EМногократный вызов \u003Ccode\u003Ets_rank\u003C\u002Fcode\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКажется, мы успешно решили все наши проблемы, кроме этой. 44 миллисекунды — вполне достойное время выполнения. Кажется, хэппи-энд близок? Не тут-то было!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЗапустим тот же самый запрос без \u003Ccode\u003Ets_rank\u003C\u002Fcode\u003E и сравним результаты. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EБез ts_rank\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003E\u003Cp\u003EЗапрос:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"pgsql\"\u003ESELECT document_id, 1 AS rank\nFROM documents_documentvector\nWHERE \"text\" @@ plainto_tsquery('запрос')\nORDER BY rank;\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EРезультат:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EBitmap Heap Scan on documents_documentvector (actual time=0.503..1.609 rows=3593 loops=1)\n  Recheck Cond: (text @@ plainto_tsquery('запрос'::text))\n  Heap Blocks: exact=577\n  -\u003E  Bitmap Index Scan on idx_gin_document (actual time=0.439..0.439 rows=3593 loops=1)\n        Index Cond: (text @@ plainto_tsquery('запрос'::text))\nPlanning time: 0.147 ms\nExecution time: 1.715 ms\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E1,7 мс! В тридцать раз быстрее! Для боевой базы результаты ~150 мс и 1,5 секунды. Разница в любом случае на порядок, и 1,5 секунды — не то время, которое хочется ждать ответа от базы. Что же делать?\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВыключить сортировку по релевантности нельзя, сократить количество строк для подсчета — нельзя (база должна вычислить \u003Ccode\u003Ets_rank\u003C\u002Fcode\u003E для всех совпавших документов, иначе их нельзя отсортировать).\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКое-где в интернете рекомендуют кэшировать наиболее частые запросы (и, соответственно, вызов ts_rank). Но мне подобный подход не нравится: правильно отобрать нужные запросы довольно сложно, и поиск все равно будет тормозить на запросах неправильных. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОчень хотелось бы, чтобы после прохода по индексу данные приходили в уже отсортированном виде, как это делает тот же Sphinx. К сожалению, из коробки в PostgreSQL ничего такого сделать не получится.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНо нам повезло — так умеет делать индекс RUM. Подробно о нём можно почитать, например, в \u003Ca href=\"https:\u002F\u002Fpgconf.ru\u002Fmedia\u002F2017\u002F04\u002F03\u002F20170316H3_Korotkov-rum.pdf\"\u003Eпрезентации его авторов\u003C\u002Fa\u003E. Он хранит дополнительную информацию о запросе, которая позволяет прямо в индексе оценивать т.н. \"расстояние\" между \u003Ccode\u003Etsvector\u003C\u002Fcode\u003E и \u003Ccode\u003Etsquery\u003C\u002Fcode\u003E и выдавать сортированный результат сразу после сканирования индекса. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНо выкидывать GIN и устанавливать RUM сразу не стоит. У него есть минусы, плюсы и границы применения — об этом я напишу в следующей статье.\u003C\u002Fp\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"postgresql"},{"titleHtml":"fulltext search"},{"titleHtml":"web-разработка"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F442170\u002F7ed6b9e5d68d96d7a57425afee97c524\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F442170\u002F7ed6b9e5d68d96d7a57425afee97c524\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F442170\\\u002F\"},\"headline\":\"Готовим полнотекстовый поиск в Postgres. Часть 1\",\"datePublished\":\"2019-03-12T09:09:54+03:00\",\"dateModified\":\"2019-03-12T18:58:42+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Егор Комаров\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"UPD. Часть 2 Эта статья &mdash; первая из небольшой серии статей о том, как оптимально настроить полнотекстовый поиск в PostgreSQL. Мне пришлось недавно решать подобну...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F442170\\\u002F#post-content-body\",\"about\":[\"h_webdev\",\"h_postgresql\",\"h_db_admins\",\"f_develop\",\"f_admin\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F442170\\\u002F7ed6b9e5d68d96d7a57425afee97c524\\\u002F\"]}","metaDescription":"UPD. Часть 2\r\nЭта статья — первая из небольшой серии статей о том, как оптимально настроить полнотекстовый поиск в PostgreSQL. Мне пришлось недавно решать подобную задачу на работе — и я был очень...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"Администратор баз данных","vacanciesCount":191,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fadministrator_baz_dannykh","itemHubs":["db_admins"]}],"hubs":"webdev,postgresql,db_admins"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

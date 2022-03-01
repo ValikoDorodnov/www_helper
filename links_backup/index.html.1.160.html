@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Браузер != Браузерный движок / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/349512\/"},"headline":"Браузер != Браузерный движок","datePublished":"2018-02-20T10:57:12+03:00","dateModified":"2018-02-20T12:17:53+03:00","author":{"@type":"Person","name":"Александр"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Всем привет! В данной статье я хочу поделиться мыслями на счёт создания собственного браузерного движка. Мы рассмотрим текущие браузеры и браузерные движки. Всп...","url":"https:\/\/habr.com\/ru\/post\/349512\/#post-content-body","about":["h_open_source","h_c","h_browsers","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/349512\/914fe085a6b4b9aba9af3747874e7dca\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Браузер != Браузерный движок" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Браузер != Браузерный движок" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Браузер != Браузерный движок" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Всем привет!
+В данной статье я хочу поделиться мыслями на счёт создания собственного браузерного движка. Мы рассмотрим текущие браузеры и браузерные движки. Вспомним про Modest и узнаем его..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Всем привет!
+В данной статье я хочу поделиться мыслями на счёт создания собственного браузерного движка. Мы рассмотрим текущие браузеры и браузерные движки. Вспомним про Modest и узнаем его..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Всем привет!
+В данной статье я хочу поделиться мыслями на счёт создания собственного браузерного движка. Мы рассмотрим текущие браузеры и браузерные движки. Вспомним про Modest и узнаем его..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Всем привет!
+В данной статье я хочу поделиться мыслями на счёт создания собственного браузерного движка. Мы рассмотрим текущие браузеры и браузерные движки. Вспомним про Modest и узнаем его..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Всем привет!
+В данной статье я хочу поделиться мыслями на счёт создания собственного браузерного движка. Мы рассмотрим текущие браузеры и браузерные движки. Вспомним про Modest и узнаем его..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/349512/914fe085a6b4b9aba9af3747874e7dca/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/349512/914fe085a6b4b9aba9af3747874e7dca/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/349512/914fe085a6b4b9aba9af3747874e7dca/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/349512/914fe085a6b4b9aba9af3747874e7dca/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/349512/914fe085a6b4b9aba9af3747874e7dca/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="349512" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2018-02-20T07:57:12.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/349512/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="html renderer, browsers, web engine, c, high-performance">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/349512/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.160.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/349512/914fe085a6b4b9aba9af3747874e7dca/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><a href="https://effect.habr.com/a/daQC1eydgfn2fl8VvaRyQCoM1YyIcFs_5BAw8738dXCaeQnBBpjA3FVKDKHMK-x5rhCNspTg8YGJWCfzB0Zfh71p7kUjZTe2bo82XsekgGEuaXc04ZB_6hziWZFAtHYvJNQq0sF6" rel="noopener" target="_blank" class="tm-feature__link"><img alt height="20" src="https://effect.habr.com/a/0hPKpGPDA4POk5G_nM7K6zGf1mNPyhcLdY4wi3PuvvMwrfOPIl7_BnCdMkelIeg1Xu8OPJGFf-Nh47iCOpewXQw90L4UH4vO-dVNlsHWQ9hPfCJKSpkrJ-i69XVrZkJBw_94VKa2KkrXB9n3guntoNVoJ1xZfSONqVMi-jtPXjhzGbnUUFwzN_ZB1pmMqeKIApmZNPCMBAIGi1hPn1a_51yYFanA0pzt" width="20" class="tm-feature__icon">
+    Питчи недели фронтендеров
+  </a></div> <a href="https://effect.habr.com/a/LMrLBfTOE1-szDX6K9TrERnYm0n669hNNqouUTUhcksnezHEMeTDMMEx6K2nCN44AePBf_CkFT2TVARJhUzoHQSmnz1CepDD-GRTKLmPMIKm288H" target="_blank" class="tm-top-link" style="color:#99ddff;">
+  Основы основ финтеха
+</a> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/lastmac/" title="lastmac" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/0b5/e73/a65/0b5e73a65310bbd1172fafb27cd41893.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/lastmac/" class="tm-user-info__username">
+      lastmac
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2018-02-20T07:57:12.000Z" title="2018-02-20, 10:57">20  февраля  2018 в 10:57</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Браузер != Браузерный движок</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/open_source/" class="tm-article-snippet__hubs-item-link"><span>Open source</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/c/" class="tm-article-snippet__hubs-item-link"><span>C</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/browsers/" class="tm-article-snippet__hubs-item-link"><span>Браузеры</span> <!----></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><p><img src="https://habrastorage.org/r/w1560/webt/tr/ic/sg/tricsg4i49jke48r2_djht8rjde.png" data-src="https://habrastorage.org/webt/tr/ic/sg/tricsg4i49jke48r2_djht8rjde.png"/></p><br/>
+<p>Всем привет!</p><br/>
+<p>В данной статье я хочу поделиться мыслями на счёт создания собственного браузерного движка. Мы рассмотрим текущие браузеры и браузерные движки. Вспомним про Modest и узнаем его нелёгкую судьбу.</p><br/>
+<p>Это будет цикл статей в которых мы создадим свой собственный минималистичный браузерный движок. Каждая статья будет подкреплена реальным кодом и примерами.<br/>
+По прошествии десяти статей у нас с вами будет минимальная рабочая версия браузерного движка, сильно минимальная. После этого, если запал не уйдёт и будет интерес сообщества, продолжим, и в итоге доберёмся до JS.</p><br/>
+<p>И конечно, первым делом необходимо понять, что такое браузер и браузерный движок.</p><a name="habracut"></a><br/>
+<h2 id="brauzer-i-brauzernyy-dvizhok">Браузер и браузерный движок</h2><br/>
+<p>Существующий мир сложно представить без браузеров. Они есть на многих устройствах: компьютеры, лэптопы, телефоны, игровые приставки. Если представить браузер в виде машины то браузерный движок это всё то, что скрыто под капотом вашего автомобиля.<br/>
+Браузеры как и автомобили могут отличаться внешним видом и содержимым под капотом. Цвет, кнопочки на панели, аудиосистема. У кого-то под капотом двигатель V8, а у кого-то там масло течёт.</p><br/>
+<p>Браузер объединяет периферию и предоставляет функционал позволяющий манипулировать движком, его поведением, предоставляет дополнительные сервисы.<br/>
+Браузерный движок выполняет всю "грязную" работу: загрузка, обработка, отрисовка данных и все возможные расчёты.</p><br/>
+<p>Всё как в автомобилях. Есть салон в котором присутствует педаль газа, тормоза и множество переключателей полезных и понятных пользователю. А есть большая механическая часть скрытая от пользователя под капотом.</p><br/>
+<h2 id="kto-sozdaet-brauzery-i-dvizhki">Кто создает браузеры и движки</h2><br/>
+<p>Разработкой собственного браузера занимается множество компаний: Google, Mozilla, Apple, Microsoft, Opera Software, Яндекс, Ростелеком, Vivaldi Technologies, <strong>много их</strong>…</p><br/>
+<p>Каждый добавляет какие-то свои "фишки", сервисы в создаваемый браузер. К примеру, Яндекс интегрирует свои сервисы, поиск.</p><br/>
+<p>С браузерными движками дела обстоят кардинально иначе. Вот список движков, их разработчиков и обладателей:</p><br/>
+<ul>
+<li>Blink: Google</li>
+<li>Gecko: Mozilla</li>
+<li>WebKit: Apple</li>
+<li>EdgeHTML: Microsoft</li>
+</ul><br/>
+<p>Это основные обладатели и разработчики движков. В разработке им помогают сторонние компании на определенных условиях. </p><br/>
+<p>Например, рассмотрим самый популярный проект от компании Google — Chromium. Данный проект содержит в себе движок Blink. Создавать данный проект Google помогают такие компании как Intel, Facebook, IBM, LG Electronics, NVIDIA, Yandex. Полный список можно посмотреть <a href="https://chromium.googlesource.com/chromium/src.git/+/master/AUTHORS">тут</a>.<br/>
+Условия на которых компании помогают создавать Blink/Chromium описаны в разделе <a href="https://www.chromium.org/developers/contributing-code#TOC-Legal-stuff">Legal stuff</a> на сайте проекта Chromium. Если кратко, то всё что вы создаёте принадлежит (не эксклюзивно) Google.</p><br/>
+<p>Браузеры компаний Opera, Яндекс, Ростелеком и другие используют именно этот браузерный движок. Если быть до конца откровенным то заявления вроде "у нас есть свой браузер" не совсем правда. Собственные сервисы — да, а вот всё остальное принадлежит другой компании(ям). И эта другая компания предоставляет свой браузерный движок на определенных условиях.</p><br/>
+<h2 id="licenzii-brauzernyh-dvizhkov">Лицензии браузерных движков</h2><br/>
+<p>Любой открытый код содержит в себе лицензию с описанием условий по использованию данного кода, и браузерные движки не исключение.</p><br/>
+<p>Если сразу и кратко: лицензии сносные, прям вот из ряда вон ничего нет. Кроме <code>EdgeHTML</code> который закрыт. Легально утащить к себе какой-то проект и закрыто разрабатывать/изменять видимо не выйдет. Лицензии призывают к взаимной открытости.</p><br/>
+<p><strong><a href="https://chromium.googlesource.com/chromium/src.git/+/master/third_party/WebKit">Blink</a></strong></p><br/>
+<p>Открытый исходный код, ответвление движка WebKit. Как и в WebKit заявлено четыре лицензии:</p><br/>
+<ul>
+<li><a href="https://opensource.org/licenses/BSD-3-Clause">The 3-Clause BSD License</a></li>
+<li><a href="https://opensource.org/licenses/bsd-license.php">The 2-Clause BSD License</a></li>
+<li><a href="https://www.gnu.org/licenses/lgpl-2.0.html">GNU Lesser General Public License Version 2, June 1991</a></li>
+<li><a href="https://www.gnu.org/licenses/lgpl-2.1.html">GNU Lesser General Public License Version 2.1, February 1999</a></li>
+</ul><br/>
+<p>Самый популярный браузерный движок. Он входит в состав проекта Chromium. Именно на основе Chromium создают собственные браузеры.</p><br/>
+<p>Если верить файлу <a href="https://chromium.googlesource.com/chromium/src.git/+/master/LICENSE">LICENSE</a> проекта Chromium его основная лицензия 3-Clause BSD. Но у проекта есть директория <a href="https://chromium.googlesource.com/chromium/src.git/+/master/third_party/">third_party</a> (третьи лица, третья сторона) содержащая множество стороннего кода от которого проект зависит. Иначе говоря, без этого кода собрать браузер не выйдет. У каждого компонента свои лицензии отличные от того что указано в LICENSE проекта:</p><br/>
+<ul>
+<li><a href="https://opensource.org/licenses/Apache-2.0">Apache 2.0</a></li>
+<li><a href="https://www.mozilla.org/en-US/MPL/2.0/">Mozilla Public License 2.0</a></li>
+<li><a href="https://opensource.org/licenses/mit-license.php">MIT</a></li>
+<li>и так далее</li>
+</ul><br/>
+<p><strong><a href="https://github.com/mozilla/gecko-dev">Gecko</a></strong></p><br/>
+<p>Открытый исходный код. Заявлена одна лицензия:</p><br/>
+<ul>
+<li><a href="https://www.mozilla.org/en-US/MPL/2.0/">Mozilla Public License 2.0</a></li>
+</ul><br/>
+<p>Активно развивается компаний Mozilla и используется в собственном браузере компании — Firefox. Так же используется в браузере Tor Browser обеспечивающий анонимное пребывание в сети.</p><br/>
+<p>Как основа для производителей браузеров большой популярности не имеет.</p><br/>
+<p><strong><a href="https://webkit.org/getting-the-code/">WebKit</a></strong></p><br/>
+<p>Открытый исходный код. Заявлено четыре лицензии:</p><br/>
+<ul>
+<li><a href="https://opensource.org/licenses/BSD-3-Clause">The 3-Clause BSD License</a></li>
+<li><a href="https://opensource.org/licenses/bsd-license.php">The 2-Clause BSD License</a></li>
+<li><a href="https://www.gnu.org/licenses/lgpl-2.0.html">GNU Lesser General Public License Version 2, June 1991</a></li>
+<li><a href="https://www.gnu.org/licenses/lgpl-2.1.html">GNU Lesser General Public License Version 2.1, February 1999</a></li>
+</ul><br/>
+<p>Развивается компанией Apple и используется в собственном браузере компании — Safari. Ранее многие компании использовали в своих разработках WebKit, но после покинули проект и переключились на Blink от Google.</p><br/>
+<p><strong><a href="https://developer.microsoft.com/en-us/microsoft-edge/">EdgeHTML</a></strong></p><br/>
+<p>Закрытый исходный код. Проприетарная лицензия.</p><br/>
+<p>Движок используется для браузера компании Microsoft под названием Edge, который пришёл на смену Internet Explorer. Это их новый движок. Предыдущий Trident (MSHTML) компания прекратила развивать.</p><br/>
+<h2 id="riski">Риски</h2><br/>
+<p>Использование стороннего движка порождает очевидные риски:</p><br/>
+<ol>
+<li>Закрытие исходного кода</li>
+<li>Выход ключевых компаний из разработки</li>
+<li>Смена лицензий на код</li>
+</ol><br/>
+<p>Никто не может гарантировать, что исходный код свободного браузерного движка не будет закрыт для публичного доступа. Так же возможен выход ключевых компаний из разработки свободного движка, что фактически является его закрытием.</p><br/>
+<p>Компании развивающие собственные браузеры должны понимать, что всё будет "хорошо" пока они не составляют угрозу/конкуренцию разработчикам оригинального браузера/браузерного движка. Думаю это очевидно. Компания тратит на разработку движка свои ресурсы, но вдруг появляется другая компания которая используя их движок захватывает рынок. Реакция, думаю, очевидна — смотрим список рисков выше. </p><br/>
+<p>«Мы создадим копию движка на текущий момент и продолжим развивать сами» — именно так отвечают производители браузеров на сторонних движках. Большое заблуждение, не выйдет просто так продолжить разработку чужого движка. То есть, взять программистов и поставить им задачу — пишите браузерный движок. Написание браузерного движка сложный технологический процесс. Подтверждением этого служит список их обладателей.</p><br/>
+<p>Для примера, компания Microsoft создает свой движок, хоть и закрытый. Google вместе с Apple разрабатывали WebKit, но позже Google сделал форк и начал развитие собственного движка Blink.</p><br/>
+<p>При этом нужно понимать, что браузерный движок постоянно развивается. Постоянно обновляются спецификации, добавляются новые возможности, улучшаются текущие. Это живая работа. Если взять какой-либо движок на текущую дату и просто использовать его для своего браузера то, примерно, через год-два браузер на этом движке морально устареет.</p><br/>
+<h2 id="adaptaciya-dvizhkov">Адаптация движков</h2><br/>
+<p>Существует проблема адаптации стороннего движка под нужды собственного браузера. На адаптацию тратится не мало ресурсов. При этом нужно понимать, что браузерные движки часто обновляются, что создает систематические проблемы при интеграции в собственный браузер.</p><br/>
+<h2 id="sobstvennyy-dvizhok">Собственный движок</h2><br/>
+<p>Прежде всего стоит ответить на главный вопрос — зачем создавать свой браузерный движок? А точнее, кому не надо создавать свой движок?</p><br/>
+<p><strong>Свой браузерный движок не стоит создавать если:</strong></p><br/>
+<ul>
+<li>Нет задачи/стремления захватить рынок.</li>
+<li>Браузер нужен лишь номинально. Сейчас это модно, делают даже школьники.</li>
+<li>Создаваемый движок не будет отличаться от существующих: скорость, надёжность, адаптивность.</li>
+<li>Идёт освоение бюджета.</li>
+</ul><br/>
+<p>На текущий момент нет сложности создать собственный браузер на стороннем движке. Их наплодилось не мало и как-то выделиться среди всей этой массы можно только созданием браузера на исключительно своих компонентах, на собственном движке.</p><br/>
+<p><strong>Стоит ли заниматься разработкой движка для "заработка", для создания стартапа?</strong></p><br/>
+<p>Данный вопрос скорее к сфере его применения. Мне видится несколько направлений:</p><br/>
+<ol>
+<li>Собственно, создание полноценного браузера. Сотрудничество с поисковыми системами, различными сервисами. Создание особых версий для государственных структур.</li>
+<li>Рынок IoT (интернет-вещей), а так же адаптация для телевизоров, приставок, портативных устройств.</li>
+<li>Сервисы на отдельных компонентах браузера. Например, умный анализ контента сайта на риски: запрещенные комментарии, посты от пользователей и так далее. Технический анализ сайтов.</li>
+<li>Продажа движка. Самое простое, написать под компанию.</li>
+</ol><br/>
+<p>Кроме того, престиж компании разработчика браузерного движка значительно выше чем у клонов. Именно как технологической компании. Это сказывается на популярности компании и привлекательности для существующих и будущих сотрудников. Но это уже скорее о честолюбии, встать в одном списке с такими компаниями как Google, Mozilla, Microsoft.</p><br/>
+<h2 id="zaklyuchenie">Заключение</h2><br/>
+<p>Без сомнения, создание браузерного движка процесс сложный и требующий значительных ресурсов. Подходить к этой разработки необходимо крайне серьёзно и с чётким планом по развитию. Кроме того, это не тот продукт прибыль от которого можно получать на промежуточном этапе разработки. Да, отдельные компоненты можно адаптировать под нужды компаний, но я уверен, что такой подход только отнимет время и значительно затянет разработку.</p><br/>
+<p>Развитие браузерного движка сильно зависит от метода его разработки. Каким он будет: открытым, закрытым?</p><br/>
+<p>Я уверен, что если компания занимается развитием браузера на основе стороннего браузерного движка то ей следует серьёзно подумать над перспективой создания собственного.</p><br/>
+<p>Компании далёкой от браузеров заняться разработкой браузерного движка тоже можно, и не только для того чтобы создать браузер. Если итоговый продукт будет полноценным браузерным движком превосходящим существующие то он будет востребован. Сферы применения были описаны выше.</p><br/>
+<h2 id="cikl-statey">Цикл статей</h2><br/>
+<ol>
+<li>Браузер != Браузерный движок</li>
+<li>Браузерный движок. Архитектура, работа с памятью.</li>
+<li>HTML парсер. Токенизация, обработка токенов, построение дерева.<br/>
+Пишем свой парсер. Из каких стадий состоит разбор HTML, в чём сложность и как разогнать HTML парсер в несколько раз.</li>
+<li>Кодировки в HTML. Как определяются, как конвертируются.<br/>
+Напишем свой кодировщик и обсудим положение дел.</li>
+<li>CSS парсер и CSS модули. Токенизация, обработка токенов.<br/>
+Создадим свой CSS парсер. Разберём основные аспекты обработки CSS. Выясним в чём сложность, на что тратятся ресурсы и как написать самый быстрый парсер CSS/модулей.</li>
+<li>CSS парсер. Grammar.<br/>
+Пишем собственный Grammar для CSS модулей формирующий быстрый, человеко-читаемый код.</li>
+<li>CSS Selectors. Как устроены, быстрый поиск HTML элементов по селекторам.</li>
+<li>Layout. Скрещиваем HTML и CSS.<br/>
+Назначаем CSS свойства HTML элементам. Разберём порядок назначения, приоритеты и что делать если CSS постоянно изменяется.</li>
+<li>Layout. Потоки. Поддержка CSS свойства display: block.</li>
+<li>Шрифты. Как расчитывать размер символов, строк.<br/>
+Напишем свой парсер шрифтов. Узнаем, что такое baseline, descender, x-height, как хранятся символы и углубимся в тему расчётов размера символов.</li>
+<li>Layout. Поддержка CSS свойства display: inline.</li>
+</ol><br/>
+<h2 id="sudba-modest">Судьба Modest</h2><br/>
+<p>Кто-то из читателей, возможно, знает, что я занимаюсь разработкой браузерного движка. В моих публикациях можно найти предыдущие статьи на эту тему.</p><br/>
+<p>К сожалению, проект <a href="https://github.com/lexborisov/Modest">Modest</a> пришлось завершить. Какое-то время проект развивался в компании, в которой я раньше работал. Мне пришлось покинуть компанию. Появились разногласия которые не позволили продолжить разработку проекта. Обычный рабочий процесс, такое бывает.</p><br/>
+<p>Не смотря на то, что у меня есть все права на Modest, на код никто не претендует (подписаны бумаги), я решил его "закопать". Чтобы ни у кого не возникало ложных ощущений. Тут надо понимать, что закапывается и весь основной код который развивался вне компании (mycore, myhtml). Но, есть и плюс, возможно, я стал чуть умнее.</p><br/>
+<p>Мной было потрачено очень много времени на изучение спецификаций, осознания их, поиск оптимальных алгоритмов, написание черновиков (прототипов), создание <a href="https://github.com/lexborisov/myhtml">myhtml</a> (самый быстрый парсер html) в свободное от работы время, и просто так забросить эту тему я пока не могу. Было потрачено много выходных, праздников, вечеров, ночей.</p><br/>
+<p>Теперь я занимаюсь разработкой нового браузерного движка. Разработка с ноля. Имени у него пока нет, только кодовое — lexbor. Вся основа уже написана: работа с памятью, общие алгоритмы, заложена будущая архитектура. Как всегда, всё краше и лучше чем было. В общем, у меня есть самое главное: технология и чёткое видение/понимание как и что развивать.</p><br/>
+<p>Одному мне такой проект не потянуть. Если поддержки не найду (финансирования) то прекращу разработку и присоединюсь контребьютером к существующему открытому движку (Blink или Gecko). Попробую побыть там волонтером и реализовать свои идеи. Занимаюсь всем этим исключительно в нерабочее время.</p><br/>
+<p>Тут видимо должна быть картинка «ты должен был бороться со злом, а не примкнуть к нему».</p><br/>
+<p>Спасибо за внимание!</p><br/>
+<p>P.S.: Все ошибки в личку или считать авторским стилем.</p></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bhtml%20renderer%5D" class="tm-tags-list__link">html renderer</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bbrowsers%5D" class="tm-tags-list__link">browsers</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bweb%20engine%5D" class="tm-tags-list__link">web engine</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bc%5D" class="tm-tags-list__link">c</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bhigh-performance%5D" class="tm-tags-list__link">high-performance</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/open_source/" class="tm-hubs-list__link">
+    Open source
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/c/" class="tm-hubs-list__link">
+    C
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/browsers/" class="tm-hubs-list__link">
+    Браузеры
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 36: ↑33 и ↓3</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 36: ↑33 и ↓3" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+30</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">36K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    100
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/lastmac/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/0b5/e73/a65/0b5e73a65310bbd1172fafb27cd41893.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 95 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    87
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Александр</span> <a href="https://habr.com/ru/users/lastmac/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @lastmac
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Весёлый разработчик</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/349512/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 55 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner8972" class="tm-ad-banner"></div></div> <!----> <section class="tm-block tm-block_spacing-around"><header class="tm-block__header"><h2 class="tm-block__title">Минуточку внимания</h2> <div class="tm-block__header-aside"><a href="https://tmtm.ru/megapost/" target="_blank" class="tm-block-extralink">
+      Разместить
+    </a></div></header> <div class="tm-block__body"><div pagination="" slides-per-view="1" class="tm-promo-block__content-wrapper"><div class="tm-promo-block__item-wrapper"><a href="https://effect.habr.com/a/q64-KuL0pABnXF8xDHYFFG-iKTc7QbHtGfyzRHdYDuTjTk1HYiYnV4CHqEWxu_RArh1YjvCLAlFfB2cwNPnkmoRP0U8PJWKQ-WVjNUpEgSvBoxBvYF7EIa2cpQ3wcFRM2DVu8xsq-r4-WHm6HcAFU8v5C1qLiv0" rel="nofollow sponsored" class="tm-promo-block__item tm-article-title__link"><header class="tm-promo-block__head"><div class="tm-promo-block__image-wrapper"><img alt="" src="https://effect.habr.com/a/ksRhsjubzZYCSSHY5kXiXLX3thqJ7wAFPB9FzLVYGiJ4qub9qzfOTsX8kVaBZBDvkH8XzYrkCGMCi1SZrkQbVLrXCWXKqo8b3Qdb8599xAUqXNRlZZRpysNYMgdBkRtUD5XEWXtvRtoMSb8ABdhvEkPwZSb9qwiKdicWjA8nI661xAhUUzbXptIc9jrcXdGE6Vg_TLym7CvIrzmA" class="tm-promo-block__image"></div> <div class="tm-promo-block__label">
+                Промо
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11 11" class="tm-block-promo__external"><path fill="currentColor" d="M7.5 0a.5.5 0 000 1h1.793L5.146 5.146a.5.5 0 10.708.708L10 1.707V3.5a.5.5 0 001 0v-3a.5.5 0 00-.5-.5h-3zm-7 1a.5.5 0 00-.5.5v9a.5.5 0 00.5.5h9a.5.5 0 00.5-.5V6a.5.5 0 00-1 0v4H1V2h4a.5.5 0 000-1H.5z"></path></svg></div></header> <div class="tm-promo-block__info"><h3 class="tm-promo-block__title">Красивое: смотрим тренды рынка труда в IT вместе с вами</h3></div></a></div><div class="tm-promo-block__item-wrapper"><a href="https://effect.habr.com/a/AOAIz_puEKEsjd5vDW1MIqXfjAurAO_Fadc5ByKefoTfXfAYszC6-rLPttbvMd5a064lZoioyU2rvIbP3u76jxF2RFUCZ29uIZtzdWJHVFKA3aokbhjXinNx5-EFwqKQj2OBl9X3Kg" rel="nofollow " class="tm-promo-block__item tm-article-title__link"><header class="tm-promo-block__head"><div class="tm-promo-block__image-wrapper"><img alt="" src="https://effect.habr.com/a/_GyqGw_HIH-smfZ6U2WEgKrbkVeXuWTD42--KQ8MgydQRfkubjMYKW6l0c1Tbd6YC-qU_gDIg2T8ciWD015HhkwHdKEX-OOeay7WCn2qIEJCYJ_o1jDkylOYiZymrEOpwp4Req_NoF9UMospzCwoef7F7Q35DrmKkwcXd_PHusHu_iEYo0NPhHN_8RTRDQuTmxaefYzhFKjv" class="tm-promo-block__image"></div> <div class="tm-promo-block__label">
+                Интересно
+                <!----></div></header> <div class="tm-promo-block__info"><h3 class="tm-promo-block__title">Истощающая тревога: что такое стресс и как с ним бороться</h3></div></a></div><div class="tm-promo-block__item-wrapper"><a href="https://effect.habr.com/a/7m7NSciEQN1xMaETsutR0vey60xgoB4WEOFci1seMnUJtCCWyWEbbpTx7gqA8tXpNSR4MtVGqXkW7za4pG2PXG9TDvuReik6IR5_PwNbsy4Fwz8or_YXdSY0Q3dfQL-Xdhgyck7d_BDFpAH5C-0eQQ" rel="nofollow " class="tm-promo-block__item tm-article-title__link"><header class="tm-promo-block__head"><div class="tm-promo-block__image-wrapper"><img alt="" src="https://effect.habr.com/a/NIeitqIFMlZyeApiIZuLnQsluWYh03zyrOe74QY2mS0ljDpqdKEJCIj9PSFpDnjAJpXAG1IZ3HW9Vb1V_QhHfldEA_KSSOxnvA5vb-iscJ7uWtyYr80Q3PhQyI1gIt7jDuhqTL2b0REyjuZvD4MDcyMVO8cXf9YszSNQVW5tKMWFuBQ6Wa7kuwfuewM0IWY6dIa8kHvzup0-XiQfME5u" class="tm-promo-block__image"></div> <div class="tm-promo-block__label">
+                Событие
+                <!----></div></header> <div class="tm-promo-block__info"><h3 class="tm-promo-block__title">Неделе фронтендеров на Хабр Карьере </h3></div></a></div></div></div> <!----></section> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner8973" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/programmist_c" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Программист С
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        35
+    вакансий
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/349512/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/349512/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"349512":{"id":"349512","timePublished":"2018-02-20T07:57:12+00:00","isCorporative":false,"lang":"ru","titleHtml":"Браузер != Браузерный движок","leadData":{"textHtml":"\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ftr\u002Fic\u002Fsg\u002Ftricsg4i49jke48r2_djht8rjde.png\"\u003E\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EВсем привет!\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EВ данной статье я хочу поделиться мыслями на счёт создания собственного браузерного движка. Мы рассмотрим текущие браузеры и браузерные движки. Вспомним про Modest и узнаем его нелёгкую судьбу.\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EЭто будет цикл статей в которых мы создадим свой собственный минималистичный браузерный движок. Каждая статья будет подкреплена реальным кодом и примерами.\u003Cbr\u003E\r\nПо прошествии десяти статей у нас с вами будет минимальная рабочая версия браузерного движка, сильно минимальная. После этого, если запал не уйдёт и будет интерес сообщества, продолжим, и в итоге доберёмся до JS.\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EИ конечно, первым делом необходимо понять, что такое браузер и браузерный движок.\u003C\u002Fp\u003E","imageUrl":null,"buttonTextHtml":"Приступим!","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":87,"votesCount":95},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"56292","alias":"lastmac","fullname":"Александр","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F0b5\u002Fe73\u002Fa65\u002F0b5e73a65310bbd1172fafb27cd41893.jpg","speciality":"Весёлый разработчик"},"statistics":{"commentsCount":55,"favoritesCount":100,"readingCount":35759,"score":30,"votesCount":36},"hubs":[{"relatedData":null,"id":"144","alias":"open_source","type":"collective","title":"Open source","titleHtml":"Open source","isProfiled":true},{"relatedData":null,"id":"17717","alias":"c","type":"collective","title":"C","titleHtml":"C","isProfiled":true},{"relatedData":null,"id":"19257","alias":"browsers","type":"collective","title":"Браузеры","titleHtml":"Браузеры","isProfiled":false}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Ftr\u002Fic\u002Fsg\u002Ftricsg4i49jke48r2_djht8rjde.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ftr\u002Fic\u002Fsg\u002Ftricsg4i49jke48r2_djht8rjde.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВсем привет!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ данной статье я хочу поделиться мыслями на счёт создания собственного браузерного движка. Мы рассмотрим текущие браузеры и браузерные движки. Вспомним про Modest и узнаем его нелёгкую судьбу.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЭто будет цикл статей в которых мы создадим свой собственный минималистичный браузерный движок. Каждая статья будет подкреплена реальным кодом и примерами.\u003Cbr\u002F\u003E\r\nПо прошествии десяти статей у нас с вами будет минимальная рабочая версия браузерного движка, сильно минимальная. После этого, если запал не уйдёт и будет интерес сообщества, продолжим, и в итоге доберёмся до JS.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИ конечно, первым делом необходимо понять, что такое браузер и браузерный движок.\u003C\u002Fp\u003E\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"brauzer-i-brauzernyy-dvizhok\"\u003EБраузер и браузерный движок\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСуществующий мир сложно представить без браузеров. Они есть на многих устройствах: компьютеры, лэптопы, телефоны, игровые приставки. Если представить браузер в виде машины то браузерный движок это всё то, что скрыто под капотом вашего автомобиля.\u003Cbr\u002F\u003E\r\nБраузеры как и автомобили могут отличаться внешним видом и содержимым под капотом. Цвет, кнопочки на панели, аудиосистема. У кого-то под капотом двигатель V8, а у кого-то там масло течёт.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EБраузер объединяет периферию и предоставляет функционал позволяющий манипулировать движком, его поведением, предоставляет дополнительные сервисы.\u003Cbr\u002F\u003E\r\nБраузерный движок выполняет всю \"грязную\" работу: загрузка, обработка, отрисовка данных и все возможные расчёты.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВсё как в автомобилях. Есть салон в котором присутствует педаль газа, тормоза и множество переключателей полезных и понятных пользователю. А есть большая механическая часть скрытая от пользователя под капотом.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"kto-sozdaet-brauzery-i-dvizhki\"\u003EКто создает браузеры и движки\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EРазработкой собственного браузера занимается множество компаний: Google, Mozilla, Apple, Microsoft, Opera Software, Яндекс, Ростелеком, Vivaldi Technologies, \u003Cstrong\u003Eмного их\u003C\u002Fstrong\u003E…\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКаждый добавляет какие-то свои \"фишки\", сервисы в создаваемый браузер. К примеру, Яндекс интегрирует свои сервисы, поиск.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EС браузерными движками дела обстоят кардинально иначе. Вот список движков, их разработчиков и обладателей:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EBlink: Google\u003C\u002Fli\u003E\r\n\u003Cli\u003EGecko: Mozilla\u003C\u002Fli\u003E\r\n\u003Cli\u003EWebKit: Apple\u003C\u002Fli\u003E\r\n\u003Cli\u003EEdgeHTML: Microsoft\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЭто основные обладатели и разработчики движков. В разработке им помогают сторонние компании на определенных условиях. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНапример, рассмотрим самый популярный проект от компании Google — Chromium. Данный проект содержит в себе движок Blink. Создавать данный проект Google помогают такие компании как Intel, Facebook, IBM, LG Electronics, NVIDIA, Yandex. Полный список можно посмотреть \u003Ca href=\"https:\u002F\u002Fchromium.googlesource.com\u002Fchromium\u002Fsrc.git\u002F+\u002Fmaster\u002FAUTHORS\"\u003Eтут\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\nУсловия на которых компании помогают создавать Blink\u002FChromium описаны в разделе \u003Ca href=\"https:\u002F\u002Fwww.chromium.org\u002Fdevelopers\u002Fcontributing-code#TOC-Legal-stuff\"\u003ELegal stuff\u003C\u002Fa\u003E на сайте проекта Chromium. Если кратко, то всё что вы создаёте принадлежит (не эксклюзивно) Google.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EБраузеры компаний Opera, Яндекс, Ростелеком и другие используют именно этот браузерный движок. Если быть до конца откровенным то заявления вроде \"у нас есть свой браузер\" не совсем правда. Собственные сервисы — да, а вот всё остальное принадлежит другой компании(ям). И эта другая компания предоставляет свой браузерный движок на определенных условиях.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"licenzii-brauzernyh-dvizhkov\"\u003EЛицензии браузерных движков\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЛюбой открытый код содержит в себе лицензию с описанием условий по использованию данного кода, и браузерные движки не исключение.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕсли сразу и кратко: лицензии сносные, прям вот из ряда вон ничего нет. Кроме \u003Ccode\u003EEdgeHTML\u003C\u002Fcode\u003E который закрыт. Легально утащить к себе какой-то проект и закрыто разрабатывать\u002Fизменять видимо не выйдет. Лицензии призывают к взаимной открытости.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003E\u003Ca href=\"https:\u002F\u002Fchromium.googlesource.com\u002Fchromium\u002Fsrc.git\u002F+\u002Fmaster\u002Fthird_party\u002FWebKit\"\u003EBlink\u003C\u002Fa\u003E\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОткрытый исходный код, ответвление движка WebKit. Как и в WebKit заявлено четыре лицензии:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fopensource.org\u002Flicenses\u002FBSD-3-Clause\"\u003EThe 3-Clause BSD License\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fopensource.org\u002Flicenses\u002Fbsd-license.php\"\u003EThe 2-Clause BSD License\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.gnu.org\u002Flicenses\u002Flgpl-2.0.html\"\u003EGNU Lesser General Public License Version 2, June 1991\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.gnu.org\u002Flicenses\u002Flgpl-2.1.html\"\u003EGNU Lesser General Public License Version 2.1, February 1999\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСамый популярный браузерный движок. Он входит в состав проекта Chromium. Именно на основе Chromium создают собственные браузеры.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕсли верить файлу \u003Ca href=\"https:\u002F\u002Fchromium.googlesource.com\u002Fchromium\u002Fsrc.git\u002F+\u002Fmaster\u002FLICENSE\"\u003ELICENSE\u003C\u002Fa\u003E проекта Chromium его основная лицензия 3-Clause BSD. Но у проекта есть директория \u003Ca href=\"https:\u002F\u002Fchromium.googlesource.com\u002Fchromium\u002Fsrc.git\u002F+\u002Fmaster\u002Fthird_party\u002F\"\u003Ethird_party\u003C\u002Fa\u003E (третьи лица, третья сторона) содержащая множество стороннего кода от которого проект зависит. Иначе говоря, без этого кода собрать браузер не выйдет. У каждого компонента свои лицензии отличные от того что указано в LICENSE проекта:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fopensource.org\u002Flicenses\u002FApache-2.0\"\u003EApache 2.0\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.mozilla.org\u002Fen-US\u002FMPL\u002F2.0\u002F\"\u003EMozilla Public License 2.0\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fopensource.org\u002Flicenses\u002Fmit-license.php\"\u003EMIT\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003Eи так далее\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003E\u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fmozilla\u002Fgecko-dev\"\u003EGecko\u003C\u002Fa\u003E\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОткрытый исходный код. Заявлена одна лицензия:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.mozilla.org\u002Fen-US\u002FMPL\u002F2.0\u002F\"\u003EMozilla Public License 2.0\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EАктивно развивается компаний Mozilla и используется в собственном браузере компании — Firefox. Так же используется в браузере Tor Browser обеспечивающий анонимное пребывание в сети.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКак основа для производителей браузеров большой популярности не имеет.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003E\u003Ca href=\"https:\u002F\u002Fwebkit.org\u002Fgetting-the-code\u002F\"\u003EWebKit\u003C\u002Fa\u003E\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОткрытый исходный код. Заявлено четыре лицензии:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fopensource.org\u002Flicenses\u002FBSD-3-Clause\"\u003EThe 3-Clause BSD License\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fopensource.org\u002Flicenses\u002Fbsd-license.php\"\u003EThe 2-Clause BSD License\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.gnu.org\u002Flicenses\u002Flgpl-2.0.html\"\u003EGNU Lesser General Public License Version 2, June 1991\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.gnu.org\u002Flicenses\u002Flgpl-2.1.html\"\u003EGNU Lesser General Public License Version 2.1, February 1999\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EРазвивается компанией Apple и используется в собственном браузере компании — Safari. Ранее многие компании использовали в своих разработках WebKit, но после покинули проект и переключились на Blink от Google.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003E\u003Ca href=\"https:\u002F\u002Fdeveloper.microsoft.com\u002Fen-us\u002Fmicrosoft-edge\u002F\"\u003EEdgeHTML\u003C\u002Fa\u003E\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЗакрытый исходный код. Проприетарная лицензия.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДвижок используется для браузера компании Microsoft под названием Edge, который пришёл на смену Internet Explorer. Это их новый движок. Предыдущий Trident (MSHTML) компания прекратила развивать.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"riski\"\u003EРиски\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИспользование стороннего движка порождает очевидные риски:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EЗакрытие исходного кода\u003C\u002Fli\u003E\r\n\u003Cli\u003EВыход ключевых компаний из разработки\u003C\u002Fli\u003E\r\n\u003Cli\u003EСмена лицензий на код\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНикто не может гарантировать, что исходный код свободного браузерного движка не будет закрыт для публичного доступа. Так же возможен выход ключевых компаний из разработки свободного движка, что фактически является его закрытием.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКомпании развивающие собственные браузеры должны понимать, что всё будет \"хорошо\" пока они не составляют угрозу\u002Fконкуренцию разработчикам оригинального браузера\u002Fбраузерного движка. Думаю это очевидно. Компания тратит на разработку движка свои ресурсы, но вдруг появляется другая компания которая используя их движок захватывает рынок. Реакция, думаю, очевидна — смотрим список рисков выше. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E«Мы создадим копию движка на текущий момент и продолжим развивать сами» — именно так отвечают производители браузеров на сторонних движках. Большое заблуждение, не выйдет просто так продолжить разработку чужого движка. То есть, взять программистов и поставить им задачу — пишите браузерный движок. Написание браузерного движка сложный технологический процесс. Подтверждением этого служит список их обладателей.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДля примера, компания Microsoft создает свой движок, хоть и закрытый. Google вместе с Apple разрабатывали WebKit, но позже Google сделал форк и начал развитие собственного движка Blink.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПри этом нужно понимать, что браузерный движок постоянно развивается. Постоянно обновляются спецификации, добавляются новые возможности, улучшаются текущие. Это живая работа. Если взять какой-либо движок на текущую дату и просто использовать его для своего браузера то, примерно, через год-два браузер на этом движке морально устареет.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"adaptaciya-dvizhkov\"\u003EАдаптация движков\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСуществует проблема адаптации стороннего движка под нужды собственного браузера. На адаптацию тратится не мало ресурсов. При этом нужно понимать, что браузерные движки часто обновляются, что создает систематические проблемы при интеграции в собственный браузер.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"sobstvennyy-dvizhok\"\u003EСобственный движок\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПрежде всего стоит ответить на главный вопрос — зачем создавать свой браузерный движок? А точнее, кому не надо создавать свой движок?\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EСвой браузерный движок не стоит создавать если:\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EНет задачи\u002Fстремления захватить рынок.\u003C\u002Fli\u003E\r\n\u003Cli\u003EБраузер нужен лишь номинально. Сейчас это модно, делают даже школьники.\u003C\u002Fli\u003E\r\n\u003Cli\u003EСоздаваемый движок не будет отличаться от существующих: скорость, надёжность, адаптивность.\u003C\u002Fli\u003E\r\n\u003Cli\u003EИдёт освоение бюджета.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНа текущий момент нет сложности создать собственный браузер на стороннем движке. Их наплодилось не мало и как-то выделиться среди всей этой массы можно только созданием браузера на исключительно своих компонентах, на собственном движке.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EСтоит ли заниматься разработкой движка для \"заработка\", для создания стартапа?\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДанный вопрос скорее к сфере его применения. Мне видится несколько направлений:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EСобственно, создание полноценного браузера. Сотрудничество с поисковыми системами, различными сервисами. Создание особых версий для государственных структур.\u003C\u002Fli\u003E\r\n\u003Cli\u003EРынок IoT (интернет-вещей), а так же адаптация для телевизоров, приставок, портативных устройств.\u003C\u002Fli\u003E\r\n\u003Cli\u003EСервисы на отдельных компонентах браузера. Например, умный анализ контента сайта на риски: запрещенные комментарии, посты от пользователей и так далее. Технический анализ сайтов.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПродажа движка. Самое простое, написать под компанию.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКроме того, престиж компании разработчика браузерного движка значительно выше чем у клонов. Именно как технологической компании. Это сказывается на популярности компании и привлекательности для существующих и будущих сотрудников. Но это уже скорее о честолюбии, встать в одном списке с такими компаниями как Google, Mozilla, Microsoft.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"zaklyuchenie\"\u003EЗаключение\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EБез сомнения, создание браузерного движка процесс сложный и требующий значительных ресурсов. Подходить к этой разработки необходимо крайне серьёзно и с чётким планом по развитию. Кроме того, это не тот продукт прибыль от которого можно получать на промежуточном этапе разработки. Да, отдельные компоненты можно адаптировать под нужды компаний, но я уверен, что такой подход только отнимет время и значительно затянет разработку.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EРазвитие браузерного движка сильно зависит от метода его разработки. Каким он будет: открытым, закрытым?\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЯ уверен, что если компания занимается развитием браузера на основе стороннего браузерного движка то ей следует серьёзно подумать над перспективой создания собственного.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКомпании далёкой от браузеров заняться разработкой браузерного движка тоже можно, и не только для того чтобы создать браузер. Если итоговый продукт будет полноценным браузерным движком превосходящим существующие то он будет востребован. Сферы применения были описаны выше.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"cikl-statey\"\u003EЦикл статей\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EБраузер != Браузерный движок\u003C\u002Fli\u003E\r\n\u003Cli\u003EБраузерный движок. Архитектура, работа с памятью.\u003C\u002Fli\u003E\r\n\u003Cli\u003EHTML парсер. Токенизация, обработка токенов, построение дерева.\u003Cbr\u002F\u003E\r\nПишем свой парсер. Из каких стадий состоит разбор HTML, в чём сложность и как разогнать HTML парсер в несколько раз.\u003C\u002Fli\u003E\r\n\u003Cli\u003EКодировки в HTML. Как определяются, как конвертируются.\u003Cbr\u002F\u003E\r\nНапишем свой кодировщик и обсудим положение дел.\u003C\u002Fli\u003E\r\n\u003Cli\u003ECSS парсер и CSS модули. Токенизация, обработка токенов.\u003Cbr\u002F\u003E\r\nСоздадим свой CSS парсер. Разберём основные аспекты обработки CSS. Выясним в чём сложность, на что тратятся ресурсы и как написать самый быстрый парсер CSS\u002Fмодулей.\u003C\u002Fli\u003E\r\n\u003Cli\u003ECSS парсер. Grammar.\u003Cbr\u002F\u003E\r\nПишем собственный Grammar для CSS модулей формирующий быстрый, человеко-читаемый код.\u003C\u002Fli\u003E\r\n\u003Cli\u003ECSS Selectors. Как устроены, быстрый поиск HTML элементов по селекторам.\u003C\u002Fli\u003E\r\n\u003Cli\u003ELayout. Скрещиваем HTML и CSS.\u003Cbr\u002F\u003E\r\nНазначаем CSS свойства HTML элементам. Разберём порядок назначения, приоритеты и что делать если CSS постоянно изменяется.\u003C\u002Fli\u003E\r\n\u003Cli\u003ELayout. Потоки. Поддержка CSS свойства display: block.\u003C\u002Fli\u003E\r\n\u003Cli\u003EШрифты. Как расчитывать размер символов, строк.\u003Cbr\u002F\u003E\r\nНапишем свой парсер шрифтов. Узнаем, что такое baseline, descender, x-height, как хранятся символы и углубимся в тему расчётов размера символов.\u003C\u002Fli\u003E\r\n\u003Cli\u003ELayout. Поддержка CSS свойства display: inline.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"sudba-modest\"\u003EСудьба Modest\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКто-то из читателей, возможно, знает, что я занимаюсь разработкой браузерного движка. В моих публикациях можно найти предыдущие статьи на эту тему.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EК сожалению, проект \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Flexborisov\u002FModest\"\u003EModest\u003C\u002Fa\u003E пришлось завершить. Какое-то время проект развивался в компании, в которой я раньше работал. Мне пришлось покинуть компанию. Появились разногласия которые не позволили продолжить разработку проекта. Обычный рабочий процесс, такое бывает.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНе смотря на то, что у меня есть все права на Modest, на код никто не претендует (подписаны бумаги), я решил его \"закопать\". Чтобы ни у кого не возникало ложных ощущений. Тут надо понимать, что закапывается и весь основной код который развивался вне компании (mycore, myhtml). Но, есть и плюс, возможно, я стал чуть умнее.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EМной было потрачено очень много времени на изучение спецификаций, осознания их, поиск оптимальных алгоритмов, написание черновиков (прототипов), создание \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Flexborisov\u002Fmyhtml\"\u003Emyhtml\u003C\u002Fa\u003E (самый быстрый парсер html) в свободное от работы время, и просто так забросить эту тему я пока не могу. Было потрачено много выходных, праздников, вечеров, ночей.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТеперь я занимаюсь разработкой нового браузерного движка. Разработка с ноля. Имени у него пока нет, только кодовое — lexbor. Вся основа уже написана: работа с памятью, общие алгоритмы, заложена будущая архитектура. Как всегда, всё краше и лучше чем было. В общем, у меня есть самое главное: технология и чёткое видение\u002Fпонимание как и что развивать.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОдному мне такой проект не потянуть. Если поддержки не найду (финансирования) то прекращу разработку и присоединюсь контребьютером к существующему открытому движку (Blink или Gecko). Попробую побыть там волонтером и реализовать свои идеи. Занимаюсь всем этим исключительно в нерабочее время.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТут видимо должна быть картинка «ты должен был бороться со злом, а не примкнуть к нему».\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСпасибо за внимание!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EP.S.: Все ошибки в личку или считать авторским стилем.\u003C\u002Fp\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"html renderer"},{"titleHtml":"browsers"},{"titleHtml":"web engine"},{"titleHtml":"c"},{"titleHtml":"high-performance"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F349512\u002F914fe085a6b4b9aba9af3747874e7dca\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F349512\u002F914fe085a6b4b9aba9af3747874e7dca\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F349512\\\u002F\"},\"headline\":\"Браузер != Браузерный движок\",\"datePublished\":\"2018-02-20T10:57:12+03:00\",\"dateModified\":\"2018-02-20T12:17:53+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Александр\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Всем привет! В данной статье я хочу поделиться мыслями на счёт создания собственного браузерного движка. Мы рассмотрим текущие браузеры и браузерные движки. Всп...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F349512\\\u002F#post-content-body\",\"about\":[\"h_open_source\",\"h_c\",\"h_browsers\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F349512\\\u002F914fe085a6b4b9aba9af3747874e7dca\\\u002F\"]}","metaDescription":"Всем привет!\r\nВ данной статье я хочу поделиться мыслями на счёт создания собственного браузерного движка. Мы рассмотрим текущие браузеры и браузерные движки. Вспомним про Modest и узнаем его...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"Программист С","vacanciesCount":35,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fprogrammist_c","itemHubs":["c"]}],"hubs":"open_source,c,browsers"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":true,"featurer":[{"title":"Питчи недели фронтендеров","gal":"pitch_ft_2022_1","image":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002F0hPKpGPDA4POk5G_nM7K6zGf1mNPyhcLdY4wi3PuvvMwrfOPIl7_BnCdMkelIeg1Xu8OPJGFf-Nh47iCOpewXQw90L4UH4vO-dVNlsHWQ9hPfCJKSpkrJ-i69XVrZkJBw_94VKa2KkrXB9n3guntoNVoJ1xZfSONqVMi-jtPXjhzGbnUUFwzN_ZB1pmMqeKIApmZNPCMBAIGi1hPn1a_51yYFanA0pzt"},"link":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002FdaQC1eydgfn2fl8VvaRyQCoM1YyIcFs_5BAw8738dXCaeQnBBpjA3FVKDKHMK-x5rhCNspTg8YGJWCfzB0Zfh71p7kUjZTe2bo82XsekgGEuaXc04ZB_6hziWZFAtHYvJNQq0sF6"}}],"megaposts":[{"title":"Основы основ финтеха","color":"#99ddff","link":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002FLMrLBfTOE1-szDX6K9TrERnYm0n669hNNqouUTUhcksnezHEMeTDMMEx6K2nCN44AePBf_CkFT2TVARJhUzoHQSmnz1CepDD-GRTKLmPMIKm288H"},"events":{"view":"V9FWjElD5-a7KGCuK9BTYhJP9vWJezPuhy1CfXqomyBieN8vmELV4UU6HONy66rKlwTT1SLRTFdlNQ"}}],"promoLinks":[{"title":"Почему программисты пишут статьи? ","label":"Мегапост","external":false,"link":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002FxPv4loN6qiQkgWtwfwBAjggQ35k2OHoE-tF4EsQMLayg19A3Rfb2fhCXYFL0WwHabrS3LyZDO8ynORBMmV5lYoT2YtKigvLPJFVEaYU8jYrW"},"events":{"view":"3fYjPCFjs4F8zrQOLUErIYxMidOvhj5dGrBrCaWTudKOU_MnxiSwoHBMpCsmotxw7qfp-SOxjB5gYg"}},{"title":"А как прошел ваш 2021? Исследуем рынок труда в IT, строим тренды и ищем аномалии","label":"Промо","external":true,"link":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002FCyRu8HDaj339r4cOL2DTqMhrM70sH9a5bpswo7DE1fjWqBTShGbitB6lx0BgZpRYVtcGmS4ncVw8Iybb-WofhBtLwTLUtZbRS5xe5kq2gbgstCBqg0nEtCFcsYHM0V9dPXk3_KGBs_mrDy9G5EjKt-aAGePsHaM"},"events":{"view":"lQRHbpNtkfAWOhHBAyaczTHCUKusZo6Xr-4lcLW7ZpoK1DFyoZpNpSxUpX6w_4y8tOsrjrxBJhHAyA"}}],"promoPosts":[{"title":"Красивое: смотрим тренды рынка труда в IT вместе с вами","label":"Промо","external":true,"image":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002FksRhsjubzZYCSSHY5kXiXLX3thqJ7wAFPB9FzLVYGiJ4qub9qzfOTsX8kVaBZBDvkH8XzYrkCGMCi1SZrkQbVLrXCWXKqo8b3Qdb8599xAUqXNRlZZRpysNYMgdBkRtUD5XEWXtvRtoMSb8ABdhvEkPwZSb9qwiKdicWjA8nI661xAhUUzbXptIc9jrcXdGE6Vg_TLym7CvIrzmA"},"link":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002Fq64-KuL0pABnXF8xDHYFFG-iKTc7QbHtGfyzRHdYDuTjTk1HYiYnV4CHqEWxu_RArh1YjvCLAlFfB2cwNPnkmoRP0U8PJWKQ-WVjNUpEgSvBoxBvYF7EIa2cpQ3wcFRM2DVu8xsq-r4-WHm6HcAFU8v5C1qLiv0"}},{"title":"Истощающая тревога: что такое стресс и как с ним бороться","label":"Интересно","external":false,"image":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002F_GyqGw_HIH-smfZ6U2WEgKrbkVeXuWTD42--KQ8MgydQRfkubjMYKW6l0c1Tbd6YC-qU_gDIg2T8ciWD015HhkwHdKEX-OOeay7WCn2qIEJCYJ_o1jDkylOYiZymrEOpwp4Req_NoF9UMospzCwoef7F7Q35DrmKkwcXd_PHusHu_iEYo0NPhHN_8RTRDQuTmxaefYzhFKjv"},"link":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002FAOAIz_puEKEsjd5vDW1MIqXfjAurAO_Fadc5ByKefoTfXfAYszC6-rLPttbvMd5a064lZoioyU2rvIbP3u76jxF2RFUCZ29uIZtzdWJHVFKA3aokbhjXinNx5-EFwqKQj2OBl9X3Kg"}},{"title":"Неделе фронтендеров на Хабр Карьере ","label":"Событие","external":false,"image":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002FNIeitqIFMlZyeApiIZuLnQsluWYh03zyrOe74QY2mS0ljDpqdKEJCIj9PSFpDnjAJpXAG1IZ3HW9Vb1V_QhHfldEA_KSSOxnvA5vb-iscJ7uWtyYr80Q3PhQyI1gIt7jDuhqTL2b0REyjuZvD4MDcyMVO8cXf9YszSNQVW5tKMWFuBQ6Wa7kuwfuewM0IWY6dIa8kHvzup0-XiQfME5u"},"link":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002F7m7NSciEQN1xMaETsutR0vey60xgoB4WEOFci1seMnUJtCCWyWEbbpTx7gqA8tXpNSR4MtVGqXkW7za4pG2PXG9TDvuReik6IR5_PwNbsy4Fwz8or_YXdSY0Q3dfQL-Xdhgyck7d_BDFpAH5C-0eQQ"}}]},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Cron в Linux: история, использование и устройство / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/badoo\/blog\/468061\/"},"headline":"Cron в Linux: история, использование и устройство","datePublished":"2019-09-19T15:45:57+03:00","dateModified":"2019-09-20T18:34:25+03:00","author":{"@type":"Person","name":"Владимир Казанов"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Классик писал, что счастливые часов не наблюдают. В те дикие времена ещё не было ни программистов, ни Unix, но в наши дни программисты знают твёрдо: вместо них...","url":"https:\/\/habr.com\/ru\/company\/badoo\/blog\/468061\/#post-content-body","about":["c_badoo","h_linux","h_sys_admin","h_programming","h_nix","f_develop","f_admin"],"image":["https:\/\/habr.com\/share\/publication\/468061\/3405ef59142d1c3944646152ea893296\/","https:\/\/habrastorage.org\/webt\/tm\/ya\/6j\/tmya6jd_1sbhnfncczo1nf2g7_y.jpeg"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Cron в Linux: история, использование и устройство" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Cron в Linux: история, использование и устройство" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Cron в Linux: история, использование и устройство" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Классик писал, что счастливые часов не наблюдают. В те дикие времена ещё не было ни программистов, ни Unix, но в наши дни программисты знают твёрдо: вместо них за временем проследит cron.
+Утилиты..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Классик писал, что счастливые часов не наблюдают. В те дикие времена ещё не было ни программистов, ни Unix, но в наши дни программисты знают твёрдо: вместо них за временем проследит cron.
+Утилиты..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Классик писал, что счастливые часов не наблюдают. В те дикие времена ещё не было ни программистов, ни Unix, но в наши дни программисты знают твёрдо: вместо них за временем проследит cron.
+Утилиты..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Классик писал, что счастливые часов не наблюдают. В те дикие времена ещё не было ни программистов, ни Unix, но в наши дни программисты знают твёрдо: вместо них за временем проследит cron.
+Утилиты..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Классик писал, что счастливые часов не наблюдают. В те дикие времена ещё не было ни программистов, ни Unix, но в наши дни программисты знают твёрдо: вместо них за временем проследит cron.
+Утилиты..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habrastorage.org/webt/tm/ya/6j/tmya6jd_1sbhnfncczo1nf2g7_y.jpeg" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habrastorage.org/webt/tm/ya/6j/tmya6jd_1sbhnfncczo1nf2g7_y.jpeg" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habrastorage.org/webt/tm/ya/6j/tmya6jd_1sbhnfncczo1nf2g7_y.jpeg" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habrastorage.org/webt/tm/ya/6j/tmya6jd_1sbhnfncczo1nf2g7_y.jpeg" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habrastorage.org/webt/tm/ya/6j/tmya6jd_1sbhnfncczo1nf2g7_y.jpeg?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="468061" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2019-09-19T12:45:57.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/badoo/blog/468061/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="linux, cron, crontab, unix, posix">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/468061/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.73.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habrastorage.org/webt/tm/ya/6j/tmya6jd_1sbhnfncczo1nf2g7_y.jpeg" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="badoo" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><div class="tm-company-card__branding tm-company-article__branding tm-company-card__branding_loading"><div class="tm-company-card__branding-placeholder"><!----></div> <a href="https://tech.badoo.com/"><img src="https://habrastorage.org/getpro/habr/branding/760/e1e/777/760e1e777c1a4ef5a44a2da009719a85.png" width="100%" class="tm-company-card__branding-image"></a></div></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/badoo/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/69e/0a4/840/69e0a4840cbfdc565559f6af093b5835.png" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">121.53</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/badoo/profile/" class="tm-company-card__name">
+      Badoo
+    </a> <div class="tm-company-card__description">Big Dating</div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/VlK/" title="VlK" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_pink"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/VlK/" class="tm-user-info__username">
+      VlK
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2019-09-19T12:45:57.000Z" title="2019-09-19, 15:45">19  сентября  2019 в 15:45</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Cron в Linux: история, использование и устройство</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/badoo/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании Badoo</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/linux/" class="tm-article-snippet__hubs-item-link"><span>Настройка Linux</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/sys_admin/" class="tm-article-snippet__hubs-item-link"><span>Системное администрирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/programming/" class="tm-article-snippet__hubs-item-link"><span>Программирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/nix/" class="tm-article-snippet__hubs-item-link"><span>*nix</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><img src="https://habrastorage.org/r/w780q1/webt/tm/ya/6j/tmya6jd_1sbhnfncczo1nf2g7_y.jpeg" data-src="https://habrastorage.org/webt/tm/ya/6j/tmya6jd_1sbhnfncczo1nf2g7_y.jpeg" data-blurred="true"/><br/>
+<p>Классик писал, что счастливые часов не наблюдают. В те дикие времена ещё не было ни программистов, ни Unix, но в наши дни программисты знают твёрдо: вместо них за временем проследит cron.</p><br/>
+<p>Утилиты командной строки для меня одновременно слабость и рутина. sed, awk, wc, cut и другие старые программы запускаются скриптами на наших серверах ежедневно. Многие из них оформлены в виде задач для cron, планировщика родом из 70-х.</p><br/>
+<p>Я долго пользовался cron поверхностно, не вникая в детали, но однажды, столкнувшись с ошибкой при запуске скрипта, решил разобраться основательно. Так появилась эта статья, при написании которой я ознакомился с POSIX crontab, основными вариантами cron в популярных дистрибутивах Linux и устройством некоторых из них.</p><br/>
+<p>Используете Linux и запускаете задачи в cron? Вам интересна архитектура системных приложений в Unix? Тогда нам по пути!</p><a name="habracut"></a><br/>
+<h1 id="soderzhanie">Содержание</h1><br/>
+<ul>
+<li><a href="index.html.1.73.html#proishozhdenie-vidov">Происхождение видов</a></li>
+<li><a href="index.html.1.73.html#posix-crontab">POSIX crontab</a></li>
+<li><a href="index.html.1.73.html#hit-prodazh--vixie-cron-30pl1">Хит продаж — Vixie cron 3.0pl1</a></li>
+<li><a href="index.html.1.73.html#cron-v-debian-i-ubuntu">cron в Debian и Ubuntu</a></li>
+<li><a href="index.html.1.73.html#cronie-v-redhat-fedora-i-centos">cronie в Red Hat, Fedora и CentOS</a></li>
+<li><a href="index.html.1.73.html#cronie-v-sles-i-opensuse">cronie в SLES и openSUSE</a></li>
+<li><a href="index.html.1.73.html#ustroystvo-vixie-cron">Устройство Vixie cron</a></li>
+<li><a href="index.html.1.73.html#posleslovie">Послесловие</a></li>
+</ul><br/>
+<h1 id="proishozhdenie-vidov">Происхождение видов</h1><br/>
+<p>Периодическое выполнение пользовательских или системных программ — очевидная необходимость во всех операционных системах. Поэтому потребность в сервисах, позволяющих централизованно планировать и выполнять задачи, программисты осознали очень давно.</p><br/>
+<p>Unix-подобные операционные системы ведут свою родословную от Version 7 Unix, разработанной в 70-х годах прошлого века в Bell Labs в том числе и знаменитым Кеном Томпсоном (англ. Ken Thompson). Вместе c Version 7 Unix поставлялся и cron, сервис для регулярного выполнения задач суперпользователя.</p><br/>
+<p>Типичный современный cron — несложная программа, но алгоритм работы оригинального варианта был ещё проще: сервис просыпался раз в минуту, читал табличку с задачами из единственного файл (/etc/lib/crontab) и выполнял для суперпользователя те задачи, которые следовало выполнить в текущую минуту.</p><br/>
+<p>Впоследствии усовершенствованные варианты простого и полезного сервиса поставлялись со всеми Unix-подобными операционными системами.</p><br/>
+<p>Обобщённые описания формата crontab и базовых принципов работы утилиты в 1992 году были включены в главный стандарт Unix-подобных операционных систем — POSIX — и таким образом cron из стандарта де-факто стал стандартом де-юре.</p><br/>
+<p>В 1987 году Пол Викси (англ. Paul Vixie), опросив пользователей Unix на предмет пожеланий к cron, выпустил ещё одну версию демона, исправляющую некоторые проблемы традиционных cron и расширяющую синтаксис файлов-таблиц.</p><br/>
+<p>К третьей версии Vixie cron стал отвечать требованиям POSIX, к тому же у программы была либеральная лицензия, вернее не было вообще никакой лицензии, если не считать пожеланий в README: гарантий автор не даёт, имя автора удалять нельзя, а продавать программу можно только вместе с исходным кодом. Эти требования оказались совместимы с принципами набиравшего в те годы популярность свободного ПО, поэтому некоторые ключевые из появившихся в начале 90-х дистрибутивов Linux взяли Vixie cron в качестве системного и развивают его до сих пор.</p><br/>
+<p>В частности, Red Hat и SUSE развивают форк Vixie cron — cronie, а Debian и Ubuntu используют оригинальное издание Vixie cron со множеством патчей.</p><br/>
+<p>Давайте для начала познакомимся с описанной в POSIX пользовательской утилитой crontab, после чего разберём расширения синтаксиса, представленные в Vixie cron, и использование вариаций Vixie cron в популярных дистрибутивах Linux. И, наконец, вишенка на торте — разбор устройства демона cron.</p><br/>
+<h1 id="posix-crontab">POSIX crontab</h1><br/>
+<p>Если оригинальный cron всегда работал для суперпользователя, то современные планировщики чаще имеют дело с задачами обычных пользователей, что более безопасно и удобно.</p><br/>
+<p>Сron-ы поставляются комплектом из двух программ: постоянно работающего демона cron и доступной пользователям утилиты crontab. Последняя позволяет редактировать таблицы задач, специфичные для каждого пользователя в системе, демон же запускает задачи из пользовательских и системной таблиц.</p><br/>
+<p>В <a href="https://www.unix.com/man-page/POSIX/1posix/crontab/">стандарте POSIX</a> никак не описывается поведение демона и формализована только пользовательская программа <a href="https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html">crontab</a>. Существование механизмов запуска пользовательских задач, конечно, подразумевается, но не описано подробно.</p><br/>
+<p>Вызовом утилиты crontab можно сделать четыре вещи: отредактировать пользовательскую таблицу задач в редакторе, загрузить таблицу из файла, показать текущую таблицу задач и очистить таблицу задач. Примеры работы утилиты crontab:</p><br/>
+<pre><code class="plaintext">crontab -e # редактировать таблицу задач
+crontab -l # показать таблицу задач
+crontab -r # удалить таблицу задач
+crontab path/to/file.crontab # загрузить таблицу задач из файла</code></pre><br/>
+<p>При вызове <code>crontab -e</code> будет использоваться редактор, указанный в стандартной переменной окружения <code>EDITOR</code>.</p><br/>
+<p>Сами задачи описаны в следующем формате:</p><br/>
+<pre><code class="plaintext"># строки-комментарии игнорируются
+#
+# задача, выполняемая ежеминутно
+* * * * * /path/to/exec -a -b -c
+# задача, выполняемая на 10-й минуте каждого часа
+10 * * * * /path/to/exec -a -b -c
+# задача, выполняемая на 10-й минуте второго часа каждого дня и использующая перенаправление стандартного потока вывода
+10 2 * * * /path/to/exec -a -b -c > /tmp/cron-job-output.log</code></pre><br/>
+<p>Первые пять полей записей: минуты [1..60], часы [0..23], дни месяца [1..31], месяцы [1..12], дни недели [0..6], где 0 — воскресенье. Последнее, шестое, поле — строка, которая будет выполнена стандартным интерпретатором команд.</p><br/>
+<p>В первых пяти полях значения можно перечислять через запятую:</p><br/>
+<pre><code class="plaintext"># задача, выполняемая в первую и десятую минуты каждого часа
+1,10 * * * * /path/to/exec -a -b -c</code></pre><br/>
+<p>Или через дефис:</p><br/>
+<pre><code class="plaintext"># задача, выполняемая в каждую из первых десяти минут каждого часа
+0-9 * * * * /path/to/exec -a -b -c</code></pre><br/>
+<p>Доступ пользователей к планированию задач регулируется в POSIX файлам cron.allow и cron.deny в которых перечисляются, соответственно, пользователи с доступом к crontab и пользователи без доступа к программе. Расположение этих файлов стандарт никак не регламентирует.</p><br/>
+<p>Запускаемым программам, согласно стандарту, должны передаваться по меньшей мере четыре переменные окружения:</p><br/>
+<ol>
+<li>HOME — домашняя директория пользователя.</li>
+<li>LOGNAME — логин пользователя.</li>
+<li>PATH — путь, по которому можно найти стандартные утилиты системы.</li>
+<li>SHELL — путь к использованному командному интерпретатору.</li>
+</ol><br/>
+<p>Примечательно, что POSIX ничего не говорит о том, откуда берутся значения для этих переменных.</p><br/>
+<h1 id="hit-prodazh--vixie-cron-30pl1">Хит продаж — Vixie cron 3.0pl1</h1><br/>
+<p>Общий предок популярных вариантов cron — Vixie cron 3.0pl1, представленный в рассылке comp.sources.unix в 1992 году. Основные возможности этой версии мы и рассмотрим подробнее.</p><br/>
+<p>Vixie cron поставляется в двух программах (cron и crontab). Как обычно, демон отвечает за чтение и запуск задач из системной таблицы задач и таблиц задач отдельных пользователей, а утилита crontab — за редактирование пользовательских таблиц.</p><br/>
+<h3 id="tablica-zadach-i-fayly-konfiguracii">Таблица задач и файлы конфигурации</h3><br/>
+<p>Таблица задач суперпользователя расположена в /etc/crontab. Синтаксис системной таблицы соответствует синтаксису Vixie cron с поправкой на то, что в ней шестой колонкой указывается имя пользователя, от лица которого запускается задача:</p><br/>
+<pre><code class="plaintext"># Запускается ежеминутно от пользователя vlad
+* * * * * vlad /path/to/exec</code></pre><br/>
+<p>Таблицы задач обычных пользователей располагаются в /var/cron/tabs/username и используют общий синтаксис. При запуске утилиты crontab от имени пользователя редактируются именно эти файлы.</p><br/>
+<p>Управление списками пользователей, имеющих доступ к crontab, происходит в файлах /var/cron/allow и /var/cron/deny, куда достаточно внести имя пользователя отдельной строкой.</p><br/>
+<h3 id="rasshirennyy-sintaksis">Расширенный синтаксис</h3><br/>
+<p>По сравнению с POSIX crontab решение Пола Викси содержит несколько очень полезных модификаций в синтаксисе таблиц задач утилиты.</p><br/>
+<p>Стал доступен новый синтаксис таблиц: например, можно указывать дни недели или месяцы поимённо (Mon, Tue и так далее):</p><br/>
+<pre><code class="plaintext"># Запускается ежеминутно по понедельникам и вторникам в январе
+* * * Jan Mon,Tue /path/to/exec</code></pre><br/>
+<p>Можно указывать шаг, через который запускаются задачи:</p><br/>
+<pre><code class="plaintext"># Запускается с шагом в две минуты
+*/2 * * * Mon,Tue /path/to/exec</code></pre><br/>
+<p>Шаги и интервалы можно смешивать:</p><br/>
+<pre><code class="plaintext"># Запускается с шагом в две минуты в первых десять минут каждого часа
+0-10/2 * * * * /path/to/exec</code></pre><br/>
+<p>Поддерживаются интуитивные альтернативы обычному синтаксису (reboot, yearly, annually, monthly, weekly, daily, midnight, hourly):</p><br/>
+<pre><code class="plaintext"># Запускается после перезагрузки системы
+@reboot /exec/on/reboot
+# Запускается раз в день
+@daily /exec/daily
+# Запускается раз в час
+@hourly /exec/daily</code></pre><br/>
+<h3 id="sreda-vypolneniya-zadach">Среда выполнения задач</h3><br/>
+<p>Vixie cron позволяет менять окружение запускаемых приложений.</p><br/>
+<p>Переменные окружения USER, LOGNAME и HOME не просто предоставляются демоном, а берутся из файла <a href="https://en.wikipedia.org/wiki/Passwd">passwd</a>. Переменная PATH получает значение "/usr/bin:/bin", а SHELL — "/bin/sh". Значения всех переменных, кроме LOGNAME, можно изменить в таблицах пользователей.</p><br/>
+<p>Некоторые переменные окружения (прежде всего SHELL и HOME) используются самим cron для запуска задачи. Вот как может выглядеть использование bash вместо стандартного sh для запуска пользовательских задач:</p><br/>
+<pre><code class="plaintext">SHELL=/bin/bash
+HOME=/tmp/
+# exec будет запущен bash-ем в /tmp/
+* * * * * /path/to/exec</code></pre><br/>
+<p>В конечном итоге все определённые в таблице переменные окружения (используемые cron или необходимые процессу) будут переданы запущенной задаче.</p><br/>
+<p>Для редактирования файлов утилитой crontab используется редактор, указанный в переменной окружения VISUAL или EDITOR. Если в среде, где был запущен crontab, эти переменные не определены, то используется "/usr/ucb/vi" (ucb — это, вероятно, University of California, Berkeley).</p><br/>
+<h1 id="cron-v-debian-i-ubuntu">cron в Debian и Ubuntu</h1><br/>
+<p>Разработчики Debian и производных дистрибутивов выпустили <a href="https://salsa.debian.org/debian/cron">сильно модифицированную версию</a> версию Vixie cron 3.0pl1. Отличий в синтаксисе файлов-таблиц нет, для пользователей это тот же самый Vixie cron. Крупнейшие новые возможности: поддержка <a href="https://en.wikipedia.org/wiki/Syslog">syslog</a>, <a href="https://en.m.wikipedia.org/wiki/Security-Enhanced_Linux">SELinux</a> и <a href="https://en.wikipedia.org/wiki/Linux_PAM">PAM</a>.</p><br/>
+<p>Из менее заметных, но осязаемых изменений — расположение конфигурационных файлов и таблиц задач.</p><br/>
+<p>Пользовательские таблицы в Debian располагаются в директории /var/spool/cron/crontabs, системная таблица всё там же — в /etc/crontab. Специфичные для пакетов Debian таблицы задач помещаются в /etc/cron.d, откуда демон cron их автоматически считывает. Управление доступом пользователей регулируется файлами /etc/cron.allow и /etc/cron.deny.</p><br/>
+<p>В качестве командной оболочки по умолчанию по-прежнему используется /bin/sh, в роли которого в Debian выступает небольшой POSIX-совместимый шелл <a href="http://man7.org/linux/man-pages/man1/dash.1.html">dash</a>, запущенный без чтения какой-либо конфигурации (в неинтерактивном режиме).</p><br/>
+<p>Сам cron в последних версиях Debian запускается через systemd, а конфигурацию запуска можно посмотреть в /lib/systemd/system/cron.service. Ничего особенного в конфигурации сервиса нет, любое более тонкое управление задачами возможно осуществить через переменные окружения, объявленные прямо в crontab каждого из пользователей.</p><br/>
+<h1 id="cronie-v-redhat-fedora-i-centos">cronie в RedHat, Fedora и CentOS</h1><br/>
+<p><a href="https://github.com/cronie-crond/cronie">cronie</a> — форк Vixie cron версии 4.1. Как и в Debian, синтаксис не менялся, но добавлена поддержка PAM и SELinux, работы в кластере, слежения за файлами при помощи inotify и других возможностей.</p><br/>
+<p>Конфигурация по умолчанию находится в обычных местах: системная таблица — в /etc/crontab, пакеты помещают свои таблицы в /etc/cron.d, пользовательские таблицы попадают в /var/spool/cron/crontabs.</p><br/>
+<p>Демон запускается под управлением systemd, конфигурация сервиса — /lib/systemd/system/crond.service.</p><br/>
+<p>В Red Hat-подобных дистрибутивах при запуске по умолчанию используется /bin/sh, в роли которого выступает стандартный bash. Надо заметить, что при запуске задач cron через /bin/sh командная оболочка bash запускается в POSIX-совместимом режиме и не читает никакой дополнительной конфигурации, работая в неинтерактивном режиме.</p><br/>
+<h1 id="cronie-v-sles-i-opensuse">cronie в SLES и openSUSE</h1><br/>
+<p>Немецкий дистрибутив SLES и его дериватив openSUSE используют всё тот же cronie. Демон здесь тоже запускается под systemd, конфигурация сервиса лежит в /usr/lib/systemd/system/cron.service. Конфигурация: /etc/crontab, /etc/cron.d, /var/spool/cron/tabs. В качестве /bin/sh выступает тот же самый bash, запущенный в POSIX-совместимом неинтерактивном режиме.</p><br/>
+<h1 id="ustroystvo-vixie-cron">Устройство Vixie cron</h1><br/>
+<p>Современные потомки cron по сравнению с Vixie cron не изменились радикально, но всё же обзавелись новыми возможностями, не требующимися для понимания принципов работы программы. Многие из этих расширений оформлены неаккуратно и путают код. Оригинальный же исходный код cron в исполнении Пола Викси читать одно удовольствие.</p><br/>
+<p>Поэтому разбор устройства cron я решил провести на примере общей для обеих ветвей развития cron программы — Vixie cron 3.0pl1. Примеры я упрощу, убрав усложняющие чтение ifdef-ы и опустив второстепенные детали.</p><br/>
+<p>Работу демона можно разделить на несколько этапов:</p><br/>
+<ol>
+<li>Инициализация программы.</li>
+<li>Сбор и обновление списка задач для запуска.</li>
+<li>Работа главного цикла cron.</li>
+<li>Запуск задачи.</li>
+</ol><br/>
+<p>Разберём их по порядку.</p><br/>
+<h3 id="inicializaciya">Инициализация</h3><br/>
+<p>При запуске после проверки аргументов процесса cron устанавливает обработчики сигналов SIGCHLD и SIGHUP. Первый вносит в лог запись о завершении работы дочернего процесса, второй — закрывает файловый дескриптор файла-лога:</p><br/>
+<pre><code class="cpp">signal(SIGCHLD, sigchld_handler);
+signal(SIGHUP, sighup_handler);</code></pre><br/>
+<p>Демон cron в системе всегда работает один, только в роли суперпользователя и из главной директории cron. Следующие вызовы создают файл-лок с PID-ом процесса-демона, убеждаются, что пользователь правильный и меняют текущую директорию на главную:</p><br/>
+<pre><code class="cpp">acquire_daemonlock(0);
+set_cron_uid();
+set_cron_cwd();</code></pre><br/>
+<p>Выставляется путь по умолчанию, который будет использоваться при запуске процессов:</p><br/>
+<pre><code class="cpp">setenv("PATH", _PATH_DEFPATH, 1);</code></pre><br/>
+<p>Дальше процесс «демонизируется»: создаёт дочернюю копию процесса вызовом fork и новую сессию в дочернем процессе (вызов setsid). В родительском процессе больше надобности нет — и он завершает работу:</p><br/>
+<pre><code class="cpp">switch (fork()) {
+case -1:
+    /* критическая ошибка и завершение работы */
+    exit(0);
+break;
+case 0:
+    /* дочерний процесс */
+    (void) setsid();
+break;
+default:
+    /* родительский процесс завершает работу */
+    _exit(0);
+}
+</code></pre><br/>
+<p>Завершение родительского процесса высвобождает лок на файле-локе. Кроме того, требуется обновить PID в файле на дочерний. После этого заполняется база задач:</p><br/>
+<pre><code class="cpp">/* повторный захват лока */
+acquire_daemonlock(0);
+
+/* Заполнение БД  */
+database.head = NULL;
+database.tail = NULL;
+database.mtime = (time_t) 0;
+load_database(&amp;database);</code></pre><br/>
+<p>Дальше cron переходит к главному циклу работы. Но перед этим стоит взглянуть на загрузку списка задач.</p><br/>
+<h3 id="sbor-i-obnovlenie-spiska-zadach">Сбор и обновление списка задач</h3><br/>
+<p>За загрузку списка задач отвечает функция load_database. Она проверяет главный системный crontab и директорию с пользовательскими файлами. Если файлы и директория не менялись, то список задач не перечитывается. В противном случае начинает формироваться новый список задач.</p><br/>
+<p>Загрузка системного файла со специальными именами файла и таблицы:</p><br/>
+<pre><code class="cpp">/* если файл системной таблицы изменился, перечитываем */
+if (syscron_stat.st_mtime) {
+    process_crontab("root", "*system*",
+    SYSCRONTAB, &amp;syscron_stat,
+    &amp;new_db, old_db);
+}</code></pre><br/>
+<p>Загрузка пользовательских таблиц в цикле:</p><br/>
+<pre><code class="cpp">while (NULL != (dp = readdir(dir))) {
+    char    fname[MAXNAMLEN+1],
+            tabname[MAXNAMLEN+1];
+    /* читать файлы с точкой не надо*/
+    if (dp->d_name[0] == '.')
+            continue;
+    (void) strcpy(fname, dp->d_name);
+    sprintf(tabname, CRON_TAB(fname));
+    process_crontab(fname, fname, tabname,
+                    &amp;statbuf, &amp;new_db, old_db);
+}
+</code></pre><br/>
+<p>После чего старая база данных подменяется новой.</p><br/>
+<p>В примерах выше вызов функции process_crontab убеждается в существовании пользователя, соответствующего имени файла таблицы (если только это не суперпользователь), после чего вызывает load_user. Последняя уже читает сам файл построчно:</p><br/>
+<pre><code class="cpp">while ((status = load_env(envstr, file)) >= OK) {
+    switch (status) {
+    case ERR:
+        free_user(u);
+        u = NULL;
+        goto done;
+    case FALSE:
+        e = load_entry(file, NULL, pw, envp);
+        if (e) {
+            e->next = u->crontab;
+            u->crontab = e;
+        }
+        break;
+    case TRUE:
+        envp = env_set(envp, envstr);
+        break;
+    }
+}</code></pre><br/>
+<p>Здесь либо выставляется переменная окружения (строки вида VAR=value) функциями load_env / env_set, либо читается описание задачи (* * * * * /path/to/exec) функцией load_entry.</p><br/>
+<p>Сущность entry, которую возвращает load_entry, — это и есть наша задача, помещаемая в общий список задач. В самой функции проводится многословный разбор формата времени, нас же больше интересует формирование переменных окружения и параметров запуска задачи:</p><br/>
+<pre><code class="cpp">/* пользователь и группа для запуска задачи берутся из passwd*/
+e->uid = pw->pw_uid;
+e->gid = pw->pw_gid;
+
+/* шелл по умолчанию (/bin/sh), если пользователь не указал другое */
+e->envp = env_copy(envp);
+if (!env_get("SHELL", e->envp)) {
+    sprintf(envstr, "SHELL=%s", _PATH_BSHELL);
+    e->envp = env_set(e->envp, envstr);
+}
+/* домашняя директория */
+if (!env_get("HOME", e->envp)) {
+    sprintf(envstr, "HOME=%s", pw->pw_dir);
+    e->envp = env_set(e->envp, envstr);
+}
+/* путь для поиска программ */
+if (!env_get("PATH", e->envp)) {
+    sprintf(envstr, "PATH=%s", _PATH_DEFPATH);
+    e->envp = env_set(e->envp, envstr);
+}
+/* имя пользовтеля всегда из passwd */
+sprintf(envstr, "%s=%s", "LOGNAME", pw->pw_name);
+e->envp = env_set(e->envp, envstr);</code></pre><br/>
+<p>С актуальным списком задач и работает главный цикл.</p><br/>
+<h3 id="glavnyy-cikl">Главный цикл</h3><br/>
+<p>Оригинальный cron из Version 7 Unix работал совсем просто: в цикле перечитывал конфигурацию, запускал суперпользователем задачи текущей минуты и спал до начала следующей минуты. Этот простой подход на старых машинах требовал слишком много ресурсов.</p><br/>
+<p>В SysV была предложена альтернативная версия, в которой демон засыпал либо до ближайшей минуты, для которой определена задача, либо на 30 минут. Ресурсов на перечитывание конфигурации и проверку задач в таком режиме потреблялось меньше, но быстро обновлять список задач стало неудобно.</p><br/>
+<p>Vixie cron вернулся к проверке списков задач раз в минуту, благо к концу 80-х ресурсов на стандартных Unix-машинах стало значительно больше:</p><br/>
+<pre><code class="cpp">/* первичная загрузка задач */
+load_database(&amp;database);
+/* запустить задачи, поставленные к выполнению после перезагрузки системы */
+run_reboot_jobs(&amp;database);
+/* сделать TargetTime началом ближайшей минуты */
+cron_sync();
+while (TRUE) {
+    /* выполнить задачи, после чего спать до TargetTime с поправкой на время, потраченное на задачи */
+    cron_sleep();
+
+    /* перечитать конфигурацию */
+    load_database(&amp;database);
+
+    /* собрать задачи для данной минуты */
+    cron_tick(&amp;database);
+
+    /* перевести TargetTime на начало следующей минуты */
+    TargetTime += 60;
+}
+</code></pre><br/>
+<p>Непосредственно выполнением задач занимается функция cron_sleep, вызывающая функции job_runqueue (перебор и запуск задач) и do_command (запуск каждой отдельной задачи). Последнюю функцию стоит разобрать подробнее.</p><br/>
+<h3 id="zapusk-zadachi">Запуск задачи</h3><br/>
+<p>Функция do_command исполнена в хорошем Unix-стиле, то есть для асинхронного выполнения задачи она делает fork. Родительский процесс продолжает запуск задач, дочерний — занимается подготовкой процесса задачи:</p><br/>
+<pre><code class="cpp">switch (fork()) {
+case -1:
+    /*не смогли выполнить fork */
+    break;
+case 0:
+    /* дочерний процесс: на всякий случай еще раз пробуем захватить главный лок */
+    acquire_daemonlock(1);
+    /* переходим к формированию процесса задачи */
+    child_process(e, u);
+    /* по завершению дочерний процесс заканчивает работу */
+    _exit(OK_EXIT);
+    break;
+default:
+    /* родительский процесс продолжает работу */
+    break;
+}</code></pre><br/>
+<p>В child_process довольно много логики: она принимает стандартные потоки вывода и ошибок на себя, чтобы потом переслать на почту (если в таблице задач указана переменная окружения MAILTO), и, наконец, ждёт завершения работы основного процесса задачи.</p><br/>
+<p>Процесс задачи формируется еще одним fork:</p><br/>
+<pre><code class="cpp">switch (vfork()) {
+case -1:
+    /* при ошибки сразу завершается работа */
+    exit(ERROR_EXIT);
+case 0:
+    /* процесс-внук формирует новую сессию, терминал и т.д.
+     */
+    (void) setsid();
+
+    /*
+     * дальше многословная настройка вывода процесса, опустим для краткости
+     */
+
+    /* смена директории, пользователя и группы пользователя,
+     * то есть процесс больше не суперпользовательский
+     */
+    setgid(e->gid);
+    setuid(e->uid);
+    chdir(env_get("HOME", e->envp));
+
+    /* запуск самой команды
+     */
+    {
+        /* переменная окружения SHELL указывает на интерпретатор для запуска */
+        char    *shell = env_get("SHELL", e->envp);
+
+        /* процесс запускается без передачи окружения родительского процесса,
+         * то есть именно так, как описано в таблице задач пользователя  */
+        execle(shell, shell, "-c", e->cmd, (char *)0, e->envp);
+
+        /* ошибка — и процесс на запустился? завершение работы */
+        perror("execl");
+        _exit(ERROR_EXIT);
+    }
+    break;
+default:
+    /* сам процесс продолжает работу: ждет завершения работы и вывода */
+    break;
+}</code></pre><br/>
+<p>Вот, в общем-то, и весь cron. Какие-то интересные детали, например учёт удалённых пользователей, я опустил, но главное изложил.</p><br/>
+<h1 id="posleslovie">Послесловие</h1><br/>
+<p>Сron — на удивление простая и полезная программа, выполненная в лучших традициях мира Unix. Она не делает ничего лишнего, но свою работу выполняет замечательно на протяжении уже нескольких десятилетий. Ознакомление с кодом той версии, что поставляется с Ubuntu, заняло не больше часа, а удовольствия я получил массу! Надеюсь, я смог поделиться им с вами.</p><br/>
+<p>Не знаю, как вам, но мне немного грустно осознавать, что современное программирование с его склонностью к переусложнению и переабстрагированию уже давно не располагает к подобной простоте.</p><br/>
+<p>Существует множество современных альтернатив cron: systemd-timers позволяют организовать сложные системы с зависимостями, в fcron можно гибче регулировать потребление ресурсов задачами. Но лично мне всегда хватало простейших crontab.</p><br/>
+<p>Словом, любите Unix, используйте простые программы и не забывайте читать маны для вашей платформы!</p></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Blinux%5D" class="tm-tags-list__link">linux</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bcron%5D" class="tm-tags-list__link">cron</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bcrontab%5D" class="tm-tags-list__link">crontab</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bunix%5D" class="tm-tags-list__link">unix</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bposix%5D" class="tm-tags-list__link">posix</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/badoo/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании Badoo
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/linux/" class="tm-hubs-list__link">
+    Настройка Linux
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/sys_admin/" class="tm-hubs-list__link">
+    Системное администрирование
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/programming/" class="tm-hubs-list__link">
+    Программирование
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/nix/" class="tm-hubs-list__link">
+    *nix
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 79: ↑76 и ↓3</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 79: ↑76 и ↓3" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+73</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">56K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    285
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/badoo/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/69e/0a4/840/69e0a4840cbfdc565559f6af093b5835.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/badoo/profile/" class="tm-company-snippet__title">Badoo</a> <div class="tm-company-snippet__description">Big Dating</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="https://tech.badoo.com/" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Сайт
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/VlK/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_pink"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 480 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    262
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Владимир Казанов</span> <a href="https://habr.com/ru/users/VlK/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @VlK
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Программист</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/badoo/blog/468061/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 66 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><span>
+      2006
+    </span></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="http://badoo.com/" target="_blank" class="tm-company-basic-info__link">
+      badoo.com
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    501–1 000 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2009-12-14T21:34:10.000Z" title="2009-12-15, 00:34">15  декабря  2009</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Представитель</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://habr.com/ru/users/Yulcifer/" class="tm-company-basic-info__link">
+      Yuliya Telezhkina
+    </a></dd></dl></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/badoo/blog/468061/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/badoo/blog/468061/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"468061":{"id":"468061","timePublished":"2019-09-19T12:45:57+00:00","isCorporative":true,"lang":"ru","titleHtml":"Cron в Linux: история, использование и устройство","leadData":{"textHtml":"\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ftm\u002Fya\u002F6j\u002Ftmya6jd_1sbhnfncczo1nf2g7_y.jpeg\"\u003E\u003Cbr\u003E\r\n\u003Cp\u003EКлассик писал, что счастливые часов не наблюдают. В те дикие времена ещё не было ни программистов, ни Unix, но в наши дни программисты знают твёрдо: вместо них за временем проследит cron.\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EУтилиты командной строки для меня одновременно слабость и рутина. sed, awk, wc, cut и другие старые программы запускаются скриптами на наших серверах ежедневно. Многие из них оформлены в виде задач для cron, планировщика родом из 70-х.\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EЯ долго пользовался cron поверхностно, не вникая в детали, но однажды, столкнувшись с ошибкой при запуске скрипта, решил разобраться основательно. Так появилась эта статья, при написании которой я ознакомился с POSIX crontab, основными вариантами cron в популярных дистрибутивах Linux и устройством некоторых из них.\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EИспользуете Linux и запускаете задачи в cron? Вам интересна архитектура системных приложений в Unix? Тогда нам по пути!\u003C\u002Fp\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":262,"votesCount":480},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"39442","alias":"VlK","fullname":"Владимир Казанов","avatarUrl":null,"speciality":"Программист"},"statistics":{"commentsCount":66,"favoritesCount":285,"readingCount":55538,"score":73,"votesCount":79},"hubs":[{"relatedData":null,"id":"13276","alias":"badoo","type":"corporative","title":"Блог компании Badoo","titleHtml":"Блог компании Badoo","isProfiled":false},{"relatedData":null,"id":"36","alias":"linux","type":"collective","title":"Настройка Linux","titleHtml":"Настройка Linux","isProfiled":true},{"relatedData":null,"id":"221","alias":"sys_admin","type":"collective","title":"Системное администрирование","titleHtml":"Системное администрирование","isProfiled":true},{"relatedData":null,"id":"359","alias":"programming","type":"collective","title":"Программирование","titleHtml":"Программирование","isProfiled":true},{"relatedData":null,"id":"7289","alias":"nix","type":"collective","title":"*nix","titleHtml":"*nix","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"},{"id":"6","alias":"admin","title":"Администрирование"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Ftm\u002Fya\u002F6j\u002Ftmya6jd_1sbhnfncczo1nf2g7_y.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ftm\u002Fya\u002F6j\u002Ftmya6jd_1sbhnfncczo1nf2g7_y.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКлассик писал, что счастливые часов не наблюдают. В те дикие времена ещё не было ни программистов, ни Unix, но в наши дни программисты знают твёрдо: вместо них за временем проследит cron.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EУтилиты командной строки для меня одновременно слабость и рутина. sed, awk, wc, cut и другие старые программы запускаются скриптами на наших серверах ежедневно. Многие из них оформлены в виде задач для cron, планировщика родом из 70-х.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЯ долго пользовался cron поверхностно, не вникая в детали, но однажды, столкнувшись с ошибкой при запуске скрипта, решил разобраться основательно. Так появилась эта статья, при написании которой я ознакомился с POSIX crontab, основными вариантами cron в популярных дистрибутивах Linux и устройством некоторых из них.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИспользуете Linux и запускаете задачи в cron? Вам интересна архитектура системных приложений в Unix? Тогда нам по пути!\u003C\u002Fp\u003E\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1 id=\"soderzhanie\"\u003EСодержание\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"#proishozhdenie-vidov\"\u003EПроисхождение видов\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#posix-crontab\"\u003EPOSIX crontab\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#hit-prodazh--vixie-cron-30pl1\"\u003EХит продаж — Vixie cron 3.0pl1\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#cron-v-debian-i-ubuntu\"\u003Ecron в Debian и Ubuntu\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#cronie-v-redhat-fedora-i-centos\"\u003Ecronie в Red Hat, Fedora и CentOS\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#cronie-v-sles-i-opensuse\"\u003Ecronie в SLES и openSUSE\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#ustroystvo-vixie-cron\"\u003EУстройство Vixie cron\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#posleslovie\"\u003EПослесловие\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1 id=\"proishozhdenie-vidov\"\u003EПроисхождение видов\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПериодическое выполнение пользовательских или системных программ — очевидная необходимость во всех операционных системах. Поэтому потребность в сервисах, позволяющих централизованно планировать и выполнять задачи, программисты осознали очень давно.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EUnix-подобные операционные системы ведут свою родословную от Version 7 Unix, разработанной в 70-х годах прошлого века в Bell Labs в том числе и знаменитым Кеном Томпсоном (англ. Ken Thompson). Вместе c Version 7 Unix поставлялся и cron, сервис для регулярного выполнения задач суперпользователя.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТипичный современный cron — несложная программа, но алгоритм работы оригинального варианта был ещё проще: сервис просыпался раз в минуту, читал табличку с задачами из единственного файл (\u002Fetc\u002Flib\u002Fcrontab) и выполнял для суперпользователя те задачи, которые следовало выполнить в текущую минуту.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВпоследствии усовершенствованные варианты простого и полезного сервиса поставлялись со всеми Unix-подобными операционными системами.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОбобщённые описания формата crontab и базовых принципов работы утилиты в 1992 году были включены в главный стандарт Unix-подобных операционных систем — POSIX — и таким образом cron из стандарта де-факто стал стандартом де-юре.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ 1987 году Пол Викси (англ. Paul Vixie), опросив пользователей Unix на предмет пожеланий к cron, выпустил ещё одну версию демона, исправляющую некоторые проблемы традиционных cron и расширяющую синтаксис файлов-таблиц.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EК третьей версии Vixie cron стал отвечать требованиям POSIX, к тому же у программы была либеральная лицензия, вернее не было вообще никакой лицензии, если не считать пожеланий в README: гарантий автор не даёт, имя автора удалять нельзя, а продавать программу можно только вместе с исходным кодом. Эти требования оказались совместимы с принципами набиравшего в те годы популярность свободного ПО, поэтому некоторые ключевые из появившихся в начале 90-х дистрибутивов Linux взяли Vixie cron в качестве системного и развивают его до сих пор.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ частности, Red Hat и SUSE развивают форк Vixie cron — cronie, а Debian и Ubuntu используют оригинальное издание Vixie cron со множеством патчей.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДавайте для начала познакомимся с описанной в POSIX пользовательской утилитой crontab, после чего разберём расширения синтаксиса, представленные в Vixie cron, и использование вариаций Vixie cron в популярных дистрибутивах Linux. И, наконец, вишенка на торте — разбор устройства демона cron.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1 id=\"posix-crontab\"\u003EPOSIX crontab\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕсли оригинальный cron всегда работал для суперпользователя, то современные планировщики чаще имеют дело с задачами обычных пользователей, что более безопасно и удобно.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСron-ы поставляются комплектом из двух программ: постоянно работающего демона cron и доступной пользователям утилиты crontab. Последняя позволяет редактировать таблицы задач, специфичные для каждого пользователя в системе, демон же запускает задачи из пользовательских и системной таблиц.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ \u003Ca href=\"https:\u002F\u002Fwww.unix.com\u002Fman-page\u002FPOSIX\u002F1posix\u002Fcrontab\u002F\"\u003Eстандарте POSIX\u003C\u002Fa\u003E никак не описывается поведение демона и формализована только пользовательская программа \u003Ca href=\"https:\u002F\u002Fpubs.opengroup.org\u002Fonlinepubs\u002F9699919799\u002Futilities\u002Fcrontab.html\"\u003Ecrontab\u003C\u002Fa\u003E. Существование механизмов запуска пользовательских задач, конечно, подразумевается, но не описано подробно.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВызовом утилиты crontab можно сделать четыре вещи: отредактировать пользовательскую таблицу задач в редакторе, загрузить таблицу из файла, показать текущую таблицу задач и очистить таблицу задач. Примеры работы утилиты crontab:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Ecrontab -e # редактировать таблицу задач\ncrontab -l # показать таблицу задач\ncrontab -r # удалить таблицу задач\ncrontab path\u002Fto\u002Ffile.crontab # загрузить таблицу задач из файла\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПри вызове \u003Ccode\u003Ecrontab -e\u003C\u002Fcode\u003E будет использоваться редактор, указанный в стандартной переменной окружения \u003Ccode\u003EEDITOR\u003C\u002Fcode\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСами задачи описаны в следующем формате:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E# строки-комментарии игнорируются\n#\n# задача, выполняемая ежеминутно\n* * * * * \u002Fpath\u002Fto\u002Fexec -a -b -c\n# задача, выполняемая на 10-й минуте каждого часа\n10 * * * * \u002Fpath\u002Fto\u002Fexec -a -b -c\n# задача, выполняемая на 10-й минуте второго часа каждого дня и использующая перенаправление стандартного потока вывода\n10 2 * * * \u002Fpath\u002Fto\u002Fexec -a -b -c \u003E \u002Ftmp\u002Fcron-job-output.log\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПервые пять полей записей: минуты [1..60], часы [0..23], дни месяца [1..31], месяцы [1..12], дни недели [0..6], где 0 — воскресенье. Последнее, шестое, поле — строка, которая будет выполнена стандартным интерпретатором команд.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ первых пяти полях значения можно перечислять через запятую:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E# задача, выполняемая в первую и десятую минуты каждого часа\n1,10 * * * * \u002Fpath\u002Fto\u002Fexec -a -b -c\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИли через дефис:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E# задача, выполняемая в каждую из первых десяти минут каждого часа\n0-9 * * * * \u002Fpath\u002Fto\u002Fexec -a -b -c\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДоступ пользователей к планированию задач регулируется в POSIX файлам cron.allow и cron.deny в которых перечисляются, соответственно, пользователи с доступом к crontab и пользователи без доступа к программе. Расположение этих файлов стандарт никак не регламентирует.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЗапускаемым программам, согласно стандарту, должны передаваться по меньшей мере четыре переменные окружения:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EHOME — домашняя директория пользователя.\u003C\u002Fli\u003E\r\n\u003Cli\u003ELOGNAME — логин пользователя.\u003C\u002Fli\u003E\r\n\u003Cli\u003EPATH — путь, по которому можно найти стандартные утилиты системы.\u003C\u002Fli\u003E\r\n\u003Cli\u003ESHELL — путь к использованному командному интерпретатору.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПримечательно, что POSIX ничего не говорит о том, откуда берутся значения для этих переменных.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1 id=\"hit-prodazh--vixie-cron-30pl1\"\u003EХит продаж — Vixie cron 3.0pl1\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОбщий предок популярных вариантов cron — Vixie cron 3.0pl1, представленный в рассылке comp.sources.unix в 1992 году. Основные возможности этой версии мы и рассмотрим подробнее.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EVixie cron поставляется в двух программах (cron и crontab). Как обычно, демон отвечает за чтение и запуск задач из системной таблицы задач и таблиц задач отдельных пользователей, а утилита crontab — за редактирование пользовательских таблиц.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"tablica-zadach-i-fayly-konfiguracii\"\u003EТаблица задач и файлы конфигурации\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТаблица задач суперпользователя расположена в \u002Fetc\u002Fcrontab. Синтаксис системной таблицы соответствует синтаксису Vixie cron с поправкой на то, что в ней шестой колонкой указывается имя пользователя, от лица которого запускается задача:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E# Запускается ежеминутно от пользователя vlad\n* * * * * vlad \u002Fpath\u002Fto\u002Fexec\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТаблицы задач обычных пользователей располагаются в \u002Fvar\u002Fcron\u002Ftabs\u002Fusername и используют общий синтаксис. При запуске утилиты crontab от имени пользователя редактируются именно эти файлы.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EУправление списками пользователей, имеющих доступ к crontab, происходит в файлах \u002Fvar\u002Fcron\u002Fallow и \u002Fvar\u002Fcron\u002Fdeny, куда достаточно внести имя пользователя отдельной строкой.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"rasshirennyy-sintaksis\"\u003EРасширенный синтаксис\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПо сравнению с POSIX crontab решение Пола Викси содержит несколько очень полезных модификаций в синтаксисе таблиц задач утилиты.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСтал доступен новый синтаксис таблиц: например, можно указывать дни недели или месяцы поимённо (Mon, Tue и так далее):\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E# Запускается ежеминутно по понедельникам и вторникам в январе\n* * * Jan Mon,Tue \u002Fpath\u002Fto\u002Fexec\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EМожно указывать шаг, через который запускаются задачи:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E# Запускается с шагом в две минуты\n*\u002F2 * * * Mon,Tue \u002Fpath\u002Fto\u002Fexec\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EШаги и интервалы можно смешивать:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E# Запускается с шагом в две минуты в первых десять минут каждого часа\n0-10\u002F2 * * * * \u002Fpath\u002Fto\u002Fexec\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПоддерживаются интуитивные альтернативы обычному синтаксису (reboot, yearly, annually, monthly, weekly, daily, midnight, hourly):\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E# Запускается после перезагрузки системы\n@reboot \u002Fexec\u002Fon\u002Freboot\n# Запускается раз в день\n@daily \u002Fexec\u002Fdaily\n# Запускается раз в час\n@hourly \u002Fexec\u002Fdaily\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"sreda-vypolneniya-zadach\"\u003EСреда выполнения задач\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EVixie cron позволяет менять окружение запускаемых приложений.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПеременные окружения USER, LOGNAME и HOME не просто предоставляются демоном, а берутся из файла \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FPasswd\"\u003Epasswd\u003C\u002Fa\u003E. Переменная PATH получает значение \"\u002Fusr\u002Fbin:\u002Fbin\", а SHELL — \"\u002Fbin\u002Fsh\". Значения всех переменных, кроме LOGNAME, можно изменить в таблицах пользователей.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНекоторые переменные окружения (прежде всего SHELL и HOME) используются самим cron для запуска задачи. Вот как может выглядеть использование bash вместо стандартного sh для запуска пользовательских задач:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003ESHELL=\u002Fbin\u002Fbash\nHOME=\u002Ftmp\u002F\n# exec будет запущен bash-ем в \u002Ftmp\u002F\n* * * * * \u002Fpath\u002Fto\u002Fexec\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ конечном итоге все определённые в таблице переменные окружения (используемые cron или необходимые процессу) будут переданы запущенной задаче.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДля редактирования файлов утилитой crontab используется редактор, указанный в переменной окружения VISUAL или EDITOR. Если в среде, где был запущен crontab, эти переменные не определены, то используется \"\u002Fusr\u002Fucb\u002Fvi\" (ucb — это, вероятно, University of California, Berkeley).\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1 id=\"cron-v-debian-i-ubuntu\"\u003Ecron в Debian и Ubuntu\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EРазработчики Debian и производных дистрибутивов выпустили \u003Ca href=\"https:\u002F\u002Fsalsa.debian.org\u002Fdebian\u002Fcron\"\u003Eсильно модифицированную версию\u003C\u002Fa\u003E версию Vixie cron 3.0pl1. Отличий в синтаксисе файлов-таблиц нет, для пользователей это тот же самый Vixie cron. Крупнейшие новые возможности: поддержка \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FSyslog\"\u003Esyslog\u003C\u002Fa\u003E, \u003Ca href=\"https:\u002F\u002Fen.m.wikipedia.org\u002Fwiki\u002FSecurity-Enhanced_Linux\"\u003ESELinux\u003C\u002Fa\u003E и \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FLinux_PAM\"\u003EPAM\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИз менее заметных, но осязаемых изменений — расположение конфигурационных файлов и таблиц задач.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПользовательские таблицы в Debian располагаются в директории \u002Fvar\u002Fspool\u002Fcron\u002Fcrontabs, системная таблица всё там же — в \u002Fetc\u002Fcrontab. Специфичные для пакетов Debian таблицы задач помещаются в \u002Fetc\u002Fcron.d, откуда демон cron их автоматически считывает. Управление доступом пользователей регулируется файлами \u002Fetc\u002Fcron.allow и \u002Fetc\u002Fcron.deny.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ качестве командной оболочки по умолчанию по-прежнему используется \u002Fbin\u002Fsh, в роли которого в Debian выступает небольшой POSIX-совместимый шелл \u003Ca href=\"http:\u002F\u002Fman7.org\u002Flinux\u002Fman-pages\u002Fman1\u002Fdash.1.html\"\u003Edash\u003C\u002Fa\u003E, запущенный без чтения какой-либо конфигурации (в неинтерактивном режиме).\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСам cron в последних версиях Debian запускается через systemd, а конфигурацию запуска можно посмотреть в \u002Flib\u002Fsystemd\u002Fsystem\u002Fcron.service. Ничего особенного в конфигурации сервиса нет, любое более тонкое управление задачами возможно осуществить через переменные окружения, объявленные прямо в crontab каждого из пользователей.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1 id=\"cronie-v-redhat-fedora-i-centos\"\u003Ecronie в RedHat, Fedora и CentOS\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fcronie-crond\u002Fcronie\"\u003Ecronie\u003C\u002Fa\u003E — форк Vixie cron версии 4.1. Как и в Debian, синтаксис не менялся, но добавлена поддержка PAM и SELinux, работы в кластере, слежения за файлами при помощи inotify и других возможностей.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКонфигурация по умолчанию находится в обычных местах: системная таблица — в \u002Fetc\u002Fcrontab, пакеты помещают свои таблицы в \u002Fetc\u002Fcron.d, пользовательские таблицы попадают в \u002Fvar\u002Fspool\u002Fcron\u002Fcrontabs.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДемон запускается под управлением systemd, конфигурация сервиса — \u002Flib\u002Fsystemd\u002Fsystem\u002Fcrond.service.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ Red Hat-подобных дистрибутивах при запуске по умолчанию используется \u002Fbin\u002Fsh, в роли которого выступает стандартный bash. Надо заметить, что при запуске задач cron через \u002Fbin\u002Fsh командная оболочка bash запускается в POSIX-совместимом режиме и не читает никакой дополнительной конфигурации, работая в неинтерактивном режиме.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1 id=\"cronie-v-sles-i-opensuse\"\u003Ecronie в SLES и openSUSE\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНемецкий дистрибутив SLES и его дериватив openSUSE используют всё тот же cronie. Демон здесь тоже запускается под systemd, конфигурация сервиса лежит в \u002Fusr\u002Flib\u002Fsystemd\u002Fsystem\u002Fcron.service. Конфигурация: \u002Fetc\u002Fcrontab, \u002Fetc\u002Fcron.d, \u002Fvar\u002Fspool\u002Fcron\u002Ftabs. В качестве \u002Fbin\u002Fsh выступает тот же самый bash, запущенный в POSIX-совместимом неинтерактивном режиме.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1 id=\"ustroystvo-vixie-cron\"\u003EУстройство Vixie cron\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСовременные потомки cron по сравнению с Vixie cron не изменились радикально, но всё же обзавелись новыми возможностями, не требующимися для понимания принципов работы программы. Многие из этих расширений оформлены неаккуратно и путают код. Оригинальный же исходный код cron в исполнении Пола Викси читать одно удовольствие.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПоэтому разбор устройства cron я решил провести на примере общей для обеих ветвей развития cron программы — Vixie cron 3.0pl1. Примеры я упрощу, убрав усложняющие чтение ifdef-ы и опустив второстепенные детали.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EРаботу демона можно разделить на несколько этапов:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EИнициализация программы.\u003C\u002Fli\u003E\r\n\u003Cli\u003EСбор и обновление списка задач для запуска.\u003C\u002Fli\u003E\r\n\u003Cli\u003EРабота главного цикла cron.\u003C\u002Fli\u003E\r\n\u003Cli\u003EЗапуск задачи.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EРазберём их по порядку.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"inicializaciya\"\u003EИнициализация\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПри запуске после проверки аргументов процесса cron устанавливает обработчики сигналов SIGCHLD и SIGHUP. Первый вносит в лог запись о завершении работы дочернего процесса, второй — закрывает файловый дескриптор файла-лога:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003Esignal(SIGCHLD, sigchld_handler);\nsignal(SIGHUP, sighup_handler);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДемон cron в системе всегда работает один, только в роли суперпользователя и из главной директории cron. Следующие вызовы создают файл-лок с PID-ом процесса-демона, убеждаются, что пользователь правильный и меняют текущую директорию на главную:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003Eacquire_daemonlock(0);\nset_cron_uid();\nset_cron_cwd();\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВыставляется путь по умолчанию, который будет использоваться при запуске процессов:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003Esetenv(\"PATH\", _PATH_DEFPATH, 1);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДальше процесс «демонизируется»: создаёт дочернюю копию процесса вызовом fork и новую сессию в дочернем процессе (вызов setsid). В родительском процессе больше надобности нет — и он завершает работу:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003Eswitch (fork()) {\ncase -1:\n    \u002F* критическая ошибка и завершение работы *\u002F\n    exit(0);\nbreak;\ncase 0:\n    \u002F* дочерний процесс *\u002F\n    (void) setsid();\nbreak;\ndefault:\n    \u002F* родительский процесс завершает работу *\u002F\n    _exit(0);\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЗавершение родительского процесса высвобождает лок на файле-локе. Кроме того, требуется обновить PID в файле на дочерний. После этого заполняется база задач:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003E\u002F* повторный захват лока *\u002F\nacquire_daemonlock(0);\n\n\u002F* Заполнение БД  *\u002F\ndatabase.head = NULL;\ndatabase.tail = NULL;\ndatabase.mtime = (time_t) 0;\nload_database(&amp;database);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДальше cron переходит к главному циклу работы. Но перед этим стоит взглянуть на загрузку списка задач.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"sbor-i-obnovlenie-spiska-zadach\"\u003EСбор и обновление списка задач\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЗа загрузку списка задач отвечает функция load_database. Она проверяет главный системный crontab и директорию с пользовательскими файлами. Если файлы и директория не менялись, то список задач не перечитывается. В противном случае начинает формироваться новый список задач.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЗагрузка системного файла со специальными именами файла и таблицы:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003E\u002F* если файл системной таблицы изменился, перечитываем *\u002F\nif (syscron_stat.st_mtime) {\n    process_crontab(\"root\", \"*system*\",\n    SYSCRONTAB, &amp;syscron_stat,\n    &amp;new_db, old_db);\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЗагрузка пользовательских таблиц в цикле:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003Ewhile (NULL != (dp = readdir(dir))) {\n    char    fname[MAXNAMLEN+1],\n            tabname[MAXNAMLEN+1];\n    \u002F* читать файлы с точкой не надо*\u002F\n    if (dp-\u003Ed_name[0] == '.')\n            continue;\n    (void) strcpy(fname, dp-\u003Ed_name);\n    sprintf(tabname, CRON_TAB(fname));\n    process_crontab(fname, fname, tabname,\n                    &amp;statbuf, &amp;new_db, old_db);\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПосле чего старая база данных подменяется новой.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ примерах выше вызов функции process_crontab убеждается в существовании пользователя, соответствующего имени файла таблицы (если только это не суперпользователь), после чего вызывает load_user. Последняя уже читает сам файл построчно:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003Ewhile ((status = load_env(envstr, file)) \u003E= OK) {\n    switch (status) {\n    case ERR:\n        free_user(u);\n        u = NULL;\n        goto done;\n    case FALSE:\n        e = load_entry(file, NULL, pw, envp);\n        if (e) {\n            e-\u003Enext = u-\u003Ecrontab;\n            u-\u003Ecrontab = e;\n        }\n        break;\n    case TRUE:\n        envp = env_set(envp, envstr);\n        break;\n    }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЗдесь либо выставляется переменная окружения (строки вида VAR=value) функциями load_env \u002F env_set, либо читается описание задачи (* * * * * \u002Fpath\u002Fto\u002Fexec) функцией load_entry.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСущность entry, которую возвращает load_entry, — это и есть наша задача, помещаемая в общий список задач. В самой функции проводится многословный разбор формата времени, нас же больше интересует формирование переменных окружения и параметров запуска задачи:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003E\u002F* пользователь и группа для запуска задачи берутся из passwd*\u002F\ne-\u003Euid = pw-\u003Epw_uid;\ne-\u003Egid = pw-\u003Epw_gid;\n\n\u002F* шелл по умолчанию (\u002Fbin\u002Fsh), если пользователь не указал другое *\u002F\ne-\u003Eenvp = env_copy(envp);\nif (!env_get(\"SHELL\", e-\u003Eenvp)) {\n    sprintf(envstr, \"SHELL=%s\", _PATH_BSHELL);\n    e-\u003Eenvp = env_set(e-\u003Eenvp, envstr);\n}\n\u002F* домашняя директория *\u002F\nif (!env_get(\"HOME\", e-\u003Eenvp)) {\n    sprintf(envstr, \"HOME=%s\", pw-\u003Epw_dir);\n    e-\u003Eenvp = env_set(e-\u003Eenvp, envstr);\n}\n\u002F* путь для поиска программ *\u002F\nif (!env_get(\"PATH\", e-\u003Eenvp)) {\n    sprintf(envstr, \"PATH=%s\", _PATH_DEFPATH);\n    e-\u003Eenvp = env_set(e-\u003Eenvp, envstr);\n}\n\u002F* имя пользовтеля всегда из passwd *\u002F\nsprintf(envstr, \"%s=%s\", \"LOGNAME\", pw-\u003Epw_name);\ne-\u003Eenvp = env_set(e-\u003Eenvp, envstr);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EС актуальным списком задач и работает главный цикл.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"glavnyy-cikl\"\u003EГлавный цикл\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОригинальный cron из Version 7 Unix работал совсем просто: в цикле перечитывал конфигурацию, запускал суперпользователем задачи текущей минуты и спал до начала следующей минуты. Этот простой подход на старых машинах требовал слишком много ресурсов.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ SysV была предложена альтернативная версия, в которой демон засыпал либо до ближайшей минуты, для которой определена задача, либо на 30 минут. Ресурсов на перечитывание конфигурации и проверку задач в таком режиме потреблялось меньше, но быстро обновлять список задач стало неудобно.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EVixie cron вернулся к проверке списков задач раз в минуту, благо к концу 80-х ресурсов на стандартных Unix-машинах стало значительно больше:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003E\u002F* первичная загрузка задач *\u002F\nload_database(&amp;database);\n\u002F* запустить задачи, поставленные к выполнению после перезагрузки системы *\u002F\nrun_reboot_jobs(&amp;database);\n\u002F* сделать TargetTime началом ближайшей минуты *\u002F\ncron_sync();\nwhile (TRUE) {\n    \u002F* выполнить задачи, после чего спать до TargetTime с поправкой на время, потраченное на задачи *\u002F\n    cron_sleep();\n\n    \u002F* перечитать конфигурацию *\u002F\n    load_database(&amp;database);\n\n    \u002F* собрать задачи для данной минуты *\u002F\n    cron_tick(&amp;database);\n\n    \u002F* перевести TargetTime на начало следующей минуты *\u002F\n    TargetTime += 60;\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНепосредственно выполнением задач занимается функция cron_sleep, вызывающая функции job_runqueue (перебор и запуск задач) и do_command (запуск каждой отдельной задачи). Последнюю функцию стоит разобрать подробнее.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"zapusk-zadachi\"\u003EЗапуск задачи\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EФункция do_command исполнена в хорошем Unix-стиле, то есть для асинхронного выполнения задачи она делает fork. Родительский процесс продолжает запуск задач, дочерний — занимается подготовкой процесса задачи:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003Eswitch (fork()) {\ncase -1:\n    \u002F*не смогли выполнить fork *\u002F\n    break;\ncase 0:\n    \u002F* дочерний процесс: на всякий случай еще раз пробуем захватить главный лок *\u002F\n    acquire_daemonlock(1);\n    \u002F* переходим к формированию процесса задачи *\u002F\n    child_process(e, u);\n    \u002F* по завершению дочерний процесс заканчивает работу *\u002F\n    _exit(OK_EXIT);\n    break;\ndefault:\n    \u002F* родительский процесс продолжает работу *\u002F\n    break;\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ child_process довольно много логики: она принимает стандартные потоки вывода и ошибок на себя, чтобы потом переслать на почту (если в таблице задач указана переменная окружения MAILTO), и, наконец, ждёт завершения работы основного процесса задачи.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПроцесс задачи формируется еще одним fork:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"cpp\"\u003Eswitch (vfork()) {\ncase -1:\n    \u002F* при ошибки сразу завершается работа *\u002F\n    exit(ERROR_EXIT);\ncase 0:\n    \u002F* процесс-внук формирует новую сессию, терминал и т.д.\n     *\u002F\n    (void) setsid();\n\n    \u002F*\n     * дальше многословная настройка вывода процесса, опустим для краткости\n     *\u002F\n\n    \u002F* смена директории, пользователя и группы пользователя,\n     * то есть процесс больше не суперпользовательский\n     *\u002F\n    setgid(e-\u003Egid);\n    setuid(e-\u003Euid);\n    chdir(env_get(\"HOME\", e-\u003Eenvp));\n\n    \u002F* запуск самой команды\n     *\u002F\n    {\n        \u002F* переменная окружения SHELL указывает на интерпретатор для запуска *\u002F\n        char    *shell = env_get(\"SHELL\", e-\u003Eenvp);\n\n        \u002F* процесс запускается без передачи окружения родительского процесса,\n         * то есть именно так, как описано в таблице задач пользователя  *\u002F\n        execle(shell, shell, \"-c\", e-\u003Ecmd, (char *)0, e-\u003Eenvp);\n\n        \u002F* ошибка — и процесс на запустился? завершение работы *\u002F\n        perror(\"execl\");\n        _exit(ERROR_EXIT);\n    }\n    break;\ndefault:\n    \u002F* сам процесс продолжает работу: ждет завершения работы и вывода *\u002F\n    break;\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВот, в общем-то, и весь cron. Какие-то интересные детали, например учёт удалённых пользователей, я опустил, но главное изложил.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1 id=\"posleslovie\"\u003EПослесловие\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСron — на удивление простая и полезная программа, выполненная в лучших традициях мира Unix. Она не делает ничего лишнего, но свою работу выполняет замечательно на протяжении уже нескольких десятилетий. Ознакомление с кодом той версии, что поставляется с Ubuntu, заняло не больше часа, а удовольствия я получил массу! Надеюсь, я смог поделиться им с вами.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНе знаю, как вам, но мне немного грустно осознавать, что современное программирование с его склонностью к переусложнению и переабстрагированию уже давно не располагает к подобной простоте.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСуществует множество современных альтернатив cron: systemd-timers позволяют организовать сложные системы с зависимостями, в fcron можно гибче регулировать потребление ресурсов задачами. Но лично мне всегда хватало простейших crontab.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСловом, любите Unix, используйте простые программы и не забывайте читать маны для вашей платформы!\u003C\u002Fp\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"linux"},{"titleHtml":"cron"},{"titleHtml":"crontab"},{"titleHtml":"unix"},{"titleHtml":"posix"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ftm\u002Fya\u002F6j\u002Ftmya6jd_1sbhnfncczo1nf2g7_y.jpeg","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ftm\u002Fya\u002F6j\u002Ftmya6jd_1sbhnfncczo1nf2g7_y.jpeg","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fbadoo\\\u002Fblog\\\u002F468061\\\u002F\"},\"headline\":\"Cron в Linux: история, использование и устройство\",\"datePublished\":\"2019-09-19T15:45:57+03:00\",\"dateModified\":\"2019-09-20T18:34:25+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Владимир Казанов\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Классик писал, что счастливые часов не наблюдают. В те дикие времена ещё не было ни программистов, ни Unix, но в наши дни программисты знают твёрдо: вместо них...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fbadoo\\\u002Fblog\\\u002F468061\\\u002F#post-content-body\",\"about\":[\"c_badoo\",\"h_linux\",\"h_sys_admin\",\"h_programming\",\"h_nix\",\"f_develop\",\"f_admin\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F468061\\\u002F3405ef59142d1c3944646152ea893296\\\u002F\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Ftm\\\u002Fya\\\u002F6j\\\u002Ftmya6jd_1sbhnfncczo1nf2g7_y.jpeg\"]}","metaDescription":"Классик писал, что счастливые часов не наблюдают. В те дикие времена ещё не было ни программистов, ни Unix, но в наши дни программисты знают твёрдо: вместо них за временем проследит cron.\r\nУтилиты...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"badoo":{"alias":"badoo","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002F69e\u002F0a4\u002F840\u002F69e0a4840cbfdc565559f6af093b5835.png","titleHtml":"Badoo","descriptionHtml":"Big Dating","relatedData":null,"statistics":{"postsCount":367,"newsCount":0,"vacanciesCount":0,"employeesCount":152,"careerRating":null,"subscribersCount":82866,"rating":121.53,"invest":null},"foundationDate":{"year":"2006","month":null,"day":null},"location":{"city":{"id":"447159","title":"Москва"},"region":{"id":"1885","title":"Москва и Московская обл."},"country":{"id":"168","title":"Россия"}},"siteUrl":"http:\u002F\u002Fbadoo.com\u002F","staffNumber":"501–1 000 человек","registrationDate":"2009-12-14T21:34:10+00:00","representativeUser":{"alias":"Yulcifer","fullname":"Yuliya Telezhkina"},"contacts":[{"title":"Сайт","url":"https:\u002F\u002Ftech.badoo.com\u002F"}],"settings":{"analyticsSettings":[{"type":"ym","trackingId":"83229820"}],"branding":{"imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fbranding\u002F760\u002Fe1e\u002F777\u002F760e1e777c1a4ef5a44a2da009719a85.png","linkUrl":"https:\u002F\u002Ftech.badoo.com\u002F","pixelUrl":null},"status":"active","isStartup":false},"metadata":{"titleHtml":"Badoo, Москва - Big Dating с 2006 год","title":"Badoo, Москва - Big Dating с 2006 год","keywords":["Программирование","Разработка под Android","Тестирование мобильных приложений","Kotlin","Управление разработкой","badoo","php","баду","android","ios","go","qa","meetup","тестирование","javascript","highload","kotlin","митап","автоматизация тестирования","swift","управление людьми","разработка","c","конференции","mysql"],"descriptionHtml":"367 статей от авторов компании Badoo","description":"367 статей от авторов компании Badoo"},"aDeskSettings":null,"careerAlias":"badoo"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

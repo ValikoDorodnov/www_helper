@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Белые пятна в работе с SSH / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/lodoss\/blog\/358800\/"},"headline":"Белые пятна в работе с SSH","datePublished":"2018-06-21T12:48:29+03:00","dateModified":"2018-06-22T12:30:01+03:00","author":{"@type":"Person","name":"Роман Кудлай"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"SSH &mdash; очень мощный и гибкий инструмент, но, как показывает практика, не все понимают, как он работает, и правильно его используют. Слово Secure входит в аббревиа...","url":"https:\/\/habr.com\/ru\/company\/lodoss\/blog\/358800\/#post-content-body","about":["c_lodoss","h_infosecurity","f_develop"],"image":["https:\/\/habrastorage.org\/webt\/9v\/cw\/lq\/9vcwlqgr22w_e61wvfd_voxnuhy.png","https:\/\/habrastorage.org\/webt\/ue\/pk\/n9\/uepkn9eebfxvishyznpnn36flw4.png","https:\/\/habrastorage.org\/webt\/bs\/gh\/wc\/bsghwcxpko8apqcyuhgrelesnck.png","https:\/\/habrastorage.org\/webt\/lo\/te\/er\/loteerefc8y8ia38hkkxofbv9cs.png","https:\/\/habrastorage.org\/webt\/ch\/wf\/hk\/chwfhkp5_iqja60_3rdihrpq7zi.png","https:\/\/habrastorage.org\/webt\/f7\/hy\/eo\/f7hyeosyaw35rdoib4dpw19uxmo.png","https:\/\/habrastorage.org\/webt\/lg\/di\/dc\/lgdidcy2mpvtwyegh2qvypappqy.png","https:\/\/habrastorage.org\/webt\/lp\/hq\/ct\/lphqctzrmf346nw_eh3isssi_-m.png","https:\/\/habrastorage.org\/webt\/ij\/oc\/d1\/ijocd1ztk67lvvde3tex3wv0cb4.png","https:\/\/habrastorage.org\/webt\/gn\/pi\/nw\/gnpinw2ubgdbjfe8ozz54hvaoww.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Белые пятна в работе с SSH" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Белые пятна в работе с SSH" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Белые пятна в работе с SSH" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="SSH — очень мощный и гибкий инструмент, но, как показывает практика, не все понимают, как он работает, и правильно его используют. Слово Secure входит в аббревиатуру SSH и является одним из ключевых..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="SSH — очень мощный и гибкий инструмент, но, как показывает практика, не все понимают, как он работает, и правильно его используют. Слово Secure входит в аббревиатуру SSH и является одним из ключевых..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="SSH — очень мощный и гибкий инструмент, но, как показывает практика, не все понимают, как он работает, и правильно его используют. Слово Secure входит в аббревиатуру SSH и является одним из ключевых..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="SSH — очень мощный и гибкий инструмент, но, как показывает практика, не все понимают, как он работает, и правильно его используют. Слово Secure входит в аббревиатуру SSH и является одним из ключевых..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="SSH — очень мощный и гибкий инструмент, но, как показывает практика, не все понимают, как он работает, и правильно его используют. Слово Secure входит в аббревиатуру SSH и является одним из ключевых..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/358800/9ae764d57b542fbb5b85cfa56e37f28c/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/358800/9ae764d57b542fbb5b85cfa56e37f28c/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/358800/9ae764d57b542fbb5b85cfa56e37f28c/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/358800/9ae764d57b542fbb5b85cfa56e37f28c/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/358800/9ae764d57b542fbb5b85cfa56e37f28c/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="358800" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2018-06-21T09:48:29.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/lodoss/blog/358800/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="ssh-ключи, информационная безопасность">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/358800/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.112.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/358800/9ae764d57b542fbb5b85cfa56e37f28c/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="lodoss" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><!----></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/lodoss/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/be6/3dc/caa/be63dccaaaf196effeb22d4b795b0329.png" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/lodoss/profile/" class="tm-company-card__name">
+      Lodoss Team
+    </a> <div class="tm-company-card__description">Сложные системы, мобильные приложения, дизайн и AR</div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/RomanKu/" title="RomanKu" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/887/759/875/887759875aa9091a247ce2941d94afc1.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/RomanKu/" class="tm-user-info__username">
+      RomanKu
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2018-06-21T09:48:29.000Z" title="2018-06-21, 12:48">21  июня  2018 в 12:48</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Белые пятна в работе с SSH</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/lodoss/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании Lodoss Team</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/infosecurity/" class="tm-article-snippet__hubs-item-link"><span>Информационная безопасность</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">SSH — очень мощный и гибкий инструмент, но, как показывает практика, не все понимают, как он работает, и правильно его используют. Слово Secure входит в аббревиатуру SSH и является одним из ключевых аспектов протокола, но часто именно безопасности уделяется недостаточное внимание. В этой статье я хочу рассказать о нескольких типичных ошибках при работе с SSH, а также о моментах, о которых часто забывают.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/9v/cw/lq/9vcwlqgr22w_e61wvfd_voxnuhy.png" alt="image" data-src="https://habrastorage.org/webt/9v/cw/lq/9vcwlqgr22w_e61wvfd_voxnuhy.png"/><br/>
+<a name="habracut"></a><br/>
+Существует несколько способов аутентификации пользователя:<br/>
+<br/>
+<ol>
+<li><b>По паролю</b> — стандартный механизм, но не самый надежный, я не буду заострять на нем внимание</li>
+<li><b>По ключу</b> — самый надежный способ аутентификации, но это при условии, если правильно его использовать</li>
+<li><b>По IP адресу</b> — режим совместимости. Привожу просто для справки, сомневаюсь, что кто-то будет использовать его в трезвом уме. </li>
+</ol><br/>
+<h2>Асимметричное шифрование</h2><br/>
+SSH использует ассиметричное шифрование, суть которого заключается в том, что есть два ключа: открытый и закрытый. Зашифровать сообщение можно открытым ключом, а расшифровать — закрытым. Закрытый ключ хранится в сохранности, а публичный доступен всем. Кроме того, подписать сообщение можно закрытым ключом, а проверить эту подпись — открытым.<br/>
+<br/>
+На схеме видно, что после обмена публичными ключами два узла могут безопасно общаться между собой через небезопасный Интернет.<br/>
+<br/>
+Кроме того, аутентификация пользователя может производиться при помощи этой самой пары ключей.<br/>
+<br/>
+Публичный ключ пользователя необходимо добавить в файл <i>$HOME/.ssh/authorized_keys</i><br/>
+В этом файле может быть несколько публичных ключей — все они будут работать.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/ue/pk/n9/uepkn9eebfxvishyznpnn36flw4.png" alt="image" data-src="https://habrastorage.org/webt/ue/pk/n9/uepkn9eebfxvishyznpnn36flw4.png"/><br/>
+<br/>
+<h2>Защита от MITM атак</h2><br/>
+MITM-атака — это вид атаки в криптографии, когда злоумышленник тайно ретранслирует и при необходимости изменяет связь между двумя сторонами, которые считают, что они непосредственно общаются друг с другом. Является методом компрометации канала связи, при котором взломщик, подключившись к каналу между контрагентами, осуществляет вмешательство в протокол передачи, удаляя или искажая информацию.<br/>
+<br/>
+Одним из основных нововведений во второй версии протокола стала встроенная защита от MITM-атак. <br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/bs/gh/wc/bsghwcxpko8apqcyuhgrelesnck.png" alt="image" data-src="https://habrastorage.org/webt/bs/gh/wc/bsghwcxpko8apqcyuhgrelesnck.png"/><br/>
+<br/>
+Суть защиты заключается в том, что каждая сторона должна убедиться, что с другой стороны находится именно тот, кто ожидается, а не злоумышленник.<br/>
+<br/>
+За MITM-защиту на стороне клиента (т.е. за то, чтобы определить, что ты подключаешься именно к своему серверу) отвечает параметр <b>StrictHostKeyChecking</b> и файл <b>known_hosts.</b><br/>
+<br/>
+Публичные ключи серверов хранятся в файлах:<br/>
+<i>$HOME/.ssh/known_hosts</i> — пользовательский файл,<br/>
+<i>/etc/ssh/ssh_known_hosts</i>— системный файл.<br/>
+<br/>
+Каждая запись в known_hosts является строкой, содержащей поля и использующей пробел в качестве разделителя:<br/>
+<br/>
+<ol>
+<li>одно или несколько имен серверов или IP-адресов, разделенных запятыми</li>
+<li>тип ключа</li>
+<li>открытый ключ</li>
+<li>любые дополнительные комментарии</li>
+</ol><br/>
+Именно здесь происходит «идентификация» сервера<br/>
+<br/>
+<pre><code class="bash">StrictHostKeyChecking=no|ask|yes </code></pre><br/>
+Значения могут быть следующие:<br/>
+<br/>
+<ul>
+<li><b>no</b> — подключение произойдет в любом случае, максимум мы получим предупреждение о том, что соединение небезопасно. Часто можно встретить во всяких автоматических скриптах типа автотестов и автодеплоев, тут и кроется основная проблема — если скрипт отработает нормально, то пользователь (администратор) и не заметит неладное, а заражение/компрометация произойдет.</li>
+<li><b>ask</b> — спрашивать при новом подключении (значение по-умолчанию), если записи еще нет в known_hosts, и, в случае согласия с подключением добавляется новая запись</li>
+<li><b>yes</b> — выполнять проверку всегда, самый безопасный вариант, который настоятельно рекомендую использовать в автоматизированных системах. Подключение производится только при наличии записи в known_hosts</li>
+</ul><br/>
+Что нам это дает:<br/>
+<br/>
+<ol>
+<li>При первом подключении мы можем определить, не представился ли сервером злоумышленник</li>
+<li>Гарантию, что при последующих подключениях к серверу не произойдет подмены добропорядочного сервера злоумышленником</li>
+</ol><br/>
+Если со вторым пунктом все понятно, то как быть с первым?<br/>
+<br/>
+Тут можно выделить как минимум три варианта:<br/>
+<br/>
+<ol>
+<li>Довериться случаю и согласиться на добавление нового ключа сервера</li>
+<li>Добавить флаг <i>VisualHostKey=key</i>, при этом клиент отобразит визуальное представление открытого ключа сервера, это представление уникально и облегчит запоминание ключа</li>
+<li>Флешка или открытые источники: это вариант для параноиков, однако, если компрометация системы может стоить десятков тысяч долларов, то это не лишне.</li>
+</ol><br/>
+<img src="https://habrastorage.org/r/w1560/webt/lo/te/er/loteerefc8y8ia38hkkxofbv9cs.png" alt="image" data-src="https://habrastorage.org/webt/lo/te/er/loteerefc8y8ia38hkkxofbv9cs.png"/><br/>
+<i>Использование визуализации открытого ключа<br/>
+</i><br/>
+<img src="https://habrastorage.org/r/w1560/webt/ch/wf/hk/chwfhkp5_iqja60_3rdihrpq7zi.png" alt="image" data-src="https://habrastorage.org/webt/ch/wf/hk/chwfhkp5_iqja60_3rdihrpq7zi.png"/><br/>
+<i>Если открытый ключ изменился<br/>
+</i><br/>
+Сообщение о смене ключа может происходить по нескольким причинам:<br/>
+<br/>
+<ol>
+<li>Изменился адрес сервера</li>
+<li>Изменился ключ сервера, например, при переустановке системы</li>
+<li>MITM атака</li>
+</ol><br/>
+Из моей практики 1 и 2 варианты в сумме стремятся к 100%, но и пункт 3 нельзя исключать тоже.<br/>
+<br/>
+Вот пример лайфхака, который объединяет в себе веб- и ssh-подходы<br/>
+<br/>
+<pre><code class="bash">curl https://server.com/ssh_fingerprint | tee -a ~/.ssh/known_hosts</code></pre><br/>
+На первый взгляд это не очень безопасно, однако, эту информацию можно получить при помощи команды<br/>
+<br/>
+<pre><code class="bash">ssh-keyscan example.com</code></pre><br/>
+Однако, в первом варианте мы дополнительно проверяем подлинность полученного ключа при помощи HTTPS.<br/>
+<br/>
+В критически важных CI/CD использование комбинации <br/>
+<br/>
+<pre><code class="bash">ssh-keyscan example.com >> ~/.ssh/known_hosts</code></pre><br/>
+во время инициализации совместно с <br/>
+<br/>
+<pre><code class="bash">StrictHostKeyChecking=yes</code></pre><br/>
+позволит надежно защититься от MITM-атак.<br/>
+<br/>
+<h2>Множество ключей</h2><br/>
+Часто можно встретить такую картину: <br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/f7/hy/eo/f7hyeosyaw35rdoib4dpw19uxmo.png" alt="image" data-src="https://habrastorage.org/webt/f7/hy/eo/f7hyeosyaw35rdoib4dpw19uxmo.png"/><br/>
+<br/>
+Для каждого сервера на клиенте сгенерированы свои пары ключей, и в <i>$HOME/.ssh/</i> творится полнейший беспорядок.<br/>
+<br/>
+С одной стороны, это безопаснее, нежели использование одной пары клиентских ключей — при компрометации одного ключа становится скомпрометированой только одна система, а не все, с которыми работал пользователь.<br/>
+<br/>
+Однако, как показывает практика, этим руководствуются пользователи в последнюю очередь, зачастую они просто выполняют все инструкции по шагам:<br/>
+<br/>
+<pre><code class="bash">
+ssh-keygen
+...
+...
+</code></pre><br/>
+Иногда я наблюдал ситуацию, когда одни ключи перетирались другими без какой либо мысли в голове.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/lg/di/dc/lgdidcy2mpvtwyegh2qvypappqy.png" alt="image" data-src="https://habrastorage.org/webt/lg/di/dc/lgdidcy2mpvtwyegh2qvypappqy.png"/><br/>
+<br/>
+Напомню: если вы гонитесь параноидально за безопасностью, то достаточно иметь одну пару ключей, но при этом ее надо правильно защищать.<br/>
+<br/>
+<h2>Кстати, о защите ключей</h2><br/>
+<img src="https://habrastorage.org/r/w1560/webt/lp/hq/ct/lphqctzrmf346nw_eh3isssi_-m.png" alt="image" data-src="https://habrastorage.org/webt/lp/hq/ct/lphqctzrmf346nw_eh3isssi_-m.png"/><br/>
+<br/>
+Расценивайте свой приватный SSH-ключ, как ключ от квартиры, где деньги лежат. Более беспечного отношения, чем к SSH-ключам, я не видел. Если серьезность сохранения паролей пользователи еще более или менее понимают, то о том, что никому нельзя давать доступ к приватному ключу, задумываются единицы.<br/>
+<br/>
+Что тут можно выделить:<br/>
+<br/>
+<ol>
+<li>Хранить ключ надо в безопасном месте, в идеале это шифрованное хранилище</li>
+<li>Никому не предоставлять доступ к ключу, скомпрометированный ключ компрометирует все системы где разрешен доступ по нему</li>
+<li>Шифрование приватного ключа увеличивает безопасность, т.к. при потере ключа необходимо еще получить пароль для его дешифрации, либо потратить время и вычислительные мощности на его взлом.</li>
+<li>Не забывать про установку корректных прав на файл ключа 400, кстати, это распространенная ошибка, когда клиент отказывается использовать ключ</li>
+</ol><br/>
+Изменить или добавить пароль можно при помощи команды<br/>
+<br/>
+<pre><code class="bash">ssh-keygen -p</code></pre><br/>
+<h2>SSH-Agent</h2><br/>
+Но часто бывает такая ситуация, когда необходимо со своим ключом перейти на сервер и там уже им воспользоваться. Существует три решения данной задачи:<br/>
+<br/>
+<ol>
+<li>Скопировать свой приватный ключ на сервер</li>
+<li>Сгенерировать новую пару ключей и прописать ее в качестве варианта доступа</li>
+<li>Использовать ssh-agent</li>
+</ol><br/>
+Из моей практики, пользователи в 90% случаев выбирают первые два варианта, а, как мы уже говорили: нет ничего более страшного, чем компрометация ключа.<br/>
+<br/>
+Я же рекомендую воспользоваться третьим способом<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/ij/oc/d1/ijocd1ztk67lvvde3tex3wv0cb4.png" alt="image" data-src="https://habrastorage.org/webt/ij/oc/d1/ijocd1ztk67lvvde3tex3wv0cb4.png"/><br/>
+<br/>
+SSH-agent хранит секретные ключи и, когда нужно, пользуется ими. Программа (например, ssh), когда ей понадобится воспользоваться секретным ключом, не делает этого сама, а обращается к ssh-agent 'у, который, в свою очередь, уже сам пользуется известными только ему данными о секретных ключах. Таким образом, секретные ключи не разглашаются никому, даже программам, принадлежащим самому пользователю.<br/>
+<br/>
+Команда ssh-agent создает файл-сокет с именем /tmp/ssh-XXXXXXXX/agent.ppid, через который осуществляется взаимодействие с агентом. Всем дочерним процессам агент при помощи переменных окружения SSH_AUTH_SOCK (в которой хранится имя файла-сокета) и SSH_AGENT_PID (в которой хранится идентификатор процесс агента) сообщает информацию о том, как с ним можно связаться.<br/>
+<br/>
+Агент выдает информацию в виде, удобном для использования командным интерпретатором.<br/>
+<br/>
+<pre><code class="bash">SSH_AUTH_SOCK=/tmp/ssh-XXt4pHNr/agent.5087; export SSH_AUTH_SOCK;
+SSH_AGENT_PID=5088; export SSH_AGENT_PID;
+echo Agent pid 5088;</code></pre><br/>
+При указании ключа -c агент использует синтаксис C Shell. По умолчанию (и при явном указании ключа -s) используется синтаксис Bourne Shell. Эти переменные следует установить в текущем командном интерпретаторе, поэтому обычно вызов ssh-agent комбинируется с командой eval.<br/>
+<br/>
+<pre><code class="bash">$ eval `ssh-agent`
+Agent pid 5088</code></pre><br/>
+Агент работает до тех пор, пока не будет явно завершен сигналом либо вызовом<br/>
+<br/>
+<pre><code class="bash">$ ssh-agent -k</code></pre><br/>
+Список известных агенту секретных ключей можно посмотреть той же командой ssh-add с ключом командной строки -l. Команда сообщит и отпечаток для каждого ключа.<br/>
+<br/>
+<pre><code class="bash">$ ssh-add -l
+1024 46:88:64:82:a7:f9:aa:ea:3b:21:9e:aa:75:be:35:80 /home/user/.ssh/id_rsa (RSA)</code></pre><br/>
+Пример работы с ssh-agent можно увидеть ниже<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/gn/pi/nw/gnpinw2ubgdbjfe8ozz54hvaoww.png" alt="image" data-src="https://habrastorage.org/webt/gn/pi/nw/gnpinw2ubgdbjfe8ozz54hvaoww.png"/><br/>
+<br/>
+Кроме того, агент решает еще одну задачу: если вы зашифровали приватный ключ, то при обращении к нему каждый раз не будет запрашиваться пароль. Если же использовать агента, то пароль будет необходимо будет вводить только при добавлении ключа в агента.<br/>
+<br/>
+<h2>Локальный конфиг</h2><br/>
+Если бы каждый раз, когда я наблюдал за набором строки вида<br/>
+<br/>
+<pre><code class="bash">ssh -p 2022 user@server.com -o StrictHostKeyChecking=yes -i ~/.ssh/server.pem</code></pre><br/>
+мне давали рубль, то я бы уже давно жил в Сочи.<br/>
+<br/>
+На локальной машине можно найти файл <i>$HOME/.ssh/config</i><br/>
+<br/>
+<pre><code>Host server
+	User root
+	HostName 192.168.0.3
+	IdentityFile ~/.ssh/server.pem
+
+Host example.com
+	User admin
+	IdentityFile ~/.ssh/production.pem
+</code></pre><br/>
+Соответственно, можно прописать большинство параметров для хоста в этот файл и не вводить каждый раз.<br/>
+<br/>
+<h2>Как еще можно улучшить безопасность</h2> <br/>
+1. При использовании аутентификации по ключу не забывайте, что остается еще пароль, и, как бы вы ни защищали свой приватный ключ, злоумышленник сможет подобрать ваш пароль qwerty и войти в систему без необходимости похищать ключ<br/>
+<br/>
+Можно выделить несколько решений:<br/>
+<br/>
+<ul>
+<li>Задать очень сложный пароль, который будет сложно подобрать и хранить его в защищенном месте. Это позволит иметь альтернативный способ входа.</li>
+<li> Удалить пароль совсем, но тогда могут возникнуть проблемы с sudo и прочим</li>
+<li> Запретить на сервере аутентификацию по паролю, собственно, как правило, для пользователя root это и запрещается. Остается запретить для всех пользователей. </li>
+</ul><br/>
+<b>PasswordAuthentication no</b> в <i>/etc/ssh/sshd_config</i><br/>
+<br/>
+2. Еще можно запретить использование ssh v1 <br/>
+<b>Protocol 2</b> в <i>/etc/ssh/sshd_config</i><br/>
+<br/>
+3. И обязательно закрывать на фаерволе доступ к SSH для ненадежных источников<br/>
+<br/>
+4. Раньше бы я посоветовал сменить порт со стандартного 22 на другой, но наблюдая за тем, сколько бывает попыток авторизоваться на нестандартных портах я могу сказать однозначно: это не является защитой от взлома.<br/>
+<br/>
+5. Если уже рассматривать подбор пароля, то не лишним будет настроить <b>fail2ban</b> для того, чтобы ограничить попытки подбора пароля.<br/>
+<br/>
+6. В протоколе и библиотеках периодически находят проблемы и уязвимости, поэму тут работает универсальный подход — следите за обновлениям ПО и старайтесь регулярно устанавливать как минимум заплатки безопасности.<br/>
+<br/>
+7. ssh-agent безопасней, чем просто копирование файлов, однако, его тоже можно взломать, например, root пользователь на сервере. Поэтому рекомендуется включать форвардинг только в тех случаях, когда это необходимо.<br/>
+<br/>
+<h2>Выводы</h2><br/>
+Читайте документацию, в ней все написано, как бы это пошло не звучало.<br/>
+SSH очень безопасный протокол, но, зачастую, именно человеческий фактор является основным источником проблем — следите за безопасностью.<br/>
+<br/>
+Использованные материалы<br/>
+<a href="https://www.securitylab.ru/analytics/216377.php">Защита с помощью SSH ключей<br/>
+</a><a href="http://xgu.ru/wiki/%D0%A3%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5_%D0%BA%D0%BB%D1%8E%D1%87%D0%B0%D0%BC%D0%B8_SSH_%D1%81_%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D1%8C%D1%8E_%D0%B0%D0%B3%D0%B5%D0%BD%D1%82%D0%B0">Управление ключами SSH с помощью агента</a></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bssh-%D0%BA%D0%BB%D1%8E%D1%87%D0%B8%5D" class="tm-tags-list__link">ssh-ключи</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D0%BE%D0%BD%D0%BD%D0%B0%D1%8F%20%D0%B1%D0%B5%D0%B7%D0%BE%D0%BF%D0%B0%D1%81%D0%BD%D0%BE%D1%81%D1%82%D1%8C%5D" class="tm-tags-list__link">информационная безопасность</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/lodoss/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании Lodoss Team
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/infosecurity/" class="tm-hubs-list__link">
+    Информационная безопасность
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 40: ↑39 и ↓1</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 40: ↑39 и ↓1" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+38</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">32K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    291
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/lodoss/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/be6/3dc/caa/be63dccaaaf196effeb22d4b795b0329.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/lodoss/profile/" class="tm-company-snippet__title">Lodoss Team</a> <div class="tm-company-snippet__description">Сложные системы, мобильные приложения, дизайн и AR</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="https://lodossteam.ru/" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Сайт
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/RomanKu/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/887/759/875/887759875aa9091a247ce2941d94afc1.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 26 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    22
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Роман Кудлай</span> <a href="https://habr.com/ru/users/RomanKu/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @RomanKu
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">CIO at Lodoss Team</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <div class="tm-article-author__user-contacts"><a href="https://telegram.me/romankudlay" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Telegram
+    </a></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/lodoss/blog/358800/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 54 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><!----> <!----> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://lodossteam.ru/" target="_blank" class="tm-company-basic-info__link">
+      lodossteam.ru
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Неизвестно
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2018-05-16T08:00:03.000Z" title="2018-05-16, 11:00">16  мая  2018</time></dd></dl> <!----></div></div> <!----></section> <!----> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/lodoss/blog/358800/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/lodoss/blog/358800/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"358800":{"id":"358800","timePublished":"2018-06-21T09:48:29+00:00","isCorporative":true,"lang":"ru","titleHtml":"Белые пятна в работе с SSH","leadData":{"textHtml":"SSH — очень мощный и гибкий инструмент, но, как показывает практика, не все понимают, как он работает, и правильно его используют. Слово Secure входит в аббревиатуру SSH и является одним из ключевых аспектов протокола, но часто именно безопасности уделяется недостаточное внимание. В этой статье я хочу рассказать о нескольких типичных ошибках при работе с SSH, а также о моментах, о которых часто забывают.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F9v\u002Fcw\u002Flq\u002F9vcwlqgr22w_e61wvfd_voxnuhy.png\" alt=\"image\"\u003E\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":22,"votesCount":26},"rating":0,"relatedData":null,"contacts":[{"title":"Telegram","url":"https:\u002F\u002Ftelegram.me\u002Fromankudlay","value":"romankudlay"}],"authorContacts":[{"title":"Telegram","url":"https:\u002F\u002Ftelegram.me\u002Fromankudlay","value":"romankudlay"}],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1662353","alias":"RomanKu","fullname":"Роман Кудлай","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F887\u002F759\u002F875\u002F887759875aa9091a247ce2941d94afc1.jpg","speciality":"CIO at Lodoss Team"},"statistics":{"commentsCount":54,"favoritesCount":291,"readingCount":31640,"score":38,"votesCount":40},"hubs":[{"relatedData":null,"id":"21486","alias":"lodoss","type":"corporative","title":"Блог компании Lodoss Team","titleHtml":"Блог компании Lodoss Team","isProfiled":false},{"relatedData":null,"id":"50","alias":"infosecurity","type":"collective","title":"Информационная безопасность","titleHtml":"Информационная безопасность","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003ESSH — очень мощный и гибкий инструмент, но, как показывает практика, не все понимают, как он работает, и правильно его используют. Слово Secure входит в аббревиатуру SSH и является одним из ключевых аспектов протокола, но часто именно безопасности уделяется недостаточное внимание. В этой статье я хочу рассказать о нескольких типичных ошибках при работе с SSH, а также о моментах, о которых часто забывают.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002F9v\u002Fcw\u002Flq\u002F9vcwlqgr22w_e61wvfd_voxnuhy.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F9v\u002Fcw\u002Flq\u002F9vcwlqgr22w_e61wvfd_voxnuhy.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nСуществует несколько способов аутентификации пользователя:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E\u003Cb\u003EПо паролю\u003C\u002Fb\u003E — стандартный механизм, но не самый надежный, я не буду заострять на нем внимание\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EПо ключу\u003C\u002Fb\u003E — самый надежный способ аутентификации, но это при условии, если правильно его использовать\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EПо IP адресу\u003C\u002Fb\u003E — режим совместимости. Привожу просто для справки, сомневаюсь, что кто-то будет использовать его в трезвом уме. \u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EАсимметричное шифрование\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nSSH использует ассиметричное шифрование, суть которого заключается в том, что есть два ключа: открытый и закрытый. Зашифровать сообщение можно открытым ключом, а расшифровать — закрытым. Закрытый ключ хранится в сохранности, а публичный доступен всем. Кроме того, подписать сообщение можно закрытым ключом, а проверить эту подпись — открытым.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа схеме видно, что после обмена публичными ключами два узла могут безопасно общаться между собой через небезопасный Интернет.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКроме того, аутентификация пользователя может производиться при помощи этой самой пары ключей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПубличный ключ пользователя необходимо добавить в файл \u003Ci\u003E$HOME\u002F.ssh\u002Fauthorized_keys\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\nВ этом файле может быть несколько публичных ключей — все они будут работать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fue\u002Fpk\u002Fn9\u002Fuepkn9eebfxvishyznpnn36flw4.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fue\u002Fpk\u002Fn9\u002Fuepkn9eebfxvishyznpnn36flw4.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EЗащита от MITM атак\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nMITM-атака — это вид атаки в криптографии, когда злоумышленник тайно ретранслирует и при необходимости изменяет связь между двумя сторонами, которые считают, что они непосредственно общаются друг с другом. Является методом компрометации канала связи, при котором взломщик, подключившись к каналу между контрагентами, осуществляет вмешательство в протокол передачи, удаляя или искажая информацию.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОдним из основных нововведений во второй версии протокола стала встроенная защита от MITM-атак. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fbs\u002Fgh\u002Fwc\u002Fbsghwcxpko8apqcyuhgrelesnck.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fbs\u002Fgh\u002Fwc\u002Fbsghwcxpko8apqcyuhgrelesnck.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСуть защиты заключается в том, что каждая сторона должна убедиться, что с другой стороны находится именно тот, кто ожидается, а не злоумышленник.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗа MITM-защиту на стороне клиента (т.е. за то, чтобы определить, что ты подключаешься именно к своему серверу) отвечает параметр \u003Cb\u003EStrictHostKeyChecking\u003C\u002Fb\u003E и файл \u003Cb\u003Eknown_hosts.\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПубличные ключи серверов хранятся в файлах:\u003Cbr\u002F\u003E\r\n\u003Ci\u003E$HOME\u002F.ssh\u002Fknown_hosts\u003C\u002Fi\u003E — пользовательский файл,\u003Cbr\u002F\u003E\r\n\u003Ci\u003E\u002Fetc\u002Fssh\u002Fssh_known_hosts\u003C\u002Fi\u003E— системный файл.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКаждая запись в known_hosts является строкой, содержащей поля и использующей пробел в качестве разделителя:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003Eодно или несколько имен серверов или IP-адресов, разделенных запятыми\u003C\u002Fli\u003E\r\n\u003Cli\u003Eтип ключа\u003C\u002Fli\u003E\r\n\u003Cli\u003Eоткрытый ключ\u003C\u002Fli\u003E\r\n\u003Cli\u003Eлюбые дополнительные комментарии\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nИменно здесь происходит «идентификация» сервера\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003EStrictHostKeyChecking=no|ask|yes \u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗначения могут быть следующие:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cb\u003Eno\u003C\u002Fb\u003E — подключение произойдет в любом случае, максимум мы получим предупреждение о том, что соединение небезопасно. Часто можно встретить во всяких автоматических скриптах типа автотестов и автодеплоев, тут и кроется основная проблема — если скрипт отработает нормально, то пользователь (администратор) и не заметит неладное, а заражение\u002Fкомпрометация произойдет.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003Eask\u003C\u002Fb\u003E — спрашивать при новом подключении (значение по-умолчанию), если записи еще нет в known_hosts, и, в случае согласия с подключением добавляется новая запись\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003Eyes\u003C\u002Fb\u003E — выполнять проверку всегда, самый безопасный вариант, который настоятельно рекомендую использовать в автоматизированных системах. Подключение производится только при наличии записи в known_hosts\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nЧто нам это дает:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EПри первом подключении мы можем определить, не представился ли сервером злоумышленник\u003C\u002Fli\u003E\r\n\u003Cli\u003EГарантию, что при последующих подключениях к серверу не произойдет подмены добропорядочного сервера злоумышленником\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nЕсли со вторым пунктом все понятно, то как быть с первым?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТут можно выделить как минимум три варианта:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EДовериться случаю и согласиться на добавление нового ключа сервера\u003C\u002Fli\u003E\r\n\u003Cli\u003EДобавить флаг \u003Ci\u003EVisualHostKey=key\u003C\u002Fi\u003E, при этом клиент отобразит визуальное представление открытого ключа сервера, это представление уникально и облегчит запоминание ключа\u003C\u002Fli\u003E\r\n\u003Cli\u003EФлешка или открытые источники: это вариант для параноиков, однако, если компрометация системы может стоить десятков тысяч долларов, то это не лишне.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Flo\u002Fte\u002Fer\u002Floteerefc8y8ia38hkkxofbv9cs.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Flo\u002Fte\u002Fer\u002Floteerefc8y8ia38hkkxofbv9cs.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EИспользование визуализации открытого ключа\u003Cbr\u002F\u003E\r\n\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fch\u002Fwf\u002Fhk\u002Fchwfhkp5_iqja60_3rdihrpq7zi.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fch\u002Fwf\u002Fhk\u002Fchwfhkp5_iqja60_3rdihrpq7zi.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EЕсли открытый ключ изменился\u003Cbr\u002F\u003E\r\n\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\nСообщение о смене ключа может происходить по нескольким причинам:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EИзменился адрес сервера\u003C\u002Fli\u003E\r\n\u003Cli\u003EИзменился ключ сервера, например, при переустановке системы\u003C\u002Fli\u003E\r\n\u003Cli\u003EMITM атака\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nИз моей практики 1 и 2 варианты в сумме стремятся к 100%, но и пункт 3 нельзя исключать тоже.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВот пример лайфхака, который объединяет в себе веб- и ssh-подходы\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Ecurl https:\u002F\u002Fserver.com\u002Fssh_fingerprint | tee -a ~\u002F.ssh\u002Fknown_hosts\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nНа первый взгляд это не очень безопасно, однако, эту информацию можно получить при помощи команды\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Essh-keyscan example.com\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nОднако, в первом варианте мы дополнительно проверяем подлинность полученного ключа при помощи HTTPS.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ критически важных CI\u002FCD использование комбинации \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Essh-keyscan example.com \u003E\u003E ~\u002F.ssh\u002Fknown_hosts\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nво время инициализации совместно с \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003EStrictHostKeyChecking=yes\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nпозволит надежно защититься от MITM-атак.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EМножество ключей\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nЧасто можно встретить такую картину: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Ff7\u002Fhy\u002Feo\u002Ff7hyeosyaw35rdoib4dpw19uxmo.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ff7\u002Fhy\u002Feo\u002Ff7hyeosyaw35rdoib4dpw19uxmo.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля каждого сервера на клиенте сгенерированы свои пары ключей, и в \u003Ci\u003E$HOME\u002F.ssh\u002F\u003C\u002Fi\u003E творится полнейший беспорядок.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nС одной стороны, это безопаснее, нежели использование одной пары клиентских ключей — при компрометации одного ключа становится скомпрометированой только одна система, а не все, с которыми работал пользователь.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОднако, как показывает практика, этим руководствуются пользователи в последнюю очередь, зачастую они просто выполняют все инструкции по шагам:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E\nssh-keygen\n...\n...\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nИногда я наблюдал ситуацию, когда одни ключи перетирались другими без какой либо мысли в голове.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Flg\u002Fdi\u002Fdc\u002Flgdidcy2mpvtwyegh2qvypappqy.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Flg\u002Fdi\u002Fdc\u002Flgdidcy2mpvtwyegh2qvypappqy.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНапомню: если вы гонитесь параноидально за безопасностью, то достаточно иметь одну пару ключей, но при этом ее надо правильно защищать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EКстати, о защите ключей\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Flp\u002Fhq\u002Fct\u002Flphqctzrmf346nw_eh3isssi_-m.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Flp\u002Fhq\u002Fct\u002Flphqctzrmf346nw_eh3isssi_-m.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРасценивайте свой приватный SSH-ключ, как ключ от квартиры, где деньги лежат. Более беспечного отношения, чем к SSH-ключам, я не видел. Если серьезность сохранения паролей пользователи еще более или менее понимают, то о том, что никому нельзя давать доступ к приватному ключу, задумываются единицы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЧто тут можно выделить:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EХранить ключ надо в безопасном месте, в идеале это шифрованное хранилище\u003C\u002Fli\u003E\r\n\u003Cli\u003EНикому не предоставлять доступ к ключу, скомпрометированный ключ компрометирует все системы где разрешен доступ по нему\u003C\u002Fli\u003E\r\n\u003Cli\u003EШифрование приватного ключа увеличивает безопасность, т.к. при потере ключа необходимо еще получить пароль для его дешифрации, либо потратить время и вычислительные мощности на его взлом.\u003C\u002Fli\u003E\r\n\u003Cli\u003EНе забывать про установку корректных прав на файл ключа 400, кстати, это распространенная ошибка, когда клиент отказывается использовать ключ\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nИзменить или добавить пароль можно при помощи команды\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Essh-keygen -p\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003ESSH-Agent\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nНо часто бывает такая ситуация, когда необходимо со своим ключом перейти на сервер и там уже им воспользоваться. Существует три решения данной задачи:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EСкопировать свой приватный ключ на сервер\u003C\u002Fli\u003E\r\n\u003Cli\u003EСгенерировать новую пару ключей и прописать ее в качестве варианта доступа\u003C\u002Fli\u003E\r\n\u003Cli\u003EИспользовать ssh-agent\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nИз моей практики, пользователи в 90% случаев выбирают первые два варианта, а, как мы уже говорили: нет ничего более страшного, чем компрометация ключа.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯ же рекомендую воспользоваться третьим способом\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fij\u002Foc\u002Fd1\u002Fijocd1ztk67lvvde3tex3wv0cb4.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fij\u002Foc\u002Fd1\u002Fijocd1ztk67lvvde3tex3wv0cb4.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nSSH-agent хранит секретные ключи и, когда нужно, пользуется ими. Программа (например, ssh), когда ей понадобится воспользоваться секретным ключом, не делает этого сама, а обращается к ssh-agent 'у, который, в свою очередь, уже сам пользуется известными только ему данными о секретных ключах. Таким образом, секретные ключи не разглашаются никому, даже программам, принадлежащим самому пользователю.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКоманда ssh-agent создает файл-сокет с именем \u002Ftmp\u002Fssh-XXXXXXXX\u002Fagent.ppid, через который осуществляется взаимодействие с агентом. Всем дочерним процессам агент при помощи переменных окружения SSH_AUTH_SOCK (в которой хранится имя файла-сокета) и SSH_AGENT_PID (в которой хранится идентификатор процесс агента) сообщает информацию о том, как с ним можно связаться.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nАгент выдает информацию в виде, удобном для использования командным интерпретатором.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003ESSH_AUTH_SOCK=\u002Ftmp\u002Fssh-XXt4pHNr\u002Fagent.5087; export SSH_AUTH_SOCK;\nSSH_AGENT_PID=5088; export SSH_AGENT_PID;\necho Agent pid 5088;\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПри указании ключа -c агент использует синтаксис C Shell. По умолчанию (и при явном указании ключа -s) используется синтаксис Bourne Shell. Эти переменные следует установить в текущем командном интерпретаторе, поэтому обычно вызов ssh-agent комбинируется с командой eval.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ eval `ssh-agent`\nAgent pid 5088\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nАгент работает до тех пор, пока не будет явно завершен сигналом либо вызовом\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ ssh-agent -k\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nСписок известных агенту секретных ключей можно посмотреть той же командой ssh-add с ключом командной строки -l. Команда сообщит и отпечаток для каждого ключа.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ ssh-add -l\n1024 46:88:64:82:a7:f9:aa:ea:3b:21:9e:aa:75:be:35:80 \u002Fhome\u002Fuser\u002F.ssh\u002Fid_rsa (RSA)\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПример работы с ssh-agent можно увидеть ниже\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fgn\u002Fpi\u002Fnw\u002Fgnpinw2ubgdbjfe8ozz54hvaoww.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fgn\u002Fpi\u002Fnw\u002Fgnpinw2ubgdbjfe8ozz54hvaoww.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКроме того, агент решает еще одну задачу: если вы зашифровали приватный ключ, то при обращении к нему каждый раз не будет запрашиваться пароль. Если же использовать агента, то пароль будет необходимо будет вводить только при добавлении ключа в агента.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EЛокальный конфиг\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nЕсли бы каждый раз, когда я наблюдал за набором строки вида\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Essh -p 2022 user@server.com -o StrictHostKeyChecking=yes -i ~\u002F.ssh\u002Fserver.pem\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nмне давали рубль, то я бы уже давно жил в Сочи.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа локальной машине можно найти файл \u003Ci\u003E$HOME\u002F.ssh\u002Fconfig\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003EHost server\n\tUser root\n\tHostName 192.168.0.3\n\tIdentityFile ~\u002F.ssh\u002Fserver.pem\n\nHost example.com\n\tUser admin\n\tIdentityFile ~\u002F.ssh\u002Fproduction.pem\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nСоответственно, можно прописать большинство параметров для хоста в этот файл и не вводить каждый раз.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EКак еще можно улучшить безопасность\u003C\u002Fh2\u003E \u003Cbr\u002F\u003E\r\n1. При использовании аутентификации по ключу не забывайте, что остается еще пароль, и, как бы вы ни защищали свой приватный ключ, злоумышленник сможет подобрать ваш пароль qwerty и войти в систему без необходимости похищать ключ\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМожно выделить несколько решений:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EЗадать очень сложный пароль, который будет сложно подобрать и хранить его в защищенном месте. Это позволит иметь альтернативный способ входа.\u003C\u002Fli\u003E\r\n\u003Cli\u003E Удалить пароль совсем, но тогда могут возникнуть проблемы с sudo и прочим\u003C\u002Fli\u003E\r\n\u003Cli\u003E Запретить на сервере аутентификацию по паролю, собственно, как правило, для пользователя root это и запрещается. Остается запретить для всех пользователей. \u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cb\u003EPasswordAuthentication no\u003C\u002Fb\u003E в \u003Ci\u003E\u002Fetc\u002Fssh\u002Fsshd_config\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n2. Еще можно запретить использование ssh v1 \u003Cbr\u002F\u003E\r\n\u003Cb\u003EProtocol 2\u003C\u002Fb\u003E в \u003Ci\u003E\u002Fetc\u002Fssh\u002Fsshd_config\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n3. И обязательно закрывать на фаерволе доступ к SSH для ненадежных источников\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n4. Раньше бы я посоветовал сменить порт со стандартного 22 на другой, но наблюдая за тем, сколько бывает попыток авторизоваться на нестандартных портах я могу сказать однозначно: это не является защитой от взлома.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n5. Если уже рассматривать подбор пароля, то не лишним будет настроить \u003Cb\u003Efail2ban\u003C\u002Fb\u003E для того, чтобы ограничить попытки подбора пароля.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n6. В протоколе и библиотеках периодически находят проблемы и уязвимости, поэму тут работает универсальный подход — следите за обновлениям ПО и старайтесь регулярно устанавливать как минимум заплатки безопасности.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n7. ssh-agent безопасней, чем просто копирование файлов, однако, его тоже можно взломать, например, root пользователь на сервере. Поэтому рекомендуется включать форвардинг только в тех случаях, когда это необходимо.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EВыводы\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nЧитайте документацию, в ней все написано, как бы это пошло не звучало.\u003Cbr\u002F\u003E\r\nSSH очень безопасный протокол, но, зачастую, именно человеческий фактор является основным источником проблем — следите за безопасностью.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИспользованные материалы\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fwww.securitylab.ru\u002Fanalytics\u002F216377.php\"\u003EЗащита с помощью SSH ключей\u003Cbr\u002F\u003E\r\n\u003C\u002Fa\u003E\u003Ca href=\"http:\u002F\u002Fxgu.ru\u002Fwiki\u002F%D0%A3%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5_%D0%BA%D0%BB%D1%8E%D1%87%D0%B0%D0%BC%D0%B8_SSH_%D1%81_%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D1%8C%D1%8E_%D0%B0%D0%B3%D0%B5%D0%BD%D1%82%D0%B0\"\u003EУправление ключами SSH с помощью агента\u003C\u002Fa\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"ssh-ключи"},{"titleHtml":"информационная безопасность"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F358800\u002F9ae764d57b542fbb5b85cfa56e37f28c\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F358800\u002F9ae764d57b542fbb5b85cfa56e37f28c\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Flodoss\\\u002Fblog\\\u002F358800\\\u002F\"},\"headline\":\"Белые пятна в работе с SSH\",\"datePublished\":\"2018-06-21T12:48:29+03:00\",\"dateModified\":\"2018-06-22T12:30:01+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Роман Кудлай\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"SSH &mdash; очень мощный и гибкий инструмент, но, как показывает практика, не все понимают, как он работает, и правильно его используют. Слово Secure входит в аббревиа...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Flodoss\\\u002Fblog\\\u002F358800\\\u002F#post-content-body\",\"about\":[\"c_lodoss\",\"h_infosecurity\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F9v\\\u002Fcw\\\u002Flq\\\u002F9vcwlqgr22w_e61wvfd_voxnuhy.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fue\\\u002Fpk\\\u002Fn9\\\u002Fuepkn9eebfxvishyznpnn36flw4.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fbs\\\u002Fgh\\\u002Fwc\\\u002Fbsghwcxpko8apqcyuhgrelesnck.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Flo\\\u002Fte\\\u002Fer\\\u002Floteerefc8y8ia38hkkxofbv9cs.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fch\\\u002Fwf\\\u002Fhk\\\u002Fchwfhkp5_iqja60_3rdihrpq7zi.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Ff7\\\u002Fhy\\\u002Feo\\\u002Ff7hyeosyaw35rdoib4dpw19uxmo.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Flg\\\u002Fdi\\\u002Fdc\\\u002Flgdidcy2mpvtwyegh2qvypappqy.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Flp\\\u002Fhq\\\u002Fct\\\u002Flphqctzrmf346nw_eh3isssi_-m.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fij\\\u002Foc\\\u002Fd1\\\u002Fijocd1ztk67lvvde3tex3wv0cb4.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fgn\\\u002Fpi\\\u002Fnw\\\u002Fgnpinw2ubgdbjfe8ozz54hvaoww.png\"]}","metaDescription":"SSH — очень мощный и гибкий инструмент, но, как показывает практика, не все понимают, как он работает, и правильно его используют. Слово Secure входит в аббревиатуру SSH и является одним из ключевых...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"lodoss":{"alias":"lodoss","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002Fbe6\u002F3dc\u002Fcaa\u002Fbe63dccaaaf196effeb22d4b795b0329.png","titleHtml":"Lodoss Team","descriptionHtml":"Сложные системы, мобильные приложения, дизайн и AR","relatedData":null,"statistics":{"postsCount":10,"newsCount":0,"vacanciesCount":0,"employeesCount":8,"careerRating":null,"subscribersCount":44,"rating":0,"invest":null},"foundationDate":null,"location":null,"siteUrl":"https:\u002F\u002Flodossteam.ru\u002F","staffNumber":"Неизвестно","registrationDate":"2018-05-16T08:00:03+00:00","representativeUser":null,"contacts":[{"title":"Сайт","url":"https:\u002F\u002Flodossteam.ru\u002F"}],"settings":{"analyticsSettings":[],"branding":null,"status":"expired","isStartup":false},"metadata":{"titleHtml":"Lodoss Team - Сложные системы, мобильные приложения, дизайн и AR","title":"Lodoss Team - Сложные системы, мобильные приложения, дизайн и AR","keywords":["framework","дополненная реальность","ar"],"descriptionHtml":"10 статей от авторов компании Lodoss Team","description":"10 статей от авторов компании Lodoss Team"},"aDeskSettings":null,"careerAlias":null}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

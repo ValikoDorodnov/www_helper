@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Тестирование JavaScript кода с Jest для чайников. Часть 1 / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/502302\/"},"headline":"Тестирование JavaScript кода с Jest для чайников. Часть 1","datePublished":"2020-05-16T16:19:16+03:00","dateModified":"2020-05-18T09:30:05+03:00","author":{"@type":"Person","name":"AlexGoryny4"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Здравствуй, Хабр! Данное руководство является первой частью в запланированном цикле статей про такой замечательный фреймворк для тестирования как Jest. Материал...","url":"https:\/\/habr.com\/ru\/post\/502302\/#post-content-body","about":["h_javascript","h_web_testing","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/502302\/11470e9c4df634cbe2b54fcf7d9f4952\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Тестирование JavaScript кода с Jest для чайников. Часть 1" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Тестирование JavaScript кода с Jest для чайников. Часть 1" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Тестирование JavaScript кода с Jest для чайников. Часть 1" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Здравствуй, Хабр! Данное руководство является первой частью в запланированном цикле статей про такой замечательный фреймворк для тестирования как Jest. Материал будет полезен новичкам и тем, кто..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Здравствуй, Хабр! Данное руководство является первой частью в запланированном цикле статей про такой замечательный фреймворк для тестирования как Jest. Материал будет полезен новичкам и тем, кто..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Здравствуй, Хабр! Данное руководство является первой частью в запланированном цикле статей про такой замечательный фреймворк для тестирования как Jest. Материал будет полезен новичкам и тем, кто..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Здравствуй, Хабр! Данное руководство является первой частью в запланированном цикле статей про такой замечательный фреймворк для тестирования как Jest. Материал будет полезен новичкам и тем, кто..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Здравствуй, Хабр! Данное руководство является первой частью в запланированном цикле статей про такой замечательный фреймворк для тестирования как Jest. Материал будет полезен новичкам и тем, кто..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/502302/11470e9c4df634cbe2b54fcf7d9f4952/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/502302/11470e9c4df634cbe2b54fcf7d9f4952/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/502302/11470e9c4df634cbe2b54fcf7d9f4952/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/502302/11470e9c4df634cbe2b54fcf7d9f4952/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/502302/11470e9c4df634cbe2b54fcf7d9f4952/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="502302" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2020-05-16T13:19:16.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/502302/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="javascript, testing, jest">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/502302/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.210.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/502302/11470e9c4df634cbe2b54fcf7d9f4952/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/AlexGoryny4/" title="AlexGoryny4" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_lilac"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/AlexGoryny4/" class="tm-user-info__username">
+      AlexGoryny4
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2020-05-16T13:19:16.000Z" title="2020-05-16, 16:19">16  мая  2020 в 16:19</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Тестирование JavaScript кода с Jest для чайников. Часть 1</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/javascript/" class="tm-article-snippet__hubs-item-link"><span>JavaScript</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/web_testing/" class="tm-article-snippet__hubs-item-link"><span>Тестирование веб-сервисов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-sandbox"><span>
+        Из песочницы
+      </span></div><div class="tm-article-snippet__label tm-article-snippet__label_variant-tutorial"><span>
+        Tutorial
+      </span></div></div> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">Здравствуй, Хабр! Данное руководство является первой частью в запланированном цикле статей про такой замечательный фреймворк для тестирования как Jest. Материал будет полезен новичкам и тем, кто только знакомится с тестированием, и хотел бы изучить этот фреймворк. В первой части мы разберём: как начать работу с jest, как написать простой тест, и какие есть методы для сопоставления проверяемых значение с ожидаемыми. Кому интересно — добро пожаловать под кат!<br/>
+<a name="habracut"></a><br/>
+<h2>Что такое Jest?</h2><br/>
+Как указано на домашней странице проекта:<br/>
+<blockquote>Jest — это восхитительная среда тестирования JavaScript с упором на простоту.</blockquote> И действительно, Jest очень простой. Он не требует дополнительных настроек, легкий в понимании и применении, а так же имеет довольно хорошую документацию. Отлично подходит для проектов использующих Node, React, Angular, Vue, Babel, TypeScript и не только.<br/>
+Также он имеет открытый исходный код и поддерживается компанией Facebook.<br/>
+<br/>
+<h2>Установка</h2><br/>
+Для установки Jest в ваш проект выполните:<br/>
+<br/>
+<pre><code class="bash">npm install --save-dev jest</code></pre><br/>
+Если вы используете yarn:<br/>
+<br/>
+<pre><code class="bash">yarn add --dev jest</code></pre><br/>
+После установки можете обновить секцию scripts вашего package.json:<br/>
+<br/>
+<pre><code class="json">“scripts” : {
+     “test”: “jest”
+}
+</code></pre><br/>
+С помощью такого простого вызова мы уже можем запустить наши тесты (на самом деле jest потребует существование хотя бы одного теста).<br/>
+<br/>
+Также можно установить глобально (но так делать я бы не рекомендовал, так как по мне глобальная установка модулей является плохой практикой):<br/>
+<br/>
+<pre><code class="bash">npm install jest --global</code></pre><br/>
+И соответственно для yarn:<br/>
+<br/>
+<pre><code class="bash">yarn global add jest</code></pre><br/>
+После этого вы можете использовать jest непосредственно из командной строки.<br/>
+<br/>
+При помощи вызова команды jest --init в корне проекта, ответив на несколько вопросов, вы получите файл с настройками jest.config.js. Или можно добавить конфигурацию прямиком в ваш package.json. Для этого добавьте в корень json ключ «jest» и в соответствующем ему объекте можете добавлять необходимые вам настройки. Сами опции мы разберем позже. На данном этапе в этом нет необходимости, поскольку jest можно использовать «сходу», без дополнительных конфигураций.<br/>
+<br/>
+<h2>Первый тест</h2><br/>
+Давайте создадим файл first.test.js и напишем наш первый тест:<br/>
+<br/>
+<pre><code class="javascript">//first.test.js
+test('My first test', () => {
+    expect(Math.max(1, 5, 10)).toBe(10);
+});
+</code></pre><br/>
+И запустим наши тесты с помощью npm run test или непосредственно командой jest (если он установлен глобально). После запуска мы увидим отчет о прохождении тестов.<br/>
+<br/>
+<pre><code class="plaintext"> &lt;b>PASS&lt;/b>  ./first.test.js
+  ✓ My first test (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        0.618 s, estimated 1 s
+</code></pre><br/>
+Давайте «сломаем» наш тест и запустим jest повторно:<br/>
+<br/>
+<pre><code class="javascript">//first.test.js
+test('My first test', () => {
+    expect(Math.max(1, 5, 10)).toBe(5);
+});
+</code></pre><br/>
+Как мы видим, теперь наш тест не проходит проверки. Jest отображает подробную информацию о том, где возникла проблема, какой был ожидаемый результат, и что мы получили вместо него.<br/>
+<br/>
+Теперь давайте разберём код самого теста. Функция <i>test</i> используется для создания нового теста. Она принимает три аргумента (в примере мы использовали вызов с двумя аргументами). Первый — строка с названием теста, его jest отобразит в отчете. Второй — функция, которая содержит логику нашего теста. Также можно использовать 3-й аргумент — таймаут. Он является не обязательным, а его значение по умолчанию составляет 5 секунд. Задаётся в миллисекундах. Этот параметр необходим когда мы работаем с асинхронным кодом и возвращаем из функции теста промис. Он указывает как долго jest должен ждать разрешения промиса. По истечению этого времени, если промис не был разрешен — jest будет считать тест не пройденным. Подробнее про работу с асинхронными вызовами будет в следующих частях. Также вместо <i>test()</i> можно использовать <i>it()</i>. Разницы между такими вызовами нету. <i>it()</i> это просто алиас на функцию <i>test()</i>.<br/>
+<br/>
+Внутри функции теста мы сначала вызываем <i>expect()</i>. Ему мы передаем значение, которое хотим проверить. В нашем случае, это результат вызова <i>Math.max(1, 5, 10)</i>. <i>expect()</i> возвращает объект «обертку», у которой есть ряд методов для сопоставления полученного значения с ожидаемым. Один из таких методов мы и использовали — <i>toBe</i>.<br/>
+<br/>
+Давайте разберем основные из этих методов:<br/>
+<br/>
+<ul>
+<li><b>toBe()</b> — подходит, если нам надо сравнивать примитивные значения или является ли переданное значение ссылкой на тот же объект, что указан как ожидаемое значение. Сравниваются значения при помощи <i>Object.is()</i>. В отличие от === это дает возможность отличать 0 от -0, проверить равенство NaN c NaN.</li>
+<li><b>toEqual()</b> — подойдёт, если нам необходимо сравнить структуру более сложных типов. Он сравнит все поля переданного объекта с ожидаемым. Проверит каждый элемент массива. И сделает это рекурсивно по всей вложенности.<br/>
+<br/>
+<pre><code class="javascript">test('toEqual with objects', () => {
+    expect({ foo: 'foo', subObject: { baz: 'baz' } })
+        .toEqual({ foo: 'foo', subObject: { baz: 'baz' } });  // Ок
+    expect({ foo: 'foo', subObject: { num: 0 } })
+        .toEqual({ foo: 'foo', subObject: { baz: 'baz' } });  // А вот так ошибка.
+});
+
+test('toEqual with arrays', () => {
+    expect([11, 19, 5]).toEqual([11, 19, 5]); // Ок
+    expect([11, 19, 5]).toEqual([11, 19]); // Ошибка
+});
+</code></pre><br/>
+</li>
+<li><b>toContain()</b> — проверят содержит массив или итерируемый объект значение. Для сравнения используется оператор ===.<br/>
+<br/>
+<pre><code class="javascript">const arr = ['apple', 'orange', 'banana'];
+expect(arr).toContain('banana');
+expect(new Set(arr)).toContain('banana');
+expect('apple, orange, banana').toContain('banana');
+</code></pre><br/>
+</li>
+<li><b>toContainEqual()</b> — проверяет или содержит массив элемент с ожидаемой структурой.<br/>
+<br/>
+<pre><code class="javascript">expect([{a: 1}, {b: 2}]).toContainEqual({a: 1});
+</code></pre><br/>
+</li>
+<li><b>toHaveLength()</b> — проверяет или свойство length у объекта соответствует ожидаемому.<br/>
+<br/>
+<pre><code class="javascript">expect([1, 2, 3, 4]).toHaveLength(4);
+expect('foo').toHaveLength(3);
+expect({ length: 1 }).toHaveLength(1);
+</code></pre><br/>
+</li>
+<li><b>toBeNull()</b> — проверяет на равенство с null.</li>
+<li><b>toBeUndefined()</b> — проверяет на равенство с undefined.</li>
+<li><b>toBeDefined()</b> — противоположность<i> toBeUndefined</i>. Проверяет или значение !== undefined.</li>
+<li><b>toBeTruthy()</b> — проверяет или в булевом контексте значение соответствует true. Тоесть любые значения кроме false, null, undefined, 0, NaN и пустых строк.</li>
+<li><b>toBeFalsy()</b> — противоположность <i>toBeTruthy()</i>. Проверяет или в булевом контексте значение соответствует false.</li>
+<li><b>toBeGreaterThan()</b> и <b>toBeGreaterThanOrEqual()</b> — первый метод проверяет или переданное числовое значение больше, чем ожидаемое >, второй проверяет больше или равно ожидаемому >=.</li>
+<li><b>toBeLessThan()</b> и <b>toBeLessThanOrEqual()</b> — противоположность <i>toBeGreaterThan()</i> и <i>toBeGreaterThanOrEqual()</i></li>
+<li><b>toBeCloseTo()</b> — удобно использовать для чисел с плавающей запятой, когда вам не важна точность и вы не хотите, чтобы тест зависел от незначительной разницы в дроби. Вторым аргументом можно передать до какого знака после запятой необходима точность при сравнении.<br/>
+<br/>
+<pre><code class="javascript">const num = 0.1 + 0.2; // 0.30000000000000004
+expect(num).toBeCloseTo(0.3);
+expect(Math.PI).toBeCloseTo(3.14, 2);
+</code></pre><br/>
+</li>
+<li><b>toMatch()</b> — проверяет соответствие строки регулярному выражению.<br/>
+<br/>
+<pre><code class="javascript">expect('Banana').toMatch(/Ba/);
+</code></pre><br/>
+</li>
+<li><b>toThrow()</b> — используется в случаях, когда надо проверить исключение. Можно проверить как сам факт ошибки, так и проверить на выброс исключения определенного класса, либо по сообщению ошибки, либо по соответствию сообщения регулярному выражению.<br/>
+<br/>
+<pre><code class="javascript">function funcWithError() {
+    throw new Error('some error');
+}   
+expect(funcWithError).toThrow();
+expect(funcWithError).toThrow(Error);
+expect(funcWithError).toThrow('some error');
+expect(funcWithError).toThrow(/some/);
+</code></pre><br/>
+</li>
+<li><b>not</b> — это свойство позволяет сделать проверки на НЕравенство. Оно предоставляет объект, который имеет все методы перечисленные выше, но работать они будут наоборот.<br/>
+<br/>
+<pre><code class="javascript">expect(true).not.toBe(false);
+expect({ foo: 'bar' }).not.toEqual({});
+
+function funcWithoutError() {}
+expect(funcWithoutError).not.toThrow();
+</code></pre></li>
+</ul><br/>
+Давайте напишем пару простых тестов. Для начала создадим простой модуль, который будет содержать несколько методов для работы с окружностями.<br/>
+<br/>
+<pre><code class="javascript">// src/circle.js
+const area = (radius) => Math.PI * radius ** 2;
+const circumference = (radius) => 2 * Math.PI * radius;
+module.exports = { area, circumference };
+</code></pre><br/>
+Далее добавим тесты:<br/>
+<br/>
+<pre><code class="javascript">// tests/circle.test.js
+const circle = require('../src/circle');
+
+test('Circle area', () => {
+    expect(circle.area(5)).toBeCloseTo(78.54);
+    expect(circle.area()).toBeNaN();
+});
+
+test('Circumference', () => {
+    expect(circle.circumference(11)).toBeCloseTo(69.1, 1);
+    expect(circle.circumference()).toBeNaN();
+});
+</code></pre><br/>
+В этих тестах мы проверили результат работы 2-х методов — <i>area</i> и <i>circumference</i>. При помощи метода <i>toBeCloseTo</i> мы сверились с ожидаемым результатом. В первом случае мы проверили или вычисляемая площадь круга с радиусом 5 приблизительно равна 78.54, при этом разница с полученым значением (оно составит 78.53981633974483) не большая и тест будет засчитан. Во втором мы указали, что нас интересует проверка с точностью до 1 знака после запятой. Также мы вызвали наши методы без аргументов и проверили результат с помощью <i>toBeNaN</i>. Поскольку результат их выполнения будет NaN, то и тесты будут пройдены успешно.<br/>
+<br/>
+Разберём ещё один пример. Создадим функцию, которая будет фильтровать массив продуктов по цене:<br/>
+<br/>
+<pre><code class="javascript">// src/productFilter.js
+const byPriceRange = (products, min, max) =>
+         products.filter(item => item.price >= min &amp;&amp; item.price &lt;= max);
+module.exports = { byPriceRange };
+</code></pre><br/>
+И добавим тест:<br/>
+<br/>
+<pre><code class="javascript">// tests/product.test.js
+const productFilter = require('../src/producFilter');
+
+const products = [
+    { name: 'onion', price: 12 },
+    { name: 'tomato', price: 26 },
+    { name: 'banana', price: 29 },
+    { name: 'orange', price: 38 }
+];
+
+test('Test product filter by range', () => {
+    const FROM = 15;
+    const TO = 30;
+    const filteredProducts = productFilter.byPriceRange(products, FROM, TO);
+
+    expect(filteredProducts).toHaveLength(2);
+    expect(filteredProducts).toContainEqual({ name: 'tomato', price: 26 });
+    expect(filteredProducts).toEqual([{ name: 'tomato', price: 26 }, { name: 'banana', price: 29 }]);
+    expect(filteredProducts[0].price).toBeGreaterThanOrEqual(FROM);
+    expect(filteredProducts[1].price).toBeLessThanOrEqual(TO);
+    expect(filteredProducts).not.toContainEqual({ name: 'orange', price: 38 });
+});
+</code></pre><br/>
+В этом тесте мы проверям результат работы функии <i>byRangePrice</i>. Сначала мы проверили соответствие длины полученого массива ожидаемой — 2. Следующая проверка требует, чтобы в массиве находился элемент — { name: 'tomato', price: 26 }. Объект в массиве и объект переданный <i>toContainEqual</i> — это два разных объекта, а не ссылка на один и тот же. Но <i>toContainEqual</i> сверит каждое свойство. Так как оба объекта идентичные — проверка пройдет успешно. Далее мы используем <i>toEqual</i> для провеки структуры всего массива и его элементов. Методы <i>toBeGreaterThanOrEqual</i> и <i>toBeLessThanOrEqual</i> помогут нам проверить price первого и второго элемента массива. И, наконец, вызов <i>not.toContainEqual</i> сделает проверку, не содержится ли в массиве элемент — { name: 'orange', price: 38 }, которого по условию там быть не должно.<br/>
+<br/>
+В данных примерах мы написали несколько простых тестов используя функции проверки описанные выше. В следующих частях мы разберём работу с асинхронным кодом, функции jest которые не затрагивались в этой части туториала, поговорим о его настройке и многое другое.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bjavascript%5D" class="tm-tags-list__link">javascript</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Btesting%5D" class="tm-tags-list__link">testing</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bjest%5D" class="tm-tags-list__link">jest</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/javascript/" class="tm-hubs-list__link">
+    JavaScript
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/web_testing/" class="tm-hubs-list__link">
+    Тестирование веб-сервисов
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 10: ↑8 и ↓2</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 10: ↑8 и ↓2" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+6</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">36K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    123
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/AlexGoryny4/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_lilac"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 3 голоса " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    3
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><!----> <a href="https://habr.com/ru/users/AlexGoryny4/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @AlexGoryny4
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/502302/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 4 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner1614" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner1615" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/react_razrabotchik" target="_blank" class="tm-vacancies-block__vacancy-title">
+        React разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        276
+    вакансий
+      </div></div><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/programmist_javascript" target="_blank" class="tm-vacancies-block__vacancy-title">
+        JavaScript разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        554
+    вакансии
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/502302/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/502302/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"502302":{"id":"502302","timePublished":"2020-05-16T13:19:16+00:00","isCorporative":false,"lang":"ru","titleHtml":"Тестирование JavaScript кода с Jest для чайников. Часть 1","leadData":{"textHtml":"Здравствуй, Хабр! Данное руководство является первой частью в запланированном цикле статей про такой замечательный фреймворк для тестирования как Jest. Материал будет полезен новичкам и тем, кто только знакомится с тестированием, и хотел бы изучить этот фреймворк. В первой части мы разберём: как начать работу с jest, как написать простой тест, и какие есть методы для сопоставления проверяемых значение с ожидаемыми. Кому интересно — добро пожаловать под кат!\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"sandbox","data":null},{"type":"tutorial","data":null}],"author":{"scoreStats":{"score":3,"votesCount":3},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"269597","alias":"AlexGoryny4","fullname":null,"avatarUrl":null,"speciality":null},"statistics":{"commentsCount":4,"favoritesCount":123,"readingCount":35876,"score":6,"votesCount":10},"hubs":[{"relatedData":null,"id":"357","alias":"javascript","type":"collective","title":"JavaScript","titleHtml":"JavaScript","isProfiled":true},{"relatedData":null,"id":"19279","alias":"web_testing","type":"collective","title":"Тестирование веб-сервисов","titleHtml":"Тестирование веб-сервисов","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EЗдравствуй, Хабр! Данное руководство является первой частью в запланированном цикле статей про такой замечательный фреймворк для тестирования как Jest. Материал будет полезен новичкам и тем, кто только знакомится с тестированием, и хотел бы изучить этот фреймворк. В первой части мы разберём: как начать работу с jest, как написать простой тест, и какие есть методы для сопоставления проверяемых значение с ожидаемыми. Кому интересно — добро пожаловать под кат!\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EЧто такое Jest?\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nКак указано на домашней странице проекта:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EJest — это восхитительная среда тестирования JavaScript с упором на простоту.\u003C\u002Fblockquote\u003E И действительно, Jest очень простой. Он не требует дополнительных настроек, легкий в понимании и применении, а так же имеет довольно хорошую документацию. Отлично подходит для проектов использующих Node, React, Angular, Vue, Babel, TypeScript и не только.\u003Cbr\u002F\u003E\r\nТакже он имеет открытый исходный код и поддерживается компанией Facebook.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EУстановка\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nДля установки Jest в ваш проект выполните:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Enpm install --save-dev jest\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЕсли вы используете yarn:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Eyarn add --dev jest\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПосле установки можете обновить секцию scripts вашего package.json:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"json\"\u003E“scripts” : {\n     “test”: “jest”\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nС помощью такого простого вызова мы уже можем запустить наши тесты (на самом деле jest потребует существование хотя бы одного теста).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТакже можно установить глобально (но так делать я бы не рекомендовал, так как по мне глобальная установка модулей является плохой практикой):\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Enpm install jest --global\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nИ соответственно для yarn:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Eyarn global add jest\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПосле этого вы можете использовать jest непосредственно из командной строки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПри помощи вызова команды jest --init в корне проекта, ответив на несколько вопросов, вы получите файл с настройками jest.config.js. Или можно добавить конфигурацию прямиком в ваш package.json. Для этого добавьте в корень json ключ «jest» и в соответствующем ему объекте можете добавлять необходимые вам настройки. Сами опции мы разберем позже. На данном этапе в этом нет необходимости, поскольку jest можно использовать «сходу», без дополнительных конфигураций.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EПервый тест\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nДавайте создадим файл first.test.js и напишем наш первый тест:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E\u002F\u002Ffirst.test.js\ntest('My first test', () =\u003E {\n    expect(Math.max(1, 5, 10)).toBe(10);\n});\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nИ запустим наши тесты с помощью npm run test или непосредственно командой jest (если он установлен глобально). После запуска мы увидим отчет о прохождении тестов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E &lt;b\u003EPASS&lt;\u002Fb\u003E  .\u002Ffirst.test.js\n  ✓ My first test (1 ms)\n\nTest Suites: 1 passed, 1 total\nTests:       1 passed, 1 total\nSnapshots:   0 total\nTime:        0.618 s, estimated 1 s\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДавайте «сломаем» наш тест и запустим jest повторно:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E\u002F\u002Ffirst.test.js\ntest('My first test', () =\u003E {\n    expect(Math.max(1, 5, 10)).toBe(5);\n});\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКак мы видим, теперь наш тест не проходит проверки. Jest отображает подробную информацию о том, где возникла проблема, какой был ожидаемый результат, и что мы получили вместо него.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТеперь давайте разберём код самого теста. Функция \u003Ci\u003Etest\u003C\u002Fi\u003E используется для создания нового теста. Она принимает три аргумента (в примере мы использовали вызов с двумя аргументами). Первый — строка с названием теста, его jest отобразит в отчете. Второй — функция, которая содержит логику нашего теста. Также можно использовать 3-й аргумент — таймаут. Он является не обязательным, а его значение по умолчанию составляет 5 секунд. Задаётся в миллисекундах. Этот параметр необходим когда мы работаем с асинхронным кодом и возвращаем из функции теста промис. Он указывает как долго jest должен ждать разрешения промиса. По истечению этого времени, если промис не был разрешен — jest будет считать тест не пройденным. Подробнее про работу с асинхронными вызовами будет в следующих частях. Также вместо \u003Ci\u003Etest()\u003C\u002Fi\u003E можно использовать \u003Ci\u003Eit()\u003C\u002Fi\u003E. Разницы между такими вызовами нету. \u003Ci\u003Eit()\u003C\u002Fi\u003E это просто алиас на функцию \u003Ci\u003Etest()\u003C\u002Fi\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВнутри функции теста мы сначала вызываем \u003Ci\u003Eexpect()\u003C\u002Fi\u003E. Ему мы передаем значение, которое хотим проверить. В нашем случае, это результат вызова \u003Ci\u003EMath.max(1, 5, 10)\u003C\u002Fi\u003E. \u003Ci\u003Eexpect()\u003C\u002Fi\u003E возвращает объект «обертку», у которой есть ряд методов для сопоставления полученного значения с ожидаемым. Один из таких методов мы и использовали — \u003Ci\u003EtoBe\u003C\u002Fi\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДавайте разберем основные из этих методов:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoBe()\u003C\u002Fb\u003E — подходит, если нам надо сравнивать примитивные значения или является ли переданное значение ссылкой на тот же объект, что указан как ожидаемое значение. Сравниваются значения при помощи \u003Ci\u003EObject.is()\u003C\u002Fi\u003E. В отличие от === это дает возможность отличать 0 от -0, проверить равенство NaN c NaN.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoEqual()\u003C\u002Fb\u003E — подойдёт, если нам необходимо сравнить структуру более сложных типов. Он сравнит все поля переданного объекта с ожидаемым. Проверит каждый элемент массива. И сделает это рекурсивно по всей вложенности.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Etest('toEqual with objects', () =\u003E {\n    expect({ foo: 'foo', subObject: { baz: 'baz' } })\n        .toEqual({ foo: 'foo', subObject: { baz: 'baz' } });  \u002F\u002F Ок\n    expect({ foo: 'foo', subObject: { num: 0 } })\n        .toEqual({ foo: 'foo', subObject: { baz: 'baz' } });  \u002F\u002F А вот так ошибка.\n});\n\ntest('toEqual with arrays', () =\u003E {\n    expect([11, 19, 5]).toEqual([11, 19, 5]); \u002F\u002F Ок\n    expect([11, 19, 5]).toEqual([11, 19]); \u002F\u002F Ошибка\n});\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoContain()\u003C\u002Fb\u003E — проверят содержит массив или итерируемый объект значение. Для сравнения используется оператор ===.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Econst arr = ['apple', 'orange', 'banana'];\nexpect(arr).toContain('banana');\nexpect(new Set(arr)).toContain('banana');\nexpect('apple, orange, banana').toContain('banana');\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoContainEqual()\u003C\u002Fb\u003E — проверяет или содержит массив элемент с ожидаемой структурой.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eexpect([{a: 1}, {b: 2}]).toContainEqual({a: 1});\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoHaveLength()\u003C\u002Fb\u003E — проверяет или свойство length у объекта соответствует ожидаемому.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eexpect([1, 2, 3, 4]).toHaveLength(4);\nexpect('foo').toHaveLength(3);\nexpect({ length: 1 }).toHaveLength(1);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoBeNull()\u003C\u002Fb\u003E — проверяет на равенство с null.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoBeUndefined()\u003C\u002Fb\u003E — проверяет на равенство с undefined.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoBeDefined()\u003C\u002Fb\u003E — противоположность\u003Ci\u003E toBeUndefined\u003C\u002Fi\u003E. Проверяет или значение !== undefined.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoBeTruthy()\u003C\u002Fb\u003E — проверяет или в булевом контексте значение соответствует true. Тоесть любые значения кроме false, null, undefined, 0, NaN и пустых строк.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoBeFalsy()\u003C\u002Fb\u003E — противоположность \u003Ci\u003EtoBeTruthy()\u003C\u002Fi\u003E. Проверяет или в булевом контексте значение соответствует false.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoBeGreaterThan()\u003C\u002Fb\u003E и \u003Cb\u003EtoBeGreaterThanOrEqual()\u003C\u002Fb\u003E — первый метод проверяет или переданное числовое значение больше, чем ожидаемое \u003E, второй проверяет больше или равно ожидаемому \u003E=.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoBeLessThan()\u003C\u002Fb\u003E и \u003Cb\u003EtoBeLessThanOrEqual()\u003C\u002Fb\u003E — противоположность \u003Ci\u003EtoBeGreaterThan()\u003C\u002Fi\u003E и \u003Ci\u003EtoBeGreaterThanOrEqual()\u003C\u002Fi\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoBeCloseTo()\u003C\u002Fb\u003E — удобно использовать для чисел с плавающей запятой, когда вам не важна точность и вы не хотите, чтобы тест зависел от незначительной разницы в дроби. Вторым аргументом можно передать до какого знака после запятой необходима точность при сравнении.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Econst num = 0.1 + 0.2; \u002F\u002F 0.30000000000000004\nexpect(num).toBeCloseTo(0.3);\nexpect(Math.PI).toBeCloseTo(3.14, 2);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoMatch()\u003C\u002Fb\u003E — проверяет соответствие строки регулярному выражению.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eexpect('Banana').toMatch(\u002FBa\u002F);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EtoThrow()\u003C\u002Fb\u003E — используется в случаях, когда надо проверить исключение. Можно проверить как сам факт ошибки, так и проверить на выброс исключения определенного класса, либо по сообщению ошибки, либо по соответствию сообщения регулярному выражению.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Efunction funcWithError() {\n    throw new Error('some error');\n}   \nexpect(funcWithError).toThrow();\nexpect(funcWithError).toThrow(Error);\nexpect(funcWithError).toThrow('some error');\nexpect(funcWithError).toThrow(\u002Fsome\u002F);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003Enot\u003C\u002Fb\u003E — это свойство позволяет сделать проверки на НЕравенство. Оно предоставляет объект, который имеет все методы перечисленные выше, но работать они будут наоборот.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eexpect(true).not.toBe(false);\nexpect({ foo: 'bar' }).not.toEqual({});\n\nfunction funcWithoutError() {}\nexpect(funcWithoutError).not.toThrow();\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nДавайте напишем пару простых тестов. Для начала создадим простой модуль, который будет содержать несколько методов для работы с окружностями.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E\u002F\u002F src\u002Fcircle.js\nconst area = (radius) =\u003E Math.PI * radius ** 2;\nconst circumference = (radius) =\u003E 2 * Math.PI * radius;\nmodule.exports = { area, circumference };\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДалее добавим тесты:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E\u002F\u002F tests\u002Fcircle.test.js\nconst circle = require('..\u002Fsrc\u002Fcircle');\n\ntest('Circle area', () =\u003E {\n    expect(circle.area(5)).toBeCloseTo(78.54);\n    expect(circle.area()).toBeNaN();\n});\n\ntest('Circumference', () =\u003E {\n    expect(circle.circumference(11)).toBeCloseTo(69.1, 1);\n    expect(circle.circumference()).toBeNaN();\n});\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ этих тестах мы проверили результат работы 2-х методов — \u003Ci\u003Earea\u003C\u002Fi\u003E и \u003Ci\u003Ecircumference\u003C\u002Fi\u003E. При помощи метода \u003Ci\u003EtoBeCloseTo\u003C\u002Fi\u003E мы сверились с ожидаемым результатом. В первом случае мы проверили или вычисляемая площадь круга с радиусом 5 приблизительно равна 78.54, при этом разница с полученым значением (оно составит 78.53981633974483) не большая и тест будет засчитан. Во втором мы указали, что нас интересует проверка с точностью до 1 знака после запятой. Также мы вызвали наши методы без аргументов и проверили результат с помощью \u003Ci\u003EtoBeNaN\u003C\u002Fi\u003E. Поскольку результат их выполнения будет NaN, то и тесты будут пройдены успешно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРазберём ещё один пример. Создадим функцию, которая будет фильтровать массив продуктов по цене:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E\u002F\u002F src\u002FproductFilter.js\nconst byPriceRange = (products, min, max) =\u003E\n         products.filter(item =\u003E item.price \u003E= min &amp;&amp; item.price &lt;= max);\nmodule.exports = { byPriceRange };\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nИ добавим тест:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E\u002F\u002F tests\u002Fproduct.test.js\nconst productFilter = require('..\u002Fsrc\u002FproducFilter');\n\nconst products = [\n    { name: 'onion', price: 12 },\n    { name: 'tomato', price: 26 },\n    { name: 'banana', price: 29 },\n    { name: 'orange', price: 38 }\n];\n\ntest('Test product filter by range', () =\u003E {\n    const FROM = 15;\n    const TO = 30;\n    const filteredProducts = productFilter.byPriceRange(products, FROM, TO);\n\n    expect(filteredProducts).toHaveLength(2);\n    expect(filteredProducts).toContainEqual({ name: 'tomato', price: 26 });\n    expect(filteredProducts).toEqual([{ name: 'tomato', price: 26 }, { name: 'banana', price: 29 }]);\n    expect(filteredProducts[0].price).toBeGreaterThanOrEqual(FROM);\n    expect(filteredProducts[1].price).toBeLessThanOrEqual(TO);\n    expect(filteredProducts).not.toContainEqual({ name: 'orange', price: 38 });\n});\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ этом тесте мы проверям результат работы функии \u003Ci\u003EbyRangePrice\u003C\u002Fi\u003E. Сначала мы проверили соответствие длины полученого массива ожидаемой — 2. Следующая проверка требует, чтобы в массиве находился элемент — { name: 'tomato', price: 26 }. Объект в массиве и объект переданный \u003Ci\u003EtoContainEqual\u003C\u002Fi\u003E — это два разных объекта, а не ссылка на один и тот же. Но \u003Ci\u003EtoContainEqual\u003C\u002Fi\u003E сверит каждое свойство. Так как оба объекта идентичные — проверка пройдет успешно. Далее мы используем \u003Ci\u003EtoEqual\u003C\u002Fi\u003E для провеки структуры всего массива и его элементов. Методы \u003Ci\u003EtoBeGreaterThanOrEqual\u003C\u002Fi\u003E и \u003Ci\u003EtoBeLessThanOrEqual\u003C\u002Fi\u003E помогут нам проверить price первого и второго элемента массива. И, наконец, вызов \u003Ci\u003Enot.toContainEqual\u003C\u002Fi\u003E сделает проверку, не содержится ли в массиве элемент — { name: 'orange', price: 38 }, которого по условию там быть не должно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ данных примерах мы написали несколько простых тестов используя функции проверки описанные выше. В следующих частях мы разберём работу с асинхронным кодом, функции jest которые не затрагивались в этой части туториала, поговорим о его настройке и многое другое.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"javascript"},{"titleHtml":"testing"},{"titleHtml":"jest"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F502302\u002F11470e9c4df634cbe2b54fcf7d9f4952\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F502302\u002F11470e9c4df634cbe2b54fcf7d9f4952\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F502302\\\u002F\"},\"headline\":\"Тестирование JavaScript кода с Jest для чайников. Часть 1\",\"datePublished\":\"2020-05-16T16:19:16+03:00\",\"dateModified\":\"2020-05-18T09:30:05+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"AlexGoryny4\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Здравствуй, Хабр! Данное руководство является первой частью в запланированном цикле статей про такой замечательный фреймворк для тестирования как Jest. Материал...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F502302\\\u002F#post-content-body\",\"about\":[\"h_javascript\",\"h_web_testing\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F502302\\\u002F11470e9c4df634cbe2b54fcf7d9f4952\\\u002F\"]}","metaDescription":"Здравствуй, Хабр! Данное руководство является первой частью в запланированном цикле статей про такой замечательный фреймворк для тестирования как Jest. Материал будет полезен новичкам и тем, кто...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"React разработчик","vacanciesCount":276,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Freact_razrabotchik","itemHubs":["javascript","reactjs"]},{"title":"JavaScript разработчик","vacanciesCount":554,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fprogrammist_javascript","itemHubs":["javascript","reactjs","nodejs","typescript","vuejs","angular","sveltejs"]}],"hubs":"javascript,web_testing"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>URI — сложно о простом (Часть 1) / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/232385\/"},"headline":"URI — сложно о простом (Часть 1)","datePublished":"2015-07-12T01:33:43+03:00","dateModified":"2016-04-27T14:27:36+03:00","author":{"@type":"Person","name":"Зиновьев Антон"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Привет хабр!  Появилось таки некоторое количество времени, и я решил написать сий пост, идея которого возникла уже давно. Связан он будет будет с такой, казало...","url":"https:\/\/habr.com\/ru\/post\/232385\/#post-content-body","about":["h_webdev","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/232385\/c7ed1939bca0577c6d0e6c524ef77d82\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="URI — сложно о простом (Часть 1)" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="URI — сложно о простом (Часть 1)" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="URI — сложно о простом (Часть 1)" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Привет хабр!
+
+Появилось таки некоторое количество времени, и я решил написать сий пост, идея которого возникла уже давно.
+Связан он будет будет с такой, казалось бы, простой вещью, как URI,..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Привет хабр!
+
+Появилось таки некоторое количество времени, и я решил написать сий пост, идея которого возникла уже давно.
+Связан он будет будет с такой, казалось бы, простой вещью, как URI,..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Привет хабр!
+
+Появилось таки некоторое количество времени, и я решил написать сий пост, идея которого возникла уже давно.
+Связан он будет будет с такой, казалось бы, простой вещью, как URI,..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Привет хабр!
+
+Появилось таки некоторое количество времени, и я решил написать сий пост, идея которого возникла уже давно.
+Связан он будет будет с такой, казалось бы, простой вещью, как URI,..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Привет хабр!
+
+Появилось таки некоторое количество времени, и я решил написать сий пост, идея которого возникла уже давно.
+Связан он будет будет с такой, казалось бы, простой вещью, как URI,..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/232385/c7ed1939bca0577c6d0e6c524ef77d82/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/232385/c7ed1939bca0577c6d0e6c524ef77d82/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/232385/c7ed1939bca0577c6d0e6c524ef77d82/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/232385/c7ed1939bca0577c6d0e6c524ef77d82/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/232385/c7ed1939bca0577c6d0e6c524ef77d82/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="232385" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2015-07-11T22:33:43.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/232385/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="URL, URI, URN, IRI, гиперссылки, ссылки, домены">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/232385/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.14.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/232385/c7ed1939bca0577c6d0e6c524ef77d82/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/xobotyi/" title="xobotyi" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/e26/0ce/a33/e260cea33b562cf53d300d7c14694f73.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/xobotyi/" class="tm-user-info__username">
+      xobotyi
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2015-07-11T22:33:43.000Z" title="2015-07-12, 01:33">12  июля  2015 в 01:33</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>URI — сложно о простом (Часть 1)</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><img src="https://habrastorage.org/r/w780q1/files/bd4/4cc/c3e/bd44ccc3e6df448e952967572648d0d3.jpg" alt="image" data-src="https://habrastorage.org/files/bd4/4cc/c3e/bd44ccc3e6df448e952967572648d0d3.jpg" data-blurred="true"/><br/>
+<br/>
+Привет хабр!<br/>
+<br/>
+Появилось таки некоторое количество времени, и я решил написать сий пост, идея которого возникла уже давно.<br/>
+Связан он будет будет с такой, казалось бы, простой вещью, как URI, детальному рассмотрению которой в рунете уделяется как-то мало внимания.<br/>
+<br/>
+"<i>Пфф, ссылки они и в Африке ссылки, чего тут разбираться?</i>" — скажете вы, тогда я задам вопрос: <br/>
+<br/>
+<i>Что есть что и куда нас приведет?</i><br/>
+<ul>
+<li><code>http://example.com</code></li>
+<li><code>www.example.com</code></li>
+<li><code>//www.example.com</code></li>
+<li><code>mailto:user@example.com</code></li>
+</ul><br/>
+Если вы не знаете однозначного ответа или вам просто интересно <s>и если вы не боитесь огромного количества трехбуквенных аббревиатур</s> — милости прошу под кат.<br/>
+<a name="habracut"></a><br/>
+<br/>
+Перед тем как начать хотел бы обозначить, что есть <a href="http://habrahabr.ru/post/190154/">пост</a> на схожую тему, в котором все обозначено проще и немного понятнее. Целью же этого поста, я ставлю более глубокое изучение вопроса и сбор информации об URI в одном месте, дабы «не потерять». Ну, почти в одном месте, статья будет разделена на две части<br/>
+А для удобства бахнем оглавление, которое работает не без особенностей URI, которую мы рассмотрим попозжа, в этой статье.<br/>
+<br/>
+<u><b>ОГЛАВЛЕНИЕ</b></u><br/>
+<ol>
+<li><a href="index.html.1.14.html#uri">URI</a><br/>
+ 1.1. <a href="index.html.1.14.html#uri_syntax">Синтаксис</a><br/>
+ 1.2. <a href="index.html.1.14.html#uri_components">Компоненты URI</a><br/>
+ </li>
+<li><a href="index.html.1.14.html#url">URL</a><br/>
+ 2.1. <a href="index.html.1.14.html#url_structure">Структура</a></li>
+<li><a href="index.html.1.14.html#urn">URN</a><br/>
+ 3.1. <a href="index.html.1.14.html#urn_structure">Структура</a></li>
+</ol><br/>
+<br/>
+<h2>Ознакомление</h2><br/>
+<a name="uri"></a><h3><acronym><b>1. URI</b></acronym></h3><br/>
+<i>Унифицированный Идентификатор Ресурса</i>, в простонародье — <b>URI</b><br/>
+Самое свежее описание того, чем же все-таки являются эти пресловутые URI датируется январем аж 2005-го, а именно <a href="http://www.ietf.org/rfc/rfc3986">RFC3986</a>, написанный самим Тимом Бёнесом-Ли, родоначальника всеми нами любимого <i>тырнета</i>.<br/>
+Резюмируя п.1.1 можно сформулировать определение:<br/>
+<br/>
+<i><b>URI</b> — последовательность символов, идентифицирующая физический или абстрактный ресурс, который не обязательно должен быть доступен через сеть Интернет, причем, тип ресурса, к которому будет получен доступ, определяется контекстом и/или механизмом.</i><br/>
+<i>Например:</i><br/>
+<ul>
+<li>перейдя по <code>http://example.com</code> — мы попадем на http-сервер ресурса идентифицируемого как <code>example.com</code></li>
+<li>в то же время <code>ftp://example.com</code> — приведет наc на ftp-сервер того же самого ресурса</li>
+<li>или например <code>http://localhost/</code> — URI идентифицирующий саму машину откуда производится доступ</li>
+</ul><br/>
+В современном интернете, чаще всего используется две разновидности <code>URI</code> — <code>URL</code> и <code>URN</code>.<br/>
+Основное различие между ними — в задачах:<br/>
+<ul>
+<li><b>URL</b> — <i>Uniform Resource Locator</i>, помогает найти какой либо ресурс</li>
+<li><b>URN</b> — <i>Uniform Resource Name</i>, помогает этот ресурс идентифицировать</li>
+</ul><br/>
+Упрощая: <code>URL</code> — отвечает на вопрос: «Где и как найти что-то?», <code>URN</code> — отвечает на вопрос: «Как это что-то идентифицировать».<br/>
+<div class="spoiler"><b class="spoiler_title">Парочка интересностей про URI</b><div class="spoiler_text">Многие из вас замечали, что на разных ресурсах ссылки называют то URL, то URI и, вероятно, становилось интересно — какой же из вариантов правильный?<br/>
+Дело в том, что URL увидел свет и был документирован в 1990 году, в то время как URI был документирован лишь в 1994 году. И вплоть до 2002 года, до выхода <a href="http://www.ietf.org/rfc/rfc3305">RFC3305</a>, уместными были оба варианта именования, что, порой вносило путаницу.<br/>
+В п.2 RFC3305 сообщается об устаревании такого термина как URL, применимо к ссылкам, и что отныне верным будет именование URI, с того момента, во всех документах W3C использует термин URI. Исходя из этого, применяя термин URL к соответствующим ссылкам, вы не делаете смысловой ошибки, но делаете ее с точки зрения правильного именования.<br/>
+<br/>
+Так же примечателен тот момент, что вплоть до выхода <a href="http://www.ietf.org/rfc/rfc2396">RFC2396</a>, в 1997 году, URI расшифровывался как <i>Universal</i> Resource Identifier, что можно увидеть в <a href="http://www.ietf.org/rfc/rfc2396">RFC1630</a></div></div><br/>
+<br/>
+Обобщая всевозможные варианты, URI имеет следующий вид:<br/>
+<img src="https://habrastorage.org/r/w780q1/files/3ae/693/45e/3ae69345e59b4fc48d344c20cc554d60.jpg" data-src="https://habrastorage.org/files/3ae/693/45e/3ae69345e59b4fc48d344c20cc554d60.jpg" data-blurred="true"/><br/>
+Забегая вперед, стоит отметить, что не все три компоненты являются строго обязательными. Для того чтобы ссылка считалась URI необходимо наличие:<br/>
+<ul>
+<li>либо <code>scheme+authority+path</code>,</li>
+<li>либо <code>sheme+path</code>,</li>
+<li>либо только <code>path</code>.</li>
+</ul><br/>
+<br/>
+<a name="uri_syntax"></a><h4>1.1. Синтаксис</h4><br/>
+Согласно п.2 <a href="http://www.ietf.org/rfc/rfc3986">RFC3986</a>:<br/>
+<blockquote>URI составлен из ограниченного набора символов, состоящих из цифр, букв и нескольких графических символов, все эти символы вписываются в кодировку US-ASCII (ASCII). Зарезервированное подмножество символов может использоваться, чтобы разграничить компоненты синтаксиса в URI, в то время как остающиеся символы: не зарезервированный набор и включая те зарезервированные символы, которые не действуют как разделители в данной компоненте URI, определяют данные идентификации каждого компонента.</blockquote><br/>
+<h5>Зарезервированные символы</h5>Зарезервированные символы делятся на два типа:<br/>
+<ul>
+<li><i>gen-delims</i>, они же «главные разделители», т.е. символы, разделяющие URI на крупные компоненты. <blockquote><pre><code class="html"> ":", "/", "?", "#", "[", "]", "@"</code></pre></blockquote></li>
+<li><i>sub-delims</i>, они же «под разделители» — символы, которые разделяют текущую крупную компоненту, на более мелкие составляющие, для каждой компоненты они свои, вот список самых распространенных:<blockquote><pre><code class="html"> "!", "$", "&amp;", "'", "(", ")", "*", "+", ",", ";", "="</code></pre></blockquote></li>
+</ul><br/>
+<h5>Не зарезервированные символы</h5>Исходя из предыдущего пункта, не зарезервированные символы — символы, не входящие в <code>gen-delims</code>, а так же не значимые для данной компоненты <code>sub-delims</code>. Но в общем случае это:<blockquote><pre><code class="html">ALPHA, DIGIT, "-", ".", "_", "~"</code></pre>Для данного случая, согласно <a href="http://en.wikipedia.org/wiki/Augmented_Backus–Naur_Form"><acronym>ABNF</acronym></a>:<br/>
+<code>ALPHA</code> — любая буква верхнего и нижнего регистров кодировки ASCII (в regExp [A-Za-z])<br/>
+<code>DIGIT</code> — любая цифра (в regExp [0-9])<br/>
+<code>HEXDIG</code> — шестнадцатиричная цифра (в regExp [0-9A-F])</blockquote><br/>
+<h5>Процентное кодирование</h5>В случае, если используются символы выходящие за пределы кодировки ASCII используется механизм т.н. "<abbr title="percent-encoding">Процентного кодирования</abbr>". Так же он применяется для передачи зарезервированных символов в составе данных. Зарезервированные символы, по правилам, не участвуют в процентном кодировании.<br/>
+Процентно-кодированный символ представляет из себя символьный триплет, состоящий из знака "%" и следующих за ним двух шестнадцатиричных чисел:<br/>
+<blockquote><pre><code class="html">pct-encoded = "%" HEXDIG HEXDIG</code></pre></blockquote>Т.о., %20, например, означает пробел.<br/>
+<br/>
+<a name="uri_components"></a><h4>1.2. Компоненты URI</h4><br/>
+Следующий список содержит описания крупных компонент, составляющих URI:<br/>
+<ul>
+<li><b>Scheme (схема)</b><br/>
+Каждый URI начинается с имени схемы, которое относится к спецификации для присвоения идентификаторов в этой схеме. Также, синтаксис URI — объединенная и расширяемая система именования, причем, спецификация каждой схемы может далее ограничить синтаксис и семантику идентификаторов, использующих эту схему.<br/>
+Название схемы обязательно начинается с буквы и далее может быть продолжено любым количеством разрешенных символов.<br/>
+<u>Разрешенные символы для схемы:</u><br/>
+<blockquote><pre><code class="html">ALPHA, DIGIT, "+", "-", "."</code></pre></blockquote></li>
+<li><b>Authority</b><i> (честно говоря, не знаю как перевести слово на русский, без потери смысла)</i><br/>
+Компонента authority начинается с двойного слеша(//) и заканчивается следующим слешем(/), знаком вопроса(?) или октоторпом(#)(да-да, «решеточка» зовется именно так=)) или концом URI<br/>
+Authority состоит из:<br/>
+<blockquote><pre><code class="html">[ userinfo "@" ] host [ ":" port ]</code></pre>где в квадратных скобках опциональные компоненты</blockquote>Каждую из подкомпонент, отдельно, мы рассмотрим чуть позже, в разделе посвященном URL.<br/>
+</li>
+<li><b>Path (Путь)</b><br/>
+Компонента пути содержит данные, обычно, организованные в иерархической форме, которые, вместе с данными в неиерархическом компоненте запроса (Query), служит, чтобы идентифицировать ресурс в рамках схемы URI и authority (если таковая компонента указана). <br/>
+Путь начинается со слеша(/) и заканчивается знаком вопроса(?), октоторпом(#) или концом URI<br/>
+<u>Разрешенные символы для пути:</u><br/>
+<blockquote><pre><code class="html">Не зарезервированные, процентно-кодированные, sub-delims, ":", "@"</code></pre></blockquote></li>
+<li><b>Query (Запрос)</b><br/>
+Компонента запроса содержит данные, организованные в неиерархической форме, которые, вместе с данными в иерархическом компоненте пути (Path), служит, чтобы идентифицировать ресурс в рамках схемы URI и authority (если таковая компонента указана). <br/>
+Запрос начинается с первого знака вопроса(?) и заканчивается октоторпом(#) или концом URI<br/>
+<u>Разрешенные символы для запроса:</u><br/>
+<blockquote><pre><code class="html">Не зарезервированные, процентно-кодированные, sub-delims, ":", "@", "/", "?"</code></pre></blockquote>В запросе чаще всего передаются данные в формате key=value (ключ=значение), значение рекомендуется передавать в процентно-кодированном виде, обусловлено это тем, что в значении может встретиться символ "&amp;", который используется для разделения пар ключ-значение, в результате появления такого артефакта дальнейшая последовательность пар ключ-значение может быть нарушена.</li>
+<li><b>Fragment (Фрагмент)</b><br/>
+Компонента фрагмент позволяет осуществить косвенную идентификацию вторичного ресурса по отношению к первому.<br/>
+Семантика фрагмента никак не ограничена, фрагмент начинается октоторпом(#) и заканчивается концом URI, при этом может состоять из абсолютно любого набора символов.<br/>
+Примером применения фрагментов является оглавление данной статьи. Оно состоит из относительных ссылок <br/>
+<pre><code class="html">&lt;a href="#someanchor">&lt;/a></code></pre>а по статье, в определенных местах, раскиданы т.н. «якоря» — теги <pre><code class="html">&lt;anchor>someanchor&lt;/anchor></code></pre><br/>
+<br/>
+Переходя по указанной в оглавлении ссылке, браузер производит переход ко вторичному ресурсу относительно данной страницы, т.е. скроллит вниз, до появления нужного <pre><code class="html">&lt;anchor></code></pre> на экране.</li>
+</ul><br/>
+На этом, пожалуй, знакомство с URI можно закончить и начать углубляться в отдельные подвиды URI, а именно<br/>
+<br/>
+<a name="url"></a><h3><acronym><b>2. URL</b></acronym></h3><br/>
+Стандарт URL документирован в <a href="http://www.ietf.org/rfc/rfc1738">RFC1738</a>.<br/>
+Из п.2:<br/>
+<blockquote>URL используются, чтобы определить местоположение ресурсов, обеспечивая абстрактную идентификацию расположения ресурса. Определив местоположение ресурса, система может выполнить множество операций на ресурсе, которые могут быть характеризованы такими словами как 'доступ', 'обновление', 'замена', 'поиск атрибутов'. В целом только метод доступа должен быть определен для любой схемы URL.</blockquote>Т. о.: URL призван решить широкий ряд задач, начиная с получения и заканчивая изменением данных на ресурсе, а обязательным параметром для получения доступа — является метод, т. е. любой полноценный (абсолютный) URL можно свести к виду:<br/>
+<blockquote><pre><code class="html">&lt;scheme>:&lt;часть свойственная этой схеме></code></pre></blockquote><br/>
+<a name="url_structure"></a><h4>2.1. Структура</h4><br/>
+В целом, URL имеет схожую структуру, для всех схем, хотя для каждой отдельно взятой схемы, структура может отличаться от общего шаблона.<br/>
+Графически ее можно выразить в следующем виде:<br/>
+<img src="https://habrastorage.org/r/w780q1/files/373/2b3/3fd/3732b33fd43043049c18e3c108bc9d1a.jpg" data-src="https://habrastorage.org/files/373/2b3/3fd/3732b33fd43043049c18e3c108bc9d1a.jpg" data-blurred="true"/><br/>
+<br/>
+И вот, примерно на этом моменте, можно рассмотреть различия между абсолютными (absolute) и относительными (relative) URL, данные определения распространяются не только на URL, но и на URI в целом.<br/>
+<ul>
+<li><b>Относительная ссылка</b> использует иерархический синтаксис, чтобы выразить ссылку URI относительно пространства имен другого иерархического URI.<br/>
+Относительные ссылки так же делятся на несколько подвидов:<br/>
+<ul>
+<li><b><i>Ссылка сетевого пути</i></b><br/>
+Имеет вид:<blockquote><pre><code class="html">//&lt;authority> &lt;path> [&lt;query>] [&lt;fragment>]</code></pre></blockquote>Такой тип ссылок применяется не часто, смысл заключается в переходе по указанной ссылке с применением текущей схемы.<br/>
+Т. е.: находясь, например на <code>http://example.com</code> и перейдя по ссылке <code>//domain.com</code> — мы попадем на <code>http://domain.com</code><br/>
+А в случае если перейдем по той же ссылке с <code>ftp://example.com</code>, то попадем на <code>ftp://domain.com</code></li>
+<li><b>Ссылка абсолютного пути</b><br/>
+Имеет вид:<blockquote><pre><code class="html">/&lt;path> [&lt;query>] [&lt;fragment>]</code></pre></blockquote>На этот раз мы останемся в пределах текущего хоста, но попадем по пути path в любом случае, по какому бы пути мы сейчас не находились.<br/>
+Т. е.: даже находясь на <code>http://example.com/just/some/long/path</code> и перейдя по ссылке <code>/path</code>, мы попадем на <code>http://example.com/path</code></li>
+<li><b>Ссылка относительного пути</b><br/>
+Имеет вид:<blockquote><pre><code class="html">&lt;path> [&lt;query>] [&lt;fragment>]</code></pre></blockquote>Теперь же, мы будем перемещаться в пределах текущего положения.<br/>
+Т. е.: находясь на <code>http://example.com/just/some/long/path</code> и перейдя по ссылке <code>path</code>, мы попадем на <code>http://example.com/just/some/long/path/path</code></li>
+<li><b>Ссылка того же документа</b><br/>
+Фактически это ссылки, состоящие только из фрагментарной части URI, либо же ссылки, у которых все компоненты за исключением фрагментарной совпадают с исходной.<br/>
+Т.е. <code>#fragment</code> и <code>http://habrahabr.ru/topic/232385/#fragment</code> являются ссылками того же документа.<br/>
+</li>
+</ul><br/>
+</li>
+<li><b>Абсолютная ссылка</b> — ссылка вида<br/>
+<blockquote><pre><code class="html">&lt;scheme> &lt;authority> [&lt;path>] [&lt;query>] [&lt;fragment>]</code></pre></blockquote>Применяя абсолютные ссылки, мы будем попадать на нужный нам ресурс вне зависимости от того, откуда мы переходим.<br/>
+Т. е.: находись мы на <code>http://example.com/just/some/long/path</code> или же на <code>ftp://example.com</code>, перейдя по <code>http://domain.com/path</code>, мы в любом случае попадем на <code>http://domain.com/path</code><br/>
+</li>
+</ul><br/>
+После того, как мы разобрались с тем, что же такое относительные и абсолютные пути — можно отвечать на вопрос заданный в начале поста:<br/>
+<ul>
+<li><a href="http://example.com">http://example.com</a> — откроет <code>http://example.com</code></li>
+<li><a href="http://www.example.com">www.example.com</a> — по-идее должен открыть <code>http://habrahabr.ru/topic/232385/www.example.com</code>, но хабр сам исправляет ссылку, хотя по стандартам <code>www.example.com</code> — ссылка относительного пути</li>
+<li><a href="https://www.example.com/">//www.example.com</a> — откроет <code>www.example.com</code> со схемой с которой вы просматриваете текущую страницу, т.е. скорее всего будет открыт <code>http://example.com</code></li>
+<li><a href="mailto:user@example.com">mailto:user@example.com</a> — здесь уже вступают в силу настройки браузера, он предложит вам открыть эту ссылку при помощи почтовой программы и отправить электронное письмо адресату <code>user@example.com</code>, а так, это абсолютный URL со схемой <code>mailto</code></li>
+</ul><br/>
+Мы уже рассмотрели крупные компоненты, а теперь давайте углубимся в детали построения URL.<br/>
+<ul>
+<li><b>Scheme</b> — как говорилось ранее: схема определяет метод доступа к ресурсу. Список актуальных схем можно посмотреть <a href="http://en.wikipedia.org/wiki/URI_scheme">тут</a>.</li>
+<li><b>Userinfo</b> — под-компонент authority, использующийся для авторизации пользователя на ресурсе. Состоит из username и необязательного password, от остальной части authority отделяется символом "<code>@</code>". Не смотря на то, что параметр password указан в спецификации, его использование крайне не рекомендуется, т. к. фактически производится передача пароля к учетной записи username, в незашифрованном виде. <br/>
+Разрешенные символы:<blockquote><pre><code class="html">Не зарезервированные, процентно-кодированные, sub-delims, ":"</code></pre></blockquote><br/>
+<u>Пример</u> можно привести следующий:<br/>
+На локалке есть папка test, на которую стоит доступ по паре логин-пароль. То есть, перейдя по<code> http://localhost/test/</code>, я увижу следующее:<img src="https://habrastorage.org/r/w1560/files/03a/f27/35d/03af2735da5f4b6cbb95c057cde4aca3.png" data-src="https://habrastorage.org/files/03a/f27/35d/03af2735da5f4b6cbb95c057cde4aca3.png"/><br/>
+А если я перейду по ссылке <code>http://admin:admin@localhost/test/</code>, то процедура авторизации произойдет автоматически, с данными указанными в блоке userinfo:<br/>
+<img src="https://habrastorage.org/r/w1560/files/391/519/9dc/3915199dc40b4f98b8be5539ffbba560.png" data-src="https://habrastorage.org/files/391/519/9dc/3915199dc40b4f98b8be5539ffbba560.png"/></li>
+<li><b>Host</b> — компонент authority, использующийся для определения целевого узла (или ресурса, если угодно, но понятие «узел» будет более точным), который может находиться как в сети интернет, так и вне её, в зависимости от указанной схемы. Данная компонента не чувствительна к регистру.<br/>
+Хост может представлять из себя либо IP-адрес, либо регистрационное имя (reg-name) и, опционально, следующий за ними порт(port).<br/>
+Предусматривается как поддержка существующих форматов IP-адресов (IPv4, IPv6), так и всевозможных будущих, которые будут описаны впоследствии.<br/>
+ <i><u>Регистрационное имя</u> — привычные нам, т. н. доменные имена — последовательность символов, обычно предназначенных для поиска в локально определенном узле или реестре имени службы, хотя специфичная для схемы семантика URI может потребовать, чтобы вместо этого использовался определенный реестр (или фиксированная таблица имен).</i><br/>
+Наиболее распространенный механизм реестра имен — Система Доменных Имен (DNS).<br/>
+Доменное имя, используемое для поиска в DNS, состоит из доменных меток, разделенных при помощи ".", каждая доменная метка может содержать следующие символы:<blockquote><pre><code class="html">Не зарезервированные, процентно-кодированные, sub-delims</code></pre></blockquote>Синтаксис регистрационного имени позволяет использование процентно-кодированных символов, для представления не-ASCII символов, в едином порядке, не зависящем от технологии разрешения имен. Символы, не входящие в ASCII, должны быть сначала закодированы в UTF-8, а затем каждый <abbr title="8 двоичных разрядов, оно же байт">октет</abbr> UTF-8 последовательности должен быть процентно закодирован.<br/>
+В случае, если регистрационное имя с не-ASCII символами представляет собой многоязычное доменное имя, разрешаемое через DNS, оно должно быть преобразовано в кодировку IDNA (<a href="http://www.ietf.org/rfc/rfc3490">RFC3490</a>) до поиска имени и, как следствие, регистраторами доменных имен такие регистрационные имена должны предоставляться в кодировке IDNA.<br/>
+<i><u>Port (Порт)</u></i> — десятичный номер порта, отделяется от hostname одним двоеточием ":", может состоять только из цифр. Схема может определять порт по-умолчанию, который будет использоваться в случае если порт не указан. Например, для схемы HTTP порт по-умолчанию — 80, что соответствует зарезервированному под неё порту 80/TCP. Тип порта, так же как и назначенный номер порта, определяется схемой.</li>
+<li>Компоненты Запрос и Фрагмент полностью описаны ранее.</li>
+</ul><br/>
+<br/>
+<a name="urn"></a><h3><acronym><b>3. URN</b></acronym></h3><br/>
+Стандарт URN документирован в <a href="http://www.ietf.org/rfc/rfc2141">RFC2141</a>.<br/>
+Из п.1:<br/>
+<blockquote>Унифицированные имена ресурсов (URN) предназначены, чтобы служить постоянными, независимыми от расположения, идентификаторами ресурсов и разработаны для упрощения отображения других пространств имен (которые совместно используют свойства URN) в URN-пространство. Таким образом, синтаксис URN обеспечивает средство закодировать символьные данные в форме, которая может быть отправлена посредством существующих протоколов, записана при помощи большинства клавиатур, и т.д.</blockquote>Т. е., в отличие от URL, который ссылается на како-то место, где хранится документ, URN ссылается на сам документ, и при перемещении документа в другое место ссылка не изменится.<br/>
+В силу того, что URN концептуально отличается от URL, то и система разрешения имен у него другая — <abbr title="Dynamic Delegation Discovery System">DDDS</abbr>, которая преобразует URN в URL, по которым можно найти ресурс/объект или что бы то ни было, на что ссылается URN.<br/>
+<br/>
+<a name="urn_structure"></a><h4>3.1. Структура</h4><br/>
+URN имеет следующий вид:<br/>
+<blockquote><pre><code class="html">"urn:" &lt;NID> ":" &lt;NSS></code></pre></blockquote><br/>
+<ul>
+<li><b>«urn:»</b> — обязательная, регистронезависимая часть URN</li>
+<li><b>NID</b> — Namespace Identifier, данная компонента определяет синтаксическую интерпретацию компоненты NSS.<br/>
+Минимальная длина — 2 символа, максимальная — 32, разрешенные символы:<br/>
+<blockquote><pre><code class="html">латинские буквы, цифры, "-"</code></pre></blockquote>NID должен начинаться только с буквы или цифры. <br/>
+Так же, слово «urn» для NID является зарезервированным, дабы избежать неоднозначности при определении URN в целом.<br/>
+Список официально зарегистрированных NID можно посмотреть <a href="http://www.iana.org/assignments/urn-namespaces/urn-namespaces.xhtml">тут</a></li>
+<li><b>NSS</b> — Namespace Specific String, эта компонента служит непосредственно для передачи каких-либо данных.<br/>
+<u>Разрешенные символы</u>:<br/>
+<blockquote><pre><code class="html">латинские буквы, цифры, процентно-кодированные, "(", ")", "+", ",", "-", ".", ":", "=", "@", ";", "$", "_", "!", "*", "'"</code></pre></blockquote><u>Зарезервированные символы</u>:<br/>
+<blockquote><pre><code class="html">"%", "/", "?", "#"</code></pre></blockquote><u>Запрещенные символы</u> должны быть процентно-кодированы. Если указанный символ встретится в явном виде, его позиция будет считаться концом URN:<br/>
+<blockquote><pre><code class="html">октеты 0-32 (0-20 hex), "\", """, "&amp;", "&lt;", ">", "[", "]", "^", "`", "{", "|", "}", "~", октеты 127-255 (7F-FF hex)</code></pre></blockquote></li>
+</ul><u><h5>Самоидентифицирующийся URN</h5></u>Такие URN содержат в NID название хэш-функции, а в NSS значение хэша, вычисленного для идентифицируемого объекта. Такие ссылки используются в magnet-ссылках и заголовках p2p-сети Gnutela2.<br/>
+Например, URN из magnet-ссылки с одного торрент-трекера:<br/>
+<code>magnet:?xt=urn:btih:c68abc1ba9b8c7c4bc373862cad1a8c01d69e53d...</code><br/>
+<br/>
+С теорией все, во второй части рассмотрим, что можно и что нужно делать с URI, если мы их обрабатываем, а именно — нормализация, разбор и т.д.<br/>
+<br/>
+За сим откланяюсь, спасибо что читали, надеюсь не было скучно, удачи!</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BURL%5D" class="tm-tags-list__link">URL</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BURI%5D" class="tm-tags-list__link">URI</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BURN%5D" class="tm-tags-list__link">URN</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BIRI%5D" class="tm-tags-list__link">IRI</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B3%D0%B8%D0%BF%D0%B5%D1%80%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B8%5D" class="tm-tags-list__link">гиперссылки</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B8%5D" class="tm-tags-list__link">ссылки</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B4%D0%BE%D0%BC%D0%B5%D0%BD%D1%8B%5D" class="tm-tags-list__link">домены</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 80: ↑77 и ↓3</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 80: ↑77 и ↓3" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+74</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">225K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    896
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/xobotyi/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/e26/0ce/a33/e260cea33b562cf53d300d7c14694f73.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 43 голоса " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    33
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Зиновьев Антон</span> <a href="https://habr.com/ru/users/xobotyi/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @xobotyi
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Веб-разработчик</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/232385/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 47 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner3426" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner3427" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/232385/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/232385/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"232385":{"id":"232385","timePublished":"2015-07-11T22:33:43+00:00","isCorporative":false,"lang":"ru","titleHtml":"URI — сложно о простом (Часть 1)","leadData":{"textHtml":"\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002Fbd4\u002F4cc\u002Fc3e\u002Fbd44ccc3e6df448e952967572648d0d3.jpg\" alt=\"image\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПривет хабр!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоявилось таки некоторое количество времени, и я решил написать сий пост, идея которого возникла уже давно.\u003Cbr\u002F\u003E\r\nСвязан он будет будет с такой, казалось бы, простой вещью, как URI, детальному рассмотрению которой в рунете уделяется как-то мало внимания.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n&quot;\u003Ci\u003EПфф, ссылки они и в Африке ссылки, чего тут разбираться?\u003C\u002Fi\u003E&quot; — скажете вы, тогда я задам вопрос: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ci\u003EЧто есть что и куда нас приведет?\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ccode\u003Ehttp:\u002F\u002Fexample.com\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Ewww.example.com\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E\u002F\u002Fwww.example.com\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Emailto:user@example.com\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nЕсли вы не знаете однозначного ответа или вам просто интересно \u003Cs\u003Eи если вы не боитесь огромного количества трехбуквенных аббревиатур\u003C\u002Fs\u003E — милости прошу под кат.\u003Cbr\u002F\u003E\r\n","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":33,"votesCount":43},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"738799","alias":"xobotyi","fullname":"Зиновьев Антон","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002Fe26\u002F0ce\u002Fa33\u002Fe260cea33b562cf53d300d7c14694f73.jpg","speciality":"Веб-разработчик"},"statistics":{"commentsCount":47,"favoritesCount":896,"readingCount":224689,"score":74,"votesCount":80},"hubs":[{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Ffiles\u002Fbd4\u002F4cc\u002Fc3e\u002Fbd44ccc3e6df448e952967572648d0d3.jpg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002Fbd4\u002F4cc\u002Fc3e\u002Fbd44ccc3e6df448e952967572648d0d3.jpg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПривет хабр!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоявилось таки некоторое количество времени, и я решил написать сий пост, идея которого возникла уже давно.\u003Cbr\u002F\u003E\r\nСвязан он будет будет с такой, казалось бы, простой вещью, как URI, детальному рассмотрению которой в рунете уделяется как-то мало внимания.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\"\u003Ci\u003EПфф, ссылки они и в Африке ссылки, чего тут разбираться?\u003C\u002Fi\u003E\" — скажете вы, тогда я задам вопрос: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ci\u003EЧто есть что и куда нас приведет?\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ccode\u003Ehttp:\u002F\u002Fexample.com\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Ewww.example.com\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E\u002F\u002Fwww.example.com\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Emailto:user@example.com\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nЕсли вы не знаете однозначного ответа или вам просто интересно \u003Cs\u003Eи если вы не боитесь огромного количества трехбуквенных аббревиатур\u003C\u002Fs\u003E — милости прошу под кат.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПеред тем как начать хотел бы обозначить, что есть \u003Ca href=\"http:\u002F\u002Fhabrahabr.ru\u002Fpost\u002F190154\u002F\"\u003Eпост\u003C\u002Fa\u003E на схожую тему, в котором все обозначено проще и немного понятнее. Целью же этого поста, я ставлю более глубокое изучение вопроса и сбор информации об URI в одном месте, дабы «не потерять». Ну, почти в одном месте, статья будет разделена на две части\u003Cbr\u002F\u003E\r\nА для удобства бахнем оглавление, которое работает не без особенностей URI, которую мы рассмотрим попозжа, в этой статье.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cu\u003E\u003Cb\u003EОГЛАВЛЕНИЕ\u003C\u002Fb\u003E\u003C\u002Fu\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E\u003Ca href=\"#uri\"\u003EURI\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n 1.1. \u003Ca href=\"#uri_syntax\"\u003EСинтаксис\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n 1.2. \u003Ca href=\"#uri_components\"\u003EКомпоненты URI\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#url\"\u003EURL\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n 2.1. \u003Ca href=\"#url_structure\"\u003EСтруктура\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#urn\"\u003EURN\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n 3.1. \u003Ca href=\"#urn_structure\"\u003EСтруктура\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EОзнакомление\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"uri\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E\u003Cacronym\u003E\u003Cb\u003E1. URI\u003C\u002Fb\u003E\u003C\u002Facronym\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EУнифицированный Идентификатор Ресурса\u003C\u002Fi\u003E, в простонародье — \u003Cb\u003EURI\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nСамое свежее описание того, чем же все-таки являются эти пресловутые URI датируется январем аж 2005-го, а именно \u003Ca href=\"http:\u002F\u002Fwww.ietf.org\u002Frfc\u002Frfc3986\"\u003ERFC3986\u003C\u002Fa\u003E, написанный самим Тимом Бёнесом-Ли, родоначальника всеми нами любимого \u003Ci\u003Eтырнета\u003C\u002Fi\u003E.\u003Cbr\u002F\u003E\r\nРезюмируя п.1.1 можно сформулировать определение:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ci\u003E\u003Cb\u003EURI\u003C\u002Fb\u003E — последовательность символов, идентифицирующая физический или абстрактный ресурс, который не обязательно должен быть доступен через сеть Интернет, причем, тип ресурса, к которому будет получен доступ, определяется контекстом и\u002Fили механизмом.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EНапример:\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eперейдя по \u003Ccode\u003Ehttp:\u002F\u002Fexample.com\u003C\u002Fcode\u003E — мы попадем на http-сервер ресурса идентифицируемого как \u003Ccode\u003Eexample.com\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003Eв то же время \u003Ccode\u003Eftp:\u002F\u002Fexample.com\u003C\u002Fcode\u003E — приведет наc на ftp-сервер того же самого ресурса\u003C\u002Fli\u003E\r\n\u003Cli\u003Eили например \u003Ccode\u003Ehttp:\u002F\u002Flocalhost\u002F\u003C\u002Fcode\u003E — URI идентифицирующий саму машину откуда производится доступ\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nВ современном интернете, чаще всего используется две разновидности \u003Ccode\u003EURI\u003C\u002Fcode\u003E — \u003Ccode\u003EURL\u003C\u002Fcode\u003E и \u003Ccode\u003EURN\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\nОсновное различие между ними — в задачах:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cb\u003EURL\u003C\u002Fb\u003E — \u003Ci\u003EUniform Resource Locator\u003C\u002Fi\u003E, помогает найти какой либо ресурс\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EURN\u003C\u002Fb\u003E — \u003Ci\u003EUniform Resource Name\u003C\u002Fi\u003E, помогает этот ресурс идентифицировать\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nУпрощая: \u003Ccode\u003EURL\u003C\u002Fcode\u003E — отвечает на вопрос: «Где и как найти что-то?», \u003Ccode\u003EURN\u003C\u002Fcode\u003E — отвечает на вопрос: «Как это что-то идентифицировать».\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EПарочка интересностей про URI\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EМногие из вас замечали, что на разных ресурсах ссылки называют то URL, то URI и, вероятно, становилось интересно — какой же из вариантов правильный?\u003Cbr\u002F\u003E\r\nДело в том, что URL увидел свет и был документирован в 1990 году, в то время как URI был документирован лишь в 1994 году. И вплоть до 2002 года, до выхода \u003Ca href=\"http:\u002F\u002Fwww.ietf.org\u002Frfc\u002Frfc3305\"\u003ERFC3305\u003C\u002Fa\u003E, уместными были оба варианта именования, что, порой вносило путаницу.\u003Cbr\u002F\u003E\r\nВ п.2 RFC3305 сообщается об устаревании такого термина как URL, применимо к ссылкам, и что отныне верным будет именование URI, с того момента, во всех документах W3C использует термин URI. Исходя из этого, применяя термин URL к соответствующим ссылкам, вы не делаете смысловой ошибки, но делаете ее с точки зрения правильного именования.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак же примечателен тот момент, что вплоть до выхода \u003Ca href=\"http:\u002F\u002Fwww.ietf.org\u002Frfc\u002Frfc2396\"\u003ERFC2396\u003C\u002Fa\u003E, в 1997 году, URI расшифровывался как \u003Ci\u003EUniversal\u003C\u002Fi\u003E Resource Identifier, что можно увидеть в \u003Ca href=\"http:\u002F\u002Fwww.ietf.org\u002Frfc\u002Frfc2396\"\u003ERFC1630\u003C\u002Fa\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОбобщая всевозможные варианты, URI имеет следующий вид:\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Ffiles\u002F3ae\u002F693\u002F45e\u002F3ae69345e59b4fc48d344c20cc554d60.jpg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F3ae\u002F693\u002F45e\u002F3ae69345e59b4fc48d344c20cc554d60.jpg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\nЗабегая вперед, стоит отметить, что не все три компоненты являются строго обязательными. Для того чтобы ссылка считалась URI необходимо наличие:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eлибо \u003Ccode\u003Escheme+authority+path\u003C\u002Fcode\u003E,\u003C\u002Fli\u003E\r\n\u003Cli\u003Eлибо \u003Ccode\u003Esheme+path\u003C\u002Fcode\u003E,\u003C\u002Fli\u003E\r\n\u003Cli\u003Eлибо только \u003Ccode\u003Epath\u003C\u002Fcode\u003E.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"uri_syntax\"\u003E\u003C\u002Fa\u003E\u003Ch4\u003E1.1. Синтаксис\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСогласно п.2 \u003Ca href=\"http:\u002F\u002Fwww.ietf.org\u002Frfc\u002Frfc3986\"\u003ERFC3986\u003C\u002Fa\u003E:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EURI составлен из ограниченного набора символов, состоящих из цифр, букв и нескольких графических символов, все эти символы вписываются в кодировку US-ASCII (ASCII). Зарезервированное подмножество символов может использоваться, чтобы разграничить компоненты синтаксиса в URI, в то время как остающиеся символы: не зарезервированный набор и включая те зарезервированные символы, которые не действуют как разделители в данной компоненте URI, определяют данные идентификации каждого компонента.\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Ch5\u003EЗарезервированные символы\u003C\u002Fh5\u003EЗарезервированные символы делятся на два типа:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ci\u003Egen-delims\u003C\u002Fi\u003E, они же «главные разделители», т.е. символы, разделяющие URI на крупные компоненты. \u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003E \":\", \"\u002F\", \"?\", \"#\", \"[\", \"]\", \"@\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ci\u003Esub-delims\u003C\u002Fi\u003E, они же «под разделители» — символы, которые разделяют текущую крупную компоненту, на более мелкие составляющие, для каждой компоненты они свои, вот список самых распространенных:\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003E \"!\", \"$\", \"&amp;\", \"'\", \"(\", \")\", \"*\", \"+\", \",\", \";\", \"=\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch5\u003EНе зарезервированные символы\u003C\u002Fh5\u003EИсходя из предыдущего пункта, не зарезервированные символы — символы, не входящие в \u003Ccode\u003Egen-delims\u003C\u002Fcode\u003E, а так же не значимые для данной компоненты \u003Ccode\u003Esub-delims\u003C\u002Fcode\u003E. Но в общем случае это:\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003EALPHA, DIGIT, \"-\", \".\", \"_\", \"~\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003EДля данного случая, согласно \u003Ca href=\"http:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FAugmented_Backus–Naur_Form\"\u003E\u003Cacronym\u003EABNF\u003C\u002Facronym\u003E\u003C\u002Fa\u003E:\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EALPHA\u003C\u002Fcode\u003E — любая буква верхнего и нижнего регистров кодировки ASCII (в regExp [A-Za-z])\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EDIGIT\u003C\u002Fcode\u003E — любая цифра (в regExp [0-9])\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EHEXDIG\u003C\u002Fcode\u003E — шестнадцатиричная цифра (в regExp [0-9A-F])\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Ch5\u003EПроцентное кодирование\u003C\u002Fh5\u003EВ случае, если используются символы выходящие за пределы кодировки ASCII используется механизм т.н. \"\u003Cabbr title=\"percent-encoding\"\u003EПроцентного кодирования\u003C\u002Fabbr\u003E\". Так же он применяется для передачи зарезервированных символов в составе данных. Зарезервированные символы, по правилам, не участвуют в процентном кодировании.\u003Cbr\u002F\u003E\r\nПроцентно-кодированный символ представляет из себя символьный триплет, состоящий из знака \"%\" и следующих за ним двух шестнадцатиричных чисел:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003Epct-encoded = \"%\" HEXDIG HEXDIG\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003EТ.о., %20, например, означает пробел.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"uri_components\"\u003E\u003C\u002Fa\u003E\u003Ch4\u003E1.2. Компоненты URI\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСледующий список содержит описания крупных компонент, составляющих URI:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cb\u003EScheme (схема)\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nКаждый URI начинается с имени схемы, которое относится к спецификации для присвоения идентификаторов в этой схеме. Также, синтаксис URI — объединенная и расширяемая система именования, причем, спецификация каждой схемы может далее ограничить синтаксис и семантику идентификаторов, использующих эту схему.\u003Cbr\u002F\u003E\r\nНазвание схемы обязательно начинается с буквы и далее может быть продолжено любым количеством разрешенных символов.\u003Cbr\u002F\u003E\r\n\u003Cu\u003EРазрешенные символы для схемы:\u003C\u002Fu\u003E\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003EALPHA, DIGIT, \"+\", \"-\", \".\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EAuthority\u003C\u002Fb\u003E\u003Ci\u003E (честно говоря, не знаю как перевести слово на русский, без потери смысла)\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\nКомпонента authority начинается с двойного слеша(\u002F\u002F) и заканчивается следующим слешем(\u002F), знаком вопроса(?) или октоторпом(#)(да-да, «решеточка» зовется именно так=)) или концом URI\u003Cbr\u002F\u003E\r\nAuthority состоит из:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003E[ userinfo \"@\" ] host [ \":\" port ]\u003C\u002Fcode\u003E\u003C\u002Fpre\u003Eгде в квадратных скобках опциональные компоненты\u003C\u002Fblockquote\u003EКаждую из подкомпонент, отдельно, мы рассмотрим чуть позже, в разделе посвященном URL.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EPath (Путь)\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nКомпонента пути содержит данные, обычно, организованные в иерархической форме, которые, вместе с данными в неиерархическом компоненте запроса (Query), служит, чтобы идентифицировать ресурс в рамках схемы URI и authority (если таковая компонента указана). \u003Cbr\u002F\u003E\r\nПуть начинается со слеша(\u002F) и заканчивается знаком вопроса(?), октоторпом(#) или концом URI\u003Cbr\u002F\u003E\r\n\u003Cu\u003EРазрешенные символы для пути:\u003C\u002Fu\u003E\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003EНе зарезервированные, процентно-кодированные, sub-delims, \":\", \"@\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EQuery (Запрос)\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nКомпонента запроса содержит данные, организованные в неиерархической форме, которые, вместе с данными в иерархическом компоненте пути (Path), служит, чтобы идентифицировать ресурс в рамках схемы URI и authority (если таковая компонента указана). \u003Cbr\u002F\u003E\r\nЗапрос начинается с первого знака вопроса(?) и заканчивается октоторпом(#) или концом URI\u003Cbr\u002F\u003E\r\n\u003Cu\u003EРазрешенные символы для запроса:\u003C\u002Fu\u003E\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003EНе зарезервированные, процентно-кодированные, sub-delims, \":\", \"@\", \"\u002F\", \"?\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003EВ запросе чаще всего передаются данные в формате key=value (ключ=значение), значение рекомендуется передавать в процентно-кодированном виде, обусловлено это тем, что в значении может встретиться символ \"&amp;\", который используется для разделения пар ключ-значение, в результате появления такого артефакта дальнейшая последовательность пар ключ-значение может быть нарушена.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EFragment (Фрагмент)\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nКомпонента фрагмент позволяет осуществить косвенную идентификацию вторичного ресурса по отношению к первому.\u003Cbr\u002F\u003E\r\nСемантика фрагмента никак не ограничена, фрагмент начинается октоторпом(#) и заканчивается концом URI, при этом может состоять из абсолютно любого набора символов.\u003Cbr\u002F\u003E\r\nПримером применения фрагментов является оглавление данной статьи. Оно состоит из относительных ссылок \u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"html\"\u003E&lt;a href=\"#someanchor\"\u003E&lt;\u002Fa\u003E\u003C\u002Fcode\u003E\u003C\u002Fpre\u003Eа по статье, в определенных местах, раскиданы т.н. «якоря» — теги \u003Cpre\u003E\u003Ccode class=\"html\"\u003E&lt;anchor\u003Esomeanchor&lt;\u002Fanchor\u003E\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПереходя по указанной в оглавлении ссылке, браузер производит переход ко вторичному ресурсу относительно данной страницы, т.е. скроллит вниз, до появления нужного \u003Cpre\u003E\u003Ccode class=\"html\"\u003E&lt;anchor\u003E\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E на экране.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nНа этом, пожалуй, знакомство с URI можно закончить и начать углубляться в отдельные подвиды URI, а именно\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"url\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E\u003Cacronym\u003E\u003Cb\u003E2. URL\u003C\u002Fb\u003E\u003C\u002Facronym\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nСтандарт URL документирован в \u003Ca href=\"http:\u002F\u002Fwww.ietf.org\u002Frfc\u002Frfc1738\"\u003ERFC1738\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\nИз п.2:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EURL используются, чтобы определить местоположение ресурсов, обеспечивая абстрактную идентификацию расположения ресурса. Определив местоположение ресурса, система может выполнить множество операций на ресурсе, которые могут быть характеризованы такими словами как 'доступ', 'обновление', 'замена', 'поиск атрибутов'. В целом только метод доступа должен быть определен для любой схемы URL.\u003C\u002Fblockquote\u003EТ. о.: URL призван решить широкий ряд задач, начиная с получения и заканчивая изменением данных на ресурсе, а обязательным параметром для получения доступа — является метод, т. е. любой полноценный (абсолютный) URL можно свести к виду:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003E&lt;scheme\u003E:&lt;часть свойственная этой схеме\u003E\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"url_structure\"\u003E\u003C\u002Fa\u003E\u003Ch4\u003E2.1. Структура\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВ целом, URL имеет схожую структуру, для всех схем, хотя для каждой отдельно взятой схемы, структура может отличаться от общего шаблона.\u003Cbr\u002F\u003E\r\nГрафически ее можно выразить в следующем виде:\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Ffiles\u002F373\u002F2b3\u002F3fd\u002F3732b33fd43043049c18e3c108bc9d1a.jpg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F373\u002F2b3\u002F3fd\u002F3732b33fd43043049c18e3c108bc9d1a.jpg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИ вот, примерно на этом моменте, можно рассмотреть различия между абсолютными (absolute) и относительными (relative) URL, данные определения распространяются не только на URL, но и на URI в целом.\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cb\u003EОтносительная ссылка\u003C\u002Fb\u003E использует иерархический синтаксис, чтобы выразить ссылку URI относительно пространства имен другого иерархического URI.\u003Cbr\u002F\u003E\r\nОтносительные ссылки так же делятся на несколько подвидов:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cb\u003E\u003Ci\u003EСсылка сетевого пути\u003C\u002Fi\u003E\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nИмеет вид:\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003E\u002F\u002F&lt;authority\u003E &lt;path\u003E [&lt;query\u003E] [&lt;fragment\u003E]\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003EТакой тип ссылок применяется не часто, смысл заключается в переходе по указанной ссылке с применением текущей схемы.\u003Cbr\u002F\u003E\r\nТ. е.: находясь, например на \u003Ccode\u003Ehttp:\u002F\u002Fexample.com\u003C\u002Fcode\u003E и перейдя по ссылке \u003Ccode\u003E\u002F\u002Fdomain.com\u003C\u002Fcode\u003E — мы попадем на \u003Ccode\u003Ehttp:\u002F\u002Fdomain.com\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\nА в случае если перейдем по той же ссылке с \u003Ccode\u003Eftp:\u002F\u002Fexample.com\u003C\u002Fcode\u003E, то попадем на \u003Ccode\u003Eftp:\u002F\u002Fdomain.com\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EСсылка абсолютного пути\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nИмеет вид:\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003E\u002F&lt;path\u003E [&lt;query\u003E] [&lt;fragment\u003E]\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003EНа этот раз мы останемся в пределах текущего хоста, но попадем по пути path в любом случае, по какому бы пути мы сейчас не находились.\u003Cbr\u002F\u003E\r\nТ. е.: даже находясь на \u003Ccode\u003Ehttp:\u002F\u002Fexample.com\u002Fjust\u002Fsome\u002Flong\u002Fpath\u003C\u002Fcode\u003E и перейдя по ссылке \u003Ccode\u003E\u002Fpath\u003C\u002Fcode\u003E, мы попадем на \u003Ccode\u003Ehttp:\u002F\u002Fexample.com\u002Fpath\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EСсылка относительного пути\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nИмеет вид:\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003E&lt;path\u003E [&lt;query\u003E] [&lt;fragment\u003E]\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003EТеперь же, мы будем перемещаться в пределах текущего положения.\u003Cbr\u002F\u003E\r\nТ. е.: находясь на \u003Ccode\u003Ehttp:\u002F\u002Fexample.com\u002Fjust\u002Fsome\u002Flong\u002Fpath\u003C\u002Fcode\u003E и перейдя по ссылке \u003Ccode\u003Epath\u003C\u002Fcode\u003E, мы попадем на \u003Ccode\u003Ehttp:\u002F\u002Fexample.com\u002Fjust\u002Fsome\u002Flong\u002Fpath\u002Fpath\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EСсылка того же документа\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nФактически это ссылки, состоящие только из фрагментарной части URI, либо же ссылки, у которых все компоненты за исключением фрагментарной совпадают с исходной.\u003Cbr\u002F\u003E\r\nТ.е. \u003Ccode\u003E#fragment\u003C\u002Fcode\u003E и \u003Ccode\u003Ehttp:\u002F\u002Fhabrahabr.ru\u002Ftopic\u002F232385\u002F#fragment\u003C\u002Fcode\u003E являются ссылками того же документа.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EАбсолютная ссылка\u003C\u002Fb\u003E — ссылка вида\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003E&lt;scheme\u003E &lt;authority\u003E [&lt;path\u003E] [&lt;query\u003E] [&lt;fragment\u003E]\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003EПрименяя абсолютные ссылки, мы будем попадать на нужный нам ресурс вне зависимости от того, откуда мы переходим.\u003Cbr\u002F\u003E\r\nТ. е.: находись мы на \u003Ccode\u003Ehttp:\u002F\u002Fexample.com\u002Fjust\u002Fsome\u002Flong\u002Fpath\u003C\u002Fcode\u003E или же на \u003Ccode\u003Eftp:\u002F\u002Fexample.com\u003C\u002Fcode\u003E, перейдя по \u003Ccode\u003Ehttp:\u002F\u002Fdomain.com\u002Fpath\u003C\u002Fcode\u003E, мы в любом случае попадем на \u003Ccode\u003Ehttp:\u002F\u002Fdomain.com\u002Fpath\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nПосле того, как мы разобрались с тем, что же такое относительные и абсолютные пути — можно отвечать на вопрос заданный в начале поста:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"http:\u002F\u002Fexample.com\"\u003Ehttp:\u002F\u002Fexample.com\u003C\u002Fa\u003E — откроет \u003Ccode\u003Ehttp:\u002F\u002Fexample.com\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"http:\u002F\u002Fwww.example.com\"\u003Ewww.example.com\u003C\u002Fa\u003E — по-идее должен открыть \u003Ccode\u003Ehttp:\u002F\u002Fhabrahabr.ru\u002Ftopic\u002F232385\u002Fwww.example.com\u003C\u002Fcode\u003E, но хабр сам исправляет ссылку, хотя по стандартам \u003Ccode\u003Ewww.example.com\u003C\u002Fcode\u003E — ссылка относительного пути\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"\u002F\u002Fwww.example.com\"\u003E\u002F\u002Fwww.example.com\u003C\u002Fa\u003E — откроет \u003Ccode\u003Ewww.example.com\u003C\u002Fcode\u003E со схемой с которой вы просматриваете текущую страницу, т.е. скорее всего будет открыт \u003Ccode\u003Ehttp:\u002F\u002Fexample.com\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"mailto:user@example.com\"\u003Emailto:user@example.com\u003C\u002Fa\u003E — здесь уже вступают в силу настройки браузера, он предложит вам открыть эту ссылку при помощи почтовой программы и отправить электронное письмо адресату \u003Ccode\u003Euser@example.com\u003C\u002Fcode\u003E, а так, это абсолютный URL со схемой \u003Ccode\u003Emailto\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nМы уже рассмотрели крупные компоненты, а теперь давайте углубимся в детали построения URL.\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cb\u003EScheme\u003C\u002Fb\u003E — как говорилось ранее: схема определяет метод доступа к ресурсу. Список актуальных схем можно посмотреть \u003Ca href=\"http:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FURI_scheme\"\u003Eтут\u003C\u002Fa\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EUserinfo\u003C\u002Fb\u003E — под-компонент authority, использующийся для авторизации пользователя на ресурсе. Состоит из username и необязательного password, от остальной части authority отделяется символом \"\u003Ccode\u003E@\u003C\u002Fcode\u003E\". Не смотря на то, что параметр password указан в спецификации, его использование крайне не рекомендуется, т. к. фактически производится передача пароля к учетной записи username, в незашифрованном виде. \u003Cbr\u002F\u003E\r\nРазрешенные символы:\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003EНе зарезервированные, процентно-кодированные, sub-delims, \":\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cu\u003EПример\u003C\u002Fu\u003E можно привести следующий:\u003Cbr\u002F\u003E\r\nНа локалке есть папка test, на которую стоит доступ по паре логин-пароль. То есть, перейдя по\u003Ccode\u003E http:\u002F\u002Flocalhost\u002Ftest\u002F\u003C\u002Fcode\u003E, я увижу следующее:\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F03a\u002Ff27\u002F35d\u002F03af2735da5f4b6cbb95c057cde4aca3.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F03a\u002Ff27\u002F35d\u002F03af2735da5f4b6cbb95c057cde4aca3.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\nА если я перейду по ссылке \u003Ccode\u003Ehttp:\u002F\u002Fadmin:admin@localhost\u002Ftest\u002F\u003C\u002Fcode\u003E, то процедура авторизации произойдет автоматически, с данными указанными в блоке userinfo:\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F391\u002F519\u002F9dc\u002F3915199dc40b4f98b8be5539ffbba560.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F391\u002F519\u002F9dc\u002F3915199dc40b4f98b8be5539ffbba560.png\"\u002F\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EHost\u003C\u002Fb\u003E — компонент authority, использующийся для определения целевого узла (или ресурса, если угодно, но понятие «узел» будет более точным), который может находиться как в сети интернет, так и вне её, в зависимости от указанной схемы. Данная компонента не чувствительна к регистру.\u003Cbr\u002F\u003E\r\nХост может представлять из себя либо IP-адрес, либо регистрационное имя (reg-name) и, опционально, следующий за ними порт(port).\u003Cbr\u002F\u003E\r\nПредусматривается как поддержка существующих форматов IP-адресов (IPv4, IPv6), так и всевозможных будущих, которые будут описаны впоследствии.\u003Cbr\u002F\u003E\r\n \u003Ci\u003E\u003Cu\u003EРегистрационное имя\u003C\u002Fu\u003E — привычные нам, т. н. доменные имена — последовательность символов, обычно предназначенных для поиска в локально определенном узле или реестре имени службы, хотя специфичная для схемы семантика URI может потребовать, чтобы вместо этого использовался определенный реестр (или фиксированная таблица имен).\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\nНаиболее распространенный механизм реестра имен — Система Доменных Имен (DNS).\u003Cbr\u002F\u003E\r\nДоменное имя, используемое для поиска в DNS, состоит из доменных меток, разделенных при помощи \".\", каждая доменная метка может содержать следующие символы:\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003EНе зарезервированные, процентно-кодированные, sub-delims\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003EСинтаксис регистрационного имени позволяет использование процентно-кодированных символов, для представления не-ASCII символов, в едином порядке, не зависящем от технологии разрешения имен. Символы, не входящие в ASCII, должны быть сначала закодированы в UTF-8, а затем каждый \u003Cabbr title=\"8 двоичных разрядов, оно же байт\"\u003Eоктет\u003C\u002Fabbr\u003E UTF-8 последовательности должен быть процентно закодирован.\u003Cbr\u002F\u003E\r\nВ случае, если регистрационное имя с не-ASCII символами представляет собой многоязычное доменное имя, разрешаемое через DNS, оно должно быть преобразовано в кодировку IDNA (\u003Ca href=\"http:\u002F\u002Fwww.ietf.org\u002Frfc\u002Frfc3490\"\u003ERFC3490\u003C\u002Fa\u003E) до поиска имени и, как следствие, регистраторами доменных имен такие регистрационные имена должны предоставляться в кодировке IDNA.\u003Cbr\u002F\u003E\r\n\u003Ci\u003E\u003Cu\u003EPort (Порт)\u003C\u002Fu\u003E\u003C\u002Fi\u003E — десятичный номер порта, отделяется от hostname одним двоеточием \":\", может состоять только из цифр. Схема может определять порт по-умолчанию, который будет использоваться в случае если порт не указан. Например, для схемы HTTP порт по-умолчанию — 80, что соответствует зарезервированному под неё порту 80\u002FTCP. Тип порта, так же как и назначенный номер порта, определяется схемой.\u003C\u002Fli\u003E\r\n\u003Cli\u003EКомпоненты Запрос и Фрагмент полностью описаны ранее.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"urn\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E\u003Cacronym\u003E\u003Cb\u003E3. URN\u003C\u002Fb\u003E\u003C\u002Facronym\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nСтандарт URN документирован в \u003Ca href=\"http:\u002F\u002Fwww.ietf.org\u002Frfc\u002Frfc2141\"\u003ERFC2141\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\nИз п.1:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EУнифицированные имена ресурсов (URN) предназначены, чтобы служить постоянными, независимыми от расположения, идентификаторами ресурсов и разработаны для упрощения отображения других пространств имен (которые совместно используют свойства URN) в URN-пространство. Таким образом, синтаксис URN обеспечивает средство закодировать символьные данные в форме, которая может быть отправлена посредством существующих протоколов, записана при помощи большинства клавиатур, и т.д.\u003C\u002Fblockquote\u003EТ. е., в отличие от URL, который ссылается на како-то место, где хранится документ, URN ссылается на сам документ, и при перемещении документа в другое место ссылка не изменится.\u003Cbr\u002F\u003E\r\nВ силу того, что URN концептуально отличается от URL, то и система разрешения имен у него другая — \u003Cabbr title=\"Dynamic Delegation Discovery System\"\u003EDDDS\u003C\u002Fabbr\u003E, которая преобразует URN в URL, по которым можно найти ресурс\u002Fобъект или что бы то ни было, на что ссылается URN.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"urn_structure\"\u003E\u003C\u002Fa\u003E\u003Ch4\u003E3.1. Структура\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nURN имеет следующий вид:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003E\"urn:\" &lt;NID\u003E \":\" &lt;NSS\u003E\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cb\u003E«urn:»\u003C\u002Fb\u003E — обязательная, регистронезависимая часть URN\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003ENID\u003C\u002Fb\u003E — Namespace Identifier, данная компонента определяет синтаксическую интерпретацию компоненты NSS.\u003Cbr\u002F\u003E\r\nМинимальная длина — 2 символа, максимальная — 32, разрешенные символы:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003Eлатинские буквы, цифры, \"-\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003ENID должен начинаться только с буквы или цифры. \u003Cbr\u002F\u003E\r\nТак же, слово «urn» для NID является зарезервированным, дабы избежать неоднозначности при определении URN в целом.\u003Cbr\u002F\u003E\r\nСписок официально зарегистрированных NID можно посмотреть \u003Ca href=\"http:\u002F\u002Fwww.iana.org\u002Fassignments\u002Furn-namespaces\u002Furn-namespaces.xhtml\"\u003Eтут\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003ENSS\u003C\u002Fb\u003E — Namespace Specific String, эта компонента служит непосредственно для передачи каких-либо данных.\u003Cbr\u002F\u003E\r\n\u003Cu\u003EРазрешенные символы\u003C\u002Fu\u003E:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003Eлатинские буквы, цифры, процентно-кодированные, \"(\", \")\", \"+\", \",\", \"-\", \".\", \":\", \"=\", \"@\", \";\", \"$\", \"_\", \"!\", \"*\", \"'\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003E\u003Cu\u003EЗарезервированные символы\u003C\u002Fu\u003E:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003E\"%\", \"\u002F\", \"?\", \"#\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003E\u003Cu\u003EЗапрещенные символы\u003C\u002Fu\u003E должны быть процентно-кодированы. Если указанный символ встретится в явном виде, его позиция будет считаться концом URN:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cpre\u003E\u003Ccode class=\"html\"\u003Eоктеты 0-32 (0-20 hex), \"\\\", \"\"\", \"&amp;\", \"&lt;\", \"\u003E\", \"[\", \"]\", \"^\", \"`\", \"{\", \"|\", \"}\", \"~\", октеты 127-255 (7F-FF hex)\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fblockquote\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cu\u003E\u003Ch5\u003EСамоидентифицирующийся URN\u003C\u002Fh5\u003E\u003C\u002Fu\u003EТакие URN содержат в NID название хэш-функции, а в NSS значение хэша, вычисленного для идентифицируемого объекта. Такие ссылки используются в magnet-ссылках и заголовках p2p-сети Gnutela2.\u003Cbr\u002F\u003E\r\nНапример, URN из magnet-ссылки с одного торрент-трекера:\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Emagnet:?xt=urn:btih:c68abc1ba9b8c7c4bc373862cad1a8c01d69e53d...\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nС теорией все, во второй части рассмотрим, что можно и что нужно делать с URI, если мы их обрабатываем, а именно — нормализация, разбор и т.д.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗа сим откланяюсь, спасибо что читали, надеюсь не было скучно, удачи!\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"URL"},{"titleHtml":"URI"},{"titleHtml":"URN"},{"titleHtml":"IRI"},{"titleHtml":"гиперссылки"},{"titleHtml":"ссылки"},{"titleHtml":"домены"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F232385\u002Fc7ed1939bca0577c6d0e6c524ef77d82\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F232385\u002Fc7ed1939bca0577c6d0e6c524ef77d82\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F232385\\\u002F\"},\"headline\":\"URI — сложно о простом (Часть 1)\",\"datePublished\":\"2015-07-12T01:33:43+03:00\",\"dateModified\":\"2016-04-27T14:27:36+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Зиновьев Антон\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Привет хабр!  Появилось таки некоторое количество времени, и я решил написать сий пост, идея которого возникла уже давно. Связан он будет будет с такой, казало...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F232385\\\u002F#post-content-body\",\"about\":[\"h_webdev\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F232385\\\u002Fc7ed1939bca0577c6d0e6c524ef77d82\\\u002F\"]}","metaDescription":"Привет хабр!\r\n\r\nПоявилось таки некоторое количество времени, и я решил написать сий пост, идея которого возникла уже давно.\r\nСвязан он будет будет с такой, казалось бы, простой вещью, как URI,...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":"webdev"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

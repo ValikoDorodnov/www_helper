@@ -1,0 +1,267 @@
+<!DOCTYPE HTML>
+<html>
+<head prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# profile: http://ogp.me/ns/profile# fb: http://ogp.me/ns/fb#">
+<title>Redis – что это и для чего?</title>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
+<meta property="article:section" content="Серверные решения"/>
+<meta property="article:section" content="DevOPS"/>
+<meta property="og:image" content="../../../tools/picture/generate_pic.php?date=2019-06-14&pic=/images/redis-chto-eto-i-dlya-chego.png"/>
+<meta property="og:title" content="Redis – что это и для чего?"/>
+<meta property="og:description" content="Redis - open source инструмент, позволит делать базу данных, кэш или брокера сообщений.Что, для чего, плюсы и минусы в статье..."/>
+<meta property="og:url" content="wiki.merionet.ru/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/"/>
+<meta property="og:type" content="article"/>
+<meta property='og:site_name' content='База знаний - Мерион Нетворкс'/>
+<meta property="article:modified_time" content="2019-06-14T00:00:01+0300">
+<meta property="article:published_time" content="2019-06-14T00:00:01+0300">
+<meta property="article:author" content="Мерион Нетворкс">
+<meta name="description" content="Redis - open source инструмент, позволит делать базу данных, кэш или брокера сообщений.Что, для чего, плюсы и минусы в статье..."/>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="facebook-domain-verification" content="zxb42qqdmdxfxnowpppo4brh9n4kq1" /> <link rel="stylesheet" href="https://wiki.merionet.ru/assets/css/main.css?ver=1.44" /><script type="text/javascript">!function(){var t=document.createElement("script");t.type="text/javascript",t.async=!0,t.src="https://vk.com/js/api/openapi.js?169",t.onload=function(){VK.Retargeting.Init("VK-RTRG-1193742-hU1Z7"),VK.Retargeting.Hit()},document.head.appendChild(t)}();</script><noscript><img src="https://vk.com/rtrg?p=VK-RTRG-1193742-hU1Z7" style="position:fixed; left:-999px;" alt=""/></noscript></head>
+<body>		
+<div id="wrapper"><header id="header">
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-KSN469M');</script>
+<!-- End Google Tag Manager -->
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KSN469M"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<!-- Yandex.Metrika counter --><script type="text/javascript">(function(d,w,c){(w[c]=w[c]||[]).push(function(){try{w.yaCounter33191803=new Ya.Metrika({id:33191803,clickmap:!0,trackLinks:!0,accurateTrackBounce:!0,webvisor:!0})}catch(e){}});var n=d.getElementsByTagName("script")[0],s=d.createElement("script"),f=function(){n.parentNode.insertBefore(s,n)};s.type="text/javascript";s.async=!0;s.src="https://mc.yandex.ru/metrika/watch.js";if(w.opera=="[object Opera]"){d.addEventListener("DOMContentLoaded",f,!1)}else{f()}})(document,window,"yandex_metrika_callbacks");</script>
+<!-- Global site tag(gtag.js)-Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=UA-59106392-2"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
+gtag('js',new Date());gtag('config','UA-59106392-2',{'optimize_id':'GTM-TNB8QG3'});</script><noscript><div><img src="https://mc.yandex.ru/watch/33191803" style="position:absolute; left:-9999px;" alt=""/></div></noscript><!--/Yandex.Metrika counter -->
+<!-- Rating Mail.ru counter -->
+<!-- Facebook Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '293112449525125');
+fbq('track', 'PageView_wiki');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=293112449525125&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Facebook Pixel Code -->
+<script type="text/javascript">var _tmr=window._tmr||(window._tmr=[]);_tmr.push({id:"3141856",type:"pageView",start:(new Date()).getTime()});(function(d,w,id){if(d.getElementById(id))return;var ts=d.createElement("script");ts.type="text/javascript";ts.async=!0;ts.id=id;ts.src="https://top-fwz1.mail.ru/js/code.js";var f=function(){var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(ts,s)};if(w.opera=="[object Opera]"){d.addEventListener("DOMContentLoaded",f,!1)}else{f()}})(document,window,"topmailru-code");</script>
+<noscript><div><img src="https://top-fwz1.mail.ru/counter?id=3141856;js=na" style="border:0;position:absolute;left:-9999px;" alt="Top.Mail.Ru" /></div></noscript>
+<nav class="main" style="border-right:solid 1px rgba(160, 160, 160, 0.3)"><ul><li class="menu"><a onclick="yaCounter33191803.reachGoal('opennavmenu'); return true;" class="fa-bars" href="index.html.1.93.html#menu">Меню</a></li></ul></nav><h1><a href="https://wiki.merionet.ru/"><img id="logo" src="https://wiki.merionet.ru/images/favicon.png" alt="">ИТ База знаний</a></h1><nav class="links"><ul>
+<li><a href="https://asterisk.merionet.ru/?utm_source=knowledgebase&amp;utm_content='.$_SERVER[REQUEST_URI].'">Внедрение IP телефонии</a></li>						
+<li><a id="cource-link" href="https://wiki.merionet.ru/merion-academy/?utm_source=knowledgebase&amp;utm_content=/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/"><i class="fa fa-graduation-cap" aria-hidden="true"></i> Онлайн курсы</a></li></ul></nav><nav class="main"> <ul> <li class="search"><a class="fa-search" href="index.html.1.93.html#search">Поиск</a> <form id="search" name="search" action="https://wiki.merionet.ru/search/" method="post"> <input type="search" name="query" placeholder="Поиск..."/> </form> </li></ul></nav></header><section id="menu"> <section> <form class="search" action="https://wiki.merionet.ru/search/" method="post"> <input type="text" name="query" placeholder="Поиск.."/> </form> </form> </section> <section><a onclick="yaCounter33191803.reachGoal('VoIT'); return true;" style="margin-bottom: 2em;" target="_blank" href="https://t.me/Vo_IT" class="button icon fit fa-paper-plane">Войти в IT</a> <ul class="links"> <li><a><h3 style="font-size: 0.8em;color: red;text-align: center;">NEW!</h3><a target="_blank" href="https://wiki.merionet.ru/shareit/"><p>Стать автором</p></a><a target="_blank" href="https://wiki.merionet.ru/onlajn-kurs-po-asterisk?utm_source=knowledgebase&amp;utm_content=/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/"><p>Курс по Asterisk</p></a></a> <br/><a><h3 style="font-size: 0.8em;color: #000;text-align: center;">Полезно</h3><a href="https://wiki.merionet.ru/uznat-ip-adres-kompyutera-v-internete/"><p>&mdash; Узнать IP - адрес компьютера в интернете</p></a> <a style="padding-top: 0.4em;" href="https://wiki.merionet.ru/onlajn-generator-ustojchivyx-parolej/"> <p>&mdash; Онлайн генератор устойчивых паролей</p></a> <a style="padding-top: 0.4em;" href="https://wiki.merionet.ru/onlajn-kalkulyator-podsetej/"> <p>&mdash; Онлайн калькулятор подсетей</p></a> <a style="padding-top: 0.4em;" href="https://wiki.merionet.ru/asterisk-calculator/"> <p>&mdash; Калькулятор инсталляции IP - АТС Asterisk</p></a> <a style="padding-top: 0.4em;" href="https://wiki.merionet.ru/rukovodstvo-administratora-freepbx-na-russkom-yazyke/"> <p>&mdash; Руководство администратора FreePBX на русском языке</p></a> <a style="padding-top: 0.4em;" href="https://wiki.merionet.ru/rukovodstvo-administratora-cisco-ucm-cme-na-russkom-yazyke/"> <p>&mdash; Руководство администратора Cisco UCM/CME на русском языке</p></a> <a style="padding-top: 0.4em;" href="https://wiki.merionet.ru/rukovodstvo-administratora-po-linux-unix"> <p>&mdash; Руководство администратора по Linux/Unix</p></a> </a> </li></ul> <hr> <h3 style="color: #000; text-align:center;padding-bottom: 1em;">Навигация</h3> <ul class="links"> <li><a><h3 style="font-size: 0.8em;"><a href="https://wiki.merionet.ru/servernye-resheniya/">Серверные решения</a></h3>
+<a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B5+%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D1%8F&amp;section2=%D0%A2%D0%B5%D0%BE%D1%80%D0%B8%D1%8F"><p style="font-weight:bold;">Теория</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B5+%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D1%8F&amp;section2=%D0%92%D0%B8%D1%80%D1%82%D1%83%D0%B0%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F"><p style="font-weight:bold;">Виртуализация</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B5+%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D1%8F&amp;section2=CRM"><p style="font-weight:bold;">CRM</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B5+%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D1%8F&amp;section2=CRM&amp;section3=AmoCRM"><p style="padding-left:1.7em;">&#8212; AmoCRM</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B5+%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D1%8F&amp;section2=CRM&amp;section3=%D0%91%D0%B8%D1%82%D1%80%D0%B8%D0%BA%D1%8124"><p style="padding-left:1.7em;">&#8212; Битрикс24</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B5+%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D1%8F&amp;section2=Linux/Unix"><p style="font-weight:bold;">Linux/Unix</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B5+%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D1%8F&amp;section2=DevOPS"><p style="font-weight:bold;">DevOPS</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B5+%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D1%8F&amp;section2=Windows"><p style="font-weight:bold;">Windows</p></a></a>
+</li><li><a><h3 style="font-size: 0.8em;"><a href="https://wiki.merionet.ru/ip-telephoniya/">Телефония</a></h3>
+<a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=FreePBX+%D0%B8+Asterisk"><p style="font-weight:bold;">FreePBX и Asterisk</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=FreePBX+%D0%B8+Asterisk&amp;section3=%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0+%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D0%B5%D0%B9"><p style="padding-left:1.7em;">&#8212; Настройка модулей</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=FreePBX+%D0%B8+Asterisk&amp;section3=%D0%9F%D0%BE%D0%BB%D0%B5%D0%B7%D0%BD%D1%8B%D0%B5+%D1%81%D0%BE%D0%B2%D0%B5%D1%82%D1%8B"><p style="padding-left:1.7em;">&#8212; Полезные советы</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=FreePBX+%D0%B8+Asterisk&amp;section3=%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%86%D0%B8%D0%B8"><p style="padding-left:1.7em;">&#8212; Инструкции</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=FreePBX+%D0%B8+Asterisk&amp;section3=%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0+%D0%BF%D1%80%D0%BE%D0%B2%D0%B0%D0%B9%D0%B4%D0%B5%D1%80%D0%BE%D0%B2"><p style="padding-left:1.7em;">&#8212; Настройка провайдеров</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=FreePBX+%D0%B8+Asterisk&amp;section3=CLI+%D0%BA%D0%BE%D0%BD%D1%84%D0%B8%D0%B3%D1%83%D1%80%D0%B0%D1%86%D0%B8%D1%8F"><p style="padding-left:1.7em;">&#8212; CLI конфигурация</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=%D0%9E%D0%B1%D0%BE%D1%80%D1%83%D0%B4%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5"><p style="font-weight:bold;">Оборудование</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=Cisco"><p style="font-weight:bold;">Cisco</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=Cisco&amp;section3=CUCM"><p style="padding-left:1.7em;">&#8212; CUCM</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=Cisco&amp;section3=CME"><p style="padding-left:1.7em;">&#8212; CME</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=%D0%A2%D0%B5%D0%BE%D1%80%D0%B8%D1%8F"><p style="font-weight:bold;">Теория</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=Elastix"><p style="font-weight:bold;">Elastix</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=Elastix&amp;section3=%D0%9A%D0%BE%D0%BD%D1%84%D0%B8%D0%B3%D1%83%D1%80%D0%B0%D1%86%D0%B8%D1%8F+%D0%90%D0%A2%D0%A1"><p style="padding-left:1.7em;">&#8212; Конфигурация АТС</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=Elastix&amp;section3=%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%86%D0%B8%D0%B8"><p style="padding-left:1.7em;">&#8212; Инструкции</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0+%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%BD%D1%8B%D1%85+%D1%82%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%BE%D0%B2"><p style="font-weight:bold;">Настройка программных телефонов</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=3CX"><p style="font-weight:bold;">3CX</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=3CX&amp;section3=%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%86%D0%B8%D0%B8"><p style="padding-left:1.7em;">&#8212; Инструкции</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=OpenScape"><p style="font-weight:bold;">OpenScape</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=OpenScape&amp;section3=%D0%9A%D0%BE%D0%BD%D1%84%D0%B8%D0%B3%D1%83%D1%80%D0%B0%D1%86%D0%B8%D1%8F+%D0%90%D0%A2%D0%A1"><p style="padding-left:1.7em;">&#8212; Конфигурация АТС</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=Avaya"><p style="font-weight:bold;">Avaya</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A2%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D0%B8%D1%8F&amp;section2=Huawei"><p style="font-weight:bold;">Huawei</p></a></a></li><li><a><h3 style="font-size: 0.8em;"><a href="https://wiki.merionet.ru/seti/">Корпоративные сети</a></h3>
+<a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%9A%D0%BE%D1%80%D0%BF%D0%BE%D1%80%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D1%8B%D0%B5+%D1%81%D0%B5%D1%82%D0%B8&amp;section2=%D0%A2%D0%B5%D0%BE%D1%80%D0%B8%D1%8F"><p style="font-weight:bold;">Теория</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%9A%D0%BE%D1%80%D0%BF%D0%BE%D1%80%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D1%8B%D0%B5+%D1%81%D0%B5%D1%82%D0%B8&amp;section2=%D0%A2%D0%B5%D0%BE%D1%80%D0%B8%D1%8F&amp;section3=%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D1%8B+%D1%81%D0%B5%D1%82%D0%B5%D0%B9"><p style="padding-left:1.7em;">&#8212; Основы сетей</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%9A%D0%BE%D1%80%D0%BF%D0%BE%D1%80%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D1%8B%D0%B5+%D1%81%D0%B5%D1%82%D0%B8&amp;section2=%D0%A2%D0%B5%D0%BE%D1%80%D0%B8%D1%8F&amp;section3=%D0%98%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D0%BE%D0%BD%D0%BD%D0%B0%D1%8F+%D0%B1%D0%B5%D0%B7%D0%BE%D0%BF%D0%B0%D1%81%D0%BD%D0%BE%D1%81%D1%82%D1%8C"><p style="padding-left:1.7em;">&#8212; Информационная безопасность</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%9A%D0%BE%D1%80%D0%BF%D0%BE%D1%80%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D1%8B%D0%B5+%D1%81%D0%B5%D1%82%D0%B8&amp;section2=%D0%9F%D1%80%D0%BE%D1%82%D0%BE%D0%BA%D0%BE%D0%BB%D1%8B+%D0%B8+%D1%81%D1%82%D0%B0%D0%BD%D0%B4%D0%B0%D1%80%D1%82%D1%8B"><p style="font-weight:bold;">Протоколы и стандарты</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%9A%D0%BE%D1%80%D0%BF%D0%BE%D1%80%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D1%8B%D0%B5+%D1%81%D0%B5%D1%82%D0%B8&amp;section2=Mikrotik"><p style="font-weight:bold;">Mikrotik</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%9A%D0%BE%D1%80%D0%BF%D0%BE%D1%80%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D1%8B%D0%B5+%D1%81%D0%B5%D1%82%D0%B8&amp;section2=Cisco"><p style="font-weight:bold;">Cisco</p></a><a rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%9A%D0%BE%D1%80%D0%BF%D0%BE%D1%80%D0%B0%D1%82%D0%B8%D0%B2%D0%BD%D1%8B%D0%B5+%D1%81%D0%B5%D1%82%D0%B8&amp;section2=Huawei"><p style="font-weight:bold;">Huawei</p></a></a></li></ul></section></section><div id="main">
+<!--old_sidebar-->
+<!--<div id="recommendations" class="recommendation_block_pc"><ul class="posts" style="padding-right: 2em;word-break: break-word;">
+</ul>
+	
+<script src="/assets/js/jquery.min.js" ></script> <script type="text/javascript" src="/tools/sideSubs/subFormSidebar.js" async></script>
+</div>-->
+<!--old_sidebar_end-->
+
+<article id="mainpostblock" class="post"><header><div class="title"><p id="navg" style="color:#05477c;font-weight: bold;" itemscope itemtype="https://schema.org/BreadcrumbList"><span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><span itemprop="name"><a itemprop="item" target="_blank" rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B5+%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D1%8F">Серверные решения</a>
+</span><meta itemprop="position" content="0"></span>&#x2192;<span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><span itemprop="name"><a itemprop="item" target="_blank" rel="nofollow" href="https://wiki.merionet.ru/navigation/?section1=%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B5+%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D1%8F&amp;section2=DevOPS">DevOPS</a></span><meta itemprop="position" content="1"></span></p>										<h2><a href="index.html.1.93.html#">Redis – что это и для чего?</a></h2>
+										<p>Еще немного про open source</p>
+									</div>
+									<div class="meta">
+									<time class="published" datetime="2019-06-14">Июнь 14, 2019</time>
+<a href="index.html.1.93.html#" class="author"><span class="name">Мерион Нетворкс</span><img src="https://wiki.merionet.ru/images/favicon.png" alt="" /></a><p>5 минут чтения</p>
+									</div>
+								</header>							
+<p>Друг, начнем с цитаты:</p>
+  
+<div class="new-cource">
+<a target="_blank" href="https://wiki.merionet.ru/merion-academy/kurs-po-linux?utm_source=knowledgebase&utm_medium=native&utm_campaign=up&utm_content=/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/">
+<div class="new-cource-text">
+<p class="new-cource-main-p">Онлайн курс по Linux</p>
+<p class="new-cource-second-p">Мы собрали концентрат самых востребованных знаний, которые позволят тебе начать карьеру администратора Linux, расширить текущие знания и сделать уверенный шаг к DevOps</p>
+<a class="new-cource-btn" target="_blank" href="https://wiki.merionet.ru/merion-academy/kurs-po-linux?utm_source=knowledgebase&utm_medium=native&utm_campaign=up&utm_content=/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/">Начни обучение бесплатно</a>
+</div>
+<div class="new-cource-img">
+<a target="_blank" href="https://wiki.merionet.ru/merion-academy/kurs-po-linux?utm_source=knowledgebase&utm_medium=native&utm_campaign=up&utm_content=/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/">
+<img src="https://wiki.merionet.ru/images/promo/laptop.svg" alt=""></a>
+</div></a>
+</div><blockquote><b>Redis</b> – это высокопроизводительная БД с открытым исходным кодом (лицензия BSD), которая хранит данные в памяти, доступ к которым осуществляется по ключу доступа. Так же Редис это кэш и брокер сообщений.</blockquote>
+<p>Надо признаться, определение не дает точного понимания, что же такое Redis. Если это так круто, то зачем вообще нужны другие БД? На самом деле, Redis правильнее всего использовать в определенных кейсах, само собой, зная про подводные камни – именно об этом и поговорим.</p>
+<p>Про установку Redis в CentOS 8 мы рассказываем в <a target="_blank" href="https://wiki.merionet.ru/servernye-resheniya/38/ustanovka-i-nastrojka-redis-v-centos-8/">этой статье</a>.</p>
+<hr>
+<h3>Redis как база данных</h3>
+<p>Говорим про случай, когда Redis выступает в роли базы данных:</p>
+<a rel="simplebox" href="https://wiki.merionet.ru/images/redis-chto-eto-i-dlya-chego/1.png" class="image featured"><img class="article" src="https://wiki.merionet.ru/images/redis-chto-eto-i-dlya-chego/1.png" alt="Redis как база данных" title="Redis как база данных" /></a>
+<p>Пару слов <b>про ограничения</b> такой модели:</p>
+<ul>
+<li>Размер БД ограничен доступной памятью</li>
+<ul>
+<li>Шардинг (техника масштабирования) ведет к увеличению задержки</li>
+</ul>
+<li>Это <b>NoSQL</b> - никакого языка SQL</li>
+<ul>
+<li>LUA скриптинг в качестве альтернативы</li>
+</ul>
+<li>Это нереляционная СУБД!</li>
+<li>Нет сегментации на пользователей или группы пользователей. Отсутствует контроль доступа</li>
+<ul>
+<li>Доступ по общему паролю. Что скажут ваши безопасники?</li>
+</ul></ul>
+<p>Теперь про преимущества модели:</p>
+<ul>
+<li>Скорость</li>
+<ul>
+<li>Хранение данных в памяти делает быстрее работу с ними</li>
+</ul>
+<li>Скрипты на LUA</li>
+<ul>
+<li>Выполнение прямо в памяти, опять же, ускоряет работу</li>
+</ul>
+<li>Удобные форматы запросов/данных</li>
+<ul>
+<li><b>Geospatial</b> – геоданные (высота, ширина, долгота и так далее)</li>
+<li><b>Hyperloglog</b> – статистическе алгоритмы</li>
+<li><b>Hash</b> – если коротко, то хэш в Redis делают между строковыми полями и их значениями</li>
+</ul>
+<li>Алгоритмы устаревания данных</li>
+</ul>
+<hr>
+<h4>Примеры использования</h4>
+<p>Представь, у нас есть приложение, где пользователям необходимо авторизоваться, чтобы выполнять какие – либо действия внутри приложения. Каждый раз, когда мы обновляем авторизационные данные клиента, мы хотим их получать для последующего контроля.</p>
+<p>Мы могли бы отправлять лист авторизационных параметров (с некими номерами авторизаций, сроком действия с соответствующими подписями), чтобы каждое действие внутри приложения, сопровождалось авторизацонной транзакцией из листа, который мы прислали клиенту. С точки зрения безопасности, в этом подходе нет ничего плохого, если мы храним на своей стороне данные в безопасности и используем Javascript Object Signing and Encryption (JOSE), например. Но проблема появится в том случае, когда наш пользователь имеет более одной авторизации внутри приложения – такие схемы плохо поддаются масштабированию.</p>
+<p>А что если вместо отправки листа авторизационных параметров, мы сохраним его у себя, а пользователю отправим некий токен, который они должны отправлять для авторизации? Далее, по этому токену, мы легко сможем найти авторизации юзера. Это делает систему гораздо масштабируемой. Redis, такой Redis.</p>
+<p>Итого, для указанной выше схемы, мы хотим:</p>
+<ul>
+<li>Скорость</li>
+<ul>
+<li>Мы не хотим, чтобы пользователь долго ожидал авторизации</li>
+</ul>
+<li>Масштабирумость системы</li>
+<li>Сопоставление ключа (токена) с авторизациями юзера</li>
+</ul>
+<p>А вот, что на эти вызовы может ответить <b>Redis</b>:</p>
+<ul>
+<li><b>Redis</b> хранит данные в памяти – он быстрый.</li>
+<li>Redis можно кластеризовать через компонент Sentinel. Масштабируемость? Пожалуйста.</li>
+<li>В Redis куча вариантов хранения списков. Самый простой будет являться набором данных.</li>
+</ul>
+<p>В качестве бонуса от Redis, вы получите механизм экспайринга токенов (устаревания). Все будет работать.</p>
+<hr>
+<h5>Redis как кэш!</h5>
+<p><b>Redis</b> почти заменил <b>memcached</b> в современных приложениях. Его фичи делают супер – удобным кэширование данных.</p>
+<a rel="simplebox" href="https://wiki.merionet.ru/images/redis-chto-eto-i-dlya-chego/2.png" class="image featured"><img class="article" src="https://wiki.merionet.ru/images/redis-chto-eto-i-dlya-chego/2.png" alt="Redis как кэш" title="Redis как кэш" /></a>
+<p>Ограничения:</p>
+<ul>
+<li>Значения не могут превышать 512 МБ</li>
+<li>Отсутствует искусственный интеллект, который будет очищать ваше хранилище данных</li>
+</ul>
+<p>Профит:</p>
+<ul>
+<li>Совместное использование кэша разными сервисами по сети</li>
+<li>Удобные фичи, такие как LUA скриптинг, который упрощает работы с кэшом</li>
+<li>Временные ограничения для данных</li>
+</ul>
+<hr>
+<h6>Еще один кейс</h6>
+<p>Предположим, перед нами такая задача: приложение, отображает пользователям данные с определенными значениями, которые можно сортировать по множеству признаков. Все наши данные хранятся в БД (например, MySQL) и показывать отсортированные данные нужно часто. Дергать БД каждый раз весьма тяжело и ресурсозатратно, а значит, нам нужно кэшировать данные в отсортированном порядке.</p>
+<p>Окей, кейс понятен. Рэдис, что скажешь на такие требования?</p>
+<ul>
+<li>Кэш должен хранить сортированные наборы данных</li>
+<li>Нам нужно вытаскивать наборы данных внутри наборов данных (для пагинации, например, то есть для переключения между страницами)</li>
+<li>Это должно быть быстрее, чем пересчет данных с нуля</li>
+</ul>
+<p>Что скажет Redis:</p>
+<ul>
+<li>Хранить наборы данных - легко</li>
+<li>Может вытаскивать сабсеты из наборов - легко</li>
+<li>Конечно быстрее. Ведь данные хранятся в памяти</li>
+</ul>
+<hr>
+<h6>Redis как брокер сообщений</h6>
+<p>Редис может выступать в качестве брокера сообщений. Схема обычная и весьма базовая - publish–subscribe (pub/sub), или как можно перевести на русский язык «Издатель - подписчик».</p>
+<a rel="simplebox" href="https://wiki.merionet.ru/images/redis-chto-eto-i-dlya-chego/3.png" class="image featured"><img class="article" src="https://wiki.merionet.ru/images/redis-chto-eto-i-dlya-chego/3.png" alt="Redis как брокер сообщений" title="Redis как брокер сообщений" /></a>
+<p>Как и раньше, давайте обсудим плюсы и минусы, хотя их тут и не так много. Минусы:</p>
+<ul>
+<li>Только тривиальная модель pub/sub</li>
+<li>Отсутствие очередей сообщений</li>
+</ul>
+<p>Ну а плюсы, как обычно для Редиса – скорость и стабильность.</p>
+<hr>
+<h6>Кейс напоследок</h6>
+<p>Простой пример – коллаборация сотрудников одной компании. Предположим, у них есть приложение, где они работают над общими задачами. Каждый пользователь делает свой набор действий, о котором другие пользователи должны знать. А так же, юзеры могут иметь разные экземпляры приложений – десктоп, мобильный или что то еще.</p>
+<p>Требования по этой задаче:</p>
+<ul>
+<li>Низкая задержка</li>
+<ul>
+<li>Мы не хотим иметь трудности в процессе совместной работы сотрудников</li>
+</ul>
+<li>Стабильная работа и непрерывность</li>
+<li>Масштабирование</li>
+<ul>
+<li>Кампания растет и развивается</li>
+</ul></ul>
+<p>Редис, твой выход!</p>
+<ul>
+<li>Низкая задержка – да, говорили об этом ранее</li>
+<li>Стабильность – минимальное количество точек отказа в Redis </li>
+<li>Стабильная работа и непрерывность</li>
+<li>Масштабирование – сделаем кластер, нет проблем.</li>
+</ul>
+<hr>
+<h6>Выводы</h6>
+<p><b>Redis</b> - крутая штука, которая позволяет объединять сервисы и следовать <a target="_blank" rel="nofollow" href="https://12factor.net/ru/">12 принципам приложений</a>. Для приложений,  в которых нагрузка ориентирована на быстрое изменение наборов данных и высокая безопасность данных не имеет завышенных требований – Redis прекрасный выбор.</p>
+<p>Если данные нуждаются в усиленной защите, Редис подойдет в меньшей степени, лучше посмотрите в сторону MongoDB или Elasticsearch.</p>
+
+<footer>
+										
+<div style="margin-bottom:20px">  
+<div class="new-cource">
+<a target="_blank" href="https://wiki.merionet.ru/merion-academy/kurs-po-linux?utm_source=knowledgebase&utm_medium=native&utm_campaign=up&utm_content=/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/">
+<div class="new-cource-text">
+<p class="new-cource-main-p">Онлайн курс по Linux</p>
+<p class="new-cource-second-p">Мы собрали концентрат самых востребованных знаний, которые позволят тебе начать карьеру администратора Linux, расширить текущие знания и сделать уверенный шаг к DevOps</p>
+<a class="new-cource-btn" target="_blank" href="https://wiki.merionet.ru/merion-academy/kurs-po-linux?utm_source=knowledgebase&utm_medium=native&utm_campaign=up&utm_content=/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/">Начни обучение бесплатно</a>
+</div>
+<div class="new-cource-img">
+<a target="_blank" href="https://wiki.merionet.ru/merion-academy/kurs-po-linux?utm_source=knowledgebase&utm_medium=native&utm_campaign=up&utm_content=/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/">
+<img src="https://wiki.merionet.ru/images/promo/laptop.svg" alt=""></a>
+</div></a>
+</div></div><ul class="stats"><li><a href="https://wiki.merionet.ru/search/?query=%D0%BE%D0%B1%D0%B7%D0%BE%D1%80+Redis">обзор Redis</a></li><li><a href="https://wiki.merionet.ru/search/?query=%D0%A0%D0%B5%D0%B4%D0%B8%D1%81+%D0%BA%D0%B5%D0%B9%D1%81%D1%8B">Редис кейсы</a></li><li><a href="https://wiki.merionet.ru/search/?query=Redis+%D0%BF%D0%BB%D1%8E%D1%81%D1%8B+%D0%B8+%D0%BC%D0%B8%D0%BD%D1%83%D1%81%D1%8B">Redis плюсы и минусы</a></li><li><a class="icon fa-eye">33900</a></li><li><a class="icon fa-heart">0</a></li><li><a class="icon fa-comment">0</a></li><li class="dropdown"><a class="icon fa-share dropbtn share-button" onclick="shareLink()">Поделиться</a><div id="myDropdown" class="dropdown-content"> <span class="post-share__item-link post-share__item-link_normal copy-link" title="Скопировать ссылку" onclick="copyLink()">Скопировать ссылку</span> <a href="mailto:?body=https://wiki.merionet.ru/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/&subject=Статья «Redis – что это и для чего?» из IT базы знаний">Отправить на почту</a> <a href="https://www.facebook.com/sharer/sharer.php?u=https://wiki.merionet.ru/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/" class="post-share__item-link post-share__item-link_normal post-share__item-link_facebook" title="Facebook" onclick="window.open(this.href, 'Facebook', 'width=640,height=436,toolbar=0,status=0'); return false">Facebook</a> <a href="https://vk.com/share.php?url=https://wiki.merionet.ru/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/" class="post-share__item-link post-share__item-link_normal post-share__item-link_vkontakte" title="ВКонтакте" onclick="window.open(this.href, 'ВКонтакте', 'width=800,height=300,toolbar=0,status=0'); return false">ВКонтакте</a> <a href="https://t.me/share/url?url=https://wiki.merionet.ru%2Fservernye-resheniya%2F21%2Fredis-chto-eto-i-dlya-chego%2F" class="post-share__item-link post-share__item-link_normal post-share__item-link_telegram" title="Telegram" onclick="window.open(this.href, 'Telegram', 'width=800,height=300,toolbar=0,status=0'); return false">Telegram</a> <a href="https://getpocket.com/edit?url=https://wiki.merionet.ru/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/&amp;title=Redis – что это и для чего?" class="post-share__item-link post-share__item-link_normal post-share__item-link_pocket" title="Pocket" target="_blank" rel=" noopener">Pocket</a></div></li></ul></footer>
+<script>
+function shareLink(){document.getElementById("myDropdown").classList.toggle("show")}function copyLink(){var e=document.createElement("input"),o=window.location.href;document.body.appendChild(e),e.value=o,e.select(),document.execCommand("copy"),document.body.removeChild(e),showCopyMessage()}function showCopyMessage(){$(".dropbtn").text("Скопировано!"),setTimeout(function(){$(".dropbtn").text("Поделиться")},1500)}window.onclick=function(e){if(!e.target.matches(".dropbtn")){for(var o=document.getElementsByClassName("dropdown-content"),t=0;t<o.length;t++){var n=o[t];n.classList.contains("show")&&n.classList.remove("show")}$(".copy-link").text("Скопировать ссылку")}};
+</script>
+<script type="text/javascript">function showHide(form){if(document.getElementById(form)){var obj=document.getElementById(form);if(obj.style.display!="block"){obj.style.display="block"}
+else obj.style.display="none"}
+else alert("Элемент с id: "+form+" не найден!")}</script></script><hr>
+<script src="https://wiki.merionet.ru/assets/js/jquery.min.js" ></script>
+<div class='footer-buttons'><div class="vote-block"><h1>Полезно?</h1><ul class="actions"><li><a id="useful" href="javascript:void(0)" onclick="showHide('formyes');document.getElementById('notuseful').classList.add('disabled');document.getElementById('useful').classList.add('disabled');document.getElementById('formno').style.display='none';yaCounter33191803.reachGoal('ArticleGood'); return true;" class="button">Да</a></li><li><a id="notuseful" href="javascript:void(0)" onclick="showHide('formno');document.getElementById('useful').classList.add('disabled');document.getElementById('notuseful').classList.add('disabled');document.getElementById('formyes').style.display='none';yaCounter33191803.reachGoal('ArticleBad'); return true;" class="button">Нет</a></li></ul></div><div class="media-buttons"><a onclick="yaCounter33191803.reachGoal('VoIT'); return true;" target="_blank" href="https://tele.gg/Vo_IT" class="button icon fa-paper-plane telegram-button">Telegram чат</a><a target="_blank" href="https://www.youtube.com/channel/UCSTYGpIpMIiQPspjLplB6Ow?sub_confirmation=1" class="button icon  fa-youtube youtube-button">Youtube</a><a target="_blank" href="https://www.facebook.com/MerionNetworks" class="button icon fa-facebook facebook-button">Facebook</a></div></div><section id="formno" style="display: none;"><h3>Почему?</h3><p><a href="index.html.1.93.html#" class='footer-emoji author'><span>&#128554;</span></a>Мы тщательно прорабатываем каждый фидбек и отвечаем по итогам анализа. Напишите, пожалуйста, как мы сможем улучшить эту статью.</p><div id="note"></div><script type="text/javascript" src="https://wiki.merionet.ru/contact/contactform.js" async></script><form id="contact-form" action="index.html.1.93.html"><div class="row uniform"><div class="6u 12u$(xsmall) footer-h"><input type="text" name="name" id="demo-name" value="" placeholder="Имя" /></div><div class="6u$ 12u$(xsmall) footer-h"><input type="email" name="email" id="demo-email" value="" placeholder="Email" /></div><div class="6u$ 12u$(small) footer-h"><div class="g-recaptcha" data-sitekey="6LdP9rkUAAAAAHl9FrKuSQGhF0K9HRV7wG-xMmEZ"></div></div><div class="12u$ footer-f"><textarea name="message" id="demo-message" placeholder="Не сдерживайтесь в выражениях" rows="6"></textarea></div><p style="margin-bottom: 0px;">Нажимая на кнопку "<b>Отправить</b>", вы даете <a href="https://merionet.ru/soglashenie-ob-obrabotke-personalnyh-dannyh/?utm_source=knowledgebase" target="_blank">согласие на обработку своих персональных данных</a></p><div class="12u$ footer-f"><ul class="actions"><li><input type="submit" onclick="yaCounter33191803.reachGoal('badarticlesend'); return true;" name="submit" value="Отправить" /></li></ul></div></div></form></section><section id="formyes" style="display: none;"><p><a class='footer-emoji author' href="index.html.1.93.html#"><span>&#128525;</span></a><b>Полезные IT – статьи</b> от экспертов раз в неделю у вас в почте. Укажите свою дату рождения и мы не забудем поздравить вас.</p><div id="note-yes"></div><script type="text/javascript" src="https://wiki.merionet.ru/contact/contactformyes.js" async></script><form id="contact-form-yes" action="index.html.1.93.html"><div class="row uniform"><div class="6u 12u$(xsmall) footer-h"><input type="text" name="name" id="demo-name" value="" placeholder="Имя" /></div><div class="6u$ 12u$(xsmall) footer-h"><input type="email" name="email" id="demo-email" value="" placeholder="Email" /></div><input name="section1" type="text" value="Серверные решения" style="display: none;" /><input name="section2" type="text" value="DevOPS" style="display: none;" /><input name="section3" type="text" value="" style="display: none;" /><div class="6u$ 12u$(xsmall) footer-h"><input type="text" name="birthday" id="demo-name1" value="" placeholder="День рождения в формате ДД-ММ-ГГГГ"/><script type="text/javascript" src="https://wiki.merionet.ru/assets/js/jquery.maskedinput.js" async></script>
+<script type="text/javascript">jQuery(function($){$("#demo-name1").mask("99-99-9999");});
+$("#notuseful").click(function(){$.getScript("https://www.google.com/recaptcha/api.js");});
+</script></script>
+</div><p style="margin-bottom: 0px;">Нажимая на кнопку "<b>Подписаться</b>", вы даете <a href="https://merionet.ru/soglashenie-ob-obrabotke-personalnyh-dannyh/?utm_source=knowledgebase&amp;utm_content=/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/" target="_blank">согласие на обработку своих персональных данных</a></p><div class="12u$ footer-f"><ul class="actions"><li><input onclick="yaCounter33191803.reachGoal('Subscription'); return true;" type="submit" name="submit" value="Подписаться"/></li></ul></div></div></form></section><div class="recommendation_block"><hr><h6>Рекомендуем</h6><br/><ul class="posts">
+<li><article>
+<header><h3><a onclick="yaCounter33191803.reachGoal('recommendation'); return true;" href="https://wiki.merionet.ru/servernye-resheniya/94/5-luchshih-instrumentov-upravleniya-konfiguraciej-v-devops/">5 лучших инструментов управления конфигурацией в DevOps</a></h3>
+<p><a style="padding-right: 1em;border-bottom: none;" rel="nofollow" class="icon fa-eye">460</a><a style="color: #db372b;border-bottom: none;padding-right: 1em;" rel="nofollow" class="icon fa-heart">0</a><a style="border-bottom: none;padding-right: 1em;" class="icon fa-comment">0</a><a style="border-bottom: none;" class="icon fa-clock-o">7М</a></p></header><a href="https://wiki.merionet.ru/servernye-resheniya/94/5-luchshih-instrumentov-upravleniya-konfiguraciej-v-devops/" class="image"><img src="https://wiki.merionet.ru/images/5-luchshih-instrumentov-upravleniya-konfiguraciej-v-devops.png" alt=""></a></article></li><li><article>
+<header><h3><a onclick="yaCounter33191803.reachGoal('recommendation'); return true;" href="https://wiki.merionet.ru/servernye-resheniya/81/8-nadezhnyx-xostingov-s-podderzhkoj-laravel/">8 надежных хостингов с поддержкой Laravel</a></h3>
+<p><a style="padding-right: 1em;border-bottom: none;" rel="nofollow" class="icon fa-eye">0</a><a style="color: #db372b;border-bottom: none;padding-right: 1em;" rel="nofollow" class="icon fa-heart">0</a><a style="border-bottom: none;padding-right: 1em;" class="icon fa-comment">0</a><a style="border-bottom: none;" class="icon fa-clock-o">9М</a></p></header><a href="https://wiki.merionet.ru/servernye-resheniya/81/8-nadezhnyx-xostingov-s-podderzhkoj-laravel/" class="image"><img src="https://wiki.merionet.ru/images/8-nadezhnyx-xostingov-s-podderzhkoj-laravel.png" alt=""></a></article></li><li><article>
+<header><h3><a onclick="yaCounter33191803.reachGoal('recommendation'); return true;" href="https://wiki.merionet.ru/servernye-resheniya/91/ustranenie-nepoladok-podklyuchenij-bd-oracle/">Устранение неполадок подключений БД Oracle</a></h3>
+<p><a style="padding-right: 1em;border-bottom: none;" rel="nofollow" class="icon fa-eye">0</a><a style="color: #db372b;border-bottom: none;padding-right: 1em;" rel="nofollow" class="icon fa-heart">0</a><a style="border-bottom: none;padding-right: 1em;" class="icon fa-comment">0</a><a style="border-bottom: none;" class="icon fa-clock-o">4М</a></p></header><a href="https://wiki.merionet.ru/servernye-resheniya/91/ustranenie-nepoladok-podklyuchenij-bd-oracle/" class="image"><img src="https://wiki.merionet.ru/images/ustranenie-nepoladok-podklyuchenij-bd-oracle.png" alt=""></a></article></li><li><article>
+<header><h3><a onclick="yaCounter33191803.reachGoal('recommendation'); return true;" href="https://wiki.merionet.ru/servernye-resheniya/62/7-luchshix-xostingov-dlya-statichnyx-veb-sajtov/">7 лучших хостингов для статичных веб-сайтов</a></h3>
+<p><a style="padding-right: 1em;border-bottom: none;" rel="nofollow" class="icon fa-eye">1000</a><a style="color: #db372b;border-bottom: none;padding-right: 1em;" rel="nofollow" class="icon fa-heart">0</a><a style="border-bottom: none;padding-right: 1em;" class="icon fa-comment">0</a><a style="border-bottom: none;" class="icon fa-clock-o">10М</a></p></header><a href="https://wiki.merionet.ru/servernye-resheniya/62/7-luchshix-xostingov-dlya-statichnyx-veb-sajtov/" class="image"><img src="https://wiki.merionet.ru/images/7-luchshix-xostingov-dlya-statichnyx-veb-sajtov.png" alt=""></a></article></li><li><article>
+<header><h3><a onclick="yaCounter33191803.reachGoal('recommendation'); return true;" href="https://wiki.merionet.ru/servernye-resheniya/25/baza-dannyx-hadoop-uvelich-svoj-xobot/">База данных Hadoop - увеличь свой хобот</a></h3>
+<p><a style="padding-right: 1em;border-bottom: none;" rel="nofollow" class="icon fa-eye">570</a><a style="color: #db372b;border-bottom: none;padding-right: 1em;" rel="nofollow" class="icon fa-heart">0</a><a style="border-bottom: none;padding-right: 1em;" class="icon fa-comment">0</a><a style="border-bottom: none;" class="icon fa-clock-o">3М</a></p></header><a href="https://wiki.merionet.ru/servernye-resheniya/25/baza-dannyx-hadoop-uvelich-svoj-xobot/" class="image"><img src="https://wiki.merionet.ru/images/baza-dannyx-hadoop-uvelich-svoj-xobot.png" alt=""></a></article></li></ul></div>
+<div id="disqus_thread"><button id="disqus_trigger" onclick="load_disqus()">Комментарии (0)</button></div><script>function load_disqus(){var disqus_trigger=document.getElementById('disqus_trigger');var d=document, s=d.createElement('script');s.src='//wikimerionetru.disqus.com/embed.js';s.setAttribute('data-timestamp', +new Date());(d.head || d.body).appendChild(s);disqus_trigger.remove();}</script>
+</article><section id="sidebar"></article><ul class="actions pagination"><li><a href="https://wiki.merionet.ru/servernye-resheniya/?p=" class="button big previous">Список</a></li></ul><section id="footer" style="margin: 0;padding: 2em 0 0 0; border: none;"><ul class="icons" style="margin: 0 0 1em 0;"><li><a onclick="window.open(this.href); return false" href="https://www.youtube.com/channel/UCSTYGpIpMIiQPspjLplB6Ow?sub_confirmation=1" class="fa-youtube-play"><span class="label">Youtube</span></a></li><li><a onclick="window.open(this.href); return false" href="https://t.me/Vo_IT" class="fa-paper-plane"><span class="label">Telegram</span></a></li><li><a href="https://dialogs.yandex.ru/store/skills/dc7d6094-it-baza-znanij-merion-netvorks?utm_source=site&utm_medium=badge&utm_campaign=v1&utm_term=d1" target="_blank"><img alt="Алиса это умеет" src="https://dialogs.s3.yandex.net/badges/v1-term1.svg"/></a></li></ul><p class="copyright">Мерион Нетворкс &copy; 2022<br/><a target="_blank" href="https://merionet.ru/politika-konfidencialnosti/">Контакты</a><br/><a target="_blank" href="https://merionet.ru/kontakty">Политика конфиденциальности</a></p></section></section></div></div>
+<!--footer_banner-->
+<a target="_blank" href="https://wiki.merionet.ru/merion-academy/?utm_source=knowledgebase&utm_medium=ribbon&&utm_content=/servernye-resheniya/21/redis-chto-eto-i-dlya-chego/" class="bottom-banner"> <div class="bottom-banner-text"> <p><b>Скидки 50%</b> в Merion Academy</p> </div> <div class="bottom-banner-img"><img src="https://wiki.merionet.ru/images/promo/colored_crystals.svg" class="banner-crystals-img" alt=""><img src="https://wiki.merionet.ru/images/promo/rocket.svg" class="banner-rocket-img" alt=""><img src="https://wiki.merionet.ru/images/promo/rubiks_cube.svg" class="banner-rubik-img" alt=""></div> <div class="bottom-banner-btn"><span>Выбрать курс</span></div></a>
+<!--footer_banner_end-->
+<script src="https://wiki.merionet.ru/assets/bootstrap/js/google-code-prettify/prettify.js"></script><script src="https://wiki.merionet.ru/assets/bootstrap/js/bootstrap.js"></script><script src="https://wiki.merionet.ru/assets/bootstrap/js/application.js"></script>
+<style>.sp-form .sp-lg .sp-field .sp-button{color: #ffffff !important; letter-spacing: 0px;}}</style><script src="https://web.webformscr.com/apps/fc3/build/loader.js" sp-form-id="bd0d491b50e196572d3f6bdc4ba9a16bbad531257047ccef0e9189b97164afa7"></script></body>
+<script src="https://wiki.merionet.ru/assets/js/skel.min.js"></script><script src="https://wiki.merionet.ru/assets/js/util.js"></script><script src="https://wiki.merionet.ru/assets/js/main.js"></script><script type="text/javascript" src="https://wiki.merionet.ru/assets/js/images/simplebox_util.js"></script><script charset="UTF-8" src="https://cdn.sendpulse.com/js/push/0bb87009b8e322d8abfb01af967e28b1_1.js" async></script> <script type="text/javascript" src="https://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-554b6be130be4e85"></script>
+<!--<script type="text/javascript" src="/assets/js/stickysidebar.js"></script>-->
+</html>

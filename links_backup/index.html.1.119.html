@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Подробности о GraphQL: что, как и почему / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/ruvds\/blog\/445268\/"},"headline":"Подробности о GraphQL: что, как и почему","datePublished":"2019-04-03T12:00:01+03:00","dateModified":"2019-04-03T12:11:37+03:00","author":{"@type":"Person","name":"ru_vds"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"GraphQL сейчас, без преувеличения, это &mdash; последний писк IT-моды. И если вы пока не знаете о том, что это за технология, о том, как ей пользоваться, и о том, поче...","url":"https:\/\/habr.com\/ru\/company\/ruvds\/blog\/445268\/#post-content-body","about":["c_ruvds","h_webdev","f_develop"],"image":["https:\/\/habrastorage.org\/webt\/c7\/oq\/a1\/c7oqa1w2b00akzatd2womwb_daw.png","https:\/\/habrastorage.org\/getpro\/habr\/post_images\/a89\/0fd\/c56\/a890fdc56389815233584327e76011c1.png","https:\/\/habrastorage.org\/files\/1ba\/550\/d25\/1ba550d25e8846ce8805de564da6aa63.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Подробности о GraphQL: что, как и почему" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Подробности о GraphQL: что, как и почему" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Подробности о GraphQL: что, как и почему" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="GraphQL сейчас, без преувеличения, это — последний писк IT-моды. И если вы пока не знаете о том, что это за технология, о том, как ей пользоваться, и о том, почему она может вам пригодиться, значит..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="GraphQL сейчас, без преувеличения, это — последний писк IT-моды. И если вы пока не знаете о том, что это за технология, о том, как ей пользоваться, и о том, почему она может вам пригодиться, значит..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="GraphQL сейчас, без преувеличения, это — последний писк IT-моды. И если вы пока не знаете о том, что это за технология, о том, как ей пользоваться, и о том, почему она может вам пригодиться, значит..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="GraphQL сейчас, без преувеличения, это — последний писк IT-моды. И если вы пока не знаете о том, что это за технология, о том, как ей пользоваться, и о том, почему она может вам пригодиться, значит..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="GraphQL сейчас, без преувеличения, это — последний писк IT-моды. И если вы пока не знаете о том, что это за технология, о том, как ей пользоваться, и о том, почему она может вам пригодиться, значит..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/445268/227a7c85acb6e5cd9dc9882cb4205e0c/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/445268/227a7c85acb6e5cd9dc9882cb4205e0c/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/445268/227a7c85acb6e5cd9dc9882cb4205e0c/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/445268/227a7c85acb6e5cd9dc9882cb4205e0c/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/445268/227a7c85acb6e5cd9dc9882cb4205e0c/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="445268" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2019-04-03T09:00:01.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/ruvds/blog/445268/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="GraphQL, разработка">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/445268/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.119.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/445268/227a7c85acb6e5cd9dc9882cb4205e0c/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="ruvds" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><div class="tm-company-card__branding tm-company-article__branding tm-company-card__branding_loading"><div class="tm-company-card__branding-placeholder"><!----></div> <a href="https://ruvds.com/ru-rub"><img src="https://habrastorage.org/getpro/habr/branding/b77/8d5/a41/b778d5a41f83016379c6630262c3294c.png" width="100%" class="tm-company-card__branding-image"></a></div></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/ruvds/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/f27/ea8/5bd/f27ea85bd62fbd985c308110885af7e0.png" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">2738.1</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/ruvds/profile/" class="tm-company-card__name">
+      RUVDS.com
+    </a> <div class="tm-company-card__description">VDS/VPS-хостинг. Скидка 10% по коду <b>HABR10</b></div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/ru_vds/" title="ru_vds" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/e36/812/d3d/e36812d3de38eb3d479d7a13228717ef.png" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/ru_vds/" class="tm-user-info__username">
+      ru_vds
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2019-04-03T09:00:01.000Z" title="2019-04-03, 12:00">3  апреля  2019 в 12:00</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Подробности о GraphQL: что, как и почему</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/ruvds/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании RUVDS.com</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-translation"><span>
+        Перевод
+      </span></div><div class="tm-article-snippet__label tm-article-snippet__label_variant-tutorial"><span>
+        Tutorial
+      </span></div></div> <!----> <!----></div></div> <div class="tm-article-presenter__origin"><a href="https://ponyfoo.com/articles/graphql-in-depth-what-why-and-how" target="_blank" class="tm-article-presenter__origin-link">
+                Автор оригинала:
+                <span>
+                  Ryan Glover
+                </span></a></div> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">GraphQL сейчас, без преувеличения, это — последний писк IT-моды. И если вы пока не знаете о том, что это за технология, о том, как ей пользоваться, и о том, почему она может вам пригодиться, значит статья, перевод которой мы сегодня публикуем, написана специально для вас. Здесь мы разберём основы GraphQL на примере реализации схемы данных для API компании, которая занимается попкорном. В частности, поговорим о типах данных, запросах и мутациях.<br/>
+<br/>
+<a href="index.html.1.119.html"><img src="https://habrastorage.org/r/w1560/webt/c7/oq/a1/c7oqa1w2b00akzatd2womwb_daw.png" data-src="https://habrastorage.org/webt/c7/oq/a1/c7oqa1w2b00akzatd2womwb_daw.png"/></a><br/>
+<a name="habracut"></a><br/>
+<h2><font color="#3AC1EF">Что такое GraphQL?</font></h2><br/>
+GraphQL — это язык запросов, используемый клиентскими приложениями для работы с данными. C GraphQL связано такое понятие, как «схема» — это то, что позволяет организовывать создание, чтение, обновление и удаление данных в вашем приложении (то есть — перед нами четыре базовые функции, используемые при работе с хранилищами данных, которые обычно обозначают акронимом CRUD — create, read, update, delete).<br/>
+<br/>
+Выше было сказано, что GraphQL используется для работы с данными в «вашем приложении», а не «в вашей базе данных». Дело в том, что GraphQL — это система, независимая от источников данных, то есть, для организации её работы неважно — где именно хранятся данные.<br/>
+<br/>
+Если взглянуть, ничего не зная о GraphQL, на название этой технологии, то может показаться, что перед нами что-то очень сложное и запутанное. В названии технологии имеется слово «Graph». Означает ли это, что для того, чтобы её освоить, придётся учиться работать с графовыми базами данных? А то, что в названии есть «QL» (что может значить «query language», то есть — «язык запросов»), означает ли, что тем, кто хочет пользоваться GraphQL, придётся осваивать совершенно новый язык программирования?<br/>
+<br/>
+Эти страхи не вполне оправданы. Для того чтобы вас успокоить — вот жестокая правда об этой технологии: она представляет собой всего лишь приукрашенные <code>GET</code> или <code>POST</code> запросы. В то время как GraphQL, в целом, вводит некоторые новые концепции, касающиеся организации данных и взаимодействия с ними, внутренние механизмы этой технологии полагаются на старые добрые HTTP-запросы.<br/>
+<br/>
+<h2><font color="#3AC1EF">Переосмысление технологии REST</font></h2><br/>
+Гибкость — это то, что отличает технологию GraphQL от широко известной технологии REST. При использовании REST, если всё сделано правильно, конечные точки обычно создают с учётом особенностей некоего ресурса или типа данных приложения.<br/>
+<br/>
+Например, при выполнении <code>GET</code>-запроса к конечной точке <code>/api/v1/flavors</code> ожидается, что она отправит ответ, выглядящий примерно так:<br/>
+<br/>
+<pre><code class="plaintext">[
+  {
+   "id": 1,
+    "name": "The Lazy Person's Movie Theater",
+    "description": "That elusive flavor that you begrudgingly carted yourself to the theater for, now in the comfort of your own home, you slob!"
+  }, {
+    "id": 2,
+    "name": "What's Wrong With You Caramel",
+    "description": "You're a crazy person that likes sweet popcorn. Congratulations."
+  }, {
+    "id": 3,
+    "name": "Gnarly Chili Lime",
+    "description": "The kind of popcorn you make when you need a good smack in the face."}
+]</code></pre><br/>
+В таком ответе ничего катастрофически неправильного нет, но подумаем о пользовательском интерфейсе, или скорее о том, как мы намереваемся потреблять эти данные.<br/>
+<br/>
+Если мы хотим вывести в интерфейсе простой список, который содержит лишь названия имеющихся видов попкорна (и ничего другого), то этот список может выглядеть так, как показано ниже.<br/>
+<br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/a89/0fd/c56/a890fdc56389815233584327e76011c1.png" data-src="https://habrastorage.org/getpro/habr/post_images/a89/0fd/c56/a890fdc56389815233584327e76011c1.png"/></div><br/>
+<i><font color="#999999">Список видов попкорна</font></i><br/>
+<br/>
+Видно, что тут мы попали в непростую ситуацию. Мы вполне можем решить не использовать поле <code>description</code>, но собираемся ли мы сидеть сложа руки и делать вид, будто мы не отправляли это поле клиенту? А что нам ещё остаётся делать? А когда нас, через несколько месяцев, спросят о том, почему приложение так медленно работает у пользователей, нам останется лишь дать дёру и больше не встречаться с руководством компании, для которой мы сделали это приложение.<br/>
+<br/>
+На самом деле, то, что сервер отправляет в ответ на запрос клиента ненужные данные, это не полностью наша вина. REST — это механизм получения данных, который можно сравнить с рестораном, в котором официант спрашивает посетителя: «Чего вы хотите?», и, не особенно обращая внимание на его пожелания, говорит ему: «Я принесу вам то, что у нас есть».<br/>
+<br/>
+Если же отбросить в сторону шутки, то в реальных приложениях подобное может вести к проблемным ситуациям. Например, мы можем выводить различные дополнительные сведения о каждом виде попкорна, наподобие сведений о цене, информации о производителе или диетологических сведений («Веганский попкорн!»). При этом негибкие конечные точки REST сильно усложняют получение специфических данных о конкретных видах попкорна, что ведёт к неоправданно высокой нагрузке на системы и к тому, что получающиеся решения оказываются далеко не такими, которыми разработчики могли бы гордиться.<br/>
+<br/>
+<h2><font color="#3AC1EF">Как технология GraphQL улучшает то, для чего использовалась технология REST</font></h2><br/>
+При поверхностном анализе вышеописанной ситуации может показаться, что перед нами всего лишь незначительная проблема. «Что плохого в том, что мы отправляем клиенту ненужные данные?». Для того чтобы понять масштабы, в которых «ненужные данные» могут стать большой проблемой, вспомним о том, что технология GraphQL была разработана компанией Facebook. Этой компании приходится обслуживать миллионы запросов в секунду.<br/>
+<br/>
+Что это значит? А то, что при таких объёмах значение имеет каждая мелочь.<br/>
+<br/>
+GraphQL, если продолжить аналогию с рестораном, вместо того, чтобы «нести» посетителю «то, что есть», приносит именно то, что посетитель заказывает.<br/>
+<br/>
+Мы можем получить от GraphQL ответ, ориентированный на тот контекст, в котором используются данные. При этом нам не нужно добавлять в систему «одноразовые» точки доступа, выполнять множество запросов или писать многоэтажные условные конструкции.<br/>
+<br/>
+<h2><font color="#3AC1EF">Как работает GraphQL?</font></h2><br/>
+Как мы уже говорили, GraphQL, для передачи данных клиенту и получения их от него, полагается на простые <code>GET</code> или <code>POST</code>-запросы. Если подробнее рассмотреть эту мысль, то оказывается, что в GraphQL есть два вида запросов. К первому виду относятся запросы на чтение данных, которые в терминологии GraphQL называются просто запросами (query) и относятся к букве R (reading, чтение) акронима CRUD. Запросы второго вида — это запросы на изменение данных, которые в GraphQL называют мутациями (mutation). Они относятся к буксам C, U и D акронима CRUD, то есть — с их помощью выполняют операции создания (create), обновления (update) и удаления (delete) записей.<br/>
+<br/>
+Все эти запросы и мутации отправляют на URL GraphQL-сервера, который, например, может выглядеть как <code>https://myapp.com/graphql</code>, в виде <code>GET</code> или <code>POST</code>-запросов. Подробнее об этом мы поговорим ниже.<br/>
+<br/>
+<h2><font color="#3AC1EF">Запросы GraphQL</font></h2><br/>
+Запросы GraphQL — это сущности, представляющие собой запрос к серверу на получение неких данных. Например, у нас есть некий пользовательский интерфейс, который мы хотим заполнить данными. За этими данными мы и обращаемся к серверу, выполняя запрос. При использовании традиционных REST API наш запрос принимает вид GET-запроса. При работе с GraphQL используется новый синтаксис построения запросов:<br/>
+<br/>
+<pre><code class="plaintext">{
+  flavors {
+    name
+  }
+}</code></pre><br/>
+Это что, JSON? Или JavaScript-объект? Ни то и ни другое. Как мы уже говорили, в названии технологии GraphQL две последние буквы, QL, означают «query language», то есть — язык запросов. Речь идёт, в буквальном смысле, о новом языке написания запросов на получение данных. Звучит всё это как описание чего-то довольно сложного, но на самом деле ничего сложного тут нет. Разберём вышеприведённый запрос:<br/>
+<br/>
+<pre><code class="plaintext">{
+  // Сюда помещают описания полей, которые нужно получить.
+
+}</code></pre><br/>
+Все запросы начинаются с «корневого запроса», а то, что нужно получить в ходе выполнения запроса, называется полем. Для того чтобы избавить себя от путаницы, лучше всего называть эти сущности «полями запроса в схеме». Если вам такое наименование кажется непонятным — подождите немного — ниже мы подробнее поговорим о схеме. Здесь мы, в корневом запросе, запрашиваем поле <code>flavors</code>.<br/>
+<br/>
+<pre><code class="plaintext">{
+  flavors {
+    // Вложенные поля, которые мы хотим получить для каждого значения flavor.
+
+  }
+}</code></pre><br/>
+Запрашивая некое поле, мы, кроме того, должны указать вложенные поля, которые нужно получить для каждого объекта, который приходит в ответе на запрос (даже если ожидается, что в ответ на запрос придёт всего один объект).<br/>
+<br/>
+<pre><code class="plaintext">{
+  flavors {
+    name
+  }
+}</code></pre><br/>
+Что в итоге получится? После того, как мы отправим такой запрос GraphQL-серверу, мы получим хорошо оформленный аккуратный ответ наподобие следующего:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "data": {
+    "flavors": [
+      { "name": "The Lazy Person's Movie Theater" },
+      { "name": "What's Wrong With You Caramel" },
+      { "name": "Gnarly Chili Lime" }
+    ]
+  }
+}</code></pre><br/>
+Обратите внимание на то, что здесь нет ничего лишнего. Для того чтобы было понятнее — вот ещё один запрос, выполняемый для получения данных на другой странице приложения:<br/>
+<br/>
+<pre><code class="plaintext">{
+  flavors {
+    id
+    name
+    description
+  }
+}</code></pre><br/>
+В ответ на этот запрос мы получим следующее:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "data": {
+    "flavors": [
+      { "id": 1, "name": "The Lazy Person's Movie Theater", description: "That elusive flavor that you begrudgingly carted yourself to the theater for, now in the comfort of your own home, you slob!" },
+      { "id": 2, "name": "What's Wrong With You Caramel", description: "You're a crazy person that likes sweet popcorn. Congratulations." },
+      { "id": 3, "name": "Gnarly Chili Lime", description: "A friend told me this would taste good. It didn't. It burned my kernels. I haven't had the heart to tell him." }
+    ]
+  }
+}</code></pre><br/>
+Как видите, GraphQL — очень мощная технология. Обращаемся мы к одной и той же конечной точке, а ответы на запросы в точности соответствуют тому, что нужно для наполнения той страницы, с которой выполняются эти запросы.<br/>
+<br/>
+Если нам нужно получить лишь один объект <code>flavor</code>, то мы можем воспользоваться тем фактом, что GraphQL умеет работать с аргументами:<br/>
+<br/>
+<pre><code class="plaintext">{
+  flavors(id: "1") {
+    id
+    name
+    description
+  }
+}</code></pre><br/>
+Тут мы жёстко задали в коде конкретный идентификатор (<code>id</code>) объекта, сведения о котором нам нужны, но в подобных случаях можно использовать и динамические идентификаторы:<br/>
+<br/>
+<pre><code class="plaintext">query getFlavor($id: ID) {
+  flavors(id: $id) {
+    id
+    name
+    description
+  }
+}</code></pre><br/>
+Здесь, в первой строке, мы даём запросу имя (имя выбирается произвольным образом, <code>getFlavor</code> можно заменить на нечто вроде <code>pizza</code>, и запрос останется работоспособным) и объявляем переменные, которые ожидает запрос. В данном случае предполагается, что запросу будет передан идентификатор (<code>id</code>) скалярного типа <code>ID</code> (о типах мы поговорим ниже).<br/>
+<br/>
+Независимо от того, статический или динамический <code>id</code> используется при выполнении запроса, вот как будет выглядеть ответ на подобный запрос:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "data": {
+    "flavors": [
+      { "id": 1, "name": "The Lazy Person's Movie Theater", description: "That elusive flavor that you begrudgingly carted yourself to the theater for, now in the comfort of your own home, you slob!" }
+    ]
+  }
+}</code></pre><br/>
+Как видите, всё устроено очень удобно. Вероятно, вы уже начинаете размышлять о применении GraphQL в собственном проекте. И, хотя то, о чём мы уже говорили, выглядит замечательно, красота GraphQL по-настоящему проявляется там, где работают с вложенными полями. Предположим, что в нашей схеме есть ещё одно поле, которое называется <code>nutrition</code> и содержит сведения о пищевой ценности разных видов попкорна:<br/>
+<br/>
+<pre><code class="plaintext">{
+  flavors {
+    id
+    name
+    nutrition {
+      calories
+      fat
+      sodium
+    }
+  }
+}</code></pre><br/>
+Может показаться, что в нашем хранилище данных, в каждом объекте <code>flavor</code>, будет содержаться вложенный объект <code>nutrition</code>. Но это не совсем так. Используя GraphQL можно комбинировать обращения к самостоятельным, но связанным источникам данных в одном запросе, что позволяет получать ответы, дающие удобство работы с вложенными данными без необходимости денормализации базы данных:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "data": {
+    "flavors": [
+      {
+        "id": 1,
+        "name": "The Lazy Person's Movie Theater",
+        "nutrition": {
+          "calories": 500,
+          "fat": 12,
+          "sodium": 1000
+        }
+      },
+      ...
+
+    ]
+  }
+}</code></pre><br/>
+Это способно значительно увеличить продуктивность труда программиста и скорость работы системы.<br/>
+<br/>
+До сих пор мы говорили о запросах на чтение. А как насчёт запросов на обновление данных? Их использование даёт нам те же удобства?<br/>
+<br/>
+<h2><font color="#3AC1EF">Мутации GraphQL</font></h2><br/>
+В то время как запросы GraphQL выполняют загрузку данных, мутации ответственны за внесение в данные изменений. Мутации могут быть использованы в виде базового механизма RPC (Remote Procedure Call, вызов удалённых процедур) для решения различных задач наподобие отправки данных пользователя API стороннего разработчика.<br/>
+<br/>
+При описании мутаций используется синтаксис, напоминающий тот, который мы применяли при формировании запросов:<br/>
+<br/>
+<pre><code class="plaintext">mutation updateFlavor($id: ID!, $name: String, $description: String) {
+  updateFlavor(id: $id, name: $name, description: $description) {
+    id
+    name
+    description
+  }
+}</code></pre><br/>
+Здесь мы объявляем мутацию <code>updateFlavor</code>, указывая некоторые переменные — <code>id</code>, <code>name</code> и <code>description</code>. Действуя по той же схеме, которая применяется при описании запросов, мы «оформляем» изменяемые поля (корневую мутацию) с помощью ключевого слова <code>mutation</code>, за которым следует имя, описывающее мутацию, и набор переменных, которые нужны для формирования соответствующего запроса на изменение данных.<br/>
+<br/>
+Эти переменные включают в себя то, что мы пытаемся изменить, или то, мутацию чего мы хотим вызвать. Обратите внимание также и на то, что после выполнения мутации мы можем запросить возврат некоторых полей.<br/>
+<br/>
+В данном случае нам нужно получить, после изменения записи, поля <code>id</code>, <code>name</code> и <code>description</code>. Это может пригодиться при разработке чего-то вроде оптимистичных интерфейсов, избавляя нас от необходимости выполнять запрос на получение изменённых данных после их изменения.<br/>
+<br/>
+<h2><font color="#3AC1EF">Разработка схемы и подключение её к GraphQL-серверу</font></h2><br/>
+До сих пор мы говорили о том, как GraphQL работает на клиенте, о том, как выполняют запросы. Теперь поговорим о том, как на эти запросы реагировать.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍GraphQL-сервер</font></h3><br/>
+Для того, чтобы выполнить GraphQL-запрос, нужен GraphQL-сервер, которому можно такой запрос отправить. GraphQL-сервер представляет собой обычный HTTP-сервер (если вы пишете на JavaScript — то это может быть сервер, созданный с помощью Express или Hapi), к которому присоединена GraphQL-схема.<br/>
+<br/>
+<pre><code class="plaintext">import express from 'express'
+import graphqlHTTP from 'express-graphql'
+import schema from './schema'
+
+const app = express()
+
+app.use('/graphql', graphqlHTTP({
+  schema: schema,
+  graphiql: true
+}))
+
+app.listen(4000)</code></pre><br/>
+Под «присоединением» схемы мы понимаем механизм, который пропускает через схему запросы, полученные от клиента, и возвращает ему ответы. Это похоже на воздушный фильтр, через который воздух поступает в помещение.<br/>
+<br/>
+Процесс «фильтрации» связан с запросами или мутациями, отправляемыми клиентом на сервер. И запросы и мутации разрешаются с использованием функций, связанных с полями, определёнными в корневом запросе или в корневой мутации схемы.<br/>
+<br/>
+Выше приведён пример каркаса HTTP-сервера, созданного с помощью JavaScript-библиотеки Express. Используя функцию <code>graphqlHTTP</code> из пакета <code>express-graphql</code> от Facebook, мы «прикрепляем» схему (предполагается, что она описана в отдельном файле) и запускаем сервер на порту 4000. То есть, клиенты, если говорить о локальном использовании этого сервера, смогут отправлять запросы по адресу <code>http://localhost:4000/graphql</code>.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Типы данных и распознаватели</font></h3><br/>
+Для того чтобы обеспечить работу GraphQL-сервера, нужно подготовить схему и присоединить её к нему.<br/>
+<br/>
+Вспомните о том, что выше мы говорили об объявлении полей в корневом запросе или в корневой мутации.<br/>
+<br/>
+<pre><code class="plaintext">import gql from 'graphql-tag'
+import mongodb from '/path/to/mongodb’ // Это - лишь пример. Предполагается, что `mongodb` даёт нам подключение к MongoDB.
+
+
+const schema = {
+  typeDefs: gql`
+    type Nutrition {
+      flavorId: ID
+      calories: Int
+      fat: Int
+      sodium: Int
+    }
+
+    type Flavor {
+      id: ID
+      name: String
+      description: String
+      nutrition: Nutrition
+    }
+
+    type Query {
+      flavors(id: ID): [Flavor]
+    }
+
+    type Mutation {
+      updateFlavor(id: ID!, name: String, description: String): Flavor
+    }
+  `,
+  resolvers: {
+    Query: {
+      flavors: (parent, args) => {
+        // Предполагается, что args равно объекту, наподобие { id: '1' }
+        return mongodb.collection('flavors').find(args).toArray()
+      },
+    },
+    Mutation: {
+      updateFlavor: (parent, args) => {
+        // Предполагается, что args равно объекту наподобие { id: '1', name: 'Movie Theater Clone', description: 'Bring the movie theater taste home!' }
+
+        // Выполняем обновление.
+
+        mongodb.collection('flavors').update(args)
+
+        // Возвращаем flavor после обновления.
+
+        return mongodb.collection('flavors').findOne(args.id)
+      },
+    },
+    Flavor: {
+      nutrition: (parent) => {
+        return mongodb.collection('nutrition').findOne({
+          flavorId: parent.id,
+        })
+      }
+    },
+  },
+}
+
+export default schema</code></pre><br/>
+Определение полей в схеме GraphQL состоит из двух частей — из объявлений типов (<code>typeDefs</code>) и распознавателей (<code>resolver</code>). Сущность <code>typeDefs</code> содержит объявления типов для данных, используемых в приложении. Например, ранее мы говорили о запросе на получение с сервера списка объектов <code>flavor</code>. Для того чтобы к нашему серверу можно было бы выполнить подобный запрос, нужно сделать следующие три шага:<br/>
+<br/>
+<ol>
+<li>Сообщить схеме о том, как выглядят данные объектов <code>flavor</code> (в примере, приведённом выше, это выглядит как объявление типа <code>type Flavor</code>).</li>
+<li>Объявить поле в корневом поле <code>type Query</code> (это свойство <code>flavors</code> значения <code>type Query</code>).</li>
+<li>Объявить функцию-распознаватель объекта <code>resolvers.Query</code>, написанную в соответствии с полями, объявленными в корневом поле <code>type Query</code>.</li>
+</ol><br/>
+Обратим теперь внимание на <code>typeDefs</code>. Здесь мы сообщаем схеме сведения о форме (shape) наших данных. Другими словами, мы сообщаем GraphQL о разных свойствах, которые могут содержаться в сущностях соответствующего типа.<br/>
+<br/>
+<pre><code class="plaintext">type Flavor {
+  id: ID
+  name: String
+  description: String
+  nutrition: Nutrition
+}</code></pre><br/>
+Объявление <code>type Flavor</code> указывает на то, что объект <code>flavor</code> может содержать поле <code>id</code> типа <code>ID</code>, поле <code>name</code> типа <code>String</code>, поле <code>description</code> типа <code>String</code> и поле <code>nutrition</code> типа <code>Nutrition</code>.<br/>
+<br/>
+В случае с <code>nutrition</code> мы используем здесь имя другого типа, объявленного в <code>typeDefs</code>. Здесь конструкция <code>type Nutrition</code> описывает форму данных о пищевой ценности попкорна.<br/>
+<br/>
+Обратите внимание на то, что мы тут, как и в самом начале этого материала, говорим о «приложении», а не о «базе данных». В вышеприведённом примере предполагается, что у нас есть база данных, но данные в приложение могут поступать из любого источника. Это может быть даже API стороннего разработчика или статический файл.<br/>
+<br/>
+Так же, как мы поступали в объявлении <code>type Flavor</code>, здесь мы указываем имена полей, которые будут содержаться в объектах <code>nutrition</code>, используя, в качестве типов данных этих полей (свойств) то, что в GraphQL называется скалярными типами данных. На момент написания этого материала в GraphQL поддерживалось <a href="https://graphql.org/learn/schema/#scalar-types">5 встроенных скалярных типов данных</a>:<br/>
+<br/>
+<ul>
+<li><code>Int</code>: целое 32-битное число со знаком.</li>
+<li><code>Float</code>: число двойной точности с плавающей точкой со знаком.</li>
+<li><code>String</code>: последовательность символов в кодировке UTF-8.</li>
+<li><code>Boolean</code>: логическое значение <code>true</code> или <code>false</code>.</li>
+<li><code>ID</code>: уникальный идентификатор, часто используемый для многократной загрузки объектов или в качестве ключа в кэше. Значения типа <code>ID</code> сериализуются так же, как строки, однако указание на то, что некое значение имеет тип <code>ID</code>, подчёркивает тот факт, что это значение предназначено не для показа его людям, а для использования в программах.</li>
+</ul><br/>
+В дополнение к этим скалярным типам мы можем назначать свойствам и типы, определённые нами самостоятельно. Именно так мы поступили, назначив свойству <code>nutrition</code>, описанному в конструкции <code>type Flavor</code>, тип <code>Nutrition</code>.<br/>
+<br/>
+<pre><code class="plaintext">type Query {
+  flavors(id: ID): [Flavor]
+}</code></pre><br/>
+В конструкции <code>type Query</code>, в которой описывается корневой тип <code>Query</code> (тот «корневой запрос», о котором мы говорили ранее), мы объявляем имя поля, которое может быть запрошено. Объявляя это поле, мы, кроме того, вместе с типом данных, который ожидаем вернуть, указываем аргументы, которые могут поступить в запросе.<br/>
+<br/>
+В данном примере мы ожидаем возможного поступления аргумента <code>id</code> скалярного типа <code>ID</code>. В качестве ответа на такой запрос ожидается массив объектов, устройство которых напоминает устройство типа <code>Flavor</code>.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Подключение распознавателя запросов</font></h3><br/>
+Теперь, когда в корневом <code>type Query</code> имеется определение поля <code>field</code>, нам нужно описать то, что называется функцией-распознавателем.<br/>
+<br/>
+Это — то место, где GraphQL, более или менее, «останавливается». Если мы посмотрим на объект <code>resolvers</code> схемы, а затем на объект <code>Query</code>, вложенный в него, мы можем увидеть там свойство <code>flavors</code>, которому назначена функция. Эта функция и называется распознавателем для поля <code>flavors</code>, которое объявлено в корневом <code>type Query</code>.<br/>
+<br/>
+<pre><code class="plaintext">typeDefs: gql`…`,
+resolvers: {
+  Query: {
+    flavors: (parent, args) => {
+      // Предполагается, что args равно объекту наподобие { id: '1' }
+      return mongodb.collection('flavors').find(args).toArray()
+    },
+  },
+  …
+},</code></pre><br/>
+Эта функция-распознаватель принимает несколько аргументов. Аргумент <code>parent</code> — это родительский запрос, если таковой существует, аргумент <code>args</code> тоже передаётся запросу в том случае, если он существует. Здесь ещё может использоваться аргумент <code>context</code>, который в нашем случае не представлен. Он даёт возможность работать с различными «контекстными» данными (например — со сведениями о текущем пользователе в том случае, если сервер поддерживает систему учётных записей пользователей).<br/>
+<br/>
+Внутри распознавателя мы делаем всё, что нужно для того, чтобы выполнить запрос. Именно здесь GraphQL «перестаёт беспокоиться» о происходящем и позволяет нам выполнять загрузку и возврат данных. Тут, повторимся, можно работать с любыми источниками данных.<br/>
+<br/>
+Хотя GraphQL и не интересуют источники поступления данных, эту систему чрезвычайно сильно интересует то, что именно мы возвращаем. Мы можем вернуть JSON-объект, массив JSON-объектов, промис (его разрешение GraphQL берёт на себя).<br/>
+<br/>
+Тут мы используем мок-обращение к коллекции <code>flavors</code> базы данных MongoDB, передавая <code>args</code> (если соответствующий аргумент передан распознавателю) в вызов <code>.find()</code> и возвращая то, что будет найдено в результате выполнения этого вызова, в виде массива.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Получение данных для вложенных полей</font></h3><br/>
+Выше мы уже разобрали кое-что, относящееся к GraphQL, но сейчас, возможно, пока непонятно то, как быть с вложенным полем <code>nutrition</code>. Помните о том, что данные, представленные полем <code>Nutrition</code>, мы, на самом деле, не храним совместно с основными данными, описывающими сущность <code>flavor</code>. Мы исходим из предположения о том, что эти данные хранятся в отдельной коллекции/таблице базы данных.<br/>
+<br/>
+Хотя мы сообщили GraphQL о том, что <code>type Flavor</code> может включать в себя данные <code>nutrition</code> в форме <code>type Nutrition</code>, мы не пояснили системе порядок получения этих данных из хранилища. Эти данные, как уже было сказано, хранятся отдельно от данных сущностей <code>flavor</code>.<br/>
+<br/>
+<pre><code class="plaintext">typeDefs: gql`
+    type Nutrition {
+      flavorId: ID
+      calories: Int
+      fat: Int
+      sodium: Int
+    }
+
+    type Flavor {
+      […]
+      nutrition: Nutrition
+    }
+
+    type Query {…}
+
+    type Mutation {…}
+  `,
+  resolvers: {
+    Query: {
+      flavors: (parent, args) => {…},
+    },
+    Mutation: {…},
+    Flavor: {
+      nutrition: (parent) => {
+        return mongodb.collection('nutrition').findOne({
+          flavorId: parent.id,
+        })
+      }
+    },
+  },</code></pre><br/>
+Если присмотреться повнимательнее к объекту <code>resolvers</code> в схеме, то можно заметить, что тут имеются вложенные объекты <code>Query</code>, <code>Mutation</code> и <code>Flavor</code>. Они соответствуют типам, которые мы объявили выше в <code>typeDefs</code>.<br/>
+<br/>
+Если посмотреть на объект <code>Flavors</code>, то окажется, что поле <code>nutrition</code> в нём объявлено как функция-распознаватель. Заметной особенностью такого решения является тот факт, что мы объявляем функцию непосредственно в типе <code>Flavor</code>. Другими словами, мы говорим системе: «Мы хотим, чтобы ты загрузила поле <code>nutrition</code> именно так для любого запроса, использующего <code>type Flavor</code>».<br/>
+<br/>
+В этой функции мы выполняем обычный запрос к MongoDB, но тут обратите внимание на то, что мы используем аргумент <code>parent</code>, переданный функции-распознавателю. То, что представлено здесь аргументом <code>parent</code>, представляет собой то, что содержится в полях, имеющихся во <code>flavors</code>. Например, если нам нужны все сущности <code>flavor</code>, мы выполним такой запрос:<br/>
+<br/>
+<pre><code class="plaintext">{
+  flavors {
+    id
+    name
+    nutrition {
+      calories
+    }
+  }
+}</code></pre><br/>
+Каждое поле <code>flavor</code>, возвращённое из <code>flavors</code>, мы пропустим через распознаватель <code>nutrition</code>, при этом данное значение будет представлено аргументом <code>parent</code>. Если присмотреться к этой конструкции, то окажется, что мы, в запросе к MongoDB, используем поле <code>parent.id</code>, которое представляет собой <code>id</code> сущности <code>flavor</code>, обработкой которой мы занимаемся в данный момент.<br/>
+<br/>
+Идентификатор <code>parent.id</code> передаётся в запросе к базе данных, где производится поиск записи <code>nutrition</code> с идентификатором <code>flavorId</code>, которая соответствует обрабатываемой сущности <code>flavor</code>.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Подключение мутаций</font></h3><br/>
+То, что мы уже знаем о запросах, отлично переносится и на мутации. На самом деле, процесс подготовки мутаций практически полностью совпадает с процессом подготовки запросов. Если взглянуть на корневую сущность <code>type Mutation</code>, то можно увидеть, что мы объявили в ней поле <code>updateFlavor</code>, принимающее аргументы, задаваемые на клиенте.<br/>
+<br/>
+<pre><code class="plaintext">type Mutation {
+  updateFlavor(id: ID!, name: String, description: String): Flavor
+}</code></pre><br/>
+Этот код можно расшифровать так: «Мы ожидаем, что мутация <code>updateFlavor</code> принимает <code>id</code> типа <code>ID</code> (восклицательный знак, <code>!</code>, сообщает GraphQL о том, что это поле необходимо), <code>name</code> типа <code>String</code> и <code>description</code> типа <code>String</code>». Кроме того, после завершения выполнения мутации мы ожидаем возврат некоторых данных, структура которых напоминает тип <code>Flavor</code> (то есть — объект, который содержит свойства <code>id</code>, <code>name</code>, <code>description</code>, и, возможно, <code>nutrition</code>).<br/>
+<br/>
+<pre><code class="plaintext">{
+  typeDefs: gql`…`,
+  resolvers: {
+    Mutation: {
+      updateFlavor: (parent, args) => {
+        // Предполагается, что args равно объекту наподобие { id: '1', name: 'Movie Theater Clone', description: 'Bring the movie theater taste home!' }
+
+        // Выполняем обновление.
+
+        mongodb.collection('flavors').update(
+          { id: args.id },
+          {
+            $set: {
+              ...args,
+            },
+          },
+        )
+
+        // Возвращаем flavor после обновления.
+
+        return mongodb.collection('flavors').findOne(args.id)
+      },
+    },
+  },
+}</code></pre><br/>
+Внутри функции-распознавателя для мутации <code>updateFlavor</code> мы делаем именно то, чего от подобной функции можно ожидать: организуем взаимодействие с базой данных для того, чтобы изменить в ней, то есть — обновить, сведения об интересующей нас сущности <code>flavor</code>.<br/>
+<br/>
+Обратите внимание на то, что сразу же после выполнения обновления обновление мы выполняем обращение к базе данных для того, чтобы снова найти ту же сущность <code>flavor</code> и вернуть её из распознавателя. Почему это так?<br/>
+<br/>
+Вспомните о том, что на клиенте мы ожидаем получить объект в том состоянии, в которое он был приведён после завершения мутации. В данном примере мы ожидаем, что будет возвращена сущность <code>flavor</code>, которую мы только что обновили.<br/>
+<br/>
+Можно ли просто вернуть объект <code>args</code>? Да, можно. Причина, по которой мы решили в данном случае этого не делать, заключается в том, что мы хотим быть на 100% уверенными в том, что операция обновления информации в базе данных прошла успешно. Если мы прочтём из базы данных информацию, которая должна быть изменённой, и окажется, что она и правда изменена, тогда можно сделать вывод о том, что операция выполнена успешно.<br/>
+<br/>
+<h2><font color="#3AC1EF">Зачем может понадобиться использовать GraphQL?</font></h2><br/>
+Хотя то, созданием чего мы только что занимались, выглядит не особенно масштабно, сейчас у нас есть функционирующее, хотя и простое, GraphQL-API.<br/>
+<br/>
+Как и в случае с любой новой технологией, после первого знакомства с GraphQL вы можете задаться вопросом о том, зачем вам может пригодиться нечто подобное. Честно говоря, на этот вопрос нельзя дать однозначного и простого ответа. Очень уж много всего нужно учесть для того, чтобы такой ответ найти. И можно, кстати, подумать о том, чтобы вместо GraphQL просто выбрать проверенную временем технологию REST или напрямую обращаться к базе данных. Собственно говоря, вот несколько идей, над которыми стоит поразмыслить в поисках ответа на вопрос о том, нужна ли вам технология GraphQL.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Вы стремитесь уменьшить количество запросов, выполняемых с клиента</font></h3><br/>
+Многие приложения страдают от того, что им приходится выполнять слишком много HTTP-запросов, от того, что делать это приходится слишком часто, и от того, что это — сложные запросы. В то время как использование технологии GraphQL не позволяет полностью отказаться от выполнения запросов, эта технология, если ей правильно пользоваться, способна значительно уменьшить количество запросов, выполняемых со стороны клиента (во многих случаях для получения некоего набора связанных данных достаточно лишь одного запроса).<br/>
+<br/>
+Является ли ваш проект приложением с множеством пользователей, или приложением, обрабатывающим огромные объёмы данных (например — это нечто вроде системы для работы с медицинскими данными), использование GraphQL определённо улучшит производительность его клиентской части.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Вы хотите избежать денормализации данных, проводимой лишь ради того, чтобы оптимизировать работу механизмов построения пользовательского интерфейса</font></h3><br/>
+В приложениях, в которых используются большие объёмы реляционных данных, часто может возникать «ловушка денормализации». Хотя такой подход и оказывается рабочим, он, вне всякого сомнения, далёк от идеала. Его применение может плохо влиять на производительность систем. Благодаря использованию GraphQL и вложенных запросов необходимость в денормализации данных значительно уменьшается.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍У вас есть множество источников информации, к которым вы обращаетесь из разных приложений</font></h3><br/>
+Эта проблема может быть частично решена с помощью традиционных REST API, но даже при таком подходе одна проблема всё ещё остаётся: единообразие запросов, выполняемых с клиентской стороны. Предположим, что в ваш проект входят веб-приложение, приложения для iOS и Android, а также API для разработчиков. В подобных условиях вам, вероятнее всего, придётся, на каждой платформе, «мастерить из подручных материалов» средства для выполнения запросов.<br/>
+<br/>
+Это ведёт к тому, что приходится поддерживать, на разных платформах, несколько реализаций HTTP, это означает отсутствие единообразия в средствах выполнения запросов и наличие запутанных конечных точек API (вы, наверняка, такое уже видели).<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Может быть технология GraphQL — это верх совершенства? Стоит ли мне прямо сейчас выбросить мой REST API и перейти на GraphQL?</font></h3><br/>
+Нет, конечно. Ничто не совершенно. И, надо отметить, работать с GraphQL не так уж и просто. Для того чтобы создать работающую схему GraphQL, нужно выполнить множество обязательных шагов. Так как вы только изучаете данную технологию, это может вывести вас из равновесия, так как нелегко бывает понять то, чего именно не хватает в вашей схеме для правильной работы системы. При этом сообщения об ошибках, возникающих на клиенте и на сервере, могут оказаться не особенно полезными.<br/>
+<br/>
+Далее, использование GraphQL на клиенте, в том, что выходит за рамки языка запросов, не стандартизовано. Хотя работу с GraphQL могут облегчить различные библиотеки, самыми популярными из которых являются Apollo и Relay, каждая из них отличается собственными специфическими особенностями.<br/>
+<br/>
+GraphQL — это, кроме того, всего лишь спецификация. Пакеты вроде <code>graphql</code> (этот пакет используется внутри пакета <code>express-graphql</code>, применённого в нашем примере) — это всего лишь реализации данной спецификации. Другими словами, разные реализации GraphQL для разных языков программирования могут по-разному интерпретировать спецификацию. Это может привести к возникновению проблем, идёт ли речь о разработчике-одиночке, или о команде, в которой, при работе над разными проектами, используются разные языки программирования.<br/>
+<br/>
+<h2><font color="#3AC1EF">Итоги</font></h2><br/>
+Несмотря на то, что внедрение GraphQL может оказаться непростой задачей, эта технология представляет собой впечатляющий шаг вперёд в сфере обработки данных. GraphQL нельзя назвать лекарством от всех болезней, но с этой технологией, определённо, стоит поэкспериментировать. Начать можно, например, поразмыслив о самой запутанной и неопрятной подсистеме, используемой в вашем проекте при работе с данными, и попытавшись реализовать эту подсистему средствами GraphQL.<br/>
+<br/>
+Кстати, тут у меня для вас приятная новость: GraphQL можно реализовывать инкрементно. Для того чтобы извлечь выгоды из применения этой технологии нет нужды переводить на GraphQL абсолютно всё. Так, постепенно вводя в проект GraphQL, можно разобраться с этой технологией самому, заинтересовать команду, и, если то, что получится, всех устроит, двигаться дальше.<br/>
+<br/>
+Главное — помните о том, что GraphQL — это, в конечном счёте, всего лишь инструмент. Применение GraphQL не означает необходимости в полной переработке всего, что было раньше. При этом надо отметить, что GraphQL — это технология, с которой, определённо, стоит познакомиться. Многим стоит подумать и о применении этой технологии в своих проектах. В частности, если ваши проекты кажутся не особенно производительными, если вы занимаетесь разработкой сложных интерфейсов, наподобие панелей управления, лент новостей или профилей пользователей, то вы уже знаете о том, где именно вы можете опробовать GraphQL.<br/>
+<br/>
+<b>Уважаемые читатели!</b> Если сегодня состоялось ваше первое знакомство с GraphQL — просим рассказать нам о том, планируете ли вы использовать эту технологию в своих проектах.<br/>
+<br/>
+<a href="https://ruvds.com/ru-rub/#order"><img src="https://habrastorage.org/r/w1560/files/1ba/550/d25/1ba550d25e8846ce8805de564da6aa63.png" data-src="https://habrastorage.org/files/1ba/550/d25/1ba550d25e8846ce8805de564da6aa63.png"/></a></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BGraphQL%5D" class="tm-tags-list__link">GraphQL</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0%5D" class="tm-tags-list__link">разработка</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/ruvds/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании RUVDS.com
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 27: ↑23 и ↓4</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 27: ↑23 и ↓4" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+19</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">46K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    202
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/ruvds/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/f27/ea8/5bd/f27ea85bd62fbd985c308110885af7e0.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/ruvds/profile/" class="tm-company-snippet__title">RUVDS.com</a> <div class="tm-company-snippet__description">VDS/VPS-хостинг. Скидка 10% по коду <b>HABR10</b></div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="https://facebook.com/ruvds" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Facebook
+    </a><a href="https://twitter.com/ru_vds" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Twitter
+    </a><a href="https://vk.com/ru_vds" rel="noopener" target="_blank" class="tm-article-author__contact">
+      ВКонтакте
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/ru_vds/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/e36/812/d3d/e36812d3de38eb3d479d7a13228717ef.png" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 1009 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    247
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">131.5</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><!----> <a href="https://habr.com/ru/users/ru_vds/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @ru_vds
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/ruvds/blog/445268/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 23 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2015-07-26T21:00:00.000Z" title="2015-07-27, 00:00">27  июля  2015</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://ruvds.com" target="_blank" class="tm-company-basic-info__link">
+      ruvds.com
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    11–30 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2016-03-18T05:43:01.000Z" title="2016-03-18, 08:43">18  марта  2016</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Представитель</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://habr.com/ru/users/ruvds/" class="tm-company-basic-info__link">
+      ruvds
+    </a></dd></dl></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/ruvds/blog/445268/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/ruvds/blog/445268/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"445268":{"id":"445268","timePublished":"2019-04-03T09:00:01+00:00","isCorporative":true,"lang":"ru","titleHtml":"Подробности о GraphQL: что, как и почему","leadData":{"textHtml":"GraphQL сейчас, без преувеличения, это — последний писк IT-моды. И если вы пока не знаете о том, что это за технология, о том, как ей пользоваться, и о том, почему она может вам пригодиться, значит статья, перевод которой мы сегодня публикуем, написана специально для вас. Здесь мы разберём основы GraphQL на примере реализации схемы данных для API компании, которая занимается попкорном. В частности, поговорим о типах данных, запросах и мутациях.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fru\u002Fcompany\u002Fruvds\u002Fblog\u002F445268\u002F\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fc7\u002Foq\u002Fa1\u002Fc7oqa1w2b00akzatd2womwb_daw.png\"\u003E\u003C\u002Fa\u003E\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"translation","data":{"originalAuthorName":"Ryan Glover","originalUrl":"https:\u002F\u002Fponyfoo.com\u002Farticles\u002Fgraphql-in-depth-what-why-and-how"}},{"type":"tutorial","data":null}],"author":{"scoreStats":{"score":247,"votesCount":1009},"rating":131.5,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1220775","alias":"ru_vds","fullname":null,"avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002Fe36\u002F812\u002Fd3d\u002Fe36812d3de38eb3d479d7a13228717ef.png","speciality":"Пользователь"},"statistics":{"commentsCount":23,"favoritesCount":202,"readingCount":46454,"score":19,"votesCount":27},"hubs":[{"relatedData":null,"id":"19791","alias":"ruvds","type":"corporative","title":"Блог компании RUVDS.com","titleHtml":"Блог компании RUVDS.com","isProfiled":false},{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EGraphQL сейчас, без преувеличения, это — последний писк IT-моды. И если вы пока не знаете о том, что это за технология, о том, как ей пользоваться, и о том, почему она может вам пригодиться, значит статья, перевод которой мы сегодня публикуем, написана специально для вас. Здесь мы разберём основы GraphQL на примере реализации схемы данных для API компании, которая занимается попкорном. В частности, поговорим о типах данных, запросах и мутациях.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fru\u002Fcompany\u002Fruvds\u002Fblog\u002F445268\u002F\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fc7\u002Foq\u002Fa1\u002Fc7oqa1w2b00akzatd2womwb_daw.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fc7\u002Foq\u002Fa1\u002Fc7oqa1w2b00akzatd2womwb_daw.png\"\u002F\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EЧто такое GraphQL?\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nGraphQL — это язык запросов, используемый клиентскими приложениями для работы с данными. C GraphQL связано такое понятие, как «схема» — это то, что позволяет организовывать создание, чтение, обновление и удаление данных в вашем приложении (то есть — перед нами четыре базовые функции, используемые при работе с хранилищами данных, которые обычно обозначают акронимом CRUD — create, read, update, delete).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВыше было сказано, что GraphQL используется для работы с данными в «вашем приложении», а не «в вашей базе данных». Дело в том, что GraphQL — это система, независимая от источников данных, то есть, для организации её работы неважно — где именно хранятся данные.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли взглянуть, ничего не зная о GraphQL, на название этой технологии, то может показаться, что перед нами что-то очень сложное и запутанное. В названии технологии имеется слово «Graph». Означает ли это, что для того, чтобы её освоить, придётся учиться работать с графовыми базами данных? А то, что в названии есть «QL» (что может значить «query language», то есть — «язык запросов»), означает ли, что тем, кто хочет пользоваться GraphQL, придётся осваивать совершенно новый язык программирования?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭти страхи не вполне оправданы. Для того чтобы вас успокоить — вот жестокая правда об этой технологии: она представляет собой всего лишь приукрашенные \u003Ccode\u003EGET\u003C\u002Fcode\u003E или \u003Ccode\u003EPOST\u003C\u002Fcode\u003E запросы. В то время как GraphQL, в целом, вводит некоторые новые концепции, касающиеся организации данных и взаимодействия с ними, внутренние механизмы этой технологии полагаются на старые добрые HTTP-запросы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EПереосмысление технологии REST\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nГибкость — это то, что отличает технологию GraphQL от широко известной технологии REST. При использовании REST, если всё сделано правильно, конечные точки обычно создают с учётом особенностей некоего ресурса или типа данных приложения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНапример, при выполнении \u003Ccode\u003EGET\u003C\u002Fcode\u003E-запроса к конечной точке \u003Ccode\u003E\u002Fapi\u002Fv1\u002Fflavors\u003C\u002Fcode\u003E ожидается, что она отправит ответ, выглядящий примерно так:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E[\n  {\n   \"id\": 1,\n    \"name\": \"The Lazy Person's Movie Theater\",\n    \"description\": \"That elusive flavor that you begrudgingly carted yourself to the theater for, now in the comfort of your own home, you slob!\"\n  }, {\n    \"id\": 2,\n    \"name\": \"What's Wrong With You Caramel\",\n    \"description\": \"You're a crazy person that likes sweet popcorn. Congratulations.\"\n  }, {\n    \"id\": 3,\n    \"name\": \"Gnarly Chili Lime\",\n    \"description\": \"The kind of popcorn you make when you need a good smack in the face.\"}\n]\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ таком ответе ничего катастрофически неправильного нет, но подумаем о пользовательском интерфейсе, или скорее о том, как мы намереваемся потреблять эти данные.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли мы хотим вывести в интерфейсе простой список, который содержит лишь названия имеющихся видов попкорна (и ничего другого), то этот список может выглядеть так, как показано ниже.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fa89\u002F0fd\u002Fc56\u002Fa890fdc56389815233584327e76011c1.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fa89\u002F0fd\u002Fc56\u002Fa890fdc56389815233584327e76011c1.png\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003E\u003Cfont color=\"#999999\"\u003EСписок видов попкорна\u003C\u002Ffont\u003E\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВидно, что тут мы попали в непростую ситуацию. Мы вполне можем решить не использовать поле \u003Ccode\u003Edescription\u003C\u002Fcode\u003E, но собираемся ли мы сидеть сложа руки и делать вид, будто мы не отправляли это поле клиенту? А что нам ещё остаётся делать? А когда нас, через несколько месяцев, спросят о том, почему приложение так медленно работает у пользователей, нам останется лишь дать дёру и больше не встречаться с руководством компании, для которой мы сделали это приложение.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа самом деле, то, что сервер отправляет в ответ на запрос клиента ненужные данные, это не полностью наша вина. REST — это механизм получения данных, который можно сравнить с рестораном, в котором официант спрашивает посетителя: «Чего вы хотите?», и, не особенно обращая внимание на его пожелания, говорит ему: «Я принесу вам то, что у нас есть».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли же отбросить в сторону шутки, то в реальных приложениях подобное может вести к проблемным ситуациям. Например, мы можем выводить различные дополнительные сведения о каждом виде попкорна, наподобие сведений о цене, информации о производителе или диетологических сведений («Веганский попкорн!»). При этом негибкие конечные точки REST сильно усложняют получение специфических данных о конкретных видах попкорна, что ведёт к неоправданно высокой нагрузке на системы и к тому, что получающиеся решения оказываются далеко не такими, которыми разработчики могли бы гордиться.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EКак технология GraphQL улучшает то, для чего использовалась технология REST\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nПри поверхностном анализе вышеописанной ситуации может показаться, что перед нами всего лишь незначительная проблема. «Что плохого в том, что мы отправляем клиенту ненужные данные?». Для того чтобы понять масштабы, в которых «ненужные данные» могут стать большой проблемой, вспомним о том, что технология GraphQL была разработана компанией Facebook. Этой компании приходится обслуживать миллионы запросов в секунду.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЧто это значит? А то, что при таких объёмах значение имеет каждая мелочь.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nGraphQL, если продолжить аналогию с рестораном, вместо того, чтобы «нести» посетителю «то, что есть», приносит именно то, что посетитель заказывает.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМы можем получить от GraphQL ответ, ориентированный на тот контекст, в котором используются данные. При этом нам не нужно добавлять в систему «одноразовые» точки доступа, выполнять множество запросов или писать многоэтажные условные конструкции.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EКак работает GraphQL?\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nКак мы уже говорили, GraphQL, для передачи данных клиенту и получения их от него, полагается на простые \u003Ccode\u003EGET\u003C\u002Fcode\u003E или \u003Ccode\u003EPOST\u003C\u002Fcode\u003E-запросы. Если подробнее рассмотреть эту мысль, то оказывается, что в GraphQL есть два вида запросов. К первому виду относятся запросы на чтение данных, которые в терминологии GraphQL называются просто запросами (query) и относятся к букве R (reading, чтение) акронима CRUD. Запросы второго вида — это запросы на изменение данных, которые в GraphQL называют мутациями (mutation). Они относятся к буксам C, U и D акронима CRUD, то есть — с их помощью выполняют операции создания (create), обновления (update) и удаления (delete) записей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВсе эти запросы и мутации отправляют на URL GraphQL-сервера, который, например, может выглядеть как \u003Ccode\u003Ehttps:\u002F\u002Fmyapp.com\u002Fgraphql\u003C\u002Fcode\u003E, в виде \u003Ccode\u003EGET\u003C\u002Fcode\u003E или \u003Ccode\u003EPOST\u003C\u002Fcode\u003E-запросов. Подробнее об этом мы поговорим ниже.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EЗапросы GraphQL\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nЗапросы GraphQL — это сущности, представляющие собой запрос к серверу на получение неких данных. Например, у нас есть некий пользовательский интерфейс, который мы хотим заполнить данными. За этими данными мы и обращаемся к серверу, выполняя запрос. При использовании традиционных REST API наш запрос принимает вид GET-запроса. При работе с GraphQL используется новый синтаксис построения запросов:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  flavors {\n    name\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭто что, JSON? Или JavaScript-объект? Ни то и ни другое. Как мы уже говорили, в названии технологии GraphQL две последние буквы, QL, означают «query language», то есть — язык запросов. Речь идёт, в буквальном смысле, о новом языке написания запросов на получение данных. Звучит всё это как описание чего-то довольно сложного, но на самом деле ничего сложного тут нет. Разберём вышеприведённый запрос:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \u002F\u002F Сюда помещают описания полей, которые нужно получить.\n\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВсе запросы начинаются с «корневого запроса», а то, что нужно получить в ходе выполнения запроса, называется полем. Для того чтобы избавить себя от путаницы, лучше всего называть эти сущности «полями запроса в схеме». Если вам такое наименование кажется непонятным — подождите немного — ниже мы подробнее поговорим о схеме. Здесь мы, в корневом запросе, запрашиваем поле \u003Ccode\u003Eflavors\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  flavors {\n    \u002F\u002F Вложенные поля, которые мы хотим получить для каждого значения flavor.\n\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗапрашивая некое поле, мы, кроме того, должны указать вложенные поля, которые нужно получить для каждого объекта, который приходит в ответе на запрос (даже если ожидается, что в ответ на запрос придёт всего один объект).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  flavors {\n    name\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЧто в итоге получится? После того, как мы отправим такой запрос GraphQL-серверу, мы получим хорошо оформленный аккуратный ответ наподобие следующего:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"data\": {\n    \"flavors\": [\n      { \"name\": \"The Lazy Person's Movie Theater\" },\n      { \"name\": \"What's Wrong With You Caramel\" },\n      { \"name\": \"Gnarly Chili Lime\" }\n    ]\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nОбратите внимание на то, что здесь нет ничего лишнего. Для того чтобы было понятнее — вот ещё один запрос, выполняемый для получения данных на другой странице приложения:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  flavors {\n    id\n    name\n    description\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ ответ на этот запрос мы получим следующее:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"data\": {\n    \"flavors\": [\n      { \"id\": 1, \"name\": \"The Lazy Person's Movie Theater\", description: \"That elusive flavor that you begrudgingly carted yourself to the theater for, now in the comfort of your own home, you slob!\" },\n      { \"id\": 2, \"name\": \"What's Wrong With You Caramel\", description: \"You're a crazy person that likes sweet popcorn. Congratulations.\" },\n      { \"id\": 3, \"name\": \"Gnarly Chili Lime\", description: \"A friend told me this would taste good. It didn't. It burned my kernels. I haven't had the heart to tell him.\" }\n    ]\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКак видите, GraphQL — очень мощная технология. Обращаемся мы к одной и той же конечной точке, а ответы на запросы в точности соответствуют тому, что нужно для наполнения той страницы, с которой выполняются эти запросы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли нам нужно получить лишь один объект \u003Ccode\u003Eflavor\u003C\u002Fcode\u003E, то мы можем воспользоваться тем фактом, что GraphQL умеет работать с аргументами:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  flavors(id: \"1\") {\n    id\n    name\n    description\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТут мы жёстко задали в коде конкретный идентификатор (\u003Ccode\u003Eid\u003C\u002Fcode\u003E) объекта, сведения о котором нам нужны, но в подобных случаях можно использовать и динамические идентификаторы:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Equery getFlavor($id: ID) {\n  flavors(id: $id) {\n    id\n    name\n    description\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗдесь, в первой строке, мы даём запросу имя (имя выбирается произвольным образом, \u003Ccode\u003EgetFlavor\u003C\u002Fcode\u003E можно заменить на нечто вроде \u003Ccode\u003Epizza\u003C\u002Fcode\u003E, и запрос останется работоспособным) и объявляем переменные, которые ожидает запрос. В данном случае предполагается, что запросу будет передан идентификатор (\u003Ccode\u003Eid\u003C\u002Fcode\u003E) скалярного типа \u003Ccode\u003EID\u003C\u002Fcode\u003E (о типах мы поговорим ниже).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНезависимо от того, статический или динамический \u003Ccode\u003Eid\u003C\u002Fcode\u003E используется при выполнении запроса, вот как будет выглядеть ответ на подобный запрос:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"data\": {\n    \"flavors\": [\n      { \"id\": 1, \"name\": \"The Lazy Person's Movie Theater\", description: \"That elusive flavor that you begrudgingly carted yourself to the theater for, now in the comfort of your own home, you slob!\" }\n    ]\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКак видите, всё устроено очень удобно. Вероятно, вы уже начинаете размышлять о применении GraphQL в собственном проекте. И, хотя то, о чём мы уже говорили, выглядит замечательно, красота GraphQL по-настоящему проявляется там, где работают с вложенными полями. Предположим, что в нашей схеме есть ещё одно поле, которое называется \u003Ccode\u003Enutrition\u003C\u002Fcode\u003E и содержит сведения о пищевой ценности разных видов попкорна:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  flavors {\n    id\n    name\n    nutrition {\n      calories\n      fat\n      sodium\n    }\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nМожет показаться, что в нашем хранилище данных, в каждом объекте \u003Ccode\u003Eflavor\u003C\u002Fcode\u003E, будет содержаться вложенный объект \u003Ccode\u003Enutrition\u003C\u002Fcode\u003E. Но это не совсем так. Используя GraphQL можно комбинировать обращения к самостоятельным, но связанным источникам данных в одном запросе, что позволяет получать ответы, дающие удобство работы с вложенными данными без необходимости денормализации базы данных:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"data\": {\n    \"flavors\": [\n      {\n        \"id\": 1,\n        \"name\": \"The Lazy Person's Movie Theater\",\n        \"nutrition\": {\n          \"calories\": 500,\n          \"fat\": 12,\n          \"sodium\": 1000\n        }\n      },\n      ...\n\n    ]\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭто способно значительно увеличить продуктивность труда программиста и скорость работы системы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДо сих пор мы говорили о запросах на чтение. А как насчёт запросов на обновление данных? Их использование даёт нам те же удобства?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EМутации GraphQL\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nВ то время как запросы GraphQL выполняют загрузку данных, мутации ответственны за внесение в данные изменений. Мутации могут быть использованы в виде базового механизма RPC (Remote Procedure Call, вызов удалённых процедур) для решения различных задач наподобие отправки данных пользователя API стороннего разработчика.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПри описании мутаций используется синтаксис, напоминающий тот, который мы применяли при формировании запросов:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Emutation updateFlavor($id: ID!, $name: String, $description: String) {\n  updateFlavor(id: $id, name: $name, description: $description) {\n    id\n    name\n    description\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗдесь мы объявляем мутацию \u003Ccode\u003EupdateFlavor\u003C\u002Fcode\u003E, указывая некоторые переменные — \u003Ccode\u003Eid\u003C\u002Fcode\u003E, \u003Ccode\u003Ename\u003C\u002Fcode\u003E и \u003Ccode\u003Edescription\u003C\u002Fcode\u003E. Действуя по той же схеме, которая применяется при описании запросов, мы «оформляем» изменяемые поля (корневую мутацию) с помощью ключевого слова \u003Ccode\u003Emutation\u003C\u002Fcode\u003E, за которым следует имя, описывающее мутацию, и набор переменных, которые нужны для формирования соответствующего запроса на изменение данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭти переменные включают в себя то, что мы пытаемся изменить, или то, мутацию чего мы хотим вызвать. Обратите внимание также и на то, что после выполнения мутации мы можем запросить возврат некоторых полей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ данном случае нам нужно получить, после изменения записи, поля \u003Ccode\u003Eid\u003C\u002Fcode\u003E, \u003Ccode\u003Ename\u003C\u002Fcode\u003E и \u003Ccode\u003Edescription\u003C\u002Fcode\u003E. Это может пригодиться при разработке чего-то вроде оптимистичных интерфейсов, избавляя нас от необходимости выполнять запрос на получение изменённых данных после их изменения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EРазработка схемы и подключение её к GraphQL-серверу\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nДо сих пор мы говорили о том, как GraphQL работает на клиенте, о том, как выполняют запросы. Теперь поговорим о том, как на эти запросы реагировать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍GraphQL-сервер\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nДля того, чтобы выполнить GraphQL-запрос, нужен GraphQL-сервер, которому можно такой запрос отправить. GraphQL-сервер представляет собой обычный HTTP-сервер (если вы пишете на JavaScript — то это может быть сервер, созданный с помощью Express или Hapi), к которому присоединена GraphQL-схема.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Eimport express from 'express'\nimport graphqlHTTP from 'express-graphql'\nimport schema from '.\u002Fschema'\n\nconst app = express()\n\napp.use('\u002Fgraphql', graphqlHTTP({\n  schema: schema,\n  graphiql: true\n}))\n\napp.listen(4000)\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПод «присоединением» схемы мы понимаем механизм, который пропускает через схему запросы, полученные от клиента, и возвращает ему ответы. Это похоже на воздушный фильтр, через который воздух поступает в помещение.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПроцесс «фильтрации» связан с запросами или мутациями, отправляемыми клиентом на сервер. И запросы и мутации разрешаются с использованием функций, связанных с полями, определёнными в корневом запросе или в корневой мутации схемы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВыше приведён пример каркаса HTTP-сервера, созданного с помощью JavaScript-библиотеки Express. Используя функцию \u003Ccode\u003EgraphqlHTTP\u003C\u002Fcode\u003E из пакета \u003Ccode\u003Eexpress-graphql\u003C\u002Fcode\u003E от Facebook, мы «прикрепляем» схему (предполагается, что она описана в отдельном файле) и запускаем сервер на порту 4000. То есть, клиенты, если говорить о локальном использовании этого сервера, смогут отправлять запросы по адресу \u003Ccode\u003Ehttp:\u002F\u002Flocalhost:4000\u002Fgraphql\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Типы данных и распознаватели\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nДля того чтобы обеспечить работу GraphQL-сервера, нужно подготовить схему и присоединить её к нему.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВспомните о том, что выше мы говорили об объявлении полей в корневом запросе или в корневой мутации.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Eimport gql from 'graphql-tag'\nimport mongodb from '\u002Fpath\u002Fto\u002Fmongodb’ \u002F\u002F Это - лишь пример. Предполагается, что `mongodb` даёт нам подключение к MongoDB.\n\n\nconst schema = {\n  typeDefs: gql`\n    type Nutrition {\n      flavorId: ID\n      calories: Int\n      fat: Int\n      sodium: Int\n    }\n\n    type Flavor {\n      id: ID\n      name: String\n      description: String\n      nutrition: Nutrition\n    }\n\n    type Query {\n      flavors(id: ID): [Flavor]\n    }\n\n    type Mutation {\n      updateFlavor(id: ID!, name: String, description: String): Flavor\n    }\n  `,\n  resolvers: {\n    Query: {\n      flavors: (parent, args) =\u003E {\n        \u002F\u002F Предполагается, что args равно объекту, наподобие { id: '1' }\n        return mongodb.collection('flavors').find(args).toArray()\n      },\n    },\n    Mutation: {\n      updateFlavor: (parent, args) =\u003E {\n        \u002F\u002F Предполагается, что args равно объекту наподобие { id: '1', name: 'Movie Theater Clone', description: 'Bring the movie theater taste home!' }\n\n        \u002F\u002F Выполняем обновление.\n\n        mongodb.collection('flavors').update(args)\n\n        \u002F\u002F Возвращаем flavor после обновления.\n\n        return mongodb.collection('flavors').findOne(args.id)\n      },\n    },\n    Flavor: {\n      nutrition: (parent) =\u003E {\n        return mongodb.collection('nutrition').findOne({\n          flavorId: parent.id,\n        })\n      }\n    },\n  },\n}\n\nexport default schema\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nОпределение полей в схеме GraphQL состоит из двух частей — из объявлений типов (\u003Ccode\u003EtypeDefs\u003C\u002Fcode\u003E) и распознавателей (\u003Ccode\u003Eresolver\u003C\u002Fcode\u003E). Сущность \u003Ccode\u003EtypeDefs\u003C\u002Fcode\u003E содержит объявления типов для данных, используемых в приложении. Например, ранее мы говорили о запросе на получение с сервера списка объектов \u003Ccode\u003Eflavor\u003C\u002Fcode\u003E. Для того чтобы к нашему серверу можно было бы выполнить подобный запрос, нужно сделать следующие три шага:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EСообщить схеме о том, как выглядят данные объектов \u003Ccode\u003Eflavor\u003C\u002Fcode\u003E (в примере, приведённом выше, это выглядит как объявление типа \u003Ccode\u003Etype Flavor\u003C\u002Fcode\u003E).\u003C\u002Fli\u003E\r\n\u003Cli\u003EОбъявить поле в корневом поле \u003Ccode\u003Etype Query\u003C\u002Fcode\u003E (это свойство \u003Ccode\u003Eflavors\u003C\u002Fcode\u003E значения \u003Ccode\u003Etype Query\u003C\u002Fcode\u003E).\u003C\u002Fli\u003E\r\n\u003Cli\u003EОбъявить функцию-распознаватель объекта \u003Ccode\u003Eresolvers.Query\u003C\u002Fcode\u003E, написанную в соответствии с полями, объявленными в корневом поле \u003Ccode\u003Etype Query\u003C\u002Fcode\u003E.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nОбратим теперь внимание на \u003Ccode\u003EtypeDefs\u003C\u002Fcode\u003E. Здесь мы сообщаем схеме сведения о форме (shape) наших данных. Другими словами, мы сообщаем GraphQL о разных свойствах, которые могут содержаться в сущностях соответствующего типа.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Etype Flavor {\n  id: ID\n  name: String\n  description: String\n  nutrition: Nutrition\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nОбъявление \u003Ccode\u003Etype Flavor\u003C\u002Fcode\u003E указывает на то, что объект \u003Ccode\u003Eflavor\u003C\u002Fcode\u003E может содержать поле \u003Ccode\u003Eid\u003C\u002Fcode\u003E типа \u003Ccode\u003EID\u003C\u002Fcode\u003E, поле \u003Ccode\u003Ename\u003C\u002Fcode\u003E типа \u003Ccode\u003EString\u003C\u002Fcode\u003E, поле \u003Ccode\u003Edescription\u003C\u002Fcode\u003E типа \u003Ccode\u003EString\u003C\u002Fcode\u003E и поле \u003Ccode\u003Enutrition\u003C\u002Fcode\u003E типа \u003Ccode\u003ENutrition\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ случае с \u003Ccode\u003Enutrition\u003C\u002Fcode\u003E мы используем здесь имя другого типа, объявленного в \u003Ccode\u003EtypeDefs\u003C\u002Fcode\u003E. Здесь конструкция \u003Ccode\u003Etype Nutrition\u003C\u002Fcode\u003E описывает форму данных о пищевой ценности попкорна.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОбратите внимание на то, что мы тут, как и в самом начале этого материала, говорим о «приложении», а не о «базе данных». В вышеприведённом примере предполагается, что у нас есть база данных, но данные в приложение могут поступать из любого источника. Это может быть даже API стороннего разработчика или статический файл.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак же, как мы поступали в объявлении \u003Ccode\u003Etype Flavor\u003C\u002Fcode\u003E, здесь мы указываем имена полей, которые будут содержаться в объектах \u003Ccode\u003Enutrition\u003C\u002Fcode\u003E, используя, в качестве типов данных этих полей (свойств) то, что в GraphQL называется скалярными типами данных. На момент написания этого материала в GraphQL поддерживалось \u003Ca href=\"https:\u002F\u002Fgraphql.org\u002Flearn\u002Fschema\u002F#scalar-types\"\u003E5 встроенных скалярных типов данных\u003C\u002Fa\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ccode\u003EInt\u003C\u002Fcode\u003E: целое 32-битное число со знаком.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003EFloat\u003C\u002Fcode\u003E: число двойной точности с плавающей точкой со знаком.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003EString\u003C\u002Fcode\u003E: последовательность символов в кодировке UTF-8.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003EBoolean\u003C\u002Fcode\u003E: логическое значение \u003Ccode\u003Etrue\u003C\u002Fcode\u003E или \u003Ccode\u003Efalse\u003C\u002Fcode\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003EID\u003C\u002Fcode\u003E: уникальный идентификатор, часто используемый для многократной загрузки объектов или в качестве ключа в кэше. Значения типа \u003Ccode\u003EID\u003C\u002Fcode\u003E сериализуются так же, как строки, однако указание на то, что некое значение имеет тип \u003Ccode\u003EID\u003C\u002Fcode\u003E, подчёркивает тот факт, что это значение предназначено не для показа его людям, а для использования в программах.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nВ дополнение к этим скалярным типам мы можем назначать свойствам и типы, определённые нами самостоятельно. Именно так мы поступили, назначив свойству \u003Ccode\u003Enutrition\u003C\u002Fcode\u003E, описанному в конструкции \u003Ccode\u003Etype Flavor\u003C\u002Fcode\u003E, тип \u003Ccode\u003ENutrition\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Etype Query {\n  flavors(id: ID): [Flavor]\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ конструкции \u003Ccode\u003Etype Query\u003C\u002Fcode\u003E, в которой описывается корневой тип \u003Ccode\u003EQuery\u003C\u002Fcode\u003E (тот «корневой запрос», о котором мы говорили ранее), мы объявляем имя поля, которое может быть запрошено. Объявляя это поле, мы, кроме того, вместе с типом данных, который ожидаем вернуть, указываем аргументы, которые могут поступить в запросе.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ данном примере мы ожидаем возможного поступления аргумента \u003Ccode\u003Eid\u003C\u002Fcode\u003E скалярного типа \u003Ccode\u003EID\u003C\u002Fcode\u003E. В качестве ответа на такой запрос ожидается массив объектов, устройство которых напоминает устройство типа \u003Ccode\u003EFlavor\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Подключение распознавателя запросов\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nТеперь, когда в корневом \u003Ccode\u003Etype Query\u003C\u002Fcode\u003E имеется определение поля \u003Ccode\u003Efield\u003C\u002Fcode\u003E, нам нужно описать то, что называется функцией-распознавателем.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто — то место, где GraphQL, более или менее, «останавливается». Если мы посмотрим на объект \u003Ccode\u003Eresolvers\u003C\u002Fcode\u003E схемы, а затем на объект \u003Ccode\u003EQuery\u003C\u002Fcode\u003E, вложенный в него, мы можем увидеть там свойство \u003Ccode\u003Eflavors\u003C\u002Fcode\u003E, которому назначена функция. Эта функция и называется распознавателем для поля \u003Ccode\u003Eflavors\u003C\u002Fcode\u003E, которое объявлено в корневом \u003Ccode\u003Etype Query\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EtypeDefs: gql`…`,\nresolvers: {\n  Query: {\n    flavors: (parent, args) =\u003E {\n      \u002F\u002F Предполагается, что args равно объекту наподобие { id: '1' }\n      return mongodb.collection('flavors').find(args).toArray()\n    },\n  },\n  …\n},\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭта функция-распознаватель принимает несколько аргументов. Аргумент \u003Ccode\u003Eparent\u003C\u002Fcode\u003E — это родительский запрос, если таковой существует, аргумент \u003Ccode\u003Eargs\u003C\u002Fcode\u003E тоже передаётся запросу в том случае, если он существует. Здесь ещё может использоваться аргумент \u003Ccode\u003Econtext\u003C\u002Fcode\u003E, который в нашем случае не представлен. Он даёт возможность работать с различными «контекстными» данными (например — со сведениями о текущем пользователе в том случае, если сервер поддерживает систему учётных записей пользователей).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВнутри распознавателя мы делаем всё, что нужно для того, чтобы выполнить запрос. Именно здесь GraphQL «перестаёт беспокоиться» о происходящем и позволяет нам выполнять загрузку и возврат данных. Тут, повторимся, можно работать с любыми источниками данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nХотя GraphQL и не интересуют источники поступления данных, эту систему чрезвычайно сильно интересует то, что именно мы возвращаем. Мы можем вернуть JSON-объект, массив JSON-объектов, промис (его разрешение GraphQL берёт на себя).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТут мы используем мок-обращение к коллекции \u003Ccode\u003Eflavors\u003C\u002Fcode\u003E базы данных MongoDB, передавая \u003Ccode\u003Eargs\u003C\u002Fcode\u003E (если соответствующий аргумент передан распознавателю) в вызов \u003Ccode\u003E.find()\u003C\u002Fcode\u003E и возвращая то, что будет найдено в результате выполнения этого вызова, в виде массива.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Получение данных для вложенных полей\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВыше мы уже разобрали кое-что, относящееся к GraphQL, но сейчас, возможно, пока непонятно то, как быть с вложенным полем \u003Ccode\u003Enutrition\u003C\u002Fcode\u003E. Помните о том, что данные, представленные полем \u003Ccode\u003ENutrition\u003C\u002Fcode\u003E, мы, на самом деле, не храним совместно с основными данными, описывающими сущность \u003Ccode\u003Eflavor\u003C\u002Fcode\u003E. Мы исходим из предположения о том, что эти данные хранятся в отдельной коллекции\u002Fтаблице базы данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nХотя мы сообщили GraphQL о том, что \u003Ccode\u003Etype Flavor\u003C\u002Fcode\u003E может включать в себя данные \u003Ccode\u003Enutrition\u003C\u002Fcode\u003E в форме \u003Ccode\u003Etype Nutrition\u003C\u002Fcode\u003E, мы не пояснили системе порядок получения этих данных из хранилища. Эти данные, как уже было сказано, хранятся отдельно от данных сущностей \u003Ccode\u003Eflavor\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EtypeDefs: gql`\n    type Nutrition {\n      flavorId: ID\n      calories: Int\n      fat: Int\n      sodium: Int\n    }\n\n    type Flavor {\n      […]\n      nutrition: Nutrition\n    }\n\n    type Query {…}\n\n    type Mutation {…}\n  `,\n  resolvers: {\n    Query: {\n      flavors: (parent, args) =\u003E {…},\n    },\n    Mutation: {…},\n    Flavor: {\n      nutrition: (parent) =\u003E {\n        return mongodb.collection('nutrition').findOne({\n          flavorId: parent.id,\n        })\n      }\n    },\n  },\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЕсли присмотреться повнимательнее к объекту \u003Ccode\u003Eresolvers\u003C\u002Fcode\u003E в схеме, то можно заметить, что тут имеются вложенные объекты \u003Ccode\u003EQuery\u003C\u002Fcode\u003E, \u003Ccode\u003EMutation\u003C\u002Fcode\u003E и \u003Ccode\u003EFlavor\u003C\u002Fcode\u003E. Они соответствуют типам, которые мы объявили выше в \u003Ccode\u003EtypeDefs\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли посмотреть на объект \u003Ccode\u003EFlavors\u003C\u002Fcode\u003E, то окажется, что поле \u003Ccode\u003Enutrition\u003C\u002Fcode\u003E в нём объявлено как функция-распознаватель. Заметной особенностью такого решения является тот факт, что мы объявляем функцию непосредственно в типе \u003Ccode\u003EFlavor\u003C\u002Fcode\u003E. Другими словами, мы говорим системе: «Мы хотим, чтобы ты загрузила поле \u003Ccode\u003Enutrition\u003C\u002Fcode\u003E именно так для любого запроса, использующего \u003Ccode\u003Etype Flavor\u003C\u002Fcode\u003E».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ этой функции мы выполняем обычный запрос к MongoDB, но тут обратите внимание на то, что мы используем аргумент \u003Ccode\u003Eparent\u003C\u002Fcode\u003E, переданный функции-распознавателю. То, что представлено здесь аргументом \u003Ccode\u003Eparent\u003C\u002Fcode\u003E, представляет собой то, что содержится в полях, имеющихся во \u003Ccode\u003Eflavors\u003C\u002Fcode\u003E. Например, если нам нужны все сущности \u003Ccode\u003Eflavor\u003C\u002Fcode\u003E, мы выполним такой запрос:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  flavors {\n    id\n    name\n    nutrition {\n      calories\n    }\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКаждое поле \u003Ccode\u003Eflavor\u003C\u002Fcode\u003E, возвращённое из \u003Ccode\u003Eflavors\u003C\u002Fcode\u003E, мы пропустим через распознаватель \u003Ccode\u003Enutrition\u003C\u002Fcode\u003E, при этом данное значение будет представлено аргументом \u003Ccode\u003Eparent\u003C\u002Fcode\u003E. Если присмотреться к этой конструкции, то окажется, что мы, в запросе к MongoDB, используем поле \u003Ccode\u003Eparent.id\u003C\u002Fcode\u003E, которое представляет собой \u003Ccode\u003Eid\u003C\u002Fcode\u003E сущности \u003Ccode\u003Eflavor\u003C\u002Fcode\u003E, обработкой которой мы занимаемся в данный момент.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИдентификатор \u003Ccode\u003Eparent.id\u003C\u002Fcode\u003E передаётся в запросе к базе данных, где производится поиск записи \u003Ccode\u003Enutrition\u003C\u002Fcode\u003E с идентификатором \u003Ccode\u003EflavorId\u003C\u002Fcode\u003E, которая соответствует обрабатываемой сущности \u003Ccode\u003Eflavor\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Подключение мутаций\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nТо, что мы уже знаем о запросах, отлично переносится и на мутации. На самом деле, процесс подготовки мутаций практически полностью совпадает с процессом подготовки запросов. Если взглянуть на корневую сущность \u003Ccode\u003Etype Mutation\u003C\u002Fcode\u003E, то можно увидеть, что мы объявили в ней поле \u003Ccode\u003EupdateFlavor\u003C\u002Fcode\u003E, принимающее аргументы, задаваемые на клиенте.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Etype Mutation {\n  updateFlavor(id: ID!, name: String, description: String): Flavor\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭтот код можно расшифровать так: «Мы ожидаем, что мутация \u003Ccode\u003EupdateFlavor\u003C\u002Fcode\u003E принимает \u003Ccode\u003Eid\u003C\u002Fcode\u003E типа \u003Ccode\u003EID\u003C\u002Fcode\u003E (восклицательный знак, \u003Ccode\u003E!\u003C\u002Fcode\u003E, сообщает GraphQL о том, что это поле необходимо), \u003Ccode\u003Ename\u003C\u002Fcode\u003E типа \u003Ccode\u003EString\u003C\u002Fcode\u003E и \u003Ccode\u003Edescription\u003C\u002Fcode\u003E типа \u003Ccode\u003EString\u003C\u002Fcode\u003E». Кроме того, после завершения выполнения мутации мы ожидаем возврат некоторых данных, структура которых напоминает тип \u003Ccode\u003EFlavor\u003C\u002Fcode\u003E (то есть — объект, который содержит свойства \u003Ccode\u003Eid\u003C\u002Fcode\u003E, \u003Ccode\u003Ename\u003C\u002Fcode\u003E, \u003Ccode\u003Edescription\u003C\u002Fcode\u003E, и, возможно, \u003Ccode\u003Enutrition\u003C\u002Fcode\u003E).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  typeDefs: gql`…`,\n  resolvers: {\n    Mutation: {\n      updateFlavor: (parent, args) =\u003E {\n        \u002F\u002F Предполагается, что args равно объекту наподобие { id: '1', name: 'Movie Theater Clone', description: 'Bring the movie theater taste home!' }\n\n        \u002F\u002F Выполняем обновление.\n\n        mongodb.collection('flavors').update(\n          { id: args.id },\n          {\n            $set: {\n              ...args,\n            },\n          },\n        )\n\n        \u002F\u002F Возвращаем flavor после обновления.\n\n        return mongodb.collection('flavors').findOne(args.id)\n      },\n    },\n  },\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВнутри функции-распознавателя для мутации \u003Ccode\u003EupdateFlavor\u003C\u002Fcode\u003E мы делаем именно то, чего от подобной функции можно ожидать: организуем взаимодействие с базой данных для того, чтобы изменить в ней, то есть — обновить, сведения об интересующей нас сущности \u003Ccode\u003Eflavor\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОбратите внимание на то, что сразу же после выполнения обновления обновление мы выполняем обращение к базе данных для того, чтобы снова найти ту же сущность \u003Ccode\u003Eflavor\u003C\u002Fcode\u003E и вернуть её из распознавателя. Почему это так?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВспомните о том, что на клиенте мы ожидаем получить объект в том состоянии, в которое он был приведён после завершения мутации. В данном примере мы ожидаем, что будет возвращена сущность \u003Ccode\u003Eflavor\u003C\u002Fcode\u003E, которую мы только что обновили.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМожно ли просто вернуть объект \u003Ccode\u003Eargs\u003C\u002Fcode\u003E? Да, можно. Причина, по которой мы решили в данном случае этого не делать, заключается в том, что мы хотим быть на 100% уверенными в том, что операция обновления информации в базе данных прошла успешно. Если мы прочтём из базы данных информацию, которая должна быть изменённой, и окажется, что она и правда изменена, тогда можно сделать вывод о том, что операция выполнена успешно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EЗачем может понадобиться использовать GraphQL?\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nХотя то, созданием чего мы только что занимались, выглядит не особенно масштабно, сейчас у нас есть функционирующее, хотя и простое, GraphQL-API.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКак и в случае с любой новой технологией, после первого знакомства с GraphQL вы можете задаться вопросом о том, зачем вам может пригодиться нечто подобное. Честно говоря, на этот вопрос нельзя дать однозначного и простого ответа. Очень уж много всего нужно учесть для того, чтобы такой ответ найти. И можно, кстати, подумать о том, чтобы вместо GraphQL просто выбрать проверенную временем технологию REST или напрямую обращаться к базе данных. Собственно говоря, вот несколько идей, над которыми стоит поразмыслить в поисках ответа на вопрос о том, нужна ли вам технология GraphQL.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Вы стремитесь уменьшить количество запросов, выполняемых с клиента\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nМногие приложения страдают от того, что им приходится выполнять слишком много HTTP-запросов, от того, что делать это приходится слишком часто, и от того, что это — сложные запросы. В то время как использование технологии GraphQL не позволяет полностью отказаться от выполнения запросов, эта технология, если ей правильно пользоваться, способна значительно уменьшить количество запросов, выполняемых со стороны клиента (во многих случаях для получения некоего набора связанных данных достаточно лишь одного запроса).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯвляется ли ваш проект приложением с множеством пользователей, или приложением, обрабатывающим огромные объёмы данных (например — это нечто вроде системы для работы с медицинскими данными), использование GraphQL определённо улучшит производительность его клиентской части.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Вы хотите избежать денормализации данных, проводимой лишь ради того, чтобы оптимизировать работу механизмов построения пользовательского интерфейса\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВ приложениях, в которых используются большие объёмы реляционных данных, часто может возникать «ловушка денормализации». Хотя такой подход и оказывается рабочим, он, вне всякого сомнения, далёк от идеала. Его применение может плохо влиять на производительность систем. Благодаря использованию GraphQL и вложенных запросов необходимость в денормализации данных значительно уменьшается.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍У вас есть множество источников информации, к которым вы обращаетесь из разных приложений\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЭта проблема может быть частично решена с помощью традиционных REST API, но даже при таком подходе одна проблема всё ещё остаётся: единообразие запросов, выполняемых с клиентской стороны. Предположим, что в ваш проект входят веб-приложение, приложения для iOS и Android, а также API для разработчиков. В подобных условиях вам, вероятнее всего, придётся, на каждой платформе, «мастерить из подручных материалов» средства для выполнения запросов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто ведёт к тому, что приходится поддерживать, на разных платформах, несколько реализаций HTTP, это означает отсутствие единообразия в средствах выполнения запросов и наличие запутанных конечных точек API (вы, наверняка, такое уже видели).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Может быть технология GraphQL — это верх совершенства? Стоит ли мне прямо сейчас выбросить мой REST API и перейти на GraphQL?\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nНет, конечно. Ничто не совершенно. И, надо отметить, работать с GraphQL не так уж и просто. Для того чтобы создать работающую схему GraphQL, нужно выполнить множество обязательных шагов. Так как вы только изучаете данную технологию, это может вывести вас из равновесия, так как нелегко бывает понять то, чего именно не хватает в вашей схеме для правильной работы системы. При этом сообщения об ошибках, возникающих на клиенте и на сервере, могут оказаться не особенно полезными.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДалее, использование GraphQL на клиенте, в том, что выходит за рамки языка запросов, не стандартизовано. Хотя работу с GraphQL могут облегчить различные библиотеки, самыми популярными из которых являются Apollo и Relay, каждая из них отличается собственными специфическими особенностями.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nGraphQL — это, кроме того, всего лишь спецификация. Пакеты вроде \u003Ccode\u003Egraphql\u003C\u002Fcode\u003E (этот пакет используется внутри пакета \u003Ccode\u003Eexpress-graphql\u003C\u002Fcode\u003E, применённого в нашем примере) — это всего лишь реализации данной спецификации. Другими словами, разные реализации GraphQL для разных языков программирования могут по-разному интерпретировать спецификацию. Это может привести к возникновению проблем, идёт ли речь о разработчике-одиночке, или о команде, в которой, при работе над разными проектами, используются разные языки программирования.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EИтоги\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nНесмотря на то, что внедрение GraphQL может оказаться непростой задачей, эта технология представляет собой впечатляющий шаг вперёд в сфере обработки данных. GraphQL нельзя назвать лекарством от всех болезней, но с этой технологией, определённо, стоит поэкспериментировать. Начать можно, например, поразмыслив о самой запутанной и неопрятной подсистеме, используемой в вашем проекте при работе с данными, и попытавшись реализовать эту подсистему средствами GraphQL.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКстати, тут у меня для вас приятная новость: GraphQL можно реализовывать инкрементно. Для того чтобы извлечь выгоды из применения этой технологии нет нужды переводить на GraphQL абсолютно всё. Так, постепенно вводя в проект GraphQL, можно разобраться с этой технологией самому, заинтересовать команду, и, если то, что получится, всех устроит, двигаться дальше.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nГлавное — помните о том, что GraphQL — это, в конечном счёте, всего лишь инструмент. Применение GraphQL не означает необходимости в полной переработке всего, что было раньше. При этом надо отметить, что GraphQL — это технология, с которой, определённо, стоит познакомиться. Многим стоит подумать и о применении этой технологии в своих проектах. В частности, если ваши проекты кажутся не особенно производительными, если вы занимаетесь разработкой сложных интерфейсов, наподобие панелей управления, лент новостей или профилей пользователей, то вы уже знаете о том, где именно вы можете опробовать GraphQL.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EУважаемые читатели!\u003C\u002Fb\u003E Если сегодня состоялось ваше первое знакомство с GraphQL — просим рассказать нам о том, планируете ли вы использовать эту технологию в своих проектах.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fruvds.com\u002Fru-rub\u002F#order\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F1ba\u002F550\u002Fd25\u002F1ba550d25e8846ce8805de564da6aa63.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F1ba\u002F550\u002Fd25\u002F1ba550d25e8846ce8805de564da6aa63.png\"\u002F\u003E\u003C\u002Fa\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"GraphQL"},{"titleHtml":"разработка"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F445268\u002F227a7c85acb6e5cd9dc9882cb4205e0c\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F445268\u002F227a7c85acb6e5cd9dc9882cb4205e0c\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fruvds\\\u002Fblog\\\u002F445268\\\u002F\"},\"headline\":\"Подробности о GraphQL: что, как и почему\",\"datePublished\":\"2019-04-03T12:00:01+03:00\",\"dateModified\":\"2019-04-03T12:11:37+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"ru_vds\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"GraphQL сейчас, без преувеличения, это &mdash; последний писк IT-моды. И если вы пока не знаете о том, что это за технология, о том, как ей пользоваться, и о том, поче...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fruvds\\\u002Fblog\\\u002F445268\\\u002F#post-content-body\",\"about\":[\"c_ruvds\",\"h_webdev\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fc7\\\u002Foq\\\u002Fa1\\\u002Fc7oqa1w2b00akzatd2womwb_daw.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fgetpro\\\u002Fhabr\\\u002Fpost_images\\\u002Fa89\\\u002F0fd\\\u002Fc56\\\u002Fa890fdc56389815233584327e76011c1.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Ffiles\\\u002F1ba\\\u002F550\\\u002Fd25\\\u002F1ba550d25e8846ce8805de564da6aa63.png\"]}","metaDescription":"GraphQL сейчас, без преувеличения, это — последний писк IT-моды. И если вы пока не знаете о том, что это за технология, о том, как ей пользоваться, и о том, почему она может вам пригодиться, значит...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"ruvds":{"alias":"ruvds","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002Ff27\u002Fea8\u002F5bd\u002Ff27ea85bd62fbd985c308110885af7e0.png","titleHtml":"RUVDS.com","descriptionHtml":"VDS\u002FVPS-хостинг. Скидка 10% по коду \u003Cb\u003EHABR10\u003C\u002Fb\u003E","relatedData":null,"statistics":{"postsCount":2242,"newsCount":95,"vacanciesCount":0,"employeesCount":75,"careerRating":null,"subscribersCount":45765,"rating":2738.1,"invest":null},"foundationDate":{"year":"2015","month":"07","day":"27"},"location":{"city":{"id":"447159","title":"Москва"},"region":{"id":"1885","title":"Москва и Московская обл."},"country":{"id":"168","title":"Россия"}},"siteUrl":"https:\u002F\u002Fruvds.com","staffNumber":"11–30 человек","registrationDate":"2016-03-18T05:43:01+00:00","representativeUser":{"alias":"ruvds","fullname":null},"contacts":[{"title":"Facebook","url":"https:\u002F\u002Ffacebook.com\u002Fruvds"},{"title":"Twitter","url":"https:\u002F\u002Ftwitter.com\u002Fru_vds"},{"title":"ВКонтакте","url":"https:\u002F\u002Fvk.com\u002Fru_vds"}],"settings":{"analyticsSettings":[{"type":"ym","trackingId":"33905479"}],"branding":{"imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fbranding\u002Fb77\u002F8d5\u002Fa41\u002Fb778d5a41f83016379c6630262c3294c.png","linkUrl":"https:\u002F\u002Fruvds.com\u002Fru-rub","pixelUrl":null},"status":"active","isStartup":false},"metadata":{"titleHtml":"RUVDS.com, Москва - VDS\u002FVPS-хостинг. Скидка 10% по коду \u003Cb\u003EHABR10\u003C\u002Fb\u003E с 27 июля 2015 г.","title":"RUVDS.com, Москва - VDS\u002FVPS-хостинг. Скидка 10% по коду HABR10 с 27 июля 2015 г.","keywords":["Научно-популярное","Читальный зал","DIY или Сделай сам","Информационная безопасность","Системное администрирование","разработка","ruvds_статьи","javascript","ruvds_перевод","ruvds","linux","react","python","ruvds_новости","обучение","системное администрирование","css","node.js","ruvds_статьи_выходного_дня","diy","игры","программирование","информационная безопасность","хостинг","arduino"],"descriptionHtml":"2 242 статьи от авторов компании RUVDS.com","description":"2 242 статьи от авторов компании RUVDS.com"},"aDeskSettings":null,"careerAlias":"ruvds"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

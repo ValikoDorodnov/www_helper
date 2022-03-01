@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Работа с памятью (и всё же она есть) / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/134784\/"},"headline":"Работа с памятью (и всё же она есть)","datePublished":"2011-12-18T03:47:00+04:00","dateModified":"2011-12-21T23:20:32+04:00","author":{"@type":"Person","name":"Евгений"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Существует распространенное мнение, что &laquo;рядовому&raquo; PHP разработчику практически не нужно заботиться об управлении памятью, однако &laquo;заботиться&raquo; и &laquo;знать&raquo; всё же н...","url":"https:\/\/habr.com\/ru\/post\/134784\/#post-content-body","about":["h_php","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/134784\/64abba8fb2b5af127964050bb9bba4d3\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Работа с памятью (и всё же она есть)" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Работа с памятью (и всё же она есть)" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Работа с памятью (и всё же она есть)" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Существует распространенное мнение, что «рядовому» PHP разработчику практически не нужно заботиться об управлении памятью, однако «заботиться» и «знать» всё же немного разные понятия. Попытаюсь..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Существует распространенное мнение, что «рядовому» PHP разработчику практически не нужно заботиться об управлении памятью, однако «заботиться» и «знать» всё же немного разные понятия. Попытаюсь..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Существует распространенное мнение, что «рядовому» PHP разработчику практически не нужно заботиться об управлении памятью, однако «заботиться» и «знать» всё же немного разные понятия. Попытаюсь..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Существует распространенное мнение, что «рядовому» PHP разработчику практически не нужно заботиться об управлении памятью, однако «заботиться» и «знать» всё же немного разные понятия. Попытаюсь..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Существует распространенное мнение, что «рядовому» PHP разработчику практически не нужно заботиться об управлении памятью, однако «заботиться» и «знать» всё же немного разные понятия. Попытаюсь..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/134784/64abba8fb2b5af127964050bb9bba4d3/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/134784/64abba8fb2b5af127964050bb9bba4d3/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/134784/64abba8fb2b5af127964050bb9bba4d3/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/134784/64abba8fb2b5af127964050bb9bba4d3/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/134784/64abba8fb2b5af127964050bb9bba4d3/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="134784" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2011-12-17T23:47:00.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/134784/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="потребление памяти, массивы, строки, оптимизация">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/134784/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.72.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/134784/64abba8fb2b5af127964050bb9bba4d3/" data-vmid="image:href"><link data-vue-meta="ssr" rel="amphtml" href="https://habr.com/ru/amp/post/134784/">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/evgenyl/" title="evgenyl" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_lilac"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/evgenyl/" class="tm-user-info__username">
+      evgenyl
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2011-12-17T23:47:00.000Z" title="2011-12-18, 03:47">18  декабря  2011 в 03:47</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Работа с памятью (и всё же она есть)</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/php/" class="tm-article-snippet__hubs-item-link"><span>PHP</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><img src="https://habrastorage.org/r/w780q1/storage1/afac9909/2f9d7132/e91c24db/a72e14e8.jpg" align="left" data-src="https://habrastorage.org/storage1/afac9909/2f9d7132/e91c24db/a72e14e8.jpg" data-blurred="true"/>Существует распространенное мнение, что «рядовому» PHP разработчику практически не нужно заботиться об управлении памятью, однако «заботиться» и «знать» всё же немного разные понятия. Попытаюсь осветить некоторые аспекты управлению памятью при работе с переменными и массивами, а также интересные «подводные камни» внутренней оптимизации PHP. Как вы сможете убедиться, оптимизация это хорошо, но если не знать как именно она «оптимизирует», то можно столкнуться с «неочевидными граблями», которые могут вас заставить изрядно понервничать.<br/>
+<br/>
+<a name="habracut"></a><br/>
+<h4>Общие сведения</h4><br/>
+<h6>Небольшой ликбез</h6><br/>
+Переменная в PHP как бы состоит из двух частей: "<b>имени</b>", которое хранится в hash_table symbol_table, и "<b>значения</b>", которое хранится в zval контейнере.<br/>
+Такой механизм позволяет создавать несколько переменных ссылающихся на одно значение, что в отдельных случаях позволяет оптимизировать потребление памяти. О том, как это выглядит на практике будет написано далее.<br/>
+<br/>
+Наиболее частыми элементами кода, без которых сложно себе представить более менее функциональный скрипт, являются следующие моменты:<br/>
+ — создание, присвоение и удаление переменных (чисел, строк и т.п.),<br/>
+ — создание массивов и их обход (в качестве примера будет использована функция foreach),<br/>
+ — передача и возврат значений для функций/методов.<br/>
+<br/>
+Именно об этих аспектах работы с памятью и будет последующее описание. Получилось достаточно объемно, но ничего мега-сложного не будет и всё будет достаточно просто, очевидно и с примерами.<br/>
+<br/>
+<h6>Первый пример работы с памятью</h6><br/>
+Для начала базовый пример того, как будет производиться анализ потребления памяти.<br/>
+Для этого нам потребуется пара простых функций (файл <b>func.php</b>):<br/>
+<blockquote><font color="#000000">&lt;?php</font><br/>
+<font color="#000000">function</font> memoryUsage<font color="#009900">(</font><font color="#000088">$usage</font><font color="#339933">,</font> <font color="#000088">$base_memory_usage</font><font color="#009900">)</font> <font color="#009900">{</font><br/>
+<font color="#990000">printf</font><font color="#009900">(</font><font color="#0000ff">"Bytes diff: <font color="#009933">%d</font>\n"</font><font color="#339933">,</font> <font color="#000088">$usage</font> <font color="#339933">-</font> <font color="#000088">$base_memory_usage</font><font color="#009900">)</font><font color="#339933">;</font><br/>
+<font color="#009900">}</font><br/>
+<font color="#000000">function</font> someBigValue<font color="#009900">(</font><font color="#009900">)</font> <font color="#009900">{</font><br/>
+<font color="#b1b100">return</font> <font color="#990000">str_repeat</font><font color="#009900">(</font><font color="#0000ff">'SOME BIG STRING'</font><font color="#339933">,</font> <font color="#cc66cc">1024</font><font color="#009900">)</font><font color="#339933">;</font><br/>
+<font color="#009900">}</font><br/>
+<font color="#000000">?></font></blockquote><br/>
+<br/>
+И простой первый пример теста потребления памяти для строки:<br/>
+<blockquote><font color="#000000">&lt;?php</font><br/>
+<font color="#b1b100">include</font><font color="#009900">(</font><font color="#0000ff">'func.php'</font><font color="#009900">)</font><font color="#339933">;</font><br/>
+<font color="#b1b100">echo</font> <font color="#0000ff">"String memory usage test.\n\n"</font><font color="#339933">;</font><br/>
+<font color="#000088">$base_memory_usage</font> <font color="#339933">=</font> <font color="#990000">memory_get_usage</font><font color="#009900">(</font><font color="#009900">)</font><font color="#339933">;</font><br/>
+<font color="#000088">$base_memory_usage</font> <font color="#339933">=</font> <font color="#990000">memory_get_usage</font><font color="#009900">(</font><font color="#009900">)</font><font color="#339933">;</font><br/>
+ <br/>
+<font color="#b1b100">echo</font> <font color="#0000ff">"Start\n"</font><font color="#339933">;</font><br/>
+memoryUsage<font color="#009900">(</font><font color="#990000">memory_get_usage</font><font color="#009900">(</font><font color="#009900">)</font><font color="#339933">,</font> <font color="#000088">$base_memory_usage</font><font color="#009900">)</font><font color="#339933">;</font><br/>
+ <br/>
+<font color="#000088">$a</font> <font color="#339933">=</font> someBigValue<font color="#009900">(</font><font color="#009900">)</font><font color="#339933">;</font><br/>
+ <br/>
+<font color="#b1b100">echo</font> <font color="#0000ff">"String value setted\n"</font><font color="#339933">;</font><br/>
+memoryUsage<font color="#009900">(</font><font color="#990000">memory_get_usage</font><font color="#009900">(</font><font color="#009900">)</font><font color="#339933">,</font> <font color="#000088">$base_memory_usage</font><font color="#009900">)</font><font color="#339933">;</font><br/>
+ <br/>
+<font color="#990000">unset</font><font color="#009900">(</font><font color="#000088">$a</font><font color="#009900">)</font><font color="#339933">;</font><br/>
+ <br/>
+<font color="#b1b100">echo</font> <font color="#0000ff">"String value unsetted\n"</font><font color="#339933">;</font><br/>
+memoryUsage<font color="#009900">(</font><font color="#990000">memory_get_usage</font><font color="#009900">(</font><font color="#009900">)</font><font color="#339933">,</font> <font color="#000088">$base_memory_usage</font><font color="#009900">)</font><font color="#339933">;</font><br/>
+<font color="#000000">?></font></blockquote><br/>
+Примечание: <i>несомненно код является неоптимизированным с точки зрения работоспособности, но в данном случае нам исключительно важна наглядность потребления памяти, для которой и реализовано данное представление.</i><br/>
+<br/>
+Результат кода вполне очевиден:<br/>
+<blockquote>String memory usage test.<br/>
+<br/>
+Start<br/>
+Bytes diff: 0<br/>
+String value setted<br/>
+Bytes diff: 15448<br/>
+String value unsetted<br/>
+Bytes diff: 0</blockquote><br/>
+<br/>
+Тот же самый пример, но вместо <b>unset($a)</b> используем <b>$a=null;</b>:<br/>
+<blockquote>Start<br/>
+Bytes diff: 0<br/>
+String value setted<br/>
+Bytes diff: 15448<br/>
+String value set to null<br/>
+Bytes diff: 76<br/>
+</blockquote><br/>
+Как видите, переменная не была полностью уничтожена. Под нее остается выделенным еще 76 байт.<br/>
+Достаточно прилично, если учесть, что ровно столько же выделяется и под переменные типа boolean, integer, float. Речь идет не об объеме памяти, выделяемой под <i>значение переменной</i>, а о полном потреблении памяти для хранения сведений о присвоенной переменной (zval контейнер со значением и само имя переменной).<br/>
+Так что если вы хотите освободить память при помощи присвоения, то не является принципиальным присвоение именно <b>null</b> значения. Выражение <b>$a=10000;</b> даст тот же результат для расхода памяти.<br/>
+<br/>
+В документации PHP сказано, что <a href="http://ru.php.net/manual/ru/language.types.null.php#language.types.null.casting">приведение к <b>null</b> уничтожит переменную и ее значение</a>, однако, по данному скрипту видно что это не так, что собственно <a href="https://bugs.php.net/bug.php?id=55164">является багом (документации)</a>.<br/>
+<br/>
+Зачем использовать присвоение <b>null</b>, если можно <b>unset()</b>?<br/>
+Присвоение — это присвоение, (спасибо КО), то есть изменяется значение переменной, соответственно, если новое значение требует меньше памяти, то она высвобождается сразу, однако это требует вычислительных ресурсов (пусть и сравнительно немного).<br/>
+<b>unset()</b> в свою очередь освобождает память, выделенную под имя переменной и ее значение.<br/>
+Отдельно стоит упомянуть момент, что <b>unset()</b> и присвоение <b>null</b> совершенно по разному работают со ссылками на переменные. <b>Unset()</b> уничтожит только ссылку, в то время как присвоение <b>null</b> изменит значение, на которое ссылаются имена переменных, соответственно все переменные станут ссылаться на значение <b>null</b>.<br/>
+<br/>
+Примечание:<br/>
+<i>Встречается заблуждение, что <b>unset()</b> является функцией, однако, это не верно. <b>unset()</b> — это языковая конструкция (как например <b>if</b>), о чем <a href="http://php.net/manual/en/function.unset.php">прямо сказано в документации</a>, соответственно ее нельзя использовать для обращения через значение переменной:</i><br/>
+<blockquote>$unset_func_name <font color="#000080">=</font> <font color="#FF0000">'unset'</font><font color="#008080">;</font><br/>
+$unset_func_name<font color="#008000">(</font>$some_var<font color="#008000">)</font><font color="#008080">;</font></blockquote><br/>
+<br/>
+Немного дополнительной информации для праздных размышлений (при изменении примера выше):<br/>
+<b>$a = array();</b><br/>
+выделит 164 байта, unset($a) всё вернет.<br/>
+<br/>
+<b>class A { }<br/>
+$a = new A();<br/>
+</b> выделит 184 байта, unset($a) всё вернет.<br/>
+<br/>
+<b>$a = new stdClass();</b><br/>
+выделит 272 байта, но после unset($a) «утекут» 88 байт (куда именно и почему они утекли, мне пока не удалось выяснить).<br/>
+<br/>
+Пока приведенные примеры не являются критичными в плане потребления памяти, так как строковые и числовые значения достаточно очевидно хранятся и обрабатываются. Всё становится значительно хуже, когда в ход идут массивы (объекты тоже имеют целый ряд особенностей, однако для этого уже потребуется отдельная статья).<br/>
+<br/>
+<h4>Массивы</h4><br/>
+Массивы в PHP «съедают» достаточно памяти, и именно в них как правило хранят значительные объемы данных при обработке, поэтому следует очень аккуратно относиться к работе с ними. Однако, работа с массивами в PHP имеет свои «прелести оптимизации» и об одном из таких моментов, связанных с потреблением памяти, стоит упомянуть.<br/>
+<br/>
+Коварный пример №1<br/>
+<blockquote><font color="#000080">&lt;</font><font color="#008080">?</font>php<br/>
+include<font color="#008000">(</font><font color="#FF0000">'func.php'</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+echo <font color="#FF0000">"Array memory usage example."</font><font color="#008080">;</font><br/>
+$base_memory_usage <font color="#000080">=</font> memory_get_usage<font color="#008000">(</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+$base_memory_usage <font color="#000080">=</font> memory_get_usage<font color="#008000">(</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+echo <font color="#FF0000">'Base usage.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+$a <font color="#000080">=</font> array<font color="#008000">(</font>someBigValue<font color="#008000">(</font><font color="#008000">)</font>, someBigValue<font color="#008000">(</font><font color="#008000">)</font>, someBigValue<font color="#008000">(</font><font color="#008000">)</font>, someBigValue<font color="#008000">(</font><font color="#008000">)</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+echo <font color="#FF0000">'Array is set.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+foreach <font color="#008000">(</font>$a as $k<font color="#000080">=></font>$v<font color="#008000">)</font> <font color="#008000">{</font><br/>
+$a<font color="#008000">[</font>$k<font color="#008000">]</font> <font color="#000080">=</font> someBigValue<font color="#008000">(</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+unset<font color="#008000">(</font>$k, $v<font color="#008000">)</font><font color="#008080">;</font><br/>
+echo <font color="#FF0000">'In FOREACH cycle.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+<font color="#008000">}</font><br/>
+ <br/>
+echo <font color="#FF0000">'Usage right after FOREACH.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+unset<font color="#008000">(</font>$a<font color="#008000">)</font><font color="#008080">;</font><br/>
+echo <font color="#FF0000">'Array unset.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+<font color="#008080">?</font><font color="#000080">></font></blockquote><br/>
+На первый взгляд может показаться, что потребление памяти массивом $a не будет меняться (за исключением установки переменных $k и $v), однако PHP имеет особенный подход при работе с массивами в этом случае.<br/>
+<br/>
+Посмотрите на вывод:<br/>
+<blockquote>Array memory usage example.Base usage.<br/>
+Bytes diff: 0<br/>
+Array is set.<br/>
+Bytes diff: 61940<br/>
+In FOREACH cycle.<br/>
+Bytes diff: 77632<br/>
+In FOREACH cycle.<br/>
+Bytes diff: 93032<br/>
+In FOREACH cycle.<br/>
+Bytes diff: 108432<br/>
+In FOREACH cycle.<br/>
+Bytes diff: 123832<br/>
+Usage right after FOREACH.<br/>
+Bytes diff: 61940<br/>
+Array unset.<br/>
+Bytes diff: 0<br/>
+</blockquote><br/>
+Получается, что в последней итерации цикла foreach в данном случае потребление массивом памяти возросло в два раза, хотя по самому коду это не очевидно. Но сразу после цикла, потребление памяти вернулось к прежнему значению. Чудеса да и только.<br/>
+Причиной тому является оптимизация использования массива в цикле. На время работы цикла, при попытке изменить исходный массив, неявно создается копия структуры массива (но не копия значений), которая и становится доступной по завершению цикла, а исходная структура уничтожается. Таким образом, в вышеприведенном примере, если вы присваиваете новые значения исходному массиву, то они не будут заменены сразу, а для них будет выделена отдельная память, которая будет возвращена по выходу из цикла.<br/>
+Этот момент очень легко пропустить, что может привести к значительному потреблению памяти на время работы цикла с большими массивами данных, например при выборке из БД.<br/>
+<br/>
+Примечание:<br/>
+<i>Внутри самого цикла, уже после изменения значения $a[$k], вы не сможете получить значение которое всё еще хранится в исходном массиве если не сохранили значение $v. Повторное обращение к $a[$k] выдаст уже новое значение.</i><br/>
+<br/>
+<a href="http://habrahabr.ru/blogs/php/134784/#comment_4476946">Дополнение от пользователя</a> <a href="http://habrahabr.ru/users/zibada/" class="user_link">zibada</a> (в кратце):<br/>
+Важно учесть, что выделение памяти под новый «временный массив» в случае внесения изменений, произойдет единовременно для всей структуры массива, но отдельно для каждого изменяемого элемента. Таким образом, если имеется массив с большим количеством элементов, (но не обязательно с большими значениями), то единовременное потребление памяти при таком копировании будет существенно.<br/>
+<br/>
+Коварный пример №2<br/>
+Чуть-чуть изменим код.<br/>
+<blockquote>echo <font color="#FF0000">'Array is set.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+$b <font color="#000080">=</font> <font color="#000040">&amp;</font>$a<font color="#008080">;</font> <font color="#666666">// Добавим это</font><br/>
+foreach <font color="#008000">(</font>$a as $k<font color="#000080">=></font>$v<font color="#008000">)</font> <font color="#008000">{</font><br/>
+$a<font color="#008000">[</font>$k<font color="#008000">]</font> <font color="#000080">=</font> someBigValue<font color="#008000">(</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+unset<font color="#008000">(</font>$k, $v<font color="#008000">)</font><font color="#008080">;</font><br/>
+echo <font color="#FF0000">'In FOREACH cycle.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+<font color="#008000">}</font><br/>
+unset<font color="#008000">(</font>$b<font color="#008000">)</font><font color="#008080">;</font> <font color="#666666">// И это</font><br/>
+echo <font color="#FF0000">'Usage right after FOREACH.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font></blockquote><br/>
+<br/>
+Сам код цикла мы никак не меняли, единственное что мы изменили, это увеличили счетчик ссылок на исходный массив, но это в корне поменяло работу цикла:<br/>
+<blockquote>Bytes diff: 0<br/>
+Array is set.<br/>
+Bytes diff: 61940<br/>
+In FOREACH cycle.<br/>
+Bytes diff: 61988<br/>
+In FOREACH cycle.<br/>
+Bytes diff: 61988<br/>
+In FOREACH cycle.<br/>
+Bytes diff: 61988<br/>
+In FOREACH cycle.<br/>
+Bytes diff: 61988<br/>
+Usage right after FOREACH.<br/>
+Bytes diff: 61940<br/>
+Array unset.<br/>
+Bytes diff: 0<br/>
+</blockquote><br/>
+<i>Небольшое изменение: (61988 — 61940 = 48 байт на хранение переменной-ссылки $b).</i><br/>
+В остальном же мы видим, что если массив, используемый для цикла, имеет больше чем одну ссылку на себя, тогда для него не применяется оптимизация из примера №1, т.е. для присвоения используется оригинальный массив.<br/>
+Точно такой же результат мы получим, если используем для цикла массив $b или же используем в цикле передачу значения по ссылке:<br/>
+<blockquote>echo <font color="#FF0000">'Array is set.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+foreach <font color="#008000">(</font>$a as $k<font color="#000080">=></font><font color="#000040">&amp;</font>$v<font color="#008000">)</font> <font color="#008000">{</font><br/>
+$a<font color="#008000">[</font>$k<font color="#008000">]</font> <font color="#000080">=</font> someBigValue<font color="#008000">(</font><font color="#008000">)</font><font color="#008080">;</font> <font color="#666666">// Или $v = someBigValue();</font><br/>
+unset<font color="#008000">(</font>$k, $v<font color="#008000">)</font><font color="#008080">;</font><br/>
+echo <font color="#FF0000">'In FOREACH cycle.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+<font color="#008000">}</font><br/>
+ <br/>
+echo <font color="#FF0000">'Usage right after FOREACH.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font></blockquote><br/>
+<br/>
+Результат:<br/>
+<blockquote>Bytes diff: 0<br/>
+Array is set.<br/>
+Bytes diff: 61940<br/>
+In FOREACH cycle.<br/>
+Bytes diff: 61940<br/>
+In FOREACH cycle.<br/>
+Bytes diff: 61940<br/>
+In FOREACH cycle.<br/>
+Bytes diff: 61940<br/>
+In FOREACH cycle.<br/>
+Bytes diff: 61940<br/>
+Usage right after FOREACH.<br/>
+Bytes diff: 61940<br/>
+Array unset.<br/>
+Bytes diff: 0<br/>
+</blockquote><br/>
+Здесь стоит отдельно отметить, что добавление передачи $v по ссылке хоть и не увеличивает счетчик ссылок исходного массива, но тоже приводит к отключению «оптимизации».<br/>
+<br/>
+<h4>Передача по ссылке или передача через копирование</h4><br/>
+<br/>
+Рассмотрим случай, «что делать» если требуется передать в метод или функцию (или вернуть из них), какое-либо очень большое значение. Первым очевидным решением обычно рассматривают использование передачи/возвращения по ссылке.<br/>
+Однако в документации по PHP сказано: <a href="http://www.php.net/manual/ru/language.references.return.php">Не используйте возврат по ссылке для увеличения производительности. Ядро PHP само занимается оптимизацией</a>. <br/>
+Попытаемся разобраться в том, что же это за «оптимизация».<br/>
+<br/>
+Для начала самый простой пример (пока без передачи аргументов):<br/>
+<blockquote>…<br/>
+$a <font color="#000080">=</font> someBigValue<font color="#008000">(</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+$b <font color="#000080">=</font> $a<font color="#008080">;</font><br/>
+ <br/>
+echo <font color="#FF0000">"String value setted"</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+unset<font color="#008000">(</font>$a, $b<font color="#008000">)</font><font color="#008080">;</font><br/>
+...</blockquote><br/>
+По «прямой логике», в памяти должно выделиться два блока под значение переменных. Однако PHP оптимизирует этот момент:<br/>
+<blockquote>Start<br/>
+Bytes diff: 0<br/>
+String value setted<br/>
+Bytes diff: 15496<br/>
+String value unsetted<br/>
+Bytes diff: 0<br/>
+</blockquote><br/>
+В данном случае 15448 байт занимается переменная $a, остальные же 48 байт выделены под переменную $b, хотя между ними и не установлена связь по ссылке. Данное потребление памяти сохраняется до тех пор, пока мы как-либо не изменим одну из этих переменных, а точнее сказать вообще что-либо не сделаем с ее значением, даже если мы его не меняем по факту:<br/>
+<blockquote>$a <font color="#000080">=</font> someBigValue<font color="#008000">(</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+$b <font color="#000080">=</font> $a<font color="#008080">;</font><br/>
+$b <font color="#000080">=</font> strval<font color="#008000">(</font>$b<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+echo <font color="#FF0000">"String value setted"</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+unset<font color="#008000">(</font>$a, $b<font color="#008000">)</font><font color="#008080">;</font></blockquote><br/>
+<br/>
+В результате получим вывод:<br/>
+<blockquote>Bytes diff: 0<br/>
+String value setted<br/>
+Bytes diff: 30896<br/>
+String value unsetted<br/>
+Bytes diff: 0<br/>
+</blockquote><br/>
+Как мы видим, попытка «тронуть» значение переменной $b приводит к тому, что теперь скрипт выделяет для ее хранения отдельную область памяти. То же самое произойдет если мы попытаемся «тронуть» значение $a.<br/>
+<br/>
+Данная оптимизация действует для конкретных значений, коими также являются и отдельные значения массива.<br/>
+Чтобы это лучше понять, взглянем на пример ниже:<br/>
+<blockquote>$a <font color="#000080">=</font> array<font color="#008000">(</font>someBigValue<font color="#008000">(</font><font color="#008000">)</font>, someBigValue<font color="#008000">(</font><font color="#008000">)</font><font color="#008000">)</font><font color="#008080">;</font> <font color="#666666">// 31052 байта</font><br/>
+$b <font color="#000080">=</font> $a<font color="#008080">;</font> <font color="#666666">// + 48 байт = 31100 байта</font><br/>
+$b<font color="#008000">[</font><font color="#0000dd">0</font><font color="#008000">]</font> <font color="#000080">=</font> someBigValue<font color="#008000">(</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+echo <font color="#FF0000">"String value setted"</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+unset<font color="#008000">(</font>$a, $b<font color="#008000">)</font><font color="#008080">;</font></blockquote><br/>
+<br/>
+Данный пример даст выход:<br/>
+<blockquote>Bytes diff: 0<br/>
+String value setted<br/>
+Bytes diff: 46704<br/>
+String value unsetted<br/>
+Bytes diff: 0<br/>
+</blockquote><br/>
+То есть в результате новая память (15к+ байт) была выделена для создания только копии значения для нулевого элемента массива, а не для всего массива $b. Значение $b[1] всё еще «оптимизированно связано» с $a[1].<br/>
+<br/>
+Всё выше описанное действует аналогично и для передачи/возврата значений через «оптимизированное копирование» внутрь/из функций и методов. Если внутри метода вы никак не «трогаете» переданное значение, то для него не будет выделена отдельная область памяти (память будет выделена только под имя переменной, чтобы связать ее со значением). Если же вы передаете «через копирование» и изменяете значение внутри метода, то перед попыткой сделать изменение уже будет создана действительная полная копия значения.<br/>
+<br/>
+Таким образом PHP действительно избавляет от необходимости использовать передачу по ссылке для оптимизации использования памяти. Передача по ссылке имеет практическое значение только если исходное значение требуется изменить с отображением этих изменений извне метода.<br/>
+<br/>
+Код для примера:<br/>
+<blockquote><font color="#000080">&lt;</font><font color="#008080">?</font>php<br/>
+include<font color="#008000">(</font><font color="#FF0000">'func.php'</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+function testUsageInside<font color="#008000">(</font>$big_value, $base_memory_usage<font color="#008000">)</font> <font color="#008000">{</font><br/>
+echo <font color="#FF0000">'Usage inside function then $big_value NOT changed.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+$big_value<font color="#008000">[</font><font color="#0000dd">0</font><font color="#008000">]</font> <font color="#000080">=</font> someBigValue<font color="#008000">(</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+echo <font color="#FF0000">'Usage inside function then $big_value[0] changed.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+$big_value<font color="#008000">[</font><font color="#0000dd">1</font><font color="#008000">]</font> <font color="#000080">=</font> someBigValue<font color="#008000">(</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+echo <font color="#FF0000">'Usage inside function then also $big_value[1] changed.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+<font color="#008000">}</font><br/>
+ <br/>
+echo <font color="#FF0000">"Array memory usage example."</font><font color="#008080">;</font><br/>
+$base_memory_usage <font color="#000080">=</font> memory_get_usage<font color="#008000">(</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+$base_memory_usage <font color="#000080">=</font> memory_get_usage<font color="#008000">(</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+echo <font color="#FF0000">'Base usage.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+$a <font color="#000080">=</font> array<font color="#008000">(</font>someBigValue<font color="#008000">(</font><font color="#008000">)</font>, someBigValue<font color="#008000">(</font><font color="#008000">)</font>, someBigValue<font color="#008000">(</font><font color="#008000">)</font>, someBigValue<font color="#008000">(</font><font color="#008000">)</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+echo <font color="#FF0000">'Array is set.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+testUsageInside<font color="#008000">(</font>$a, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+echo <font color="#FF0000">'Usage right after function call.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+ <br/>
+unset<font color="#008000">(</font>$a<font color="#008000">)</font><font color="#008080">;</font><br/>
+echo <font color="#FF0000">'Array unset.'</font>.<font color="#007788">PHP_EOL</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+<font color="#008080">?</font><font color="#000080">></font></blockquote><br/>
+<br/>
+Вывод:<br/>
+<blockquote>Array memory usage example.<br/>
+Base usage.<br/>
+Bytes diff: 0<br/>
+Array is set.<br/>
+Bytes diff: 61940<br/>
+Usage inside function then $big_value NOT changed.<br/>
+Bytes diff: 61940<br/>
+Usage inside function then $big_value[0] changed.<br/>
+Bytes diff: 77632<br/>
+Usage inside function then also $big_value[1] changed.<br/>
+Bytes diff: 93032<br/>
+Usage right after function call.<br/>
+Bytes diff: 61940<br/>
+Array unset.<br/>
+Bytes diff: 0<br/>
+</blockquote><br/>
+Как видно из примера, в функции не была создана копия массива, несмотря на то, что фактически идет передача значения через копирование. И даже частичная модификация переданного массива не создала полноценную копию, а выделила память только под новые значения.<br/>
+<br/>
+Исключительно в познавательных целях, стоит обратить внимание на эти два значения:<br/>
+<blockquote>Array is set.<br/>
+Bytes diff: 61940<br/>
+Usage inside function then $big_value NOT changed.<br/>
+Bytes diff: 61940<br/>
+</blockquote><br/>
+Потребление памяти не увеличилось при передаче управления в функцию, хотя по сути появилась новая переменная $big_value. Это связано с тем, что еще на стадии разбора текста скрипта интерпретатор определил будет ли эта функция использована в коде и заранее выделил для имен ее входных параметров место в памяти (если функция не используется, то интерпретатор ее игнорирует и не выделяет под нее память). А так как имеет место «оптимизированная передача через копирование», то уже существующее имя переменной $big_value было просто неявно «связано» с большим массивом $a. В результате было передано значение в функцию «через копирование» не потратив ни единого дополнительного байта.<br/>
+<br/>
+Примечание:<br/>
+<i>В PHP5 (в отличие от PHP4), все объекты по-умолчанию передаются по ссылке, хотя по факту, это неполноценная ссылка. См. <a href="http://blog.golemon.com/2007/01/youre-being-lied-to.html">эту статью</a>. </i><br/>
+<br/>
+<h4>Краткие выводы</h4><br/>
+Несомненно приведенные примеры оптимизации использования памяти в PHP лишь «капля в море», однако они описывают самые частые случаи, когда имеет смысл задуматься о том, какой код выбрать чтобы оптимизировать расход памяти и избавить себя от лишней головной боли.<br/>
+<br/>
+Отдельно стоило бы затронуть механизм расходования и оптимизации памяти при использовании объектов, однако ввиду обилия возможных примеров этот момент требует отдельной статьи. Возможно когда-нибудь.<br/>
+<br/>
+PS: Можно было бы разбить это на несколько статей, но не вижу в этом смысла, так как подобную информацию лучше всё же хранить «вместе». Полагаю тем, кому данная информация несет практический смысл, так будет удобнее. Тестировалось на PHP 5.3.2 (Ubuntu 32bit), так что ваши значения по выделенным байтам могут отличаться.<br/>
+<br/>
+Еще много полезного, но на английском:<br/>
+<a href="http://nikic.github.com/2011/12/12/How-big-are-PHP-arrays-really-Hint-BIG.html">nikic.github.com/2011/12/12/How-big-are-PHP-arrays-really-Hint-BIG.html</a><br/>
+<a href="http://nikic.github.com/2011/11/11/PHP-Internals-When-does-foreach-copy.html">nikic.github.com/2011/11/11/PHP-Internals-When-does-foreach-copy.html</a><br/>
+<a href="http://blog.golemon.com/2007/01/youre-being-lied-to.html">blog.golemon.com/2007/01/youre-being-lied-to.html</a><br/>
+<a href="http://hengrui-li.blogspot.com/2011/08/php-copy-on-write-how-php-manages.html">hengrui-li.blogspot.com/2011/08/php-copy-on-write-how-php-manages.html</a><br/>
+<a href="http://sldn.softlayer.com/blog/dmcaloon/PHP-Memory-Management-Foreach">sldn.softlayer.com/blog/dmcaloon/PHP-Memory-Management-Foreach</a><br/>
+<a href="http://blog.preinheimer.com/index.php?/archives/354-Memory-usage-in-PHP.html">blog.preinheimer.com/index.php?/archives/354-Memory-usage-in-PHP.html</a><br/>
+<a href="http://derickrethans.nl/talks/phparch-php-variables-article.pdf">derickrethans.nl/talks/phparch-php-variables-article.pdf</a><br/>
+<br/>
+<b>UPD</b><br/>
+В основной части статьи не был освещен важный момент.<br/>
+Если есть переменная на которую создана ссылка, то при ее передаче в функцию в качестве аргумента она будет скопирована сразу, то есть не будет применена copy-on-write оптимизация.<br/>
+Пример:<br/>
+<blockquote><font color="#000080">&lt;</font><font color="#008080">?</font>php<br/>
+include<font color="#008000">(</font><font color="#FF0000">'func.php'</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+function testFunc<font color="#008000">(</font>$a, $base_memory_usage<font color="#008000">)</font> <font color="#008000">{</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font><br/>
+<font color="#008000">}</font><br/>
+$base_memory_usage <font color="#000080">=</font> <font color="#0000dd">0</font><font color="#008080">;</font><br/>
+$base_memory_usage <font color="#000080">=</font> memory_get_usage<font color="#008000">(</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font> <font color="#666666">// 0 bytes</font><br/>
+$a <font color="#000080">=</font> someBigValue<font color="#008000">(</font><font color="#008000">)</font><font color="#008080">;</font><br/>
+$b <font color="#000080">=</font> <font color="#000040">&amp;</font>$a<font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font> <font color="#666666">// 15496 bytes</font><br/>
+testFunc<font color="#008000">(</font>$a, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font> <font color="#666666">// 30896 bytes</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font> <font color="#666666">// 15496 bytes</font><br/>
+unset<font color="#008000">(</font>$a, $b<font color="#008000">)</font><font color="#008080">;</font><br/>
+memoryUsage<font color="#008000">(</font>memory_get_usage<font color="#008000">(</font><font color="#008000">)</font>, $base_memory_usage<font color="#008000">)</font><font color="#008080">;</font> <font color="#666666">// 0 bytes</font><br/>
+<font color="#008080">?</font><font color="#000080">></font><br/>
+ </blockquote></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BF%D0%BE%D1%82%D1%80%D0%B5%D0%B1%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%BF%D0%B0%D0%BC%D1%8F%D1%82%D0%B8%5D" class="tm-tags-list__link">потребление памяти</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BC%D0%B0%D1%81%D1%81%D0%B8%D0%B2%D1%8B%5D" class="tm-tags-list__link">массивы</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%81%D1%82%D1%80%D0%BE%D0%BA%D0%B8%5D" class="tm-tags-list__link">строки</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BE%D0%BF%D1%82%D0%B8%D0%BC%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F%5D" class="tm-tags-list__link">оптимизация</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/php/" class="tm-hubs-list__link">
+    PHP
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 235: ↑224 и ↓11</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 235: ↑224 и ↓11" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+213</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">96K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    692
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/evgenyl/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_lilac"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 224 голоса " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    184
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Евгений</span> <a href="https://habr.com/ru/users/evgenyl/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @evgenyl
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/134784/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 90 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner851" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner852" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/php_programmist" target="_blank" class="tm-vacancies-block__vacancy-title">
+        PHP программист
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        259
+    вакансий
+      </div></div><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/programmist_laravel" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Разработчик Laravel
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        92
+    вакансии
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/134784/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/134784/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"134784":{"id":"134784","timePublished":"2011-12-17T23:47:00+00:00","isCorporative":false,"lang":"ru","titleHtml":"Работа с памятью (и всё же она есть)","leadData":{"textHtml":"\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fstorage1\u002Fafac9909\u002F2f9d7132\u002Fe91c24db\u002Fa72e14e8.jpg\" align=\"left\"\u002F\u003EСуществует распространенное мнение, что «рядовому» PHP разработчику практически не нужно заботиться об управлении памятью, однако «заботиться» и «знать» всё же немного разные понятия. Попытаюсь осветить некоторые аспекты управлению памятью при работе с переменными и массивами, а также интересные «подводные камни» внутренней оптимизации PHP. Как вы сможете убедиться, оптимизация это хорошо, но если не знать как именно она «оптимизирует», то можно столкнуться с «неочевидными граблями», которые могут вас заставить изрядно понервничать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":184,"votesCount":224},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"95093","alias":"evgenyl","fullname":"Евгений","avatarUrl":null,"speciality":null},"statistics":{"commentsCount":90,"favoritesCount":692,"readingCount":95772,"score":213,"votesCount":235},"hubs":[{"relatedData":null,"id":"260","alias":"php","type":"collective","title":"PHP","titleHtml":"PHP","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fstorage1\u002Fafac9909\u002F2f9d7132\u002Fe91c24db\u002Fa72e14e8.jpg\" align=\"left\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fstorage1\u002Fafac9909\u002F2f9d7132\u002Fe91c24db\u002Fa72e14e8.jpg\" data-blurred=\"true\"\u002F\u003EСуществует распространенное мнение, что «рядовому» PHP разработчику практически не нужно заботиться об управлении памятью, однако «заботиться» и «знать» всё же немного разные понятия. Попытаюсь осветить некоторые аспекты управлению памятью при работе с переменными и массивами, а также интересные «подводные камни» внутренней оптимизации PHP. Как вы сможете убедиться, оптимизация это хорошо, но если не знать как именно она «оптимизирует», то можно столкнуться с «неочевидными граблями», которые могут вас заставить изрядно понервничать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EОбщие сведения\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Ch6\u003EНебольшой ликбез\u003C\u002Fh6\u003E\u003Cbr\u002F\u003E\r\nПеременная в PHP как бы состоит из двух частей: \"\u003Cb\u003Eимени\u003C\u002Fb\u003E\", которое хранится в hash_table symbol_table, и \"\u003Cb\u003Eзначения\u003C\u002Fb\u003E\", которое хранится в zval контейнере.\u003Cbr\u002F\u003E\r\nТакой механизм позволяет создавать несколько переменных ссылающихся на одно значение, что в отдельных случаях позволяет оптимизировать потребление памяти. О том, как это выглядит на практике будет написано далее.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНаиболее частыми элементами кода, без которых сложно себе представить более менее функциональный скрипт, являются следующие моменты:\u003Cbr\u002F\u003E\r\n — создание, присвоение и удаление переменных (чисел, строк и т.п.),\u003Cbr\u002F\u003E\r\n — создание массивов и их обход (в качестве примера будет использована функция foreach),\u003Cbr\u002F\u003E\r\n — передача и возврат значений для функций\u002Fметодов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИменно об этих аспектах работы с памятью и будет последующее описание. Получилось достаточно объемно, но ничего мега-сложного не будет и всё будет достаточно просто, очевидно и с примерами.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch6\u003EПервый пример работы с памятью\u003C\u002Fh6\u003E\u003Cbr\u002F\u003E\r\nДля начала базовый пример того, как будет производиться анализ потребления памяти.\u003Cbr\u002F\u003E\r\nДля этого нам потребуется пара простых функций (файл \u003Cb\u003Efunc.php\u003C\u002Fb\u003E):\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cfont color=\"#000000\"\u003E&lt;?php\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#000000\"\u003Efunction\u003C\u002Ffont\u003E memoryUsage\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#000088\"\u003E$usage\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E,\u003C\u002Ffont\u003E \u003Cfont color=\"#000088\"\u003E$base_memory_usage\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E \u003Cfont color=\"#009900\"\u003E{\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#990000\"\u003Eprintf\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#0000ff\"\u003E\"Bytes diff: \u003Cfont color=\"#009933\"\u003E%d\u003C\u002Ffont\u003E\\n\"\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E,\u003C\u002Ffont\u003E \u003Cfont color=\"#000088\"\u003E$usage\u003C\u002Ffont\u003E \u003Cfont color=\"#339933\"\u003E-\u003C\u002Ffont\u003E \u003Cfont color=\"#000088\"\u003E$base_memory_usage\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#009900\"\u003E}\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#000000\"\u003Efunction\u003C\u002Ffont\u003E someBigValue\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E \u003Cfont color=\"#009900\"\u003E{\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#b1b100\"\u003Ereturn\u003C\u002Ffont\u003E \u003Cfont color=\"#990000\"\u003Estr_repeat\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#0000ff\"\u003E'SOME BIG STRING'\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E,\u003C\u002Ffont\u003E \u003Cfont color=\"#cc66cc\"\u003E1024\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#009900\"\u003E}\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#000000\"\u003E?\u003E\u003C\u002Ffont\u003E\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИ простой первый пример теста потребления памяти для строки:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cfont color=\"#000000\"\u003E&lt;?php\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#b1b100\"\u003Einclude\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#0000ff\"\u003E'func.php'\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#b1b100\"\u003Eecho\u003C\u002Ffont\u003E \u003Cfont color=\"#0000ff\"\u003E\"String memory usage test.\\n\\n\"\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#000088\"\u003E$base_memory_usage\u003C\u002Ffont\u003E \u003Cfont color=\"#339933\"\u003E=\u003C\u002Ffont\u003E \u003Cfont color=\"#990000\"\u003Ememory_get_usage\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#000088\"\u003E$base_memory_usage\u003C\u002Ffont\u003E \u003Cfont color=\"#339933\"\u003E=\u003C\u002Ffont\u003E \u003Cfont color=\"#990000\"\u003Ememory_get_usage\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#b1b100\"\u003Eecho\u003C\u002Ffont\u003E \u003Cfont color=\"#0000ff\"\u003E\"Start\\n\"\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#990000\"\u003Ememory_get_usage\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E,\u003C\u002Ffont\u003E \u003Cfont color=\"#000088\"\u003E$base_memory_usage\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#000088\"\u003E$a\u003C\u002Ffont\u003E \u003Cfont color=\"#339933\"\u003E=\u003C\u002Ffont\u003E someBigValue\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#b1b100\"\u003Eecho\u003C\u002Ffont\u003E \u003Cfont color=\"#0000ff\"\u003E\"String value setted\\n\"\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#990000\"\u003Ememory_get_usage\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E,\u003C\u002Ffont\u003E \u003Cfont color=\"#000088\"\u003E$base_memory_usage\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#990000\"\u003Eunset\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#000088\"\u003E$a\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#b1b100\"\u003Eecho\u003C\u002Ffont\u003E \u003Cfont color=\"#0000ff\"\u003E\"String value unsetted\\n\"\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#990000\"\u003Ememory_get_usage\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E,\u003C\u002Ffont\u003E \u003Cfont color=\"#000088\"\u003E$base_memory_usage\u003C\u002Ffont\u003E\u003Cfont color=\"#009900\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#339933\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#000000\"\u003E?\u003E\u003C\u002Ffont\u003E\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nПримечание: \u003Ci\u003Eнесомненно код является неоптимизированным с точки зрения работоспособности, но в данном случае нам исключительно важна наглядность потребления памяти, для которой и реализовано данное представление.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРезультат кода вполне очевиден:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EString memory usage test.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nStart\u003Cbr\u002F\u003E\r\nBytes diff: 0\u003Cbr\u002F\u003E\r\nString value setted\u003Cbr\u002F\u003E\r\nBytes diff: 15448\u003Cbr\u002F\u003E\r\nString value unsetted\u003Cbr\u002F\u003E\r\nBytes diff: 0\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТот же самый пример, но вместо \u003Cb\u003Eunset($a)\u003C\u002Fb\u003E используем \u003Cb\u003E$a=null;\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EStart\u003Cbr\u002F\u003E\r\nBytes diff: 0\u003Cbr\u002F\u003E\r\nString value setted\u003Cbr\u002F\u003E\r\nBytes diff: 15448\u003Cbr\u002F\u003E\r\nString value set to null\u003Cbr\u002F\u003E\r\nBytes diff: 76\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nКак видите, переменная не была полностью уничтожена. Под нее остается выделенным еще 76 байт.\u003Cbr\u002F\u003E\r\nДостаточно прилично, если учесть, что ровно столько же выделяется и под переменные типа boolean, integer, float. Речь идет не об объеме памяти, выделяемой под \u003Ci\u003Eзначение переменной\u003C\u002Fi\u003E, а о полном потреблении памяти для хранения сведений о присвоенной переменной (zval контейнер со значением и само имя переменной).\u003Cbr\u002F\u003E\r\nТак что если вы хотите освободить память при помощи присвоения, то не является принципиальным присвоение именно \u003Cb\u003Enull\u003C\u002Fb\u003E значения. Выражение \u003Cb\u003E$a=10000;\u003C\u002Fb\u003E даст тот же результат для расхода памяти.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ документации PHP сказано, что \u003Ca href=\"http:\u002F\u002Fru.php.net\u002Fmanual\u002Fru\u002Flanguage.types.null.php#language.types.null.casting\"\u003Eприведение к \u003Cb\u003Enull\u003C\u002Fb\u003E уничтожит переменную и ее значение\u003C\u002Fa\u003E, однако, по данному скрипту видно что это не так, что собственно \u003Ca href=\"https:\u002F\u002Fbugs.php.net\u002Fbug.php?id=55164\"\u003Eявляется багом (документации)\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗачем использовать присвоение \u003Cb\u003Enull\u003C\u002Fb\u003E, если можно \u003Cb\u003Eunset()\u003C\u002Fb\u003E?\u003Cbr\u002F\u003E\r\nПрисвоение — это присвоение, (спасибо КО), то есть изменяется значение переменной, соответственно, если новое значение требует меньше памяти, то она высвобождается сразу, однако это требует вычислительных ресурсов (пусть и сравнительно немного).\u003Cbr\u002F\u003E\r\n\u003Cb\u003Eunset()\u003C\u002Fb\u003E в свою очередь освобождает память, выделенную под имя переменной и ее значение.\u003Cbr\u002F\u003E\r\nОтдельно стоит упомянуть момент, что \u003Cb\u003Eunset()\u003C\u002Fb\u003E и присвоение \u003Cb\u003Enull\u003C\u002Fb\u003E совершенно по разному работают со ссылками на переменные. \u003Cb\u003EUnset()\u003C\u002Fb\u003E уничтожит только ссылку, в то время как присвоение \u003Cb\u003Enull\u003C\u002Fb\u003E изменит значение, на которое ссылаются имена переменных, соответственно все переменные станут ссылаться на значение \u003Cb\u003Enull\u003C\u002Fb\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПримечание:\u003Cbr\u002F\u003E\r\n\u003Ci\u003EВстречается заблуждение, что \u003Cb\u003Eunset()\u003C\u002Fb\u003E является функцией, однако, это не верно. \u003Cb\u003Eunset()\u003C\u002Fb\u003E — это языковая конструкция (как например \u003Cb\u003Eif\u003C\u002Fb\u003E), о чем \u003Ca href=\"http:\u002F\u002Fphp.net\u002Fmanual\u002Fen\u002Ffunction.unset.php\"\u003Eпрямо сказано в документации\u003C\u002Fa\u003E, соответственно ее нельзя использовать для обращения через значение переменной:\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E$unset_func_name \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E \u003Cfont color=\"#FF0000\"\u003E'unset'\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$unset_func_name\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$some_var\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНемного дополнительной информации для праздных размышлений (при изменении примера выше):\u003Cbr\u002F\u003E\r\n\u003Cb\u003E$a = array();\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nвыделит 164 байта, unset($a) всё вернет.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003Eclass A { }\u003Cbr\u002F\u003E\r\n$a = new A();\u003Cbr\u002F\u003E\r\n\u003C\u002Fb\u003E выделит 184 байта, unset($a) всё вернет.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003E$a = new stdClass();\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nвыделит 272 байта, но после unset($a) «утекут» 88 байт (куда именно и почему они утекли, мне пока не удалось выяснить).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПока приведенные примеры не являются критичными в плане потребления памяти, так как строковые и числовые значения достаточно очевидно хранятся и обрабатываются. Всё становится значительно хуже, когда в ход идут массивы (объекты тоже имеют целый ряд особенностей, однако для этого уже потребуется отдельная статья).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EМассивы\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nМассивы в PHP «съедают» достаточно памяти, и именно в них как правило хранят значительные объемы данных при обработке, поэтому следует очень аккуратно относиться к работе с ними. Однако, работа с массивами в PHP имеет свои «прелести оптимизации» и об одном из таких моментов, связанных с потреблением памяти, стоит упомянуть.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКоварный пример №1\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cfont color=\"#000080\"\u003E&lt;\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E?\u003C\u002Ffont\u003Ephp\u003Cbr\u002F\u003E\r\ninclude\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#FF0000\"\u003E'func.php'\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E\"Array memory usage example.\"\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$base_memory_usage \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E memory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$base_memory_usage \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E memory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'Base usage.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\n$a \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E array\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003EsomeBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'Array is set.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\nforeach \u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$a as $k\u003Cfont color=\"#000080\"\u003E=\u003E\u003C\u002Ffont\u003E$v\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E \u003Cfont color=\"#008000\"\u003E{\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$a\u003Cfont color=\"#008000\"\u003E[\u003C\u002Ffont\u003E$k\u003Cfont color=\"#008000\"\u003E]\u003C\u002Ffont\u003E \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nunset\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$k, $v\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'In FOREACH cycle.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#008000\"\u003E}\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'Usage right after FOREACH.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\nunset\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$a\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'Array unset.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#008080\"\u003E?\u003C\u002Ffont\u003E\u003Cfont color=\"#000080\"\u003E\u003E\u003C\u002Ffont\u003E\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nНа первый взгляд может показаться, что потребление памяти массивом $a не будет меняться (за исключением установки переменных $k и $v), однако PHP имеет особенный подход при работе с массивами в этом случае.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПосмотрите на вывод:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EArray memory usage example.Base usage.\u003Cbr\u002F\u003E\r\nBytes diff: 0\u003Cbr\u002F\u003E\r\nArray is set.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\nIn FOREACH cycle.\u003Cbr\u002F\u003E\r\nBytes diff: 77632\u003Cbr\u002F\u003E\r\nIn FOREACH cycle.\u003Cbr\u002F\u003E\r\nBytes diff: 93032\u003Cbr\u002F\u003E\r\nIn FOREACH cycle.\u003Cbr\u002F\u003E\r\nBytes diff: 108432\u003Cbr\u002F\u003E\r\nIn FOREACH cycle.\u003Cbr\u002F\u003E\r\nBytes diff: 123832\u003Cbr\u002F\u003E\r\nUsage right after FOREACH.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\nArray unset.\u003Cbr\u002F\u003E\r\nBytes diff: 0\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nПолучается, что в последней итерации цикла foreach в данном случае потребление массивом памяти возросло в два раза, хотя по самому коду это не очевидно. Но сразу после цикла, потребление памяти вернулось к прежнему значению. Чудеса да и только.\u003Cbr\u002F\u003E\r\nПричиной тому является оптимизация использования массива в цикле. На время работы цикла, при попытке изменить исходный массив, неявно создается копия структуры массива (но не копия значений), которая и становится доступной по завершению цикла, а исходная структура уничтожается. Таким образом, в вышеприведенном примере, если вы присваиваете новые значения исходному массиву, то они не будут заменены сразу, а для них будет выделена отдельная память, которая будет возвращена по выходу из цикла.\u003Cbr\u002F\u003E\r\nЭтот момент очень легко пропустить, что может привести к значительному потреблению памяти на время работы цикла с большими массивами данных, например при выборке из БД.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПримечание:\u003Cbr\u002F\u003E\r\n\u003Ci\u003EВнутри самого цикла, уже после изменения значения $a[$k], вы не сможете получить значение которое всё еще хранится в исходном массиве если не сохранили значение $v. Повторное обращение к $a[$k] выдаст уже новое значение.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fhabrahabr.ru\u002Fblogs\u002Fphp\u002F134784\u002F#comment_4476946\"\u003EДополнение от пользователя\u003C\u002Fa\u003E \u003Ca href=\"http:\u002F\u002Fhabrahabr.ru\u002Fusers\u002Fzibada\u002F\" class=\"user_link\"\u003Ezibada\u003C\u002Fa\u003E (в кратце):\u003Cbr\u002F\u003E\r\nВажно учесть, что выделение памяти под новый «временный массив» в случае внесения изменений, произойдет единовременно для всей структуры массива, но отдельно для каждого изменяемого элемента. Таким образом, если имеется массив с большим количеством элементов, (но не обязательно с большими значениями), то единовременное потребление памяти при таком копировании будет существенно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКоварный пример №2\u003Cbr\u002F\u003E\r\nЧуть-чуть изменим код.\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003Eecho \u003Cfont color=\"#FF0000\"\u003E'Array is set.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$b \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E \u003Cfont color=\"#000040\"\u003E&amp;\u003C\u002Ffont\u003E$a\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E \u003Cfont color=\"#666666\"\u003E\u002F\u002F Добавим это\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nforeach \u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$a as $k\u003Cfont color=\"#000080\"\u003E=\u003E\u003C\u002Ffont\u003E$v\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E \u003Cfont color=\"#008000\"\u003E{\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$a\u003Cfont color=\"#008000\"\u003E[\u003C\u002Ffont\u003E$k\u003Cfont color=\"#008000\"\u003E]\u003C\u002Ffont\u003E \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nunset\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$k, $v\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'In FOREACH cycle.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#008000\"\u003E}\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nunset\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$b\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E \u003Cfont color=\"#666666\"\u003E\u002F\u002F И это\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'Usage right after FOREACH.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСам код цикла мы никак не меняли, единственное что мы изменили, это увеличили счетчик ссылок на исходный массив, но это в корне поменяло работу цикла:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EBytes diff: 0\u003Cbr\u002F\u003E\r\nArray is set.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\nIn FOREACH cycle.\u003Cbr\u002F\u003E\r\nBytes diff: 61988\u003Cbr\u002F\u003E\r\nIn FOREACH cycle.\u003Cbr\u002F\u003E\r\nBytes diff: 61988\u003Cbr\u002F\u003E\r\nIn FOREACH cycle.\u003Cbr\u002F\u003E\r\nBytes diff: 61988\u003Cbr\u002F\u003E\r\nIn FOREACH cycle.\u003Cbr\u002F\u003E\r\nBytes diff: 61988\u003Cbr\u002F\u003E\r\nUsage right after FOREACH.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\nArray unset.\u003Cbr\u002F\u003E\r\nBytes diff: 0\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EНебольшое изменение: (61988 — 61940 = 48 байт на хранение переменной-ссылки $b).\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\nВ остальном же мы видим, что если массив, используемый для цикла, имеет больше чем одну ссылку на себя, тогда для него не применяется оптимизация из примера №1, т.е. для присвоения используется оригинальный массив.\u003Cbr\u002F\u003E\r\nТочно такой же результат мы получим, если используем для цикла массив $b или же используем в цикле передачу значения по ссылке:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003Eecho \u003Cfont color=\"#FF0000\"\u003E'Array is set.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\nforeach \u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$a as $k\u003Cfont color=\"#000080\"\u003E=\u003E\u003C\u002Ffont\u003E\u003Cfont color=\"#000040\"\u003E&amp;\u003C\u002Ffont\u003E$v\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E \u003Cfont color=\"#008000\"\u003E{\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$a\u003Cfont color=\"#008000\"\u003E[\u003C\u002Ffont\u003E$k\u003Cfont color=\"#008000\"\u003E]\u003C\u002Ffont\u003E \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E \u003Cfont color=\"#666666\"\u003E\u002F\u002F Или $v = someBigValue();\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nunset\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$k, $v\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'In FOREACH cycle.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#008000\"\u003E}\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'Usage right after FOREACH.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРезультат:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EBytes diff: 0\u003Cbr\u002F\u003E\r\nArray is set.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\nIn FOREACH cycle.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\nIn FOREACH cycle.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\nIn FOREACH cycle.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\nIn FOREACH cycle.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\nUsage right after FOREACH.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\nArray unset.\u003Cbr\u002F\u003E\r\nBytes diff: 0\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nЗдесь стоит отдельно отметить, что добавление передачи $v по ссылке хоть и не увеличивает счетчик ссылок исходного массива, но тоже приводит к отключению «оптимизации».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EПередача по ссылке или передача через копирование\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРассмотрим случай, «что делать» если требуется передать в метод или функцию (или вернуть из них), какое-либо очень большое значение. Первым очевидным решением обычно рассматривают использование передачи\u002Fвозвращения по ссылке.\u003Cbr\u002F\u003E\r\nОднако в документации по PHP сказано: \u003Ca href=\"http:\u002F\u002Fwww.php.net\u002Fmanual\u002Fru\u002Flanguage.references.return.php\"\u003EНе используйте возврат по ссылке для увеличения производительности. Ядро PHP само занимается оптимизацией\u003C\u002Fa\u003E. \u003Cbr\u002F\u003E\r\nПопытаемся разобраться в том, что же это за «оптимизация».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля начала самый простой пример (пока без передачи аргументов):\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E…\u003Cbr\u002F\u003E\r\n$a \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$b \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E $a\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E\"String value setted\"\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\nunset\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$a, $b\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n...\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nПо «прямой логике», в памяти должно выделиться два блока под значение переменных. Однако PHP оптимизирует этот момент:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EStart\u003Cbr\u002F\u003E\r\nBytes diff: 0\u003Cbr\u002F\u003E\r\nString value setted\u003Cbr\u002F\u003E\r\nBytes diff: 15496\u003Cbr\u002F\u003E\r\nString value unsetted\u003Cbr\u002F\u003E\r\nBytes diff: 0\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nВ данном случае 15448 байт занимается переменная $a, остальные же 48 байт выделены под переменную $b, хотя между ними и не установлена связь по ссылке. Данное потребление памяти сохраняется до тех пор, пока мы как-либо не изменим одну из этих переменных, а точнее сказать вообще что-либо не сделаем с ее значением, даже если мы его не меняем по факту:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E$a \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$b \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E $a\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$b \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E strval\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$b\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E\"String value setted\"\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\nunset\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$a, $b\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ результате получим вывод:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EBytes diff: 0\u003Cbr\u002F\u003E\r\nString value setted\u003Cbr\u002F\u003E\r\nBytes diff: 30896\u003Cbr\u002F\u003E\r\nString value unsetted\u003Cbr\u002F\u003E\r\nBytes diff: 0\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nКак мы видим, попытка «тронуть» значение переменной $b приводит к тому, что теперь скрипт выделяет для ее хранения отдельную область памяти. То же самое произойдет если мы попытаемся «тронуть» значение $a.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДанная оптимизация действует для конкретных значений, коими также являются и отдельные значения массива.\u003Cbr\u002F\u003E\r\nЧтобы это лучше понять, взглянем на пример ниже:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E$a \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E array\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003EsomeBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E \u003Cfont color=\"#666666\"\u003E\u002F\u002F 31052 байта\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$b \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E $a\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E \u003Cfont color=\"#666666\"\u003E\u002F\u002F + 48 байт = 31100 байта\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$b\u003Cfont color=\"#008000\"\u003E[\u003C\u002Ffont\u003E\u003Cfont color=\"#0000dd\"\u003E0\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E]\u003C\u002Ffont\u003E \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E\"String value setted\"\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\nunset\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$a, $b\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДанный пример даст выход:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EBytes diff: 0\u003Cbr\u002F\u003E\r\nString value setted\u003Cbr\u002F\u003E\r\nBytes diff: 46704\u003Cbr\u002F\u003E\r\nString value unsetted\u003Cbr\u002F\u003E\r\nBytes diff: 0\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nТо есть в результате новая память (15к+ байт) была выделена для создания только копии значения для нулевого элемента массива, а не для всего массива $b. Значение $b[1] всё еще «оптимизированно связано» с $a[1].\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВсё выше описанное действует аналогично и для передачи\u002Fвозврата значений через «оптимизированное копирование» внутрь\u002Fиз функций и методов. Если внутри метода вы никак не «трогаете» переданное значение, то для него не будет выделена отдельная область памяти (память будет выделена только под имя переменной, чтобы связать ее со значением). Если же вы передаете «через копирование» и изменяете значение внутри метода, то перед попыткой сделать изменение уже будет создана действительная полная копия значения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТаким образом PHP действительно избавляет от необходимости использовать передачу по ссылке для оптимизации использования памяти. Передача по ссылке имеет практическое значение только если исходное значение требуется изменить с отображением этих изменений извне метода.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКод для примера:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cfont color=\"#000080\"\u003E&lt;\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E?\u003C\u002Ffont\u003Ephp\u003Cbr\u002F\u003E\r\ninclude\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#FF0000\"\u003E'func.php'\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\nfunction testUsageInside\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$big_value, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E \u003Cfont color=\"#008000\"\u003E{\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'Usage inside function then $big_value NOT changed.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\n$big_value\u003Cfont color=\"#008000\"\u003E[\u003C\u002Ffont\u003E\u003Cfont color=\"#0000dd\"\u003E0\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E]\u003C\u002Ffont\u003E \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'Usage inside function then $big_value[0] changed.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\n$big_value\u003Cfont color=\"#008000\"\u003E[\u003C\u002Ffont\u003E\u003Cfont color=\"#0000dd\"\u003E1\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E]\u003C\u002Ffont\u003E \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'Usage inside function then also $big_value[1] changed.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#008000\"\u003E}\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E\"Array memory usage example.\"\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$base_memory_usage \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E memory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$base_memory_usage \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E memory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'Base usage.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\n$a \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E array\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003EsomeBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'Array is set.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\ntestUsageInside\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$a, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'Usage right after function call.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\nunset\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$a\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\necho \u003Cfont color=\"#FF0000\"\u003E'Array unset.'\u003C\u002Ffont\u003E.\u003Cfont color=\"#007788\"\u003EPHP_EOL\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#008080\"\u003E?\u003C\u002Ffont\u003E\u003Cfont color=\"#000080\"\u003E\u003E\u003C\u002Ffont\u003E\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВывод:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EArray memory usage example.\u003Cbr\u002F\u003E\r\nBase usage.\u003Cbr\u002F\u003E\r\nBytes diff: 0\u003Cbr\u002F\u003E\r\nArray is set.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\nUsage inside function then $big_value NOT changed.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\nUsage inside function then $big_value[0] changed.\u003Cbr\u002F\u003E\r\nBytes diff: 77632\u003Cbr\u002F\u003E\r\nUsage inside function then also $big_value[1] changed.\u003Cbr\u002F\u003E\r\nBytes diff: 93032\u003Cbr\u002F\u003E\r\nUsage right after function call.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\nArray unset.\u003Cbr\u002F\u003E\r\nBytes diff: 0\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nКак видно из примера, в функции не была создана копия массива, несмотря на то, что фактически идет передача значения через копирование. И даже частичная модификация переданного массива не создала полноценную копию, а выделила память только под новые значения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИсключительно в познавательных целях, стоит обратить внимание на эти два значения:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EArray is set.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\nUsage inside function then $big_value NOT changed.\u003Cbr\u002F\u003E\r\nBytes diff: 61940\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nПотребление памяти не увеличилось при передаче управления в функцию, хотя по сути появилась новая переменная $big_value. Это связано с тем, что еще на стадии разбора текста скрипта интерпретатор определил будет ли эта функция использована в коде и заранее выделил для имен ее входных параметров место в памяти (если функция не используется, то интерпретатор ее игнорирует и не выделяет под нее память). А так как имеет место «оптимизированная передача через копирование», то уже существующее имя переменной $big_value было просто неявно «связано» с большим массивом $a. В результате было передано значение в функцию «через копирование» не потратив ни единого дополнительного байта.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПримечание:\u003Cbr\u002F\u003E\r\n\u003Ci\u003EВ PHP5 (в отличие от PHP4), все объекты по-умолчанию передаются по ссылке, хотя по факту, это неполноценная ссылка. См. \u003Ca href=\"http:\u002F\u002Fblog.golemon.com\u002F2007\u002F01\u002Fyoure-being-lied-to.html\"\u003Eэту статью\u003C\u002Fa\u003E. \u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EКраткие выводы\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nНесомненно приведенные примеры оптимизации использования памяти в PHP лишь «капля в море», однако они описывают самые частые случаи, когда имеет смысл задуматься о том, какой код выбрать чтобы оптимизировать расход памяти и избавить себя от лишней головной боли.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОтдельно стоило бы затронуть механизм расходования и оптимизации памяти при использовании объектов, однако ввиду обилия возможных примеров этот момент требует отдельной статьи. Возможно когда-нибудь.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nPS: Можно было бы разбить это на несколько статей, но не вижу в этом смысла, так как подобную информацию лучше всё же хранить «вместе». Полагаю тем, кому данная информация несет практический смысл, так будет удобнее. Тестировалось на PHP 5.3.2 (Ubuntu 32bit), так что ваши значения по выделенным байтам могут отличаться.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕще много полезного, но на английском:\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fnikic.github.com\u002F2011\u002F12\u002F12\u002FHow-big-are-PHP-arrays-really-Hint-BIG.html\"\u003Enikic.github.com\u002F2011\u002F12\u002F12\u002FHow-big-are-PHP-arrays-really-Hint-BIG.html\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fnikic.github.com\u002F2011\u002F11\u002F11\u002FPHP-Internals-When-does-foreach-copy.html\"\u003Enikic.github.com\u002F2011\u002F11\u002F11\u002FPHP-Internals-When-does-foreach-copy.html\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fblog.golemon.com\u002F2007\u002F01\u002Fyoure-being-lied-to.html\"\u003Eblog.golemon.com\u002F2007\u002F01\u002Fyoure-being-lied-to.html\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fhengrui-li.blogspot.com\u002F2011\u002F08\u002Fphp-copy-on-write-how-php-manages.html\"\u003Ehengrui-li.blogspot.com\u002F2011\u002F08\u002Fphp-copy-on-write-how-php-manages.html\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fsldn.softlayer.com\u002Fblog\u002Fdmcaloon\u002FPHP-Memory-Management-Foreach\"\u003Esldn.softlayer.com\u002Fblog\u002Fdmcaloon\u002FPHP-Memory-Management-Foreach\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fblog.preinheimer.com\u002Findex.php?\u002Farchives\u002F354-Memory-usage-in-PHP.html\"\u003Eblog.preinheimer.com\u002Findex.php?\u002Farchives\u002F354-Memory-usage-in-PHP.html\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fderickrethans.nl\u002Ftalks\u002Fphparch-php-variables-article.pdf\"\u003Ederickrethans.nl\u002Ftalks\u002Fphparch-php-variables-article.pdf\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EUPD\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nВ основной части статьи не был освещен важный момент.\u003Cbr\u002F\u003E\r\nЕсли есть переменная на которую создана ссылка, то при ее передаче в функцию в качестве аргумента она будет скопирована сразу, то есть не будет применена copy-on-write оптимизация.\u003Cbr\u002F\u003E\r\nПример:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cfont color=\"#000080\"\u003E&lt;\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E?\u003C\u002Ffont\u003Ephp\u003Cbr\u002F\u003E\r\ninclude\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#FF0000\"\u003E'func.php'\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nfunction testFunc\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$a, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E \u003Cfont color=\"#008000\"\u003E{\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#008000\"\u003E}\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$base_memory_usage \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E \u003Cfont color=\"#0000dd\"\u003E0\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$base_memory_usage \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E memory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E \u003Cfont color=\"#666666\"\u003E\u002F\u002F 0 bytes\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$a \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E someBigValue\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n$b \u003Cfont color=\"#000080\"\u003E=\u003C\u002Ffont\u003E \u003Cfont color=\"#000040\"\u003E&amp;\u003C\u002Ffont\u003E$a\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E \u003Cfont color=\"#666666\"\u003E\u002F\u002F 15496 bytes\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\ntestFunc\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$a, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E \u003Cfont color=\"#666666\"\u003E\u002F\u002F 30896 bytes\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E \u003Cfont color=\"#666666\"\u003E\u002F\u002F 15496 bytes\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nunset\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E$a, $b\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\nmemoryUsage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003Ememory_get_usage\u003Cfont color=\"#008000\"\u003E(\u003C\u002Ffont\u003E\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E, $base_memory_usage\u003Cfont color=\"#008000\"\u003E)\u003C\u002Ffont\u003E\u003Cfont color=\"#008080\"\u003E;\u003C\u002Ffont\u003E \u003Cfont color=\"#666666\"\u003E\u002F\u002F 0 bytes\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n\u003Cfont color=\"#008080\"\u003E?\u003C\u002Ffont\u003E\u003Cfont color=\"#000080\"\u003E\u003E\u003C\u002Ffont\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fblockquote\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"потребление памяти"},{"titleHtml":"массивы"},{"titleHtml":"строки"},{"titleHtml":"оптимизация"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F134784\u002F64abba8fb2b5af127964050bb9bba4d3\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F134784\u002F64abba8fb2b5af127964050bb9bba4d3\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F134784\\\u002F\"},\"headline\":\"Работа с памятью (и всё же она есть)\",\"datePublished\":\"2011-12-18T03:47:00+04:00\",\"dateModified\":\"2011-12-21T23:20:32+04:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Евгений\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Существует распространенное мнение, что &laquo;рядовому&raquo; PHP разработчику практически не нужно заботиться об управлении памятью, однако &laquo;заботиться&raquo; и &laquo;знать&raquo; всё же н...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F134784\\\u002F#post-content-body\",\"about\":[\"h_php\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F134784\\\u002F64abba8fb2b5af127964050bb9bba4d3\\\u002F\"]}","metaDescription":"Существует распространенное мнение, что «рядовому» PHP разработчику практически не нужно заботиться об управлении памятью, однако «заботиться» и «знать» всё же немного разные понятия. Попытаюсь...","mainImageUrl":null,"amp":true,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"PHP программист","vacanciesCount":259,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fphp_programmist","itemHubs":["laravel","symfony","yii","php"]},{"title":"Разработчик Laravel","vacanciesCount":92,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fprogrammist_laravel","itemHubs":["laravel","php"]}],"hubs":"php"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

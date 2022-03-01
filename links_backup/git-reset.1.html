@@ -1,0 +1,805 @@
+
+
+<!doctype html>
+<html id="magnolia" lang="ru">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta property="fb:pages" content="115407078489594" />
+<meta name="description" content="Команды git revert и git reset отменяют состояние кода после коммита. Команда git checkout загружает файлы, коммиты и ветки. Команда git clean удаляет неотслеживаемые файлы из каталога.">
+<meta name="author" content="Atlassian">
+<link rel="canonical" href="git-reset.1.html"/>
+<title>git reset | Atlassian Git Tutorial</title>
+<style>body { display: none; }</style>
+<link href="https://wac-cdn.atlassian.com" rel="preconnect">
+<link rel="alternate" href="https://www.atlassian.com/git/tutorials/undoing-changes/git-reset" hreflang="x-default" />
+<link rel="alternate" href="https://www.atlassian.com/git/tutorials/undoing-changes/git-reset" hreflang="en" />
+<link rel="alternate" href="https://www.atlassian.com/ja/git/tutorials/undoing-changes/git-reset" hreflang="ja" />
+<link rel="alternate" href="https://www.atlassian.com/fr/git/tutorials/undoing-changes/git-reset" hreflang="fr" />
+<link rel="alternate" href="https://www.atlassian.com/de/git/tutorials/undoing-changes/git-reset" hreflang="de" />
+<link rel="alternate" href="https://www.atlassian.com/es/git/tutorials/undoing-changes/git-reset" hreflang="es" />
+<link rel="alternate" href="https://www.atlassian.com/br/git/tutorials/undoing-changes/git-reset" hreflang="pt-BR" />
+<link rel="alternate" href="https://www.atlassian.com/zh/git/tutorials/undoing-changes/git-reset" hreflang="zh-Hans" />
+<link rel="alternate" href="https://www.atlassian.com/ko/git/tutorials/undoing-changes/git-reset" hreflang="ko" />
+<link rel="alternate" href="git-reset.1.html" hreflang="ru" />
+<link rel="alternate" href="https://www.atlassian.com/pl/git/tutorials/undoing-changes/git-reset" hreflang="pl" />
+<link rel="alternate" href="https://www.atlassian.com/it/git/tutorials/undoing-changes/git-reset" hreflang="it" />
+<link rel="alternate" href="https://www.atlassian.com/nl/git/tutorials/undoing-changes/git-reset" hreflang="nl" />
+<link rel="alternate" href="https://www.atlassian.com/hu/git/tutorials/undoing-changes/git-reset" hreflang="hu" />
+<link rel="apple-touch-icon-precomposed" sizes="57x57" href="https://wac-cdn.atlassian.com/assets/img/favicons/gitguide/apple-touch-icon-57x57.png" />
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://wac-cdn.atlassian.com/assets/img/favicons/gitguide/apple-touch-icon-114x114.png" />
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://wac-cdn.atlassian.com/assets/img/favicons/gitguide/apple-touch-icon-72x72.png" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://wac-cdn.atlassian.com/assets/img/favicons/gitguide/apple-touch-icon-144x144.png" />
+<link rel="apple-touch-icon-precomposed" sizes="120x120" href="https://wac-cdn.atlassian.com/assets/img/favicons/gitguide/apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon-precomposed" sizes="152x152" href="https://wac-cdn.atlassian.com/assets/img/favicons/gitguide/apple-touch-icon-152x152.png" />
+<link rel="icon" type="image/png" href="https://wac-cdn.atlassian.com/assets/img/favicons/gitguide/favicon.png" sizes="32x32" />
+<link rel="mask-icon" href="https://wac-cdn.atlassian.com/assets/img/favicons/gitguide/safari-pinned-tab.svg" color="#59afe1">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="https://wac-cdn.atlassian.com/assets/img/favicons/gitguide/mstile-144x144.png" />
+<meta name="theme-color" content="#205081">
+<meta property="og:title" content="git reset | Atlassian Git Tutorial" />
+<meta property="og:description" content="Команды git revert и git reset отменяют состояние кода после коммита. Команда git checkout загружает файлы, коммиты и ветки. Команда git clean удаляет неотслеживаемые файлы из каталога." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://www.atlassian.com/ru/git/tutorials/undoing-changes/git-reset" />
+<meta property="og:site_name" content="Atlassian" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@Atlassian" />
+<script src="https://wac-cdn.atlassian.com/static/master/737/assets/build/js/jquery.js?cdnVersion=235"></script>
+<style>
+.max-height-fix {
+max-height: 100% !important;
+}
+</style>
+<script type="text/javascript">
+window.featureFlags = "".split('&amp;')
+.reduce((flags, flagStr) => {
+const [flagKey, flagValue] = flagStr.split('=');
+return { ...flags, [flagKey]: flagValue };
+}, {})
+</script>
+<script type="text/javascript">
+var LOCALIZED_PRICING_CONTENTFUL_SPACE = "3s3v3nq72la0";
+var LOCALIZED_PRICING_CONTENTFUL_ENVIRONMENT = "master";
+var LOCALIZED_PRICING_CONTENTFUL_ACCESS_TOKEN = "b9c3ea8d9c664146e9c7dd136a1d40ff8415715c3ef8ee222536f36fb2056613";
+var LOCALIZED_CCP_PRICING_CONTENTFUL_ENVIRONMENT = "ccp_dev";
+var LOCALIZED_CCP_PRICING_CONTENTFUL_ACCESS_TOKEN = "3SWtzulQjrRd4OdxZm8zhe_ohy5J2-Jafj0Zkr5grS4";
+var LOCALIZED_PRICING_USE_GEO_CURRENCY = true;
+</script>
+</head>
+<body id="git-reset" class="wac git tutorials undoing-changes git-reset">
+<div id="header">
+<div class="tutorial-sidebar is-active">
+<div class="_bumper"></div>
+<div class="_wrap">
+<ol>
+<div class="_group">
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-git-with-bitbucket-cloud" class="cms-link cms-link--text group-link" >Узнать о Git</a>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-git-with-bitbucket-cloud" class="cms-link cms-link--text tutorial-link" >Изучите Git с помощью Bitbucket Cloud</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-git-with-bitbucket-cloud#create-the-repository" class="cms-link cms-link--text section-link" >Создание репозитория Git</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-git-with-bitbucket-cloud#copy-and-add-files" class="cms-link cms-link--text section-link" >Копирование репозитория Git и добавление файлов</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-git-with-bitbucket-cloud#pull-changes" class="cms-link cms-link--text section-link" >Получение изменений из репозитория Git в Bitbucket Cloud</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-git-with-bitbucket-cloud#git-branch-to-merge" class="cms-link cms-link--text section-link" >Использование команды git branch для слияния файла</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-about-code-review-in-bitbucket-cloud" class="cms-link cms-link--text tutorial-link" >Узнайте о проверке кода в Bitbucket Cloud</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-about-code-review-in-bitbucket-cloud#create-repository" class="cms-link cms-link--text section-link" >Создание репозитория</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-about-code-review-in-bitbucket-cloud#clone-branch" class="cms-link cms-link--text section-link" >Клонирование и внесение изменений в новую ветку</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-about-code-review-in-bitbucket-cloud#im-using-git" class="cms-link cms-link--text section-link" >Если вы используете командную строку</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-about-code-review-in-bitbucket-cloud#im-using-sourcetree" class="cms-link cms-link--text section-link" >Если вы используете Sourcetree</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-about-code-review-in-bitbucket-cloud#create-a-pull-request-to-merge-your-change" class="cms-link cms-link--text section-link" >Создание запроса pull для слияния изменений</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-branching-with-bitbucket-cloud" class="cms-link cms-link--text tutorial-link" >Узнайте о ветвлении в Bitbucket Cloud</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-branching-with-bitbucket-cloud#create-the-repository" class="cms-link cms-link--text section-link" >Настройка</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-branching-with-bitbucket-cloud#review-branching-workflow" class="cms-link cms-link--text section-link" >Ознакомьтесь с процессом ветвления</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-undoing-changes-with-bitbucket" class="cms-link cms-link--text tutorial-link" >Научитесь отменять изменения в Bitbucket Cloud</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-undoing-changes-with-bitbucket#git-status" class="cms-link cms-link--text section-link" >git status</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-undoing-changes-with-bitbucket#git-log" class="cms-link cms-link--text section-link" >git log</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-undoing-changes-with-bitbucket#git-reset" class="cms-link cms-link--text section-link" >git reset</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-undoing-changes-with-bitbucket#git-revert" class="cms-link cms-link--text section-link" >git revert</a>
+</div>
+</div>
+</div>
+<div class="_group">
+<a href="https://www.atlassian.com/ru/git/tutorials/what-is-version-control" class="cms-link cms-link--text group-link" >Для начинающих</a>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/what-is-version-control" class="cms-link cms-link--text tutorial-link" >Что такое контроль версий?</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/what-is-version-control#benefits-of-version-control" class="cms-link cms-link--text section-link" >Преимущества контроля версий</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/source-code-management" class="cms-link cms-link--text tutorial-link" >Управление исходным кодом</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/what-is-git" class="cms-link cms-link--text tutorial-link" >Что такое Git?</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/what-is-git#performance" class="cms-link cms-link--text section-link" >Производительность</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/what-is-git#security" class="cms-link cms-link--text section-link" >Безопасность</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/what-is-git#flexibility" class="cms-link cms-link--text section-link" >Гибкость</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/what-is-git#version-control-with-git" class="cms-link cms-link--text section-link" >Контроль версий с помощью Git</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/why-git" class="cms-link cms-link--text tutorial-link" >Зачем вашей организации нужен Git?</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/why-git#git-for-developers" class="cms-link cms-link--text section-link" >Git для разработки</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/why-git#git-for-marketing" class="cms-link cms-link--text section-link" >Git для маркетинга</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/why-git#git-for-product-management" class="cms-link cms-link--text section-link" >Git для управления продуктами</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/why-git#git-for-designers" class="cms-link cms-link--text section-link" >Git для дизайнеров</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/why-git#git-for-customer-support" class="cms-link cms-link--text section-link" >Git для службы поддержки</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/why-git#git-for-human-resources" class="cms-link cms-link--text section-link" >Git для службы персонала</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/why-git#git-for-anyone-managing-budget" class="cms-link cms-link--text section-link" >Git для управления бюджетом</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/install-git" class="cms-link cms-link--text tutorial-link" >Установка Git</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/install-git#mac-os-x" class="cms-link cms-link--text section-link" >Установка Git на Mac OS X</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/install-git#windows" class="cms-link cms-link--text section-link" >Установка Git на Windows</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/install-git#linux" class="cms-link cms-link--text section-link" >Установка Git на Linux</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/git-ssh" class="cms-link cms-link--text tutorial-link" >Git SSH</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/export-git-archive" class="cms-link cms-link--text tutorial-link" >Архив репозитория Git</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/gitops" class="cms-link cms-link--text tutorial-link" >GitOps</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/atlassian-git-cheatsheet" class="cms-link cms-link--text tutorial-link" >Шпаргалка по Git</a>
+</div>
+</div>
+<div class="_group">
+<a href="https://www.atlassian.com/ru/git/tutorials/setting-up-a-repository" class="cms-link cms-link--text group-link" >Начало работы</a>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/setting-up-a-repository" class="cms-link cms-link--text tutorial-link" >Настройка репозитория</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/setting-up-a-repository/git-init" class="cms-link cms-link--text section-link" >git init</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/setting-up-a-repository/git-clone" class="cms-link cms-link--text section-link" >git clone</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/setting-up-a-repository/git-config" class="cms-link cms-link--text section-link" >git config</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/git-alias" class="cms-link cms-link--text section-link" >git alias</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/saving-changes" class="cms-link cms-link--text tutorial-link" >Сохранение изменений</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/saving-changes" class="cms-link cms-link--text section-link" >git add</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/saving-changes/git-commit" class="cms-link cms-link--text section-link" >git commit</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/saving-changes/git-diff" class="cms-link cms-link--text section-link" >git diff</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/saving-changes/git-stash" class="cms-link cms-link--text section-link" >git stash</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/saving-changes/gitignore" class="cms-link cms-link--text section-link" >.gitignore</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/inspecting-a-repository" class="cms-link cms-link--text tutorial-link" >Проверка репозитория</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/inspecting-a-repository" class="cms-link cms-link--text section-link" >git status</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/inspecting-a-repository/git-tag" class="cms-link cms-link--text section-link" >git tag</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/inspecting-a-repository/git-blame" class="cms-link cms-link--text section-link" >git blame</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/undoing-changes" class="cms-link cms-link--text tutorial-link" >Отмена изменений</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/undoing-changes" class="cms-link cms-link--text section-link" >Git checkout</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/undoing-changes/git-clean" class="cms-link cms-link--text section-link" >git clean</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/undoing-changes/git-revert" class="cms-link cms-link--text section-link" >git revert</a>
+<a href="git-reset.1.html" class="cms-link cms-link--text section-link" >git reset</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/undoing-changes/git-rm" class="cms-link cms-link--text section-link" >git rm</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/rewriting-history" class="cms-link cms-link--text tutorial-link" >Переписывание истории</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/rewriting-history#git-commit--amend" class="cms-link cms-link--text section-link" >git commit --amend</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/rewriting-history/git-rebase" class="cms-link cms-link--text section-link" >git rebase</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/rewriting-history#git-rebase-i" class="cms-link cms-link--text section-link" >git rebase -i</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/rewriting-history/git-reflog" class="cms-link cms-link--text section-link" >git reflog</a>
+</div>
+</div>
+</div>
+<div class="_group">
+<a href="https://www.atlassian.com/ru/git/tutorials/syncing" class="cms-link cms-link--text group-link" >Совместная работа</a>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/syncing" class="cms-link cms-link--text tutorial-link" >Синхронизация</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/syncing" class="cms-link cms-link--text section-link" >git remote</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/syncing/git-fetch" class="cms-link cms-link--text section-link" >git fetch</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/syncing/git-push" class="cms-link cms-link--text section-link" >git push</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/syncing/git-pull" class="cms-link cms-link--text section-link" >git pull</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/making-a-pull-request" class="cms-link cms-link--text tutorial-link" >Выполнение запроса pull</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/making-a-pull-request#how-it-works" class="cms-link cms-link--text section-link" >Порядок действий</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/making-a-pull-request#example" class="cms-link cms-link--text section-link" >Пример</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/making-a-pull-request#where-to-go" class="cms-link cms-link--text section-link" >Куда можно перейти отсюда</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/using-branches" class="cms-link cms-link--text tutorial-link" >Использование веток</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/using-branches" class="cms-link cms-link--text section-link" >git branch</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/using-branches/git-checkout" class="cms-link cms-link--text section-link" >Git checkout</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/using-branches/git-merge" class="cms-link cms-link--text section-link" >Git merge</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/using-branches/merge-conflicts" class="cms-link cms-link--text section-link" >Слияние конфликтов</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/using-branches/merge-strategy" class="cms-link cms-link--text section-link" >Стратегии слияния</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/comparing-workflows" class="cms-link cms-link--text tutorial-link" >Сравнение процессов</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/comparing-workflows#centralized-workflow" class="cms-link cms-link--text section-link" >Централизованный рабочий процесс</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/comparing-workflows/feature-branch-workflow" class="cms-link cms-link--text section-link" >Рабочий процесс с функциональными ветками</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/comparing-workflows/gitflow-workflow" class="cms-link cms-link--text section-link" >Рабочий процесс Gitflow Workflow</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/comparing-workflows/forking-workflow" class="cms-link cms-link--text section-link" >Рабочий процесс Forking Workflow</a>
+</div>
+</div>
+</div>
+<div class="_group">
+<a href="https://www.atlassian.com/ru/git/tutorials/svn-to-git-prepping-your-team-migration" class="cms-link cms-link--text group-link" >Переход к Git</a>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/svn-to-git-prepping-your-team-migration" class="cms-link cms-link--text tutorial-link" >Подготовка к миграции из SVN в Git</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/svn-to-git-prepping-your-team-migration#for-administrators" class="cms-link cms-link--text section-link" >Для администраторов</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/svn-to-git-prepping-your-team-migration#basic-git-commands" class="cms-link cms-link--text section-link" >Основные команды Git</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/svn-to-git-prepping-your-team-migration#git-migration-tools" class="cms-link cms-link--text section-link" >Инструменты миграции Git</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/svn-to-git-prepping-your-team-migration#for-developers" class="cms-link cms-link--text section-link" >Для разработчиков</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/migrating-overview" class="cms-link cms-link--text tutorial-link" >Переход от SVN к Git</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/migrating-prepare" class="cms-link cms-link--text tutorial-link" >Подготовка</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/migrating-convert" class="cms-link cms-link--text tutorial-link" >Преобразование</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/migrating-synchronize" class="cms-link cms-link--text tutorial-link" >Синхронизация</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/migrating-share" class="cms-link cms-link--text tutorial-link" >Обмен</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/migrating-migrate" class="cms-link cms-link--text tutorial-link" >Переход</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/perforce-git" class="cms-link cms-link--text tutorial-link" >Зачем переходить из Perforce в Git?</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/perforce-git-migration" class="cms-link cms-link--text tutorial-link" >Переход от Perforce к Git</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/git-move-repository" class="cms-link cms-link--text tutorial-link" >Перемещение репозитория Git вместе с историей</a>
+</div>
+</div>
+<div class="_group">
+<a href="https://www.atlassian.com/ru/git/tutorials/advanced-overview" class="cms-link cms-link--text group-link" >Дополнительные советы</a>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/advanced-overview" class="cms-link cms-link--text tutorial-link" >Расширенные учебные руководства по Git</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/merging-vs-rebasing" class="cms-link cms-link--text tutorial-link" >Сравнение слияния и перебазирования</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/merging-vs-rebasing#conceptual-overview" class="cms-link cms-link--text section-link" >Обзор основных моментов</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/merging-vs-rebasing#the-golden-rule-of-rebasing" class="cms-link cms-link--text section-link" >Золотое правило перебазирования</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/merging-vs-rebasing#workflow-walkthrough" class="cms-link cms-link--text section-link" >Пошаговый разбор процесса</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/merging-vs-rebasing#summary" class="cms-link cms-link--text section-link" >Резюме</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/resetting-checking-out-and-reverting" class="cms-link cms-link--text tutorial-link" >Команды reset, checkout и revert</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/git-log" class="cms-link cms-link--text tutorial-link" >Расширенный журнал Git</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/git-log#formatting-log-output" class="cms-link cms-link--text section-link" >Форматирование вывода команды log</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/git-log#filtering-the-commit-history" class="cms-link cms-link--text section-link" >Фильтрация истории коммитов</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/git-log#summary" class="cms-link cms-link--text section-link" >Резюме</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/git-hooks" class="cms-link cms-link--text tutorial-link" >Скрипты Git hook</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/git-hooks#conceptual-overview" class="cms-link cms-link--text section-link" >Обзор основных моментов</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/git-hooks#local-hooks" class="cms-link cms-link--text section-link" >Локальные скрипты hook</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/git-hooks#server-side-hooks" class="cms-link cms-link--text section-link" >Серверные скрипты hook</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/git-hooks#summary" class="cms-link cms-link--text section-link" >Резюме</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/refs-and-the-reflog" class="cms-link cms-link--text tutorial-link" >Ссылки и журнал ссылок</a>
+<div aria-hidden="true" class="_toc">
+<a href="https://www.atlassian.com/ru/git/tutorials/refs-and-the-reflog#hashes" class="cms-link cms-link--text section-link" >Хеши</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/refs-and-the-reflog#refs" class="cms-link cms-link--text section-link" >Ссылки</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/refs-and-the-reflog#packed-refs" class="cms-link cms-link--text section-link" >Упакованные ссылки</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/refs-and-the-reflog#special-refs" class="cms-link cms-link--text section-link" >Специальные ссылки</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/refs-and-the-reflog#refspecs" class="cms-link cms-link--text section-link" >Спецификации ссылок</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/refs-and-the-reflog#relative-refs" class="cms-link cms-link--text section-link" >Относительные ссылки</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/refs-and-the-reflog#the-reflog" class="cms-link cms-link--text section-link" >Журнал ссылок</a>
+<a href="https://www.atlassian.com/ru/git/tutorials/refs-and-the-reflog#summary" class="cms-link cms-link--text section-link" >Резюме</a>
+</div>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/git-submodule" class="cms-link cms-link--text tutorial-link" >Подмодули Git</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/git-subtree" class="cms-link cms-link--text tutorial-link" >Поддерево Git</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/big-repositories" class="cms-link cms-link--text tutorial-link" >Большие репозитории в Git</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/git-lfs" class="cms-link cms-link--text tutorial-link" >Git LFS</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/git-gc" class="cms-link cms-link--text tutorial-link" >Команда git gc</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/git-prune" class="cms-link cms-link--text tutorial-link" >Git prune</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/git-bash" class="cms-link cms-link--text tutorial-link" >Git Bash</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/dotfiles" class="cms-link cms-link--text tutorial-link" >Как хранить скрытые файлы (с точкой перед именем)</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/cherry-pick" class="cms-link cms-link--text tutorial-link" >Git Cherry Pick</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/gitk" class="cms-link cms-link--text tutorial-link" >GitK</a>
+</div>
+<div aria-hidden="true" class="_group-wrap">
+<a href="https://www.atlassian.com/ru/git/tutorials/git-show" class="cms-link cms-link--text tutorial-link" >git-show</a>
+</div>
+</div>
+</ol>
+</div>
+</div>
+<div class="hamburger ">
+<div class="_layer -top"></div>
+<div class="_layer -mid"></div>
+<div class="_layer -bottom"></div>
+</div>
+<div class="primary-nav">
+<div class="_wrapper">
+<ul class="_nav-list">
+<div>
+<li>
+<a href="https://www.atlassian.com/ru/git" class="cms-link cms-link--text _nav-item -home" >Главная</a>
+</li>
+</div>
+<div>
+<li class="tutorials-nav" id="tutorials-nav-mobile">
+<h4 class="_nav-item -tutorials">Tutorials</h4>
+<div class="_sublist"></div>
+</li>
+<li>
+<a href="https://www.atlassian.com/ru/git/tutorials" class="cms-link cms-link--text _nav-item -tutorials" >Обучающие материалы</a>
+</li>
+</div>
+<div>
+<li>
+<a href="https://www.atlassian.com/ru/git/articles" class="cms-link cms-link--text _nav-item -articles" >Статьи</a>
+</li>
+</div>
+<div>
+<li>
+<a href="https://www.atlassian.com/ru/git/glossary" class="cms-link cms-link--text _nav-item -glossary" >ГЛОССАРИЙ</a>
+</li>
+</div>
+</ul>
+</div>
+</div>
+<div class="topbar is-tutorial">
+<div class="_header -is-tutorial">
+<a href="https://www.atlassian.com/ru/git/tutorials" class="active">Tutorials</a>
+</div>
+</div>
+<form class="newsletter">
+<input class="is-empty _input" type="email" placeholder="Enter Your Email For Git News">
+<button type="submit" class="_status icon-email-submit">Submit</button>
+</form>
+<a href="git-reset.1.html#footer" class="button green-hollow secondary newsletter-cta" >Регистрация</a>
+<a href="https://www.atlassian.com/ru/git/search" class="search-button search-open ">
+<span class="_link icon-search">Search</span>
+</a>
+<a href="https://www.atlassian.com/ru/git" class="search-button search-close -in-page hidden">
+<span class="_link icon-search-close -close">Search</span>
+</a>
+</div>
+<div class="page-wrap is-active -gray-bg tutorial-detail">
+<div id="content" class="_content">
+<div class="tutorial-hero">
+<div class="g-column g-12-12 text-center">
+<img src="https://wac-cdn.atlassian.com/dam/jcr:5c4cb0f2-856c-4d39-b014-9340ef1d05e4/hero.svg?cdnVersion=235" loading="lazy" alt="Git reset — обучающие руководства по Git от Atlassian">
+<h1 > git reset
+</h1>
+<div class="g-column g-12-12 t-12-12 m-12-12 breadcrumbs">
+<a href="git-reset.1.html" class="cms-link cms-link--text xx-active-parent-page-link" >Git checkout</a>
+<a href="git-reset.1.html" class="cms-link cms-link--text xx-active-parent-page-link" >git clean</a>
+<a href="git-reset.1.html" class="cms-link cms-link--text xx-active-parent-page-link" >git revert</a>
+<a href="git-reset.1.html" class="cms-link cms-link--text xx-active-parent-page-link" >git reset</a>
+<a href="git-reset.1.html" class="cms-link cms-link--text xx-active-parent-page-link" >git rm</a>
+</div></div></div>
+<div class="g-row">
+<p> </p> <p>Команда <code>git reset</code> — это сложный универсальный инструмент для отмены изменений. Она имеет три основные формы вызова, соответствующие аргументам командной строки <code>--soft, --mixed, --hard</code>. Каждый из этих трех аргументов соответствует трем внутренним механизмам управления состоянием Git: дереву коммитов (<code>HEAD</code>), разделу проиндексированных файлов и рабочему каталогу.</p> <h2>Git reset и три дерева Git</h2> <p>Чтобы понять, как используется команда <code>git reset</code>, необходимо разобраться с внутренними системами управления состоянием в Git. Иногда эти механизмы называют «тремя деревьями» Git. «Деревья» — возможно, не самое точное название, поскольку это не традиционные древовидные структуры данных в строгом смысле слова. Тем не менее это структуры данных на основе узлов и указателей, которые Git использует для отслеживания истории внесения правок. Лучший способ продемонстрировать эти механизмы — создать набор изменений в репозитории и проследить его по трем деревьям. </p> <p>Начнем работу с создания нового репозитория с помощью приведенных ниже команд.</p>
+<div class="component component--codeblock">
+<pre><code>$&nbsp;mkdir&nbsp;git_reset_test<br/>$&nbsp;cd&nbsp;git_reset_test/<br/>$&nbsp;git&nbsp;init&nbsp;.<br/>Initialized&nbsp;empty&nbsp;Git&nbsp;repository&nbsp;in&nbsp;/git_reset_test/.git/<br/>$&nbsp;touch&nbsp;reset_lifecycle_file<br/>$&nbsp;git&nbsp;add&nbsp;reset_lifecycle_file<br/>$&nbsp;git&nbsp;commit&nbsp;-m&quot;initial&nbsp;commit&quot;<br/>[main&nbsp;(root-commit)&nbsp;d386d86]&nbsp;initial&nbsp;commit<br/>1&nbsp;file&nbsp;changed,&nbsp;0&nbsp;insertions(+),&nbsp;0&nbsp;deletions(-)<br/>create&nbsp;mode&nbsp;100644&nbsp;reset_lifecycle_file</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<p>В приведенном выше примере кода создается новый репозиторий Git с одним пустым файлом <code>reset_lifecycle_file</code>. На этом этапе репозиторий имеет один коммит (<code>d386d86</code>), в котором отражено добавление файла <code>reset_lifecycle_file</code>.</p>
+<h2 > Рабочий каталог
+</h2>
+<p>Первое дерево, которое мы рассмотрим, — рабочий каталог. Это дерево синхронизировано с локальной файловой системой и отображает непосредственные изменения, внесенные в содержимое файлов и каталогов.</p>
+<div class="component component--codeblock">
+<pre><code class="nohighlight custom">
+<p>$ echo 'hello git reset' > reset_lifecycle_file<br /> $ git status <br /> On branch main<br /> Changes not staged for commit: <br /> (use "git add ..." to update what will be committed) <br /> (use "git checkout -- ..." to discard changes in working directory) <br /> <span style="color:#de350b">modified: reset_lifecycle_file</span></p>
+</code></pre>
+</div>
+<p>В нашем демонстрационном репозитории изменим и добавим содержимое в файл <code>reset_lifecycle_file</code>. Вызов команды <code>git status</code> показывает, что Git знает об изменениях в этом файле. В данный момент эти изменения являются частью первого дерева — рабочего каталога. Для отображения изменений в рабочем каталоге можно использовать команду <code>git status</code>. Измененные файлы будут отображаться красным цветом с префиксом «modified»</p>
+<h2 > Раздел проиндексированных файлов
+</h2>
+<p>Следующее дерево — раздел проиндексированных файлов. Это дерево отслеживает изменения рабочего каталога, которые были добавлены с помощью команды <code>git add</code>, для сохранения в следующем коммите. Это дерево представляет собой сложный внутренний механизм кэширования. В целом Git пытается скрыть от пользователя подробности реализации раздела проиндексированных файлов.</p> <p>Для полного просмотра состояния раздела проиндексированных файлов необходимо использовать менее известную команду Git — <code>git ls-files</code>. Команда <code>git ls-files</code> по сути является утилитой отладки для проверки состояния дерева раздела проиндексированных файлов.</p>
+<div class="component component--codeblock">
+<pre><code>git&nbsp;ls-files&nbsp;-s<br/>100644&nbsp;e69de29bb2d1d6434b8b29ae775ad8c2e48c5391&nbsp;0&nbsp;&nbsp;&nbsp;reset_lifecycle_file</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<p>Здесь мы выполнили команду <code>git ls-files</code> с параметром <code>-s</code> (или <code>--stage</code>). Без параметра <code>-s</code> вывод команды <code>git ls-files</code> представляет собой просто список путей и имен файлов, которые в данный момент являются частью индекса. Параметр <code>-s</code> отображает дополнительные метаданные файлов, находящихся в разделе проиндексированных файлов. Эти метаданные — биты режима проиндексированного контента, имя объекта и номер в индексе. Здесь нас интересует второе значение, имя объекта (<code>d7d77c1b04b5edd5acfc85de0b592449e5303770</code>). Это стандартный хеш SHA-1 объекта Git, представляющий собой хеш содержимого файлов. В истории коммитов хранятся собственные SHA объектов для идентификации указателей на коммиты и ссылки, а в разделе проиндексированных файлов есть свои SHA объектов для отслеживания версий файлов в индексе.</p> <p>Далее мы добавим измененный файл <code>reset_lifecycle_file</code> в раздел проиндексированных файлов.</p>
+<div class="component component--codeblock">
+<pre><code class="nohighlight custom">
+<p>$ git add reset_lifecycle_file </p> <p>$ git status </p> <p>On branch main Changes to be committed: </p> <p>(use "git reset HEAD ..." to unstage) </p> <p><span style="color:#00875a">modified: reset_lifecycle_file</span></p>
+</code></pre>
+</div>
+<p>Здесь мы вызываем команду <code>git add reset_lifecycle_file</code>, которая добавляет файл в раздел проиндексированных файлов. Теперь при вызове команды <code>git status</code> файл <code>reset_lifecycle_file</code> отображается зеленым цветом, как изменение, подлежащее коммиту («Changes to be committed»). Важно отметить, что команда <code>git status</code> не отображает истинное представление раздела проиндексированных файлов. Вывод <code>git status</code> отображает различия между историей коммитов и разделом проиндексированных файлов. Давайте рассмотрим содержимое раздела проиндексированных файлов на данный момент.</p> <pre> <code>$ git ls-files -s 100644 d7d77c1b04b5edd5acfc85de0b592449e5303770 0 reset_lifecycle_file</code></pre> <p>Видно, что SHA объекта для файла <code>reset_lifecycle_file</code> изменился с <code>e69de29bb2d1d6434b8b29ae775ad8c2e48c5391</code> на <code>d7d77c1b04b5edd5acfc85de0b592449e5303770</code>.</p>
+<h2 > История коммитов
+</h2>
+<p>Последнее дерево — история коммитов. Команда <code>git commit</code> добавляет изменения в постоянный снимок, который находится в истории коммитов. Этот снимок также включает состояние раздела проиндексированных файлов на момент выполнения коммита.</p>
+<div class="component component--codeblock">
+<pre><code>$&nbsp;git&nbsp;commit&nbsp;-am&quot;update&nbsp;content&nbsp;of&nbsp;reset_lifecycle_file&quot;<br/>[main&nbsp;dc67808]&nbsp;update&nbsp;content&nbsp;of&nbsp;reset_lifecycle_file<br/>1&nbsp;file&nbsp;changed,&nbsp;1&nbsp;insertion(+)<br/>$&nbsp;git&nbsp;status<br/>On&nbsp;branch&nbsp;main<br/>nothing&nbsp;to&nbsp;commit,&nbsp;working&nbsp;tree&nbsp;clean</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<p>Здесь мы создали новый коммит с комментарием <code>update content of resetlifecyclefile</code>. В историю коммитов был добавлен набор изменений. Вызов команды <code>git status</code> в этой точке показывает, что ни в одном дереве нет ожидающих изменений. Выполнение команды <code>git log</code> отобразит дерево коммитов. Теперь, когда мы проследили за этим набором изменений во всех трех деревьях, можно приступать к использованию команды <code>git reset</code>.</p>
+<h2 > Порядок действий
+</h2>
+<p>На первый взгляд, поведение команды <code>git reset</code> схоже с поведением команды <code>git checkout</code>. Но команда <code>git checkout</code> работает исключительно с указателем <code>HEAD</code>, а <code>git reset</code> перемещает указатель <code>HEAD</code> и указатель текущей ветки. Чтобы лучше продемонстрировать это поведение, рассмотрим следующий пример.</p>
+<img src="https://wac-cdn.atlassian.com/dam/jcr:8d616ece-8cee-4fde-bdee-4b280a0a8334/01%20git-sequence-transparent%20kopiera.png?cdnVersion=235" loading="lazy" alt="4 узла, из которых «главный узел» является последним">
+<p>В этом примере показана последовательность коммитов в ветке <code>main</code>. Сейчас и указатель <code>HEAD</code>, и указатель на главную ветку <code>main</code> указывают на коммит d. Теперь давайте выполним обе команды, <code>git checkout b</code> и <code>git reset b</code>, и сравним результат.</p>
+<h3 > git checkout b
+</h3>
+<img src="https://wac-cdn.atlassian.com/dam/jcr:f45c4a34-8968-4c81-83cf-d55ebf01a447/02%20git-checkout-transparent%20kopiera.png?cdnVersion=235" loading="lazy" alt="4 узла: указатель Main указывает на последний узел, а указатель HEAD — на 2-й узел">
+<p>После выполнения команды <code>git checkout</code> указатель <code>main</code> по-прежнему ссылается на коммит <code>d</code>. Указатель <code>HEAD</code> переместился и теперь ссылается на коммит <code>b</code>. В данный момент репозиторий находится в состоянии открепленного указателя <code>HEAD</code>.</p>
+<h3 > git reset b
+</h3>
+<img src="https://wac-cdn.atlassian.com/dam/jcr:bdf5fda3-4aac-4170-ba35-58f7a66ea3c4/03%20git-reset-transparent%20kopiera.png?cdnVersion=235" loading="lazy" alt="2 набора из 2 узлов: указатели HEAD и Main указывают на 2-й узел 1-го набора">
+<p>Команда <code>git reset</code> перемещает и указатель <code>HEAD</code>, и указатель ветки на заданный коммит.</p> <p>Помимо обновления указателей на коммит команда <code>git reset</code> изменяет состояние трех деревьев. Указатели меняются всегда, то есть происходит обновление третьего дерева, дерева коммитов. Аргументы командной строки <code>--soft, --mixed</code> и <code>--hard</code> определяют, каким образом необходимо изменить деревья раздела проиндексированных файлов и рабочего каталога.</p>
+<h2 > Основные параметры
+</h2>
+<p>По умолчанию при вызове команды <code>git reset</code> используются неявные аргументы <code>--mixed</code> и <code>HEAD</code>. Таким образом, выполнение команды <code>git reset</code> эквивалентно выполнению команды <code>git reset --mixed HEAD</code>. В этом случае <code>HEAD</code> является указателем на конкретный коммит. Вместо <code>HEAD</code> можно использовать любой хеш SHA-1 коммита Git.</p>
+<img src="https://wac-cdn.atlassian.com/dam/jcr:7fb4b5f7-a2cd-4cb7-9a32-456202499922/03%20(8).svg?cdnVersion=235" loading="lazy" alt="схема области действия команд git reset">
+<h2 > --hard
+</h2>
+<p>Это самый прямой, ОПАСНЫЙ и часто используемый вариант. При использовании аргумента <code>--hard</code> указатели в истории коммитов обновляются на указанный коммит. Затем происходит сброс раздела проиндексированных файлов и рабочего каталога до указанного коммита. Все предыдущие ожидающие изменения в разделе проиндексированных файлов и рабочем каталоге сбрасываются в соответствии с состоянием дерева коммитов. Это значит, что любая работа, находившаяся в состоянии ожидания в разделе проиндексированных файлов и рабочем каталоге, будет потеряна.</p> <p>Чтобы продемонстрировать это, продолжим работать в репозитории, созданном ранее для примера с тремя деревьями. Сначала внесем в репозиторий некоторые изменения. Выполните в нем следующие команды:</p>
+<div class="component component--codeblock">
+<pre><code>$&nbsp;echo&nbsp;&#039;new&nbsp;file&nbsp;content&#039;&nbsp;&gt;&nbsp;new_file<br/>$&nbsp;git&nbsp;add&nbsp;new_file<br/>$&nbsp;echo&nbsp;&#039;changed&nbsp;content&#039;&nbsp;&gt;&gt;&nbsp;reset_lifecycle_file</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<pre> </pre> <p>С помощью этих команд мы создали новый файл с именем <code>new_file</code> и добавили его в репозиторий. Кроме того, было изменено содержимое файла <code>reset_lifecycle_file</code>. А теперь давайте выполним команду <code>git status</code> и посмотрим, как эти изменения повлияли на состояние репозитория.</p>
+<div class="component component--codeblock">
+<pre><code>$&nbsp;git&nbsp;status<br/>On&nbsp;branch&nbsp;main<br/>Changes&nbsp;to&nbsp;be&nbsp;committed:<br/>&nbsp;&nbsp;&nbsp;(use&nbsp;&quot;git&nbsp;reset&nbsp;HEAD&nbsp;...&quot;&nbsp;to&nbsp;unstage)<br/><br/>new&nbsp;file:&nbsp;new_file<br/><br/>Changes&nbsp;not&nbsp;staged&nbsp;for&nbsp;commit:<br/>&nbsp;&nbsp;&nbsp;(use&nbsp;&quot;git&nbsp;add&nbsp;...&quot;&nbsp;to&nbsp;update&nbsp;what&nbsp;will&nbsp;be&nbsp;committed)<br/>&nbsp;&nbsp;&nbsp;(use&nbsp;&quot;git&nbsp;checkout&nbsp;--&nbsp;...&quot;&nbsp;to&nbsp;discard&nbsp;changes&nbsp;in&nbsp;working&nbsp;directory)<br/><br/>modified:&nbsp;reset_lifecycle_file</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<p>Мы видим, что в репозитории появились ожидающие изменения: в дереве раздела проиндексированных файлов — добавление файла <code>new_file</code>, а в рабочем каталоге — изменение файла <code>reset_lifecycle_file</code>.</p> <p>Прежде чем двигаться дальше, изучим состояние раздела проиндексированных файлов:</p>
+<div class="component component--codeblock">
+<pre><code>$&nbsp;git&nbsp;ls-files&nbsp;-s<br/>100644&nbsp;8e66654a5477b1bf4765946147c49509a431f963&nbsp;0&nbsp;new_file<br/>100644&nbsp;d7d77c1b04b5edd5acfc85de0b592449e5303770&nbsp;0&nbsp;reset_lifecycle_file</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<p>Мы видим, что в индекс добавлен файл <code>new_file</code>. Мы внесли изменения в файл <code>reset_lifecycle_file</code>, но его SHA в разделе проиндексированных файлов (<code>d7d77c1b04b5edd5acfc85de0b592449e5303770</code>) остался прежним. Это ожидаемый результат, поскольку мы не использовали команду <code>git add</code> для добавления этих изменений в раздел проиндексированных файлов. Эти изменения присутствуют и в рабочем каталоге.</p> <p>Теперь давайте выполним команду <code>git reset --hard</code> и изучим новое состояние репозитория.</p>
+<div class="component component--codeblock">
+<pre><code>$&nbsp;git&nbsp;reset&nbsp;--hard<br/>HEAD&nbsp;is&nbsp;now&nbsp;at&nbsp;dc67808&nbsp;update&nbsp;content&nbsp;of&nbsp;reset_lifecycle_file<br/>$&nbsp;git&nbsp;status<br/>On&nbsp;branch&nbsp;main<br/>nothing&nbsp;to&nbsp;commit,&nbsp;working&nbsp;tree&nbsp;clean<br/>$&nbsp;git&nbsp;ls-files&nbsp;-s<br/>100644&nbsp;d7d77c1b04b5edd5acfc85de0b592449e5303770&nbsp;0&nbsp;reset_lifecycle_file</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<p>Здесь мы выполнили «жесткий сброс» с помощью параметра <code>--hard</code>. Вывод Git сообщает, что указатель <code>HEAD</code> показывает на последний коммит, <code>dc67808</code>. Далее проверяем состояние репозитория с помощью команды <code>git status</code>. Git сообщает, что ожидающих изменений нет. Проверяем также состояние раздела проиндексированных файлов и видим, что он был сброшен к состоянию, предшествовавшему добавлению файла <code>new_file</code>. Изменения, которые мы внесли в файл <code>reset_lifecycle_file</code>, а также добавление файла <code>new_file</code> уничтожены. Важно понимать: восстановить эти потерянные данные невозможно.</p>
+<h2 > --mixed
+</h2>
+<p>Это режим работы по умолчанию. Указатели ссылок обновляются. Раздел проиндексированных файлов сбрасывается до состояния указанного коммита. Любые изменения, которые были отменены в разделе проиндексированных файлов, перемещаются в рабочий каталог. Давайте продолжим.</p>
+<div class="component component--codeblock">
+<pre><code>$&nbsp;echo&nbsp;&#039;new&nbsp;file&nbsp;content&#039;&nbsp;&gt;&nbsp;new_file<br/>$&nbsp;git&nbsp;add&nbsp;new_file<br/>$&nbsp;echo&nbsp;&#039;append&nbsp;content&#039;&nbsp;&gt;&gt;&nbsp;reset_lifecycle_file<br/>$&nbsp;git&nbsp;add&nbsp;reset_lifecycle_file<br/>$&nbsp;git&nbsp;status<br/>On&nbsp;branch&nbsp;main<br/>Changes&nbsp;to&nbsp;be&nbsp;committed:<br/>&nbsp;&nbsp;&nbsp;&nbsp;(use&nbsp;&quot;git&nbsp;reset&nbsp;HEAD&nbsp;...&quot;&nbsp;to&nbsp;unstage)<br/><br/>new&nbsp;file:&nbsp;new_file<br/>modified:&nbsp;reset_lifecycle_file<br/><br/><br/>$&nbsp;git&nbsp;ls-files&nbsp;-s<br/>100644&nbsp;8e66654a5477b1bf4765946147c49509a431f963&nbsp;0&nbsp;new_file<br/>100644&nbsp;7ab362db063f9e9426901092c00a3394b4bec53d&nbsp;0&nbsp;reset_lifecycle_file</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<p>В приведенном выше примере мы внесли в репозиторий некоторые изменения: добавили файл <code>new_file</code> и изменили содержимое файла <code>reset_lifecycle_file</code>. Затем эти изменения были добавлены в раздел проиндексированных файлов с помощью команды <code>git add</code>. Теперь выполним команду reset по отношению к репозиторию в данном состоянии.</p>
+<div class="component component--codeblock">
+<pre><code>$&nbsp;git&nbsp;reset&nbsp;--mixed<br/>$&nbsp;git&nbsp;status<br/>On&nbsp;branch&nbsp;main<br/>Changes&nbsp;not&nbsp;staged&nbsp;for&nbsp;commit:<br/>&nbsp;&nbsp;&nbsp;&nbsp;(use&nbsp;&quot;git&nbsp;add&nbsp;...&quot;&nbsp;to&nbsp;update&nbsp;what&nbsp;will&nbsp;be&nbsp;committed)<br/>&nbsp;&nbsp;&nbsp;&nbsp;(use&nbsp;&quot;git&nbsp;checkout&nbsp;--&nbsp;...&quot;&nbsp;to&nbsp;discard&nbsp;changes&nbsp;in&nbsp;working&nbsp;directory)<br/><br/>modified:&nbsp;reset_lifecycle_file<br/><br/>Untracked&nbsp;files:<br/>&nbsp;&nbsp;&nbsp;&nbsp;(use&nbsp;&quot;git&nbsp;add&nbsp;...&quot;&nbsp;to&nbsp;include&nbsp;in&nbsp;what&nbsp;will&nbsp;be&nbsp;committed)<br/><br/>new_file<br/><br/><br/>no&nbsp;changes&nbsp;added&nbsp;to&nbsp;commit&nbsp;(use&nbsp;&quot;git&nbsp;add&quot;&nbsp;and/or&nbsp;&quot;git&nbsp;commit&nbsp;-a&quot;)<br/>$&nbsp;git&nbsp;ls-files&nbsp;-s<br/>100644&nbsp;d7d77c1b04b5edd5acfc85de0b592449e5303770&nbsp;0&nbsp;reset_lifecycle_file</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<p>В данном случае мы выполнили «смешанный сброс». Напоминаем, что <code>--mixed</code> является режимом по умолчанию и выполнение команды <code>git reset</code> приведет к тому же результату. Изучение вывода команд <code>git status</code> и <code>git ls-files</code> показывает, что раздел проиндексированных файлов был сброшен до состояния, когда в этом разделе находился только файл <code>reset_lifecycle_file</code>. SHA объекта для файла <code>reset_lifecycle_file</code> был сброшен к предыдущей версии.</p> <p>Обратите внимание: команда <code>git status</code> показывает нам, что появились изменения в файле <code>reset_lifecycle_file</code> и существует неотслеживаемый файл <code>new_file</code>. Это явный результат действия параметра <code>--mixed</code>. Раздел проиндексированных файлов был сброшен, а ожидающие изменения перемещены в рабочий каталог. Для сравнения, при использовании параметра <code>--hard</code> были сброшены и раздел проиндексированных файлов, и рабочий каталог, что привело к потере этих обновлений.</p>
+<h2 > --soft
+</h2>
+<p>При передаче аргумента <code>--soft</code> выполняется обновление указателей, и на этом операция сброса останавливается. Раздел проиндексированных файлов и рабочий каталог остаются неизменными. Четко продемонстрировать такое поведение довольно сложно. Давайте продолжим работать с нашим демонстрационным репозиторием и подготовим его к мягкому сбросу.</p>
+<div class="component component--codeblock">
+<pre><code class="nohighlight custom">
+<p>$ git add reset_lifecycle_file </p> <p>$ git ls-files -s </p> <p>100644 67cc52710639e5da6b515416fd779d0741e3762e 0 reset_lifecycle_file </p> <p>$ git status </p> <p>On branch main</p> <p>Changes to be committed: </p> <p>(use "git reset HEAD ..." to unstage) </p> <p><span style="color:#00875a">modified: reset_lifecycle_file </span></p> <p>Untracked files: </p> <p>(use "git add ..." to include in what will be committed) </p> <p>new_file</p>
+</code></pre>
+</div>
+<p>Здесь мы снова воспользовались командой <code>git add</code>, чтобы добавить измененный файл <code>reset_lifecycle_file</code> в раздел проиндексированных файлов. Чтобы убедиться, что индекс обновлен, посмотрим на вывод команды <code>git ls-files</code>. Теперь в выводе команды <code>git status</code> строка «Changes to be committed» (Изменения, подлежащие коммиту) окрашена в зеленый цвет. Файл <code>new_file</code> из предыдущего примера находится в рабочем каталоге как неотслеживаемый. Удалим его с помощью простой команды <code>rm new_file</code>, поскольку в следующих примерах он нам больше не понадобится.</p> <p>Теперь давайте мягко сбросим текущее состояние репозитория.</p>
+<div class="component component--codeblock">
+<pre><code>$&nbsp;git&nbsp;reset&nbsp;--soft<br/>$&nbsp;git&nbsp;status<br/>On&nbsp;branch&nbsp;main<br/>Changes&nbsp;to&nbsp;be&nbsp;committed:<br/>&nbsp;&nbsp;&nbsp;&nbsp;(use&nbsp;&quot;git&nbsp;reset&nbsp;HEAD&nbsp;...&quot;&nbsp;to&nbsp;unstage)<br/><br/>modified:&nbsp;reset_lifecycle_file<br/>$&nbsp;git&nbsp;ls-files&nbsp;-s<br/>100644&nbsp;67cc52710639e5da6b515416fd779d0741e3762e&nbsp;0&nbsp;reset_lifecycle_file</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<p>Мы выполнили «мягкий сброс». Изучение состояния репозитория с помощью команд <code>git status</code> и <code>git ls-files</code> показывает, что ничего не изменилось. Это ожидаемый результат. Мягкий сброс влияет только на историю коммитов. По умолчанию при вызове команды <code>git reset</code> в качестве целевого коммита используется <code>HEAD</code>. Поскольку <code>HEAD</code> уже указывал на нашу историю коммитов и мы выполнили неявный сброс до <code>HEAD</code>, в реальности ничего не произошло.</p> <P>Для получения более полного представления о параметре <code>--soft</code> и правильного его использования нам потребуется целевой коммит, отличный от <code>HEAD</code>. У нас уже есть файл <code>reset_lifecycle_file</code>, находящийся в разделе проиндексированных файлов. Давайте создадим новый коммит.</p> <pre><code>$ git commit -m"prepend content to reset_lifecycle_file"</pre></code> <p>На данный момент в нашем репозитории находится три коммита. Мы выполним возврат к первому коммиту. Для этого нам потребуется идентификатор первого коммита. Его можно найти, просмотрев вывод команды <code>git log</code>.</p>
+<div class="component component--codeblock">
+<pre><code>$&nbsp;git&nbsp;log<br/>commit&nbsp;62e793f6941c7e0d4ad9a1345a175fe8f45cb9df<br/>Author:&nbsp;bitbucket&nbsp;<br/>Date:&nbsp;Fri&nbsp;Dec&nbsp;1&nbsp;15:03:07&nbsp;2017&nbsp;-0800<br/>prepend&nbsp;content&nbsp;to&nbsp;reset_lifecycle_file<br/><br/>commit&nbsp;dc67808a6da9f0dec51ed16d3d8823f28e1a72a<br/>Author:&nbsp;bitbucket&nbsp;<br/>Date:&nbsp;Fri&nbsp;Dec&nbsp;1&nbsp;10:21:57&nbsp;2017&nbsp;-0800<br/><br/>update&nbsp;content&nbsp;of&nbsp;reset_lifecycle_file<br/><br/>commit&nbsp;780411da3b47117270c0e3a8d5dcfd11d28d04a4<br/><br/>Author:&nbsp;bitbucket&nbsp;<br/>Date:&nbsp;Thu&nbsp;Nov&nbsp;30&nbsp;16:50:39&nbsp;2017&nbsp;-0800<br/><br/>initial&nbsp;commit</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<p>Помните, что идентификаторы в истории коммитов уникальны для каждой системы. Это означает, что идентификатор коммита в этом примере будет отличаться от идентификатора, который вы увидите на своей машине. Идентификатор интересующего нас коммита для этого примера — <code>780411da3b47117270c0e3a8d5dcfd11d28d04a4</code>. Это идентификатор, соответствующий первичному коммиту «initial commit». Теперь укажем его в качестве целевого для нашей операции мягкого сброса.</p> <p>Прежде чем вернуться назад во времени, проверим текущее состояние репозитория.</p>
+<div class="component component--codeblock">
+<pre><code>$&nbsp;git&nbsp;status&nbsp;&amp;&amp;&nbsp;git&nbsp;ls-files&nbsp;-s<br/>On&nbsp;branch&nbsp;main<br/>nothing&nbsp;to&nbsp;commit,&nbsp;working&nbsp;tree&nbsp;clean<br/>100644&nbsp;67cc52710639e5da6b515416fd779d0741e3762e&nbsp;0&nbsp;reset_lifecycle_file</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<p>Здесь мы выполнили составную команду, состоящую из команд <code>git status</code> и <code>git ls-files -s</code>. Она показывает, что в репозитории есть ожидающие изменения, а файл <code>reset_lifecycle_file</code> в разделе проиндексированных файлов находится в версии <code>67cc52710639e5da6b515416fd779d0741e3762e</code>. Держа в уме эти сведения, выполним мягкий сброс до нашего первого коммита.</p>
+<div class="component component--codeblock">
+<pre><code>$git&nbsp;reset&nbsp;--soft&nbsp;780411da3b47117270c0e3a8d5dcfd11d28d04a4<br/>$&nbsp;git&nbsp;status&nbsp;&amp;&amp;&nbsp;git&nbsp;ls-files&nbsp;-s<br/>On&nbsp;branch&nbsp;main<br/>Changes&nbsp;to&nbsp;be&nbsp;committed:<br/>&nbsp;&nbsp;&nbsp;&nbsp;(use&nbsp;&quot;git&nbsp;reset&nbsp;HEAD&nbsp;...&quot;&nbsp;to&nbsp;unstage)<br/><br/>modified:&nbsp;reset_lifecycle_file<br/>100644&nbsp;67cc52710639e5da6b515416fd779d0741e3762e&nbsp;0&nbsp;reset_lifecycle_file</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<p>Приведенный выше код выполняет «мягкий сброс», а также вызывает составную команду, которая включает команды <code>git status</code> и <code>git ls-files</code> и выводит информацию о состоянии репозитория. Мы можем изучить эту информацию и сделать несколько интересных наблюдений. Во-первых, <code>git status</code> указывает на наличие изменений в файле <code>reset_lifecycle_file</code> и сообщает, что эти изменения проиндексированы для выполнения коммита. Во-вторых, входные данные <code>git ls-files</code> указывают, что раздел проиндексированных файлов не изменился и SHA остался прежним: </code>67cc52710639e5da6b515416fd779d0741e3762e</code>.</p> <p>Чтобы выяснить, что произошло при этом сбросе, выполним команду <code>git log:</code> <pre><code>$ git log commit 780411da3b47117270c0e3a8d5dcfd11d28d04a4 Author: bitbucket <bitbucket@atlassian.com> Date: Thu Nov 30 16:50:39 2017 -0800 initial commit</pre></code> <p>Теперь вывод команды log показывает, что в истории коммитов находится единственный коммит. Это четко иллюстрирует, что делает параметр <code>--soft</code>. Как и при всех вызовах команды <code>git reset</code>, сначала происходит сброс дерева коммитов. Наши предыдущие примеры с параметрами <code>--hard</code> и <code>--mixed</code> воздействовали на указатель <code>HEAD</code> и не возвращали дерево коммитов в предыдущее состояние. Во время мягкого сброса происходит только сброс дерева коммитов.</p> <p>Почему же команда <code>git status</code> сообщает о наличии измененных файлов? Это может сбивать с толку. Параметр <code>--soft</code> не затрагивает раздел проиндексированных файлов, поэтому изменения в этом разделе сохраняются в истории коммитов. В этом можно убедиться, просмотрев вывод команды <code>git ls-files -s</code>, показывающий, что SHA для файла <code>reset_lifecycle_file</code> остается неизменным. Напомним, что команда <code>git status</code> показывает не состояние «трех деревьев», а различия между ними. В данном случае она показывает, что изменения в разделе проиндексированных файлов опережают изменения в истории коммитов, как если бы мы уже добавили их в индекс.</p>
+<h2 > Разница между командами git reset и git revert
+</h2>
+<p>Если <code><a href="https://www.atlassian.com/ru/git/tutorials/undoing-changes/git-revert" data-event="clicked" data-uuid="9a314d2c-2f" data-event-component="linkButton" data-event-container="richText" data-schema-version="1" data-product-key="bitbucket" >git revert</a></code> — «безопасный» способ отмены изменений, то <code>git reset</code> — опасный. При выполнении команды <code>git reset</code> есть реальный риск потерять наработки. Команда <code>git reset</code> никогда не удаляет коммиты, однако может оставить их без родителя, т. е. указатель потеряет прямой путь для доступа к ним. Такие коммиты без родителя обычно можно найти и восстановить с помощью команды <code><a href="https://www.atlassian.com/ru/git/tutorials/rewriting-history/git-reflog" data-event="clicked" data-uuid="9a314d2c-2f" data-event-component="linkButton" data-event-container="richText" data-schema-version="1" data-product-key="bitbucket" >git reflog</a></code>. После запуска внутреннего «сборщика мусора» Git навсегда удалит все коммиты без родителя. По умолчанию Git запускает «сборщик мусора» каждые 30 дней. История коммитов — одно из «трех деревьев Git»; два других — раздел проиндексированных файлов и рабочий каталог — не отличаются таким же постоянством, как коммиты. При использовании этого инструмента необходимо соблюдать осторожность, поскольку это одна из немногих команд Git, которые могут привести к потере ваших наработок.<br /> <br /> Команда revert предназначена для безопасной отмены публичных коммитов, а <code>git reset</code> — для отмены локальных изменений в разделе проиндексированных файлов и рабочем каталоге. Поскольку они предназначены для разных целей, их реализация также различается: команда reset полностью удаляет набор изменений, тогда как команда revert оставляет исходный набор изменений и использует новый коммит для применения отмены.</p>
+<h2 > Не используйте reset в публичной истории
+</h2>
+<p>Никогда не используйте команду <code>git reset <коммит></code>, если после этого <коммита> в публичный репозиторий были отправлены какие-либо снимки состояния. После того как коммит опубликован, нужно учитывать, что на него могут полагаться другие разработчики.</p> <p>При удалении коммита, после которого другие участники команды начали работу, могут возникнуть серьезные проблемы. Когда коллеги попытаются синхронизироваться с вашим репозиторием, часть истории проекта будет просто отсутствовать. На следующей схеме показано, что происходит при использовании команды reset для публичного коммита. Ветка <code>origin/main</code> является версией вашей локальной главной ветки <code>main</code> в центральном репозитории.</p>
+<img src="https://wac-cdn.atlassian.com/dam/jcr:c42c55b9-72fd-45c0-8e66-ad1025a7fd1f/04-06%20Don&%23039;t%20Reset%20Public%20History.svg?cdnVersion=235" loading="lazy" alt="4 набора узлов: указатель Origin/Main указывает на последний " class="block center max-height-fix">
+<p>Как только вы добавите новые коммиты после выполнения команды reset, Git будет считать, что локальная история отклонилась от ветки <code>origin/main</code>, а коммит слияния, необходимый для синхронизации репозиториев, скорее всего, собьет с толку вашу команду и помешает ей.<br /> <br /> Команду <code>git reset <коммит></code> можно использовать только для локальных экспериментов, в которых что-то пошло не так, а не для публичных изменений. Если необходимо исправить публичный коммит, воспользуйтесь специальной командой <code>git revert</code>.</p>
+<h2 > Примеры
+</h2>
+<pre> <code>git reset ＜файл＞</code></pre> <p>Удаляет указанный файл из раздела проиндексированных файлов, но оставляет рабочий каталог без изменений. Эта команда удаляет из индекса подготовленный файл, не перезаписывая все изменения.</p> <pre> <code>git reset</code></pre> <p>Сбрасывает раздел проиндексированных файлов до состояния последнего коммита, но оставляет рабочий каталог без изменений. Эта команда удаляет из индекса все подготовленные файлы, не перезаписывая все изменения, что позволяет повторно собрать снимок состояния с нуля.</p> <pre> <code>git reset --hard</code></pre> <p>Сбрасывает раздел проиндексированных файлов и рабочий каталог до состояния последнего коммита. Флаг <code>--hard</code> говорит Git, что нужно не только отменить изменения в разделе проиндексированных файлов, но и перезаписать все изменения в рабочем каталоге. Другими словами, эта команда уничтожит все неотправленные изменения, поэтому перед ее использованием убедитесь, что вы действительно хотите удалить ваши локальные наработки.</p> <pre> <code>git reset <коммит> <commit></commit></code></pre> <p>Перемещает указатель текущей ветки на более ранний <code><коммит></code>, сбрасывает раздел проиндексированных файлов до состояния этого коммита, но не затрагивает рабочий каталог. Все изменения, внесенные после <code><коммита></code>, останутся в рабочем каталоге, чтобы вы могли повторно сделать коммит истории проекта с использованием более мелких и упорядоченных снимков состояния.</p> <pre> <code>git reset --hard <коммит> <commit></commit></code></pre> <p>Перемещает указатель текущей ветки на более ранний <code><коммит></code> и сбрасывает как раздел проиндексированных файлов, так и рабочий каталог до состояния этого коммита. Эта команда уничтожит не только неотправленные изменения, но и все коммиты, которые были добавлены после указанного коммита.</p>
+<h2 > Удаление файла из раздела проиндексированных файлов
+</h2>
+<p>Команда <code>git reset</code> часто встречается при подготовке проиндексированного снимка состояния. В следующем примере предполагается, что у вас есть два файла с именами <code>hello.py</code> и <code>main.py</code>, которые вы уже добавили в репозиторий.</p>
+<div class="component component--codeblock">
+<pre><code>#&nbsp;Edit&nbsp;both&nbsp;hello.py&nbsp;and&nbsp;main.py<br/><br/>#&nbsp;Stage&nbsp;everything&nbsp;in&nbsp;the&nbsp;current&nbsp;directory<br/>git&nbsp;add&nbsp;.<br/><br/>#&nbsp;Realize&nbsp;that&nbsp;the&nbsp;changes&nbsp;in&nbsp;hello.py&nbsp;and&nbsp;main.py<br/>#&nbsp;should&nbsp;be&nbsp;committed&nbsp;in&nbsp;different&nbsp;snapshots<br/><br/>#&nbsp;Unstage&nbsp;main.py<br/>git&nbsp;reset&nbsp;main.py<br/><br/>#&nbsp;Commit&nbsp;only&nbsp;hello.py<br/>git&nbsp;commit&nbsp;-m&nbsp;&quot;Make&nbsp;some&nbsp;changes&nbsp;to&nbsp;hello.py&quot;<br/><br/>#&nbsp;Commit&nbsp;main.py&nbsp;in&nbsp;a&nbsp;separate&nbsp;snapshot<br/>git&nbsp;add&nbsp;main.py<br/>git&nbsp;commit&nbsp;-m&nbsp;&quot;Edit&nbsp;main.py&quot;</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<p>Как видите, команда <code>git reset</code> помогает соблюдать согласованность коммитов, позволяя не вносить изменения, которые не связаны со следующим коммитом.</p>
+<h2 > Удаление локальных коммитов
+</h2>
+<p>В следующем примере показан более продвинутый сценарий использования. Он демонстрирует, что происходит, когда вы некоторое время работали над новой экспериментальной функцией, но после добавления нескольких коммитов состояния решили полностью все удалить.</p>
+<div class="component component--codeblock">
+<pre><code>#&nbsp;Create&nbsp;a&nbsp;new&nbsp;file&nbsp;called&nbsp;`foo.py`&nbsp;and&nbsp;add&nbsp;some&nbsp;code&nbsp;to&nbsp;it<br/><br/>#&nbsp;Commit&nbsp;it&nbsp;to&nbsp;the&nbsp;project&nbsp;history<br/>git&nbsp;add&nbsp;foo.py<br/>git&nbsp;commit&nbsp;-m&nbsp;&quot;Start&nbsp;developing&nbsp;a&nbsp;crazy&nbsp;feature&quot;<br/><br/>#&nbsp;Edit&nbsp;`foo.py`&nbsp;again&nbsp;and&nbsp;change&nbsp;some&nbsp;other&nbsp;tracked&nbsp;files,&nbsp;too<br/><br/>#&nbsp;Commit&nbsp;another&nbsp;snapshot<br/>git&nbsp;commit&nbsp;-a&nbsp;-m&nbsp;&quot;Continue&nbsp;my&nbsp;crazy&nbsp;feature&quot;<br/><br/>#&nbsp;Decide&nbsp;to&nbsp;scrap&nbsp;the&nbsp;feature&nbsp;and&nbsp;remove&nbsp;the&nbsp;associated&nbsp;commits<br/>git&nbsp;reset&nbsp;--hard&nbsp;HEAD~2</code></pre>
+</div>
+<script type="text/x-component">
+{
+"type":"imkt.wpl.CodeBlock",
+"params": {
+}
+}
+</script>
+<p>Команда <code>git reset HEAD~2</code> перемещает указатель текущей ветки на два коммита назад, по сути удаляя из истории проекта оба снимка состояния, которые мы только что создали. Помните, что этот вид команды reset можно использовать только для неопубликованных коммитов. Никогда не выполняйте эту операцию, если вы уже отправили свои коммиты в общий репозиторий.</p>
+<h2 > Резюме
+</h2>
+<p>Итак, <code>git reset</code> — это мощная команда, используемая для отмены локальных изменений в репозитории Git. <code>Git reset</code> работает с «тремя деревьями Git»: историей коммитов <code>(HEAD</code>), разделом проиндексированных файлов и рабочим каталогом. Существует три параметра командной строки, соответствующие этим трем деревьям. Эти параметры — <code>--soft, --mixed</code> и <code>--hard</code> — можно передавать команде <code>git reset</code>.<br /> <br /> В этой статье мы воспользовались несколькими другими командами Git для демонстрации работы команды reset. Подробнее об этих командах см. на соответствующих страницах: <code><a href="https://www.atlassian.com/ru/git/tutorials/inspecting-a-repository" data-event="clicked" data-uuid="b8bb2004-b2" data-event-component="linkButton" data-event-container="richText" data-schema-version="1" data-product-key="bitbucket" >git status</a>, <a href="https://www.atlassian.com/ru/git/tutorials/git-log" data-event="clicked" data-uuid="b8bb2004-b2" data-event-component="linkButton" data-event-container="richText" data-schema-version="1" data-product-key="bitbucket" >git log</a>, <a href="https://www.atlassian.com/ru/git/tutorials/saving-changes" data-event="clicked" data-uuid="b8bb2004-b2" data-event-component="linkButton" data-event-container="richText" data-schema-version="1" data-product-key="bitbucket" >git add</a>, <a href="https://www.atlassian.com/ru/git/tutorials/using-branches/git-checkout" data-event="clicked" data-uuid="b8bb2004-b2" data-event-component="linkButton" data-event-container="richText" data-schema-version="1" data-product-key="bitbucket" >git checkout</a>, <a href="https://www.atlassian.com/ru/git/tutorials/rewriting-history/git-reflog" data-event="clicked" data-uuid="b8bb2004-b2" data-event-component="linkButton" data-event-container="richText" data-schema-version="1" data-product-key="bitbucket" >git reflog</a></code> и <code> <a href="https://www.atlassian.com/ru/git/tutorials/undoing-changes/git-revert" data-event="clicked" data-uuid="b8bb2004-b2" data-event-component="linkButton" data-event-container="richText" data-schema-version="1" data-product-key="bitbucket" >git revert</a></code>.</p>
+</div>
+<div id="related-post-sidebar" class="related-post">
+<div class="related-post--text">
+<p>Готовы изучить git reset?</p> <p>Ознакомьтесь с этим интерактивным обучающим руководством.</p>
+</div>
+<a href="https://www.atlassian.com/ru/git/tutorials/learn-undoing-changes-with-bitbucket" class="button green-solid standard related-post--link" >Начните прямо сейчас</a>
+</div>
+<div class="_footer">
+<div class="g-column g-6-12 g-centered">
+<div class="_hero">
+<img src="https://wac-cdn.atlassian.com/dam/jcr:8e57216e-269e-49e6-aff2-5c03b8512e73/hero.svg?cdnVersion=235" loading="lazy" alt="Переписывание истории">
+</div>
+<h5 > Далее:
+</h5>
+<h4 > git rm
+</h4>
+<a href="git-reset.1.html" class="cms-link cms-link--text xx-active-parent-page-link" >Перейти к следующему обучающему руководству</a>
+</div></div>
+</div>
+</div>
+<div id="footer" class="footer is-tutorial ">
+<div class="g-row _atlassian-logo">
+<div class="g-column g-12-12">
+<h5 > Работает на платформе
+</h5>
+<a href="https://bitbucket.org" class="cms-link cms-link--image" ><img src="https://wac-cdn.atlassian.com/dam/jcr:c3392b46-dcac-4283-8855-dd8fda6918a0/Bitbucket-white.svg?cdnVersion=235" loading="lazy" alt="ATLASSIAN"></a>
+</div></div>
+<div class="g-row">
+<div class="g-column g-4-12 t-12-12 m-12-12 t-gutterless">
+<h6 > Рекомендовать
+</h6>
+<a href="https://twitter.com/home?status=Switching%20to%20%23Git?%20Use%20the%20Atlassian%20Git%20tutorials%20to%20jumpstart%20your%20training%20in%20Git%20commands%20and%20workflows.%20https://www.atlassian.com/git" class="cms-link cms-link--image social-code" ><img src="https://wac-cdn.atlassian.com/dam/jcr:69b49692-9452-4dd9-aca1-df56b2bbadbd/icon-twitter.svg?cdnVersion=235" loading="lazy" alt="Twitter"></a>
+<a href="https://www.facebook.com/sharer/sharer.php?u=https://www.atlassian.com/git" class="cms-link cms-link--image social-code" ><img src="https://wac-cdn.atlassian.com/dam/jcr:9c8da5cb-5272-4e89-9cc1-9a3f52265380/icon-facebook.svg?cdnVersion=235" loading="lazy" alt="Facebook"></a>
+<a href="https://plus.google.com/share?url=https://www.atlassian.com/git" class="cms-link cms-link--image social-code" ><img src="https://wac-cdn.atlassian.com/dam/jcr:3b592a98-07ca-48a6-8b95-e59eae543341/icon-gplus.svg?cdnVersion=235" loading="lazy" alt="Google+"></a>
+</div><div class="g-column g-4-12 t-12-12 m-12-12 t-gutterless">
+<h6 > Хотите узнавать о новых статьях?
+</h6>
+<form class="newsletter">
+<input class="is-empty _input" type="email" placeholder="Enter Your Email For Git News">
+<button type="submit" class="_status icon-email-submit">Submit</button>
+</form>
+</div><div class="g-column g-4-12 t-12-12 m-12-12 t-gutterless">
+<h6 > Сайт размещен
+</h6>
+<a href="https://www.atlassian.com/ru/" class="cms-link cms-link--image" ><img src="https://wac-cdn.atlassian.com/dam/jcr:ffd56b30-ad4d-4cb5-94be-79c1dd68b1fb/Atlassian-horizontal-white-rgb.svg?cdnVersion=235" loading="lazy" alt="Bitbucket" class="_bitbucket-logo"></a>
+</div></div>
+<div class="g-row">
+<div class="g-column g-12-12 t-12-12 m-12-12">
+<p class="license"><a class="icon-global-cclicense" href="http://creativecommons.org/licenses/by/2.5/au/" data-event="clicked" data-uuid="028d468a-75" data-event-component="linkButton" data-event-container="richText" data-schema-version="1" data-product-key="bitbucket" data-event="clicked" data-uuid="028d468a-75" data-event-component="linkButton" data-event-container="richText" data-schema-version="1" data-product-key="bitbucket" rel="nofollow">creativecommons.org</a>За исключением случаев, когда указано иное, все содержимое лицензировано в соответствии с лицензией <a href="http://creativecommons.org/licenses/by/2.5/au/" data-event="clicked" data-uuid="028d468a-75" data-event-component="linkButton" data-event-container="richText" data-schema-version="1" data-product-key="bitbucket" data-event="clicked" data-uuid="028d468a-75" data-event-component="linkButton" data-event-container="richText" data-schema-version="1" data-product-key="bitbucket" rel="nofollow">Creative Commons «Атрибуция» версии 2.5 для Австралии</a>.</p> <style type="text/css">.tutorial-sidebar ._group > a:hover { color: #ccc !important; } .tutorial-sidebar ._group-wrap > a:hover, .tutorial-sidebar ._toc > a:hover { color: #fff; } </style>
+</div></div>
+</div>
+<script type="text/javascript">
+var FEATURE_FLAG_CONSENTHUB_V2 = false
+</script>
+<script type="text/javascript">
+var HTTP_PREFIX = "";
+var FEATURE_FLAG_USE_GDPR = true;
+</script>
+<script type="text/javascript" src="https://wac-cdn.atlassian.com/static/master/737/assets/build/js/gitguide/git-app-lite.js?cdnVersion=235"></script>
+<link rel="stylesheet" href="https://wac-cdn.atlassian.com/static/master/737/assets/build/css/gitguide/site.css?cdnVersion=235" />
+<script type="text/javascript">
+(function(){
+var imkt = window.imkt || (window.imkt = {});
+imkt.isEditMode = false;
+imkt.isProduction = true;
+imkt.constants = imkt.constants || {};
+imkt.constants.rootPath = "/";
+imkt.constants.assetPath = "https://wac-cdn.atlassian.com/static/master/737" + "/assets/";
+imkt.constants.libPath = imkt.constants.assetPath + "bower_components/";
+imkt.constants.cdnVersionQuery = "?cdnVersion=235";
+imkt.constants.isDevUser = false;
+imkt.constants.isFreeEnabled = true;
+imkt.constants.getUserAccounts = false;
+imkt.constants.headerLoginMenu = true;
+imkt.constants.public = true;
+imkt.constants.mobileBreakpoint = 640;
+})();
+</script>
+<script type="text/x-component">
+{
+"type":"imkt.pages.WACPage",
+"params": {
+}
+}
+</script>
+<script>
+function initializeATLAnalytics() {
+var pageViewProperties = { contentSite: 'Git Microsite', contentType: 'Microsite', contentProduct: 'Bitbucket' };
+/* get url path, convert to dash format and add it to page view properties. */
+var originProduct = window.location.pathname;
+pageViewProperties.originProduct = "wac" + (originProduct === '/' ? "" : originProduct.replace(new RegExp('/', 'g'),"-"));
+if (typeof ace !== 'undefined') {
+ace.analytics.Initializer.initWithPageAnalytics('kiv6wyh2nw', pageViewProperties, null, null, window.atlGlobalLoadStart);
+}
+}
+</script>
+<script type = "text/javascript">
+/**
+* function to load external js through javascript.
+*
+* @param url - javascript url
+* @param location - location of the dom (e.g. document.head)
+*/
+var loadExternalJS = function(url, location, callback){
+var scriptTag = document.createElement('script');
+scriptTag.src = url;
+scriptTag.type = 'text/javascript';
+/* Then bind the event to the callback function.
+There are several events for cross browser compatibility. */
+scriptTag.onreadystatechange = callback;
+scriptTag.onload = callback;
+window.atlGlobalLoadStart = new Date();
+/* Fire the loading */
+location.appendChild(scriptTag);
+};
+</script>
+<script type="text/javascript" class="optanon-category-2">
+loadExternalJS("https://atl-global.atlassian.com/js/atl-global.min.js", document.body, initializeATLAnalytics);
+</script>
+</body>
+<!-- LastRendered: 01.03.2022 3:16:37 -->
+</html>

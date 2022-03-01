@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Нормализация отношений. Шесть нормальных форм / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/254773\/"},"headline":"Нормализация отношений. Шесть нормальных форм","datePublished":"2015-04-02T18:53:20+03:00","dateModified":"2020-09-06T01:17:49+03:00","author":{"@type":"Person","name":"Сивков Сергей"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"В данной теме я затрону 6 нормальных форм и методы приведения таблиц в эти формы.   Процесс проектирования БД с использование метода НФ является итерационным и з...","url":"https:\/\/habr.com\/ru\/post\/254773\/#post-content-body","about":["h_mysql","h_sql","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/254773\/ea3d69670feb70c121aad6f5b8df836a\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Нормализация отношений. Шесть нормальных форм" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Нормализация отношений. Шесть нормальных форм" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Нормализация отношений. Шесть нормальных форм" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="В данной теме я затрону 6 нормальных форм и методы приведения таблиц в эти формы. 
+
+Процесс проектирования БД с использование метода НФ является итерационным и заключается в последовательном..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="В данной теме я затрону 6 нормальных форм и методы приведения таблиц в эти формы. 
+
+Процесс проектирования БД с использование метода НФ является итерационным и заключается в последовательном..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="В данной теме я затрону 6 нормальных форм и методы приведения таблиц в эти формы. 
+
+Процесс проектирования БД с использование метода НФ является итерационным и заключается в последовательном..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="В данной теме я затрону 6 нормальных форм и методы приведения таблиц в эти формы. 
+
+Процесс проектирования БД с использование метода НФ является итерационным и заключается в последовательном..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="В данной теме я затрону 6 нормальных форм и методы приведения таблиц в эти формы. 
+
+Процесс проектирования БД с использование метода НФ является итерационным и заключается в последовательном..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/254773/ea3d69670feb70c121aad6f5b8df836a/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/254773/ea3d69670feb70c121aad6f5b8df836a/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/254773/ea3d69670feb70c121aad6f5b8df836a/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/254773/ea3d69670feb70c121aad6f5b8df836a/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/254773/ea3d69670feb70c121aad6f5b8df836a/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="254773" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2015-04-02T15:53:20.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/254773/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="реляционные базы данных, БД, нормальные формы, нормализация отношений, mysql">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/254773/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.55.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/254773/ea3d69670feb70c121aad6f5b8df836a/" data-vmid="image:href"><link data-vue-meta="ssr" rel="amphtml" href="https://habr.com/ru/amp/post/254773/">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/DevilAngel/" title="DevilAngel" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/ab2/5ba/b5b/ab25bab5bb5165ff3636a273ed6db472.png" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/DevilAngel/" class="tm-user-info__username">
+      DevilAngel
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2015-04-02T15:53:20.000Z" title="2015-04-02, 18:53">2  апреля  2015 в 18:53</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Нормализация отношений. Шесть нормальных форм</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/mysql/" class="tm-article-snippet__hubs-item-link"><span>MySQL</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/sql/" class="tm-article-snippet__hubs-item-link"><span>SQL</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-sandbox"><span>
+        Из песочницы
+      </span></div></div> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">В данной теме я затрону 6 нормальных форм и методы приведения таблиц в эти формы. <br/>
+<br/>
+Процесс проектирования БД с использование метода НФ является итерационным и заключается в последовательном переводе отношения из 1НФ в НФ более высокого порядка по определенным правилам. Каждая следующая НФ ограничивается определенным типом функциональных зависимостей и устранением соответствующих аномалий при выполнении операций над отношениями БД, а также сохранении свойств предшествующих НФ.<br/>
+<a name="habracut"></a><br/>
+<h4>Используемые термины</h4><br/>
+<b>Атрибут</b> — свойство некоторой сущности. Часто называется полем таблицы.<br/>
+<br/>
+<b>Домен атрибута</b> — множество допустимых значений, которые может принимать атрибут.<br/>
+<br/>
+<b>Кортеж</b> — конечное множество взаимосвязанных допустимых значений атрибутов, которые вместе описывают некоторую сущность (строка таблицы).<br/>
+<br/>
+<b>Отношение</b> — конечное множество кортежей (таблица).<br/>
+<br/>
+<b>Схема отношения</b> — конечное множество атрибутов, определяющих некоторую сущность. Иными словами, это структура таблицы, состоящей из конкретного набора полей.<br/>
+<br/>
+<b>Проекция</b> — отношение, полученное из заданного путём удаления и (или) перестановки некоторых атрибутов.<br/>
+<br/>
+<b>Функциональная зависимость</b> между атрибутами (множествами атрибутов) X и Y означает, что для любого допустимого набора кортежей в данном отношении: если два кортежа совпадают по значению X, то они совпадают по значению Y. Например, если значение атрибута «Название компании» — Canonical Ltd, то значением атрибута «Штаб-квартира» в таком кортеже всегда будет Millbank Tower, London, United Kingdom. Обозначение: {X} -> {Y}.<br/>
+ <br/>
+<b>Нормальная форма</b> — требование, предъявляемое к структуре таблиц в теории реляционных баз данных для устранения из базы избыточных функциональных зависимостей между атрибутами (полями таблиц).<br/>
+<br/>
+<b>Метод нормальных форм (НФ)</b> состоит в сборе информации о объектах решения задачи в рамках одного отношения и последующей декомпозиции этого отношения на несколько взаимосвязанных отношений на основе процедур нормализации отношений. <br/>
+<br/>
+<b>Цель нормализации</b>: исключить избыточное дублирование данных, которое является причиной аномалий, возникших при добавлении, редактировании и удалении кортежей(строк таблицы).<br/>
+<br/>
+<b>Аномалией</b> называется такая ситуация в таблице БД, которая приводит к противоречию в БД либо существенно усложняет обработку БД. Причиной является излишнее дублирование данных в таблице, которое вызывается наличием функциональных зависимостей от не ключевых атрибутов.<br/>
+<br/>
+<b>Аномалии-модификации</b> проявляются в том, что изменение одних данных может повлечь просмотр всей таблицы и соответствующее изменение некоторых записей таблицы.<br/>
+<br/>
+<b>Аномалии-удаления</b> — при удалении какого либо кортежа из таблицы может пропасть информация, которая не связана на прямую с удаляемой записью.<br/>
+<br/>
+<b>Аномалии-добавления</b> возникают, когда информацию в таблицу нельзя поместить, пока она не полная, либо вставка записи требует дополнительного просмотра таблицы.<br/>
+<br/>
+<h4>Первая нормальная форма</h4><br/>
+Отношение находится в 1НФ, если все его атрибуты являются простыми, все используемые домены должны содержать только скалярные значения. Не должно быть повторений строк в таблице.<br/>
+<br/>
+Например, есть таблица «Автомобили»:<br/>
+<br/>
+<div class="scrollable-table"><table>
+<tr>
+<td>Фирма</td>
+<td>Модели</td>
+</tr>
+<tr>
+<td>BMW</td>
+<td>M5, X5M, M1</td>
+</tr>
+<tr>
+<td>Nissan</td>
+<td>GT-R</td>
+</tr>
+</table></div><br/>
+Нарушение нормализации 1НФ происходит в моделях BMW, т.к. в одной ячейке содержится список из 3 элементов: M5, X5M, M1, т.е. он не является атомарным. Преобразуем таблицу к 1НФ:<br/>
+<div class="scrollable-table"><table>
+<tr>
+<td>Фирма</td>
+<td>Модели</td>
+</tr>
+<tr>
+<td>BMW</td>
+<td>M5</td>
+</tr>
+<tr>
+<td>BMW</td>
+<td>X5M</td>
+</tr>
+<tr>
+<td>BMW</td>
+<td>M1</td>
+</tr>
+<tr>
+<td>Nissan</td>
+<td>GT-R</td>
+</tr>
+</table></div><br/>
+<h4>Вторая нормальная форма</h4><br/>
+Отношение находится во 2НФ, если оно находится в 1НФ и каждый не ключевой атрибут неприводимо зависит от Первичного Ключа(ПК).<br/>
+<br/>
+Неприводимость означает, что в составе потенциального ключа отсутствует меньшее подмножество атрибутов, от которого можно также вывести данную функциональную зависимость.<br/>
+<br/>
+Например, дана таблица:<br/>
+<br/>
+<div class="scrollable-table"><table>
+<tr>
+<td><u>Модель</u></td>
+<td><u>Фирма</u></td>
+<td>Цена</td>
+<td>Скидка</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>BMW</td>
+<td>5500000</td>
+<td>5%</td>
+</tr>
+<tr>
+<td>X5M</td>
+<td>BMW</td>
+<td>6000000</td>
+<td>5%</td>
+</tr>
+<tr>
+<td>M1</td>
+<td>BMW</td>
+<td>2500000</td>
+<td>5%</td>
+</tr>
+<tr>
+<td>GT-R</td>
+<td>Nissan</td>
+<td>5000000</td>
+<td>10%</td>
+</tr>
+</table></div><br/>
+Таблица находится в первой нормальной форме, но не во второй. Цена машины зависит от модели и фирмы. Скидка зависят от фирмы, то есть зависимость от первичного ключа неполная. Исправляется это путем декомпозиции на два отношения, в которых не ключевые атрибуты зависят от ПК.<br/>
+<br/>
+<div class="scrollable-table"><table>
+<tr>
+<td><u>Модель</u></td>
+<td><u>Фирма</u></td>
+<td>Цена</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>BMW</td>
+<td>5500000</td>
+</tr>
+<tr>
+<td>X5M</td>
+<td>BMW</td>
+<td>6000000</td>
+</tr>
+<tr>
+<td>M1</td>
+<td>BMW</td>
+<td>2500000</td>
+</tr>
+<tr>
+<td>GT-R</td>
+<td>Nissan</td>
+<td>5000000</td>
+</tr>
+</table></div><br/>
+<div class="scrollable-table"><table>
+<tr>
+<td><u>Фирма</u></td>
+<td>Скидка</td>
+</tr>
+<tr>
+<td>BMW</td>
+<td>5%</td>
+</tr>
+<tr>
+<td>Nissan</td>
+<td>10%</td>
+</tr>
+</table></div><br/>
+<br/>
+<h4>Третья нормальная форма</h4><br/>
+Отношение находится в 3НФ, когда находится во 2НФ и каждый не ключевой атрибут нетранзитивно зависит от первичного ключа. Проще говоря, второе правило требует выносить все не ключевые поля, содержимое которых может относиться к нескольким записям таблицы в отдельные таблицы.<br/>
+<br/>
+Рассмотрим таблицу:<br/>
+<br/>
+<div class="scrollable-table"><table>
+<tr>
+<td><u>Модель</u></td>
+<td>Магазин</td>
+<td>Телефон</td>
+</tr>
+<tr>
+<td>BMW</td>
+<td>Риал-авто</td>
+<td>87-33-98</td>
+</tr>
+<tr>
+<td>Audi</td>
+<td>Риал-авто</td>
+<td>87-33-98</td>
+</tr>
+<tr>
+<td>Nissan</td>
+<td>Некст-Авто</td>
+<td>94-54-12</td>
+</tr>
+</table></div><br/>
+<br/>
+Таблица находится во 2НФ, но не в 3НФ.<br/>
+В отношении атрибут «Модель» является первичным ключом. Личных телефонов у автомобилей нет, и телефон зависит исключительно от магазина.<br/>
+Таким образом, в отношении существуют следующие функциональные зависимости: Модель → Магазин, Магазин → Телефон, Модель → Телефон.<br/>
+Зависимость Модель → Телефон является транзитивной, следовательно, отношение не находится в 3НФ.<br/>
+В результате разделения исходного отношения получаются два отношения, находящиеся в 3НФ:<br/>
+<br/>
+<div class="scrollable-table"><table>
+<tr>
+<td><u>Магазин</u></td>
+<td>Телефон</td>
+</tr>
+<tr>
+<td>Риал-авто</td>
+<td>87-33-98</td>
+</tr>
+<tr>
+<td>Некст-Авто</td>
+<td>94-54-12</td>
+</tr>
+</table></div><br/>
+<br/>
+<div class="scrollable-table"><table>
+<tr>
+<td><u>Модель</u></td>
+<td>Магазин</td>
+</tr>
+<tr>
+<td>BMW</td>
+<td>Риал-авто</td>
+</tr>
+<tr>
+<td>Audi</td>
+<td>Риал-авто</td>
+</tr>
+<tr>
+<td>Nissan</td>
+<td>Некст-Авто</td>
+</tr>
+</table></div><br/>
+<br/>
+<h4>Нормальная форма Бойса-Кодда (НФБК) (частная форма третьей нормальной формы)</h4><br/>
+Определение 3НФ не совсем подходит для следующих отношений:<br/>
+1) отношение имеет два или более потенциальных ключа;<br/>
+2) два и более потенциальных ключа являются составными;<br/>
+3) они пересекаются, т.е. имеют хотя бы один общий атрибут.<br/>
+<br/>
+Для отношений, имеющих один потенциальный ключ (первичный), НФБК является 3НФ.<br/>
+<br/>
+Отношение находится в НФБК, когда каждая нетривиальная и неприводимая слева функциональная зависимость обладает потенциальным ключом в качестве детерминанта.<br/>
+<br/>
+Предположим, рассматривается отношение, представляющее данные о бронировании стоянки на день:<br/>
+<br/>
+<div class="scrollable-table"><table>
+<tr>
+<td>Номер стоянки</td>
+<td>Время начала</td>
+<td>Время окончания</td>
+<td>Тариф</td>
+</tr>
+<tr>
+<td>1</td>
+<td>09:30</td>
+<td>10:30</td>
+<td>Бережливый</td>
+</tr>
+<tr>
+<td>1</td>
+<td>11:00</td>
+<td>12:00</td>
+<td>Бережливый</td>
+</tr>
+<tr>
+<td>1</td>
+<td>14:00</td>
+<td>15:30</td>
+<td>Стандарт</td>
+</tr>
+<tr>
+<td>2</td>
+<td>10:00</td>
+<td>12:00</td>
+<td>Премиум-В</td>
+</tr>
+<tr>
+<td>2</td>
+<td>12:00</td>
+<td>14:00</td>
+<td>Премиум-В</td>
+</tr>
+<tr>
+<td>2</td>
+<td>15:00</td>
+<td>18:00</td>
+<td>Премиум-А</td>
+</tr>
+</table></div><br/>
+Тариф имеет уникальное название и зависит от выбранной стоянки и наличии льгот, в частности:<br/>
+<ul>
+<li>«Бережливый»: стоянка 1 для льготников</li>
+<li>«Стандарт»: стоянка 1 для не льготников</li>
+<li>«Премиум-А»: стоянка 2 для льготников</li>
+<li>«Премиум-B»: стоянка 2 для не льготников.</li>
+</ul><br/>
+Таким образом, возможны следующие составные первичные ключи: {Номер стоянки, Время начала}, {Номер стоянки, Время окончания}, {Тариф, Время начала}, {Тариф, Время окончания}.<br/>
+<br/>
+Отношение находится в 3НФ. Требования второй нормальной формы выполняются, так как все атрибуты входят в какой-то из потенциальных ключей, а неключевых атрибутов в отношении нет. Также нет и транзитивных зависимостей, что соответствует требованиям третьей нормальной формы. Тем не менее, существует функциональная зависимость Тариф → Номер стоянки, в которой левая часть (детерминант) не является потенциальным ключом отношения, то есть отношение не находится в нормальной форме Бойса — Кодда.<br/>
+<br/>
+Недостатком данной структуры является то, что, например, по ошибке можно приписать тариф «Бережливый» к бронированию второй стоянки, хотя он может относиться только к первой стоянки.<br/>
+<br/>
+Можно улучшить структуру с помощью декомпозиции отношения на два и добавления атрибута <b>Имеет льготы</b>, получив отношения, удовлетворяющие НФБК (подчёркнуты атрибуты, входящие в первичный ключ.):<br/>
+<br/>
+<b>Тарифы</b><br/>
+<div class="scrollable-table"><table>
+<tr>
+<td><u>Тариф</u></td>
+<td>Номер стоянки</td>
+<td>Имеет льготы</td>
+</tr>
+<tr>
+<td>Бережливый</td>
+<td>1</td>
+<td>Да</td>
+</tr>
+<tr>
+<td>Стандарт</td>
+<td>1</td>
+<td>Нет</td>
+</tr>
+<tr>
+<td>Премиум-А</td>
+<td>2</td>
+<td>Да</td>
+</tr>
+<tr>
+<td>Премиум-В</td>
+<td>2</td>
+<td>Нет</td>
+</tr>
+</table></div><br/>
+<b>Бронирование</b><br/>
+<div class="scrollable-table"><table>
+<tr>
+<td><u>Тариф</u></td>
+<td><u>Время начала</u></td>
+<td>Время окончания</td>
+</tr>
+<tr>
+<td>Бережливый</td>
+<td>09:30</td>
+<td>10:30</td>
+</tr>
+<tr>
+<td>Бережливый</td>
+<td>11:00</td>
+<td>12:00</td>
+</tr>
+<tr>
+<td>Стандарт</td>
+<td>14:00</td>
+<td>15:30</td>
+</tr>
+<tr>
+<td>Премиум-В</td>
+<td>10:00</td>
+<td>12:00</td>
+</tr>
+<tr>
+<td>Премиум-В</td>
+<td>12:00</td>
+<td>14:00</td>
+</tr>
+<tr>
+<td>Премиум-А</td>
+<td>15:00</td>
+<td>18:00</td>
+</tr>
+</table></div><br/>
+<h4>Четвертая нормальная форма</h4><br/>
+Отношение находится в 4НФ, если оно находится в НФБК и все нетривиальные многозначные зависимости фактически являются функциональными зависимостями от ее потенциальных ключей.<br/>
+<br/>
+В отношении R (A, B, C) существует <b>многозначная зависимость</b> R.A -> -> R.B в том и только в том случае, если множество значений B, соответствующее паре значений A и C, зависит только от A и не зависит от С.<br/>
+<br/>
+Предположим, что рестораны производят разные виды пиццы, а службы доставки ресторанов работают только в определенных районах города. Составной первичный ключ соответствующей переменной отношения включает три атрибута: {Ресторан, Вид пиццы, Район доставки}.<br/>
+<br/>
+Такая переменная отношения не соответствует 4НФ, так как существует следующая многозначная зависимость:<br/>
+{Ресторан} → {Вид пиццы}<br/>
+{Ресторан} → {Район доставки}<br/>
+<br/>
+То есть, например, при добавлении нового вида пиццы придется внести по одному новому кортежу для каждого района доставки. Возможна логическая аномалия, при которой определенному виду пиццы будут соответствовать лишь некоторые районы доставки из обслуживаемых рестораном районов.<br/>
+<br/>
+Для предотвращения аномалии нужно декомпозировать отношение, разместив независимые факты в разных отношениях. В данном примере следует выполнить декомпозицию на {Ресторан, Вид пиццы} и {Ресторан, Район доставки}.<br/>
+<br/>
+Однако, если к исходной переменной отношения добавить атрибут, функционально зависящий от потенциального ключа, например цену с учётом стоимости доставки ({Ресторан, Вид пиццы, Район доставки} → Цена), то полученное отношение будет находиться в 4НФ и его уже нельзя подвергнуть декомпозиции без потерь.<br/>
+<br/>
+<h4>Пятая нормальная форма</h4><br/>
+Отношения находятся в 5НФ, если оно находится в 4НФ и отсутствуют сложные зависимые соединения между атрибутами.<br/>
+Если «Атрибут_1» зависит от «Атрибута_2», а «Атрибут_2» в свою очередь зависит от «Атрибута_3», а «Атрибут_3» зависит от «Атрибута_1», то все три атрибута обязательно входят в один кортеж.<br/>
+<br/>
+Это очень жесткое требование, которое можно выполнить лишь при дополнительных условиях. На практике трудно найти пример реализации этого требования в чистом виде.<br/>
+<br/>
+Например, некоторая таблица содержит три атрибута «Поставщик», «Товар» и «Покупатель». Покупатель_1 приобретает несколько Товаров у Поставщика_1. Покупатель_1 приобрел новый Товар у Поставщика_2. Тогда в силу изложенного выше требования Поставщик_1 обязан поставлять Покупателю_1 тот же самый новый Товар, а Поставщик_2 должен поставлять Покупателю_1, кроме нового Товара, всю номенклатуру Товаров Поставщика_1. Этого на практике не бывает. Покупатель свободен в своем выборе товаров. Поэтому для устранения отмеченного затруднения все три атрибута разносят по разным отношениям (таблицам). После выделения трех новых отношений (Поставщик, Товар и Покупатель) необходимо помнить, что при извлечении информации (например, о покупателях и товарах) необходимо в запросе соединить все три отношения. Любая комбинация соединения двух отношений из трех неминуемо приведет к извлечению неверной (некорректной) информации. Некоторые СУБД снабжены специальными механизмами, устраняющими извлечение недостоверной информации. Тем не менее, следует придерживаться общей рекомендации: структуру базы данных строить таким образом, чтобы избежать применения 4НФ и 5НФ.<br/>
+<br/>
+Пятая нормальная форма ориентирована на работу с зависимыми соединениями. Указанные зависимые соединения между тремя атрибутами встречаются очень редко. Зависимые соединения между четырьмя, пятью и более атрибутами указать практически невозможно.<br/>
+<br/>
+<h4>Доменно-ключевая нормальная форма</h4><br/>
+Переменная отношения находится в ДКНФ тогда и только тогда, когда каждое наложенное на неё ограничение является логическим следствием ограничений доменов и ограничений ключей, наложенных на данную переменную отношения.<br/>
+Ограничение домена – ограничение, предписывающее использовать для определённого атрибута значения только из некоторого заданного домена. Ограничение по своей сути является заданием перечня (или логического эквивалента перечня) допустимых значений типа и объявлением о том, что указанный атрибут имеет данный тип.<br/>
+<br/>
+Ограничение ключа – ограничение, утверждающее, что некоторый атрибут или комбинация атрибутов является потенциальным ключом.<br/>
+<br/>
+Любая переменная отношения, находящаяся в ДКНФ, обязательно находится в 5НФ. Однако не любую переменную отношения можно привести к ДКНФ.<br/>
+<br/>
+<h4>Шестая нормальная форма</h4><br/>
+Переменная отношения находится в шестой нормальной форме тогда и только тогда, когда она удовлетворяет всем нетривиальным зависимостям соединения. Из определения следует, что переменная находится в 6НФ тогда и только тогда, когда она неприводима, то есть не может быть подвергнута дальнейшей декомпозиции без потерь. Каждая переменная отношения, которая находится в 6НФ, также находится и в 5НФ.<br/>
+<br/>
+Идея «декомпозиции до конца» выдвигалась до начала исследований в области хронологических данных, но не нашла поддержки. Однако для хронологических баз данных максимально возможная декомпозиция позволяет бороться с избыточностью и упрощает поддержание целостности базы данных.<br/>
+<br/>
+Для хронологических баз данных определены U_операторы, которые распаковывают отношения по указанным атрибутам, выполняют соответствующую операцию и упаковывают полученный результат. В данном примере соединение проекций отношения должно производится при помощи оператора U_JOIN.<br/>
+<br/>
+<b>Работники</b><br/>
+<div class="scrollable-table"><table>
+<tr>
+<td><u>Таб.№</u></td>
+<td><u>Время</u></td>
+<td>Должность</td>
+<td>Домашний адрес</td>
+</tr>
+<tr>
+<td>6575</td>
+<td>01-01-2000:10-02-2003</td>
+<td>слесарь</td>
+<td>ул.Ленина,10</td>
+</tr>
+<tr>
+<td>6575</td>
+<td>11-02-2003:15-06-2006</td>
+<td>слесарь</td>
+<td>ул.Советская,22</td>
+</tr>
+<tr>
+<td>6575</td>
+<td>16-06-2006:05-03-2009</td>
+<td>бригадир</td>
+<td>ул.Советская,22</td>
+</tr>
+</table></div><br/>
+Переменная отношения «Работники» не находится в 6НФ и может быть подвергнута декомпозиции на переменные отношения «Должности работников» и «Домашние адреса работников».<br/>
+<br/>
+<b>Должности работников</b><br/>
+<div class="scrollable-table"><table>
+<tr>
+<td><u>Таб.№</u></td>
+<td><u>Время</u></td>
+<td>Должность</td>
+</tr>
+<tr>
+<td>6575</td>
+<td>01-01-2000:10-02-2003</td>
+<td>слесарь</td>
+</tr>
+<tr>
+<td>6575</td>
+<td>16-06-2006:05-03-2009</td>
+<td>бригадир</td>
+</tr>
+</table></div><br/>
+<b>Домашние адреса работников</b><br/>
+<div class="scrollable-table"><table>
+<tr>
+<td><u>Таб.№</u></td>
+<td><u>Время</u></td>
+<td>Домашний адрес</td>
+</tr>
+<tr>
+<td>6575</td>
+<td>01-01-2000:10-02-2003</td>
+<td>ул.Ленина,10</td>
+</tr>
+<tr>
+<td>6575</td>
+<td>11-02-2003:15-06-2006</td>
+<td>ул.Советская,22</td>
+</tr>
+</table></div><br/>
+<h4>Литература</h4><br/>
+Для более глубокого и основательного изучения рассмотренной темы, рекомендуется книга «Введение в системы баз данных» Криса Дж. Дейта, на основе материалов которой и была написана данная статья.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%80%D0%B5%D0%BB%D1%8F%D1%86%D0%B8%D0%BE%D0%BD%D0%BD%D1%8B%D0%B5%20%D0%B1%D0%B0%D0%B7%D1%8B%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%5D" class="tm-tags-list__link">реляционные базы данных</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%91%D0%94%5D" class="tm-tags-list__link">БД</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BD%D0%BE%D1%80%D0%BC%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D1%8B%5D" class="tm-tags-list__link">нормальные формы</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BD%D0%BE%D1%80%D0%BC%D0%B0%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F%20%D0%BE%D1%82%D0%BD%D0%BE%D1%88%D0%B5%D0%BD%D0%B8%D0%B9%5D" class="tm-tags-list__link">нормализация отношений</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bmysql%5D" class="tm-tags-list__link">mysql</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/mysql/" class="tm-hubs-list__link">
+    MySQL
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/sql/" class="tm-hubs-list__link">
+    SQL
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 37: ↑22 и ↓15</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 37: ↑22 и ↓15" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+7</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">888K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    799
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/DevilAngel/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/ab2/5ba/b5b/ab25bab5bb5165ff3636a273ed6db472.png" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 16 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    12
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Сивков Сергей</span> <a href="https://habr.com/ru/users/DevilAngel/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @DevilAngel
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Ruby developer</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/254773/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 11 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner3190" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner3191" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/254773/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/254773/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"254773":{"id":"254773","timePublished":"2015-04-02T15:53:20+00:00","isCorporative":false,"lang":"ru","titleHtml":"Нормализация отношений. Шесть нормальных форм","leadData":{"textHtml":"В данной теме я затрону 6 нормальных форм и методы приведения таблиц в эти формы. \u003Cbr\u003E\r\n\u003Cbr\u003E\r\nПроцесс проектирования БД с использование метода НФ является итерационным и заключается в последовательном переводе отношения из 1НФ в НФ более высокого порядка по определенным правилам. Каждая следующая НФ ограничивается определенным типом функциональных зависимостей и устранением соответствующих аномалий при выполнении операций над отношениями БД, а также сохранении свойств предшествующих НФ.\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"sandbox","data":null}],"author":{"scoreStats":{"score":12,"votesCount":16},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"226103","alias":"DevilAngel","fullname":"Сивков Сергей","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002Fab2\u002F5ba\u002Fb5b\u002Fab25bab5bb5165ff3636a273ed6db472.png","speciality":"Ruby developer"},"statistics":{"commentsCount":11,"favoritesCount":799,"readingCount":888379,"score":7,"votesCount":37},"hubs":[{"relatedData":null,"id":"306","alias":"mysql","type":"collective","title":"MySQL","titleHtml":"MySQL","isProfiled":true},{"relatedData":null,"id":"594","alias":"sql","type":"collective","title":"SQL","titleHtml":"SQL","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EВ данной теме я затрону 6 нормальных форм и методы приведения таблиц в эти формы. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПроцесс проектирования БД с использование метода НФ является итерационным и заключается в последовательном переводе отношения из 1НФ в НФ более высокого порядка по определенным правилам. Каждая следующая НФ ограничивается определенным типом функциональных зависимостей и устранением соответствующих аномалий при выполнении операций над отношениями БД, а также сохранении свойств предшествующих НФ.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EИспользуемые термины\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cb\u003EАтрибут\u003C\u002Fb\u003E — свойство некоторой сущности. Часто называется полем таблицы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EДомен атрибута\u003C\u002Fb\u003E — множество допустимых значений, которые может принимать атрибут.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EКортеж\u003C\u002Fb\u003E — конечное множество взаимосвязанных допустимых значений атрибутов, которые вместе описывают некоторую сущность (строка таблицы).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EОтношение\u003C\u002Fb\u003E — конечное множество кортежей (таблица).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EСхема отношения\u003C\u002Fb\u003E — конечное множество атрибутов, определяющих некоторую сущность. Иными словами, это структура таблицы, состоящей из конкретного набора полей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EПроекция\u003C\u002Fb\u003E — отношение, полученное из заданного путём удаления и (или) перестановки некоторых атрибутов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EФункциональная зависимость\u003C\u002Fb\u003E между атрибутами (множествами атрибутов) X и Y означает, что для любого допустимого набора кортежей в данном отношении: если два кортежа совпадают по значению X, то они совпадают по значению Y. Например, если значение атрибута «Название компании» — Canonical Ltd, то значением атрибута «Штаб-квартира» в таком кортеже всегда будет Millbank Tower, London, United Kingdom. Обозначение: {X} -\u003E {Y}.\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\n\u003Cb\u003EНормальная форма\u003C\u002Fb\u003E — требование, предъявляемое к структуре таблиц в теории реляционных баз данных для устранения из базы избыточных функциональных зависимостей между атрибутами (полями таблиц).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EМетод нормальных форм (НФ)\u003C\u002Fb\u003E состоит в сборе информации о объектах решения задачи в рамках одного отношения и последующей декомпозиции этого отношения на несколько взаимосвязанных отношений на основе процедур нормализации отношений. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EЦель нормализации\u003C\u002Fb\u003E: исключить избыточное дублирование данных, которое является причиной аномалий, возникших при добавлении, редактировании и удалении кортежей(строк таблицы).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EАномалией\u003C\u002Fb\u003E называется такая ситуация в таблице БД, которая приводит к противоречию в БД либо существенно усложняет обработку БД. Причиной является излишнее дублирование данных в таблице, которое вызывается наличием функциональных зависимостей от не ключевых атрибутов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EАномалии-модификации\u003C\u002Fb\u003E проявляются в том, что изменение одних данных может повлечь просмотр всей таблицы и соответствующее изменение некоторых записей таблицы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EАномалии-удаления\u003C\u002Fb\u003E — при удалении какого либо кортежа из таблицы может пропасть информация, которая не связана на прямую с удаляемой записью.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EАномалии-добавления\u003C\u002Fb\u003E возникают, когда информацию в таблицу нельзя поместить, пока она не полная, либо вставка записи требует дополнительного просмотра таблицы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EПервая нормальная форма\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nОтношение находится в 1НФ, если все его атрибуты являются простыми, все используемые домены должны содержать только скалярные значения. Не должно быть повторений строк в таблице.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНапример, есть таблица «Автомобили»:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EФирма\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EМодели\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EBMW\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EM5, X5M, M1\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003ENissan\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EGT-R\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nНарушение нормализации 1НФ происходит в моделях BMW, т.к. в одной ячейке содержится список из 3 элементов: M5, X5M, M1, т.е. он не является атомарным. Преобразуем таблицу к 1НФ:\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EФирма\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EМодели\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EBMW\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EM5\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EBMW\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EX5M\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EBMW\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EM1\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003ENissan\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EGT-R\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EВторая нормальная форма\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nОтношение находится во 2НФ, если оно находится в 1НФ и каждый не ключевой атрибут неприводимо зависит от Первичного Ключа(ПК).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНеприводимость означает, что в составе потенциального ключа отсутствует меньшее подмножество атрибутов, от которого можно также вывести данную функциональную зависимость.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНапример, дана таблица:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cu\u003EМодель\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cu\u003EФирма\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EЦена\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EСкидка\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EM5\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EBMW\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E5500000\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E5%\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EX5M\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EBMW\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E6000000\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E5%\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EM1\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EBMW\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E2500000\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E5%\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EGT-R\u003C\u002Ftd\u003E\r\n\u003Ctd\u003ENissan\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E5000000\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E10%\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nТаблица находится в первой нормальной форме, но не во второй. Цена машины зависит от модели и фирмы. Скидка зависят от фирмы, то есть зависимость от первичного ключа неполная. Исправляется это путем декомпозиции на два отношения, в которых не ключевые атрибуты зависят от ПК.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cu\u003EМодель\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cu\u003EФирма\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EЦена\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EM5\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EBMW\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E5500000\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EX5M\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EBMW\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E6000000\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EM1\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EBMW\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E2500000\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EGT-R\u003C\u002Ftd\u003E\r\n\u003Ctd\u003ENissan\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E5000000\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cu\u003EФирма\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EСкидка\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EBMW\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E5%\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003ENissan\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E10%\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EТретья нормальная форма\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nОтношение находится в 3НФ, когда находится во 2НФ и каждый не ключевой атрибут нетранзитивно зависит от первичного ключа. Проще говоря, второе правило требует выносить все не ключевые поля, содержимое которых может относиться к нескольким записям таблицы в отдельные таблицы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРассмотрим таблицу:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cu\u003EМодель\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EМагазин\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EТелефон\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EBMW\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EРиал-авто\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E87-33-98\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EAudi\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EРиал-авто\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E87-33-98\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003ENissan\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EНекст-Авто\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E94-54-12\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТаблица находится во 2НФ, но не в 3НФ.\u003Cbr\u002F\u003E\r\nВ отношении атрибут «Модель» является первичным ключом. Личных телефонов у автомобилей нет, и телефон зависит исключительно от магазина.\u003Cbr\u002F\u003E\r\nТаким образом, в отношении существуют следующие функциональные зависимости: Модель → Магазин, Магазин → Телефон, Модель → Телефон.\u003Cbr\u002F\u003E\r\nЗависимость Модель → Телефон является транзитивной, следовательно, отношение не находится в 3НФ.\u003Cbr\u002F\u003E\r\nВ результате разделения исходного отношения получаются два отношения, находящиеся в 3НФ:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cu\u003EМагазин\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EТелефон\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EРиал-авто\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E87-33-98\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EНекст-Авто\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E94-54-12\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cu\u003EМодель\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EМагазин\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EBMW\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EРиал-авто\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EAudi\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EРиал-авто\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003ENissan\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EНекст-Авто\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EНормальная форма Бойса-Кодда (НФБК) (частная форма третьей нормальной формы)\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nОпределение 3НФ не совсем подходит для следующих отношений:\u003Cbr\u002F\u003E\r\n1) отношение имеет два или более потенциальных ключа;\u003Cbr\u002F\u003E\r\n2) два и более потенциальных ключа являются составными;\u003Cbr\u002F\u003E\r\n3) они пересекаются, т.е. имеют хотя бы один общий атрибут.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля отношений, имеющих один потенциальный ключ (первичный), НФБК является 3НФ.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОтношение находится в НФБК, когда каждая нетривиальная и неприводимая слева функциональная зависимость обладает потенциальным ключом в качестве детерминанта.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПредположим, рассматривается отношение, представляющее данные о бронировании стоянки на день:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EНомер стоянки\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EВремя начала\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EВремя окончания\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EТариф\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E1\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E09:30\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E10:30\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EБережливый\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E1\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E11:00\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E12:00\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EБережливый\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E1\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E14:00\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E15:30\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EСтандарт\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E2\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E10:00\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E12:00\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПремиум-В\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E2\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E12:00\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E14:00\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПремиум-В\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E2\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E15:00\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E18:00\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПремиум-А\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nТариф имеет уникальное название и зависит от выбранной стоянки и наличии льгот, в частности:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E«Бережливый»: стоянка 1 для льготников\u003C\u002Fli\u003E\r\n\u003Cli\u003E«Стандарт»: стоянка 1 для не льготников\u003C\u002Fli\u003E\r\n\u003Cli\u003E«Премиум-А»: стоянка 2 для льготников\u003C\u002Fli\u003E\r\n\u003Cli\u003E«Премиум-B»: стоянка 2 для не льготников.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nТаким образом, возможны следующие составные первичные ключи: {Номер стоянки, Время начала}, {Номер стоянки, Время окончания}, {Тариф, Время начала}, {Тариф, Время окончания}.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОтношение находится в 3НФ. Требования второй нормальной формы выполняются, так как все атрибуты входят в какой-то из потенциальных ключей, а неключевых атрибутов в отношении нет. Также нет и транзитивных зависимостей, что соответствует требованиям третьей нормальной формы. Тем не менее, существует функциональная зависимость Тариф → Номер стоянки, в которой левая часть (детерминант) не является потенциальным ключом отношения, то есть отношение не находится в нормальной форме Бойса — Кодда.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНедостатком данной структуры является то, что, например, по ошибке можно приписать тариф «Бережливый» к бронированию второй стоянки, хотя он может относиться только к первой стоянки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМожно улучшить структуру с помощью декомпозиции отношения на два и добавления атрибута \u003Cb\u003EИмеет льготы\u003C\u002Fb\u003E, получив отношения, удовлетворяющие НФБК (подчёркнуты атрибуты, входящие в первичный ключ.):\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EТарифы\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cu\u003EТариф\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EНомер стоянки\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EИмеет льготы\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EБережливый\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E1\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EДа\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EСтандарт\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E1\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EНет\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EПремиум-А\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E2\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EДа\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EПремиум-В\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E2\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EНет\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cb\u003EБронирование\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cu\u003EТариф\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cu\u003EВремя начала\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EВремя окончания\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EБережливый\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E09:30\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E10:30\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EБережливый\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E11:00\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E12:00\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EСтандарт\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E14:00\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E15:30\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EПремиум-В\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E10:00\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E12:00\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EПремиум-В\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E12:00\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E14:00\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003EПремиум-А\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E15:00\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E18:00\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EЧетвертая нормальная форма\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nОтношение находится в 4НФ, если оно находится в НФБК и все нетривиальные многозначные зависимости фактически являются функциональными зависимостями от ее потенциальных ключей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ отношении R (A, B, C) существует \u003Cb\u003Eмногозначная зависимость\u003C\u002Fb\u003E R.A -\u003E -\u003E R.B в том и только в том случае, если множество значений B, соответствующее паре значений A и C, зависит только от A и не зависит от С.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПредположим, что рестораны производят разные виды пиццы, а службы доставки ресторанов работают только в определенных районах города. Составной первичный ключ соответствующей переменной отношения включает три атрибута: {Ресторан, Вид пиццы, Район доставки}.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТакая переменная отношения не соответствует 4НФ, так как существует следующая многозначная зависимость:\u003Cbr\u002F\u003E\r\n{Ресторан} → {Вид пиццы}\u003Cbr\u002F\u003E\r\n{Ресторан} → {Район доставки}\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТо есть, например, при добавлении нового вида пиццы придется внести по одному новому кортежу для каждого района доставки. Возможна логическая аномалия, при которой определенному виду пиццы будут соответствовать лишь некоторые районы доставки из обслуживаемых рестораном районов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля предотвращения аномалии нужно декомпозировать отношение, разместив независимые факты в разных отношениях. В данном примере следует выполнить декомпозицию на {Ресторан, Вид пиццы} и {Ресторан, Район доставки}.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОднако, если к исходной переменной отношения добавить атрибут, функционально зависящий от потенциального ключа, например цену с учётом стоимости доставки ({Ресторан, Вид пиццы, Район доставки} → Цена), то полученное отношение будет находиться в 4НФ и его уже нельзя подвергнуть декомпозиции без потерь.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EПятая нормальная форма\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nОтношения находятся в 5НФ, если оно находится в 4НФ и отсутствуют сложные зависимые соединения между атрибутами.\u003Cbr\u002F\u003E\r\nЕсли «Атрибут_1» зависит от «Атрибута_2», а «Атрибут_2» в свою очередь зависит от «Атрибута_3», а «Атрибут_3» зависит от «Атрибута_1», то все три атрибута обязательно входят в один кортеж.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто очень жесткое требование, которое можно выполнить лишь при дополнительных условиях. На практике трудно найти пример реализации этого требования в чистом виде.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНапример, некоторая таблица содержит три атрибута «Поставщик», «Товар» и «Покупатель». Покупатель_1 приобретает несколько Товаров у Поставщика_1. Покупатель_1 приобрел новый Товар у Поставщика_2. Тогда в силу изложенного выше требования Поставщик_1 обязан поставлять Покупателю_1 тот же самый новый Товар, а Поставщик_2 должен поставлять Покупателю_1, кроме нового Товара, всю номенклатуру Товаров Поставщика_1. Этого на практике не бывает. Покупатель свободен в своем выборе товаров. Поэтому для устранения отмеченного затруднения все три атрибута разносят по разным отношениям (таблицам). После выделения трех новых отношений (Поставщик, Товар и Покупатель) необходимо помнить, что при извлечении информации (например, о покупателях и товарах) необходимо в запросе соединить все три отношения. Любая комбинация соединения двух отношений из трех неминуемо приведет к извлечению неверной (некорректной) информации. Некоторые СУБД снабжены специальными механизмами, устраняющими извлечение недостоверной информации. Тем не менее, следует придерживаться общей рекомендации: структуру базы данных строить таким образом, чтобы избежать применения 4НФ и 5НФ.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПятая нормальная форма ориентирована на работу с зависимыми соединениями. Указанные зависимые соединения между тремя атрибутами встречаются очень редко. Зависимые соединения между четырьмя, пятью и более атрибутами указать практически невозможно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EДоменно-ключевая нормальная форма\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nПеременная отношения находится в ДКНФ тогда и только тогда, когда каждое наложенное на неё ограничение является логическим следствием ограничений доменов и ограничений ключей, наложенных на данную переменную отношения.\u003Cbr\u002F\u003E\r\nОграничение домена – ограничение, предписывающее использовать для определённого атрибута значения только из некоторого заданного домена. Ограничение по своей сути является заданием перечня (или логического эквивалента перечня) допустимых значений типа и объявлением о том, что указанный атрибут имеет данный тип.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОграничение ключа – ограничение, утверждающее, что некоторый атрибут или комбинация атрибутов является потенциальным ключом.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЛюбая переменная отношения, находящаяся в ДКНФ, обязательно находится в 5НФ. Однако не любую переменную отношения можно привести к ДКНФ.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EШестая нормальная форма\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nПеременная отношения находится в шестой нормальной форме тогда и только тогда, когда она удовлетворяет всем нетривиальным зависимостям соединения. Из определения следует, что переменная находится в 6НФ тогда и только тогда, когда она неприводима, то есть не может быть подвергнута дальнейшей декомпозиции без потерь. Каждая переменная отношения, которая находится в 6НФ, также находится и в 5НФ.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИдея «декомпозиции до конца» выдвигалась до начала исследований в области хронологических данных, но не нашла поддержки. Однако для хронологических баз данных максимально возможная декомпозиция позволяет бороться с избыточностью и упрощает поддержание целостности базы данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля хронологических баз данных определены U_операторы, которые распаковывают отношения по указанным атрибутам, выполняют соответствующую операцию и упаковывают полученный результат. В данном примере соединение проекций отношения должно производится при помощи оператора U_JOIN.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EРаботники\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cu\u003EТаб.№\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cu\u003EВремя\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EДолжность\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EДомашний адрес\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E6575\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E01-01-2000:10-02-2003\u003C\u002Ftd\u003E\r\n\u003Ctd\u003Eслесарь\u003C\u002Ftd\u003E\r\n\u003Ctd\u003Eул.Ленина,10\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E6575\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E11-02-2003:15-06-2006\u003C\u002Ftd\u003E\r\n\u003Ctd\u003Eслесарь\u003C\u002Ftd\u003E\r\n\u003Ctd\u003Eул.Советская,22\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E6575\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E16-06-2006:05-03-2009\u003C\u002Ftd\u003E\r\n\u003Ctd\u003Eбригадир\u003C\u002Ftd\u003E\r\n\u003Ctd\u003Eул.Советская,22\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nПеременная отношения «Работники» не находится в 6НФ и может быть подвергнута декомпозиции на переменные отношения «Должности работников» и «Домашние адреса работников».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EДолжности работников\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cu\u003EТаб.№\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cu\u003EВремя\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EДолжность\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E6575\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E01-01-2000:10-02-2003\u003C\u002Ftd\u003E\r\n\u003Ctd\u003Eслесарь\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E6575\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E16-06-2006:05-03-2009\u003C\u002Ftd\u003E\r\n\u003Ctd\u003Eбригадир\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cb\u003EДомашние адреса работников\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"scrollable-table\"\u003E\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cu\u003EТаб.№\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cu\u003EВремя\u003C\u002Fu\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EДомашний адрес\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E6575\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E01-01-2000:10-02-2003\u003C\u002Ftd\u003E\r\n\u003Ctd\u003Eул.Ленина,10\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E6575\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E11-02-2003:15-06-2006\u003C\u002Ftd\u003E\r\n\u003Ctd\u003Eул.Советская,22\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EЛитература\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nДля более глубокого и основательного изучения рассмотренной темы, рекомендуется книга «Введение в системы баз данных» Криса Дж. Дейта, на основе материалов которой и была написана данная статья.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"реляционные базы данных"},{"titleHtml":"БД"},{"titleHtml":"нормальные формы"},{"titleHtml":"нормализация отношений"},{"titleHtml":"mysql"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F254773\u002Fea3d69670feb70c121aad6f5b8df836a\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F254773\u002Fea3d69670feb70c121aad6f5b8df836a\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F254773\\\u002F\"},\"headline\":\"Нормализация отношений. Шесть нормальных форм\",\"datePublished\":\"2015-04-02T18:53:20+03:00\",\"dateModified\":\"2020-09-06T01:17:49+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Сивков Сергей\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"В данной теме я затрону 6 нормальных форм и методы приведения таблиц в эти формы.   Процесс проектирования БД с использование метода НФ является итерационным и з...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F254773\\\u002F#post-content-body\",\"about\":[\"h_mysql\",\"h_sql\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F254773\\\u002Fea3d69670feb70c121aad6f5b8df836a\\\u002F\"]}","metaDescription":"В данной теме я затрону 6 нормальных форм и методы приведения таблиц в эти формы. \r\n\r\nПроцесс проектирования БД с использование метода НФ является итерационным и заключается в последовательном...","mainImageUrl":null,"amp":true,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":"mysql,sql"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

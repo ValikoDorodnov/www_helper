@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+        <meta name="baidu-site-verification" content="yxyLMvJwcA" />
+        <meta name="google-site-verification" content="zXL2CVbtC_Krma8l8C6ZtsG0LYFNWiAR5ZI70hz4xAM" />
+        <meta name="msvalidate.01" content="89359D9C492A475C0061398008D105FB" />
+        <meta name="yandex-verification" content="dd35362233c19552" />
+
+
+    <title>Git Tutorial =&gt; Undoing merges</title>
+
+    <!-- icon !-->
+    <link rel="icon" type="image/png" href="https://riptutorial.com/Images/logo_rip.png" width="55" height="55">
+
+    <!-- css !-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://riptutorial.com/assets/css/master.min.css?v=1.0.0.23385">
+    
+    
+
+    
+    
+    
+
+    <!-- Open Graph Tags -->
+    <meta name="title" property="og:title" content="Git Tutorial => Undoing merges">
+    <meta name="description" property="og:description" content="Learn Git - Undoing merges">
+    <meta name="url" property="og:url" content="https://riptutorial.com/git/example/1477/undoing-merges" />
+    <meta name="image" property="og:image" content="/Images/home.jpg" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Git Tutorial => Undoing merges">
+    <meta name="twitter:description" content="Learn Git - Undoing merges">
+    <meta name="twitter:url" content="https://riptutorial.com/git/example/1477/undoing-merges" />
+    <meta name="twitter:image" content="/Images/home.jpg" />
+    
+        <script>
+        function gtag() { dataLayer.push(arguments); }
+
+        window.pg=window.pg||[];pg.acq=pg.acq||[]; // build consent queue
+        pg.acq.push(function() {
+            // Global site tag (gtag.js)
+            pg.loadJS("https://www.googletagmanager.com/gtag/js?id=UA-55584370-17");
+            window.dataLayer = window.dataLayer || [];
+            gtag('js', new Date());
+            gtag('config', 'UA-55584370-17');
+        });
+        </script>
+
+    
+    
+
+    
+    
+    
+    
+<script src="https://m2d.m2.ai/pghb.riptutorial.article.js" async> </script>    
+    
+</head>
+
+<body>
+<!-- facebook
+<div id="fb-root"></div>
+<script>
+    (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.10";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+</script>
+-->
+<!-- twitter
+<script>
+    !function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https';
+        if (!d.getElementById(id)) {
+            js = d.createElement(s);
+            js.id = id;
+            js.src = p + '://platform.twitter.com/widgets.js';
+            fjs.parentNode.insertBefore(js, fjs);
+        }
+    }(document, 'script', 'twitter-wjs');
+</script>
+-->
+<header class="site-header">
+    <nav class="container-fluid navbar navbar-light navbar-expand-lg">
+        <a class="navbar-brand" href="https://riptutorial.com/">
+            <img src="https://riptutorial.com/Images/logo_rip_full_white.png" alt="logo rip"/>
+                <div>RIP <span class="text-z">Tutorial</span></div>
+
+        </a>
+        <div>
+            
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-site-menu"
+                    aria-controls="nav-site-menu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+        <div class="navbar-collapse collapse" id="nav-site-menu">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="https://riptutorial.com/tag" class="nav-link">Tags</a>
+                </li>
+                <li class="nav-item">
+                    <a href="https://riptutorial.com/topic" class="nav-link">Topics</a>
+                </li>
+                    <li class="nav-item">
+                        <a href="https://riptutorial.com/example" class="nav-link">Examples</a>
+                    </li>
+                                    <li class="nav-item">
+                        <a href="https://riptutorial.com/ebook" class="nav-link">eBooks</a>
+                    </li>
+            </ul>
+        </div>
+        <div class="navbar-collapse collapse justify-content-end" id="site-header-nav-site-menu">
+<div id="ript_desk_article_lb1" class="d-none d-lg-block"></div>        </div>
+    </nav>
+</header>
+
+<div class="container-fluid site-body">
+    
+
+<div class="nav-site">
+    <a href="https://riptutorial.com/ebook/git" id="pdf-download-btn" class="btn btn-z bordered" onclick="gtag('event', 'click', {'event_action': 'button-aside-download'});"><i class="fas fa-file-pdf" aria-hidden="true"></i> Download Git (PDF)</a>
+    <nav class="navbar navbar-light navbar-expand-lg hidden-lg-up" style="padding-left: 0; padding-right: 0;">
+        <a class="nav-brand"></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-sidebar"
+                aria-controls="nav-sidebar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="navbar-collapse collapse justify-content-end" id="nav-sidebar">
+            <br />
+            <div class="section-sidebar">
+
+                <h2><span class="tag-title">Git</span></h2>
+                <ul>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/218/getting-started-with-git">Getting started with Git</a>
+                        </li>
+                                <li><a href="https://riptutorial.com/git/awesome-learning/book">Awesome Book</a></li>
+                                <li><a href="https://riptutorial.com/git/awesome-learning/community">Awesome Community</a></li>
+                                <li><a href="https://riptutorial.com/git/awesome-learning/course">Awesome Course</a></li>
+                                <li><a href="https://riptutorial.com/git/awesome-learning/tutorial">Awesome Tutorial</a></li>
+                                <li><a href="https://riptutorial.com/git/awesome-learning/youtube">Awesome YouTube</a></li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/1270/-mailmap-file--associating-contributor-and-email-aliases">.mailmap file: Associating contributor and email aliases</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/337/aliases">Aliases</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/1276/analyzing-types-of-workflows">Analyzing types of workflows</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/2815/archive">Archive</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/3645/bisecting-finding-faulty-commits">Bisecting/Finding faulty commits</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/3663/blaming">Blaming</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/415/branching">Branching</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/240/browsing-the-history">Browsing the history</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/3612/bundles">Bundles</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/9291/change-git-repository-name">Change git repository name</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/672/cherry-picking">Cherry Picking</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/1405/cloning-repositories">Cloning Repositories</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/323/committing">Committing</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/397/configuration">Configuration</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/10937/diff-tree">diff-tree</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/3637/display-commit-history-graphically-with-gitk">Display commit history graphically with Gitk</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/2680/empty-directories-in-git">Empty directories in Git</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/5972/external-merge-and-difftools">External merge and difftools</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/8320/git-branch-name-on-bash-ubuntu">Git Branch Name on Bash Ubuntu</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/1254/git-clean">Git Clean</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/8654/git-client-side-hooks">Git Client-Side Hooks</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/273/git-diff">Git Diff</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/5148/git-gui-clients">Git GUI Clients</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/4136/git-large-file-storage--lfs-">Git Large File Storage (LFS)</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/4603/git-patch">Git Patch</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/4071/git-remote">Git Remote</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/9156/git-rerere">Git rerere</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/3735/git-revisions-syntax">Git revisions syntax</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/4821/git-send-email">git send-email</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/4609/git-statistics">Git statistics</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/10098/git-tagging">Git Tagging</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/2766/git-svn">git-svn</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/2660/git-tfs">git-tfs</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/1330/hooks">Hooks</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/245/ignoring-files-and-folders">Ignoring Files and Folders</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/2637/internals">Internals</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/291/merging">Merging</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/3026/migrating-to-git">Migrating to Git</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/1308/pulling">Pulling</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/2600/pushing">Pushing</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/355/rebasing">Rebasing</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/725/recovering">Recovering</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/5149/reflog---restoring-commits-not-shown-in-git-log">Reflog - Restoring commits not shown in git log</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/1814/renaming">Renaming</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/3233/resolving-merge-conflicts">Resolving merge conflicts</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/431/rev-list">Rev-List</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/2825/rewriting-history-with-filter-branch">Rewriting history with filter-branch</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/3030/show">Show</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/598/squashing">Squashing</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/244/staging">Staging</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/1440/stashing">Stashing</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/306/submodules">Submodules</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/1634/subtrees">Subtrees</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/10934/tidying-up-your-local-and-remote-repository">Tidying up your local and remote repository</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/5150/tortoisegit">TortoiseGit</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/285/undoing">Undoing</a>
+                        </li>
+                            <ul>
+                                    <li>
+                                        <a href="https://riptutorial.com/git/example/3383/return-to-a-previous-commit" class="">Return to a previous commit</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://riptutorial.com/git/example/16041/revert-some-existing-commits" class="">Revert some existing commits</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://riptutorial.com/git/example/22767/undo---redo-a-series-of-commits" class="">Undo / Redo a series of commits</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://riptutorial.com/git/example/9509/undoing-changes" class="">Undoing changes</a>
+                                    </li>
+                                    <li>
+                                        <a href="отмена-слияния.html" class="bold">Undoing merges</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://riptutorial.com/git/example/2631/using-reflog" class="">Using reflog</a>
+                                    </li>
+                            </ul>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/7579/update-object-name-in-reference">Update Object Name in Reference</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/1269/using-a--gitattributes-file">Using a .gitattributes file</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/243/working-with-remotes">Working with Remotes</a>
+                        </li>
+                        <li>
+                            <a href="https://riptutorial.com/git/topic/3801/worktrees">Worktrees</a>
+                        </li>
+                </ul>
+
+            </div>
+            <br /><br />
+        </div>
+    </nav>
+</div>
+<div class="row whole-container">
+    <div class="col-xl-2 col-lg-3 section-sidebar desktop hidden-md-down">
+        <div class="section-sidebar-overflow custom-scrollbar" data-mcs-theme="dark">
+            <h2><span class="tag-title">Git</span></h2>
+            <ul>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/218/getting-started-with-git">Getting started with Git</a>
+                    </li>
+                            <li><a href="https://riptutorial.com/git/awesome-learning/book">Awesome Book</a></li>
+                            <li><a href="https://riptutorial.com/git/awesome-learning/community">Awesome Community</a></li>
+                            <li><a href="https://riptutorial.com/git/awesome-learning/course">Awesome Course</a></li>
+                            <li><a href="https://riptutorial.com/git/awesome-learning/tutorial">Awesome Tutorial</a></li>
+                            <li><a href="https://riptutorial.com/git/awesome-learning/youtube">Awesome YouTube</a></li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/1270/-mailmap-file--associating-contributor-and-email-aliases">.mailmap file: Associating contributor and email aliases</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/337/aliases">Aliases</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/1276/analyzing-types-of-workflows">Analyzing types of workflows</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/2815/archive">Archive</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/3645/bisecting-finding-faulty-commits">Bisecting/Finding faulty commits</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/3663/blaming">Blaming</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/415/branching">Branching</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/240/browsing-the-history">Browsing the history</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/3612/bundles">Bundles</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/9291/change-git-repository-name">Change git repository name</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/672/cherry-picking">Cherry Picking</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/1405/cloning-repositories">Cloning Repositories</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/323/committing">Committing</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/397/configuration">Configuration</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/10937/diff-tree">diff-tree</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/3637/display-commit-history-graphically-with-gitk">Display commit history graphically with Gitk</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/2680/empty-directories-in-git">Empty directories in Git</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/5972/external-merge-and-difftools">External merge and difftools</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/8320/git-branch-name-on-bash-ubuntu">Git Branch Name on Bash Ubuntu</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/1254/git-clean">Git Clean</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/8654/git-client-side-hooks">Git Client-Side Hooks</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/273/git-diff">Git Diff</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/5148/git-gui-clients">Git GUI Clients</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/4136/git-large-file-storage--lfs-">Git Large File Storage (LFS)</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/4603/git-patch">Git Patch</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/4071/git-remote">Git Remote</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/9156/git-rerere">Git rerere</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/3735/git-revisions-syntax">Git revisions syntax</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/4821/git-send-email">git send-email</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/4609/git-statistics">Git statistics</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/10098/git-tagging">Git Tagging</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/2766/git-svn">git-svn</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/2660/git-tfs">git-tfs</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/1330/hooks">Hooks</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/245/ignoring-files-and-folders">Ignoring Files and Folders</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/2637/internals">Internals</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/291/merging">Merging</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/3026/migrating-to-git">Migrating to Git</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/1308/pulling">Pulling</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/2600/pushing">Pushing</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/355/rebasing">Rebasing</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/725/recovering">Recovering</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/5149/reflog---restoring-commits-not-shown-in-git-log">Reflog - Restoring commits not shown in git log</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/1814/renaming">Renaming</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/3233/resolving-merge-conflicts">Resolving merge conflicts</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/431/rev-list">Rev-List</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/2825/rewriting-history-with-filter-branch">Rewriting history with filter-branch</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/3030/show">Show</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/598/squashing">Squashing</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/244/staging">Staging</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/1440/stashing">Stashing</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/306/submodules">Submodules</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/1634/subtrees">Subtrees</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/10934/tidying-up-your-local-and-remote-repository">Tidying up your local and remote repository</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/5150/tortoisegit">TortoiseGit</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/285/undoing">Undoing</a>
+                    </li>
+                        <ul>
+                                <li>
+                                    <a href="https://riptutorial.com/git/example/3383/return-to-a-previous-commit" class="">Return to a previous commit</a>
+                                </li>
+                                <li>
+                                    <a href="https://riptutorial.com/git/example/16041/revert-some-existing-commits" class="">Revert some existing commits</a>
+                                </li>
+                                <li>
+                                    <a href="https://riptutorial.com/git/example/22767/undo---redo-a-series-of-commits" class="">Undo / Redo a series of commits</a>
+                                </li>
+                                <li>
+                                    <a href="https://riptutorial.com/git/example/9509/undoing-changes" class="">Undoing changes</a>
+                                </li>
+                                <li>
+                                    <a href="отмена-слияния.html" class="bold active">Undoing merges</a>
+                                </li>
+                                <li>
+                                    <a href="https://riptutorial.com/git/example/2631/using-reflog" class="">Using reflog</a>
+                                </li>
+                        </ul>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/7579/update-object-name-in-reference">Update Object Name in Reference</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/1269/using-a--gitattributes-file">Using a .gitattributes file</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/243/working-with-remotes">Working with Remotes</a>
+                    </li>
+                    <li>
+                        <a href="https://riptutorial.com/git/topic/3801/worktrees">Worktrees</a>
+                    </li>
+            </ul>
+
+        </div>
+    </div>
+    <div class="col-xl-8 col-lg-9 section-article">
+        
+            <div class="row align-items-stretch h-100">
+                <div class="col-12">
+                    <div class="header-article">
+
+                        
+
+
+<h1 class="header-breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
+            <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="https://riptutorial.com/git" itemscope itemtype="https://schema.org/WebPage" itemprop="item" itemid="/git">
+                    <span itemprop="name">Git</span>
+                </a>
+                <meta itemprop="position" content="1"/>
+            </span>
+            <i class="fas fa-angle-right nav-text"></i>
+            <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="https://riptutorial.com/git/topic/285/undoing" itemscope itemtype="https://schema.org/WebPage" itemprop="item" itemid="/git/topic/285/undoing">
+                    <span itemprop="name">Undoing</span>
+                </a>
+                <meta itemprop="position" content="2"/>
+            </span>
+            <i class="fas fa-angle-right nav-text"></i>
+            <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <span itemprop="name">Undoing merges</span>
+                <meta itemprop="position" content="3"/>
+            </span>
+</h1>
+
+                            <div id="ript_desk_article_lb2" class="d-none d-lg-block"></div>
+                            <div id="ript_mob_mpu1" class="d-lg-none"></div>
+                            <br/>
+                        <!-- Horizontal-Responsive -->
+                        
+                        
+
+                    </div>
+
+                    <div class="body-article">
+                        
+
+                                <h2 id="example">Example</h2>
+<p><strong>Undoing a merge not yet pushed to a remote</strong></p>
+<p>If you haven't yet pushed your merge to the remote repository then you can follow the same procedure as in <a class="doc-link" href="http://stackoverflow.com/documentation/git/285/undoing/1023/undoing-commits#t=201604121857583862381">undo the commit</a> although there are some subtle differences.</p>
+<p>A reset is the simplest option as it will undo both the merge commit and any commits added from the branch.  However, you will need to know what SHA to reset back to, this can be tricky as your <code>git log</code> will now show commits from both branches.  If you reset to the wrong commit (e.g. one on the other branch) <strong>it can destroy committed work.</strong></p>
+<pre><code>&gt; git reset --hard &lt;last commit from the branch you are on&gt;
+</code></pre>
+<p>Or, assuming the merge was your most recent commit.</p>
+<pre><code>&gt; git reset HEAD~
+</code></pre>
+<p>A revert is safer, in that it won't destroy committed work, but involves more work as you have to revert the revert before you can merge the branch back in again (see the next section).</p>
+<p><strong>Undoing a merge pushed to a remote</strong></p>
+<p>Assume you merge in a new feature (add-gremlins)</p>
+<pre><code>&gt; git merge feature/add-gremlins
+...
+   #Resolve any merge conflicts
+&gt; git commit #commit the merge
+...
+&gt; git push
+...
+   501b75d..17a51fd  master -&gt; master
+</code></pre>
+<p>Afterwards you discover that the feature you just merged in broke the system for other developers, it must be undone right away, and fixing the feature itself will take too long so you simply want to undo the merge.</p>
+<pre><code>&gt; git revert -m 1 17a51fd
+...
+&gt; git push
+...
+   17a51fd..e443799  master -&gt; master
+</code></pre>
+<p>At this point the gremlins are out of the system and your fellow developers have stopped yelling at you.  However, we are not finished just yet.  Once you fix the problem with the add-gremlins feature you will need to undo this revert before you can merge back in.</p>
+<pre><code>&gt; git checkout feature/add-gremlins
+...
+   #Various commits to fix the bug.
+&gt; git checkout master
+...
+&gt; git revert e443799
+...
+&gt; git merge feature/add-gremlins
+...
+   #Fix any merge conflicts introduced by the bug fix
+&gt; git commit #commit the merge
+...
+&gt; git push
+</code></pre>
+<p>At this point your feature is now successfully added.  However, given that bugs of this type are often introduced by merge conflicts a slightly different workflow is sometimes more helpful as it lets you fix the merge conflict on your branch.</p>
+<pre><code>&gt; git checkout feature/add-gremlins
+...
+   #Merge in master and revert the revert right away.  This puts your branch in
+   #the same broken state that master was in before.
+&gt; git merge master
+...
+&gt; git revert e443799
+...
+   #Now go ahead and fix the bug (various commits go here)
+&gt; git checkout master
+...
+   #Don't need to revert the revert at this point since it was done earlier
+&gt; git merge feature/add-gremlins
+...
+   #Fix any merge conflicts introduced by the bug fix
+&gt; git commit #commit the merge
+...
+&gt; git push
+</code></pre>
+
+
+
+
+                        <!-- Horizontal-Responsive -->
+                        
+                            <br/>
+                            <div id="ript_desk_article_lb3" class="d-none d-lg-block"></div>
+                            <div id="ript_mob_mpu2" class="d-lg-none"></div>
+                            <br/><br/>
+
+
+                            <div class="container-download-pdf-section">
+                                <img src="https://riptutorial.com/Images/icon-pdf-2.png" alt="pdf">
+                                <a href="https://riptutorial.com/ebook/git" class="" onclick="gtag('event', 'click', { 'event_action': 'button-footer-download' });">
+                                    <b>PDF</b> - Download <span>Git</span> for free
+                                </a>
+                            </div>
+                        <br>
+                        <div class="addthis_inline_share_toolbox_oxub" data-url="https://riptutorial.com/git/example/1477/undoing-merges" data-title="Learn Git - Over 1000 Free Tutorial:" onclick="gtag('event', 'click', { 'event_action': 'button-share' });"></div>
+                        <br/>
+                        <div class="container-next-prev">
+                            <a href="https://riptutorial.com/git/example/9509/undoing-changes" onclick="gtag('event', 'click', { 'event_action': 'button-previous' });"><i class="fas fa-angle-left"></i> Previous</a>
+                            <a href="https://riptutorial.com/git/example/2631/using-reflog" class="text-right" onclick="gtag('event', 'click', { 'event_action': 'button-next' });"> Next <i class="fas fa-angle-right"></i> </a>
+                        </div>
+
+
+                        
+
+                        
+
+                        
+
+                    </div>
+
+
+
+        </div>
+            </div>
+        
+
+        
+
+       </div>
+
+        <div class="col-xl-2 section-aside">
+            <div id="stats-share">
+                
+
+                <div>
+                </div>
+                <br/>
+
+                    <div id="ript_desk_skyscraper" class="d-none d-lg-block"></div>
+                <br/>
+                
+                
+                <!-- Vertical-Responsive 
+                <ins class="adsbygoogle"
+                     style="display: block"
+                     data-ad-client="ca-pub-7869211898023730"
+                     data-ad-slot="2663230744"
+                     data-ad-format="auto"
+                     
+                     data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>-->
+
+                
+
+                
+
+                
+
+                <!-- Vertical-Responsive 
+                <ins class="adsbygoogle"
+                     style="display: block"
+                     data-ad-client="ca-pub-7869211898023730"
+                     data-ad-slot="9037067406"
+                     data-ad-format="auto"
+                     
+                     data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>-->
+
+                
+
+
+
+                
+
+
+
+
+                <!-- Vertical-Responsive 
+                <ins class="adsbygoogle"
+                     style="display: block"
+                     data-ad-client="ca-pub-7869211898023730"
+                     data-ad-slot="2886592024"
+                     data-ad-format="auto"
+                     
+                     data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>-->
+
+
+                
+            </div>
+            <br />
+            
+        </div>
+    </div>
+
+
+<script type="application/ld+json">
+    {
+    "@context": "https://schema.org",
+    "@type": "computerLanguage",
+    "additionalType": "HowTo",
+    "name": "Git",
+    "description": "Undoing merges"
+    }
+</script>
+
+</div>
+
+<div class="site-footer">
+        <div class="site-footer-copyright">
+            <div class="container">
+                
+<div>This modified text is an extract of the original <a href="https://archive.org/details/documentation-dump.7z" target="_blank">Stack Overflow Documentation</a> created by following <a href="https://riptutorial.com/contributor?exampleId=1477">contributors</a> and released under <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="nofollow">CC BY-SA 3.0</a></div>
+<div>This website is not affiliated with <a href="https://stackoverflow.com/questions/tagged/git" target="_blank">Stack Overflow</a></div>
+
+            </div>
+        </div>
+
+    <div class="site-footer-link">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-1">
+                    <br/>
+                    <img src="https://riptutorial.com/Images/logo_rip_full_white.png" alt="logo rip" height="64" width="64">
+                </div>
+                <div class="col-lg-5">
+                    <div class="site-footer-header">SUPPORT & PARTNERS</div>
+                    <ul>
+                        <li><a href="https://riptutorial.com/advertise-with-us">Advertise with us</a></li>
+                        <li><a href="https://riptutorial.com/contact-us">Contact us</a></li>
+                        <li><a href="https://riptutorial.com/privacy-policy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-6">
+                     <div class="site-footer-header">STAY CONNECTED</div>
+                     <p>Get monthly updates about new articles, cheatsheets, and tricks.</p>
+                     <form action="https://zzzprojects.us9.list-manage.com/subscribe/post?u=cecbc4775cf67bf1ff82018af&amp;id=98c3fcbe02" method="post" target="_blank">
+                        <input type="email" class="form-control" name="EMAIL" placeholder="Enter your email address">
+                        <button type="submit" class="btn btn-z">
+                            <i class="far fa-newspaper"></i>&nbsp;Subscribe
+                         </button>
+                    </form>
+                    <div>
+                          <br>            
+                         <a href="https://www.facebook.com/RipTutorial/" target="_blank"><i class="fab fa-facebook-f fa-2x"></i></a>
+                         <a href="https://twitter.com/riptutorial" target="_blank"><i class="fab fa-twitter fa-2x""></i></a>
+                         <a href="https://www.linkedin.com/company/rip-tutorial" target="_blank"><i class="fab fa-linkedin fa-2x""></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>   
+    </div>
+</div>
+
+<a href="отмена-слияния.html#" id="scroll-to-top" class="back-to-top"><i class="fa fa-angle-up" aria-hidden="true"></i></a>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+
+
+    <script type="text/javascript" src="https://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-550f227d1d434855" async="async"></script>
+
+<script>
+    $(document).ready(function() {
+        $('a').each(function() {
+            var a = new RegExp('/' + window.location.host + '/');
+            if (!a.test(this.href)) {
+                $(this).attr("target", "_blank");
+            }
+        });
+        $(".reader-mode-enabler").click(function() {
+            $("body").toggleClass("reader-mode");
+        });
+    });
+
+    $(document).ready(function() {
+        $('.body-article h2, .body-article h3, .body-article h4').each(function() {
+            $(this).html("<div>" + $(this).html() + "<a href="https://riptutorial.com/git/example/1477/+"#" + $(this).attr('id') + ">" + "#" + "</a></div>");
+        });
+    });
+</script>
+<script>
+    $(function() {
+        $("table").addClass("table table-bordered table-hover table-responsive-sm table-striped");
+        $("thead").addClass("thead-dark");
+
+        $('aside a').each(function() {
+            if ($(this).attr('href') == '/{{page.permalink}}' ||
+                $(this).attr('href') == '{{ site.github.url }}/{{page.permalink}}') {
+                $(this).addClass('font-weight-bold');
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        //$(".custom-scrollbar").mCustomScrollbar({ scrollInertia: 0 });
+        //scrollSidebar();
+        sideMenuMayweatherCalculator();
+    });
+
+    /*
+     TODO: Fix it (no longer defined) or remove
+    $(window).scroll(function () {
+        heightCalculator();
+    });*/
+
+
+    $(window).resize(function() {
+        sideMenuMayweatherCalculator();
+    });
+
+    function sideMenuMayweatherCalculator() {
+        var sideBarHeight = $("#stats-share").outerHeight();
+        var availableSpace = $(window).height() - 71;
+
+        if (availableSpace < sideBarHeight) {
+            $('.section-aside').css("position", "relative");
+            $('.section-aside').css("height", "auto");
+            $('.section-aside').css("top", "auto");
+        } else {
+            $('.section-aside').css("position", "sticky");
+            $('.section-aside').css("height", "calc(100vh - 4rem)");
+            $('.section-aside').css("top", "4rem");
+        }
+    }
+
+
+    $(window).scroll(function() {
+        if ($(this).scrollTop() >= 600) {
+            $('#scroll-to-top').fadeIn(200);
+        } else {
+            $('#scroll-to-top').fadeOut(200);
+        }
+    });
+
+    function scrollSidebar() {
+        var activeItems = $(".section-sidebar-overflow .active");
+
+        if (activeItems.length > 0) {
+            var activeItem = $(activeItems[0]);
+            if (activeItem.offset().top > ($(window).height() / 3) * 2) {
+                $(".custom-scrollbar").mCustomScrollbar('scrollTo', activeItem.offset().top - 120);
+            }
+        }
+    }
+</script>
+
+    <script>
+       setTimeout(gaIsActive, 15000);
+
+        function gaIsActive() {
+            if (!document.hidden) gtag('event', 'pageview', { 'event_action': 'TimeOnPage' });            
+       }
+    </script>
+
+
+
+
+
+
+</body>
+</html>

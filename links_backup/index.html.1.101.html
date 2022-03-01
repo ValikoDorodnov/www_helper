@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Партиционирование таблиц в mySQL / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/66151\/"},"headline":"Партиционирование таблиц в mySQL","datePublished":"2009-08-04T11:08:53+04:00","dateModified":"2009-08-04T16:01:53+04:00","author":{"@type":"Person","name":"Александр В"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Начиная с версии 5.1 mySQL поддерживает горизонтальное партицирование таблиц. Что это такое?  Партиционирование (partitioning) &mdash; это разбиение больших таблиц на...","url":"https:\/\/habr.com\/ru\/post\/66151\/#post-content-body","about":["h_webdev","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/66151\/db64fd75866b08787206bb9200063c74\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Партиционирование таблиц в mySQL" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Партиционирование таблиц в mySQL" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Партиционирование таблиц в mySQL" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Начиная с версии 5.1 mySQL поддерживает горизонтальное партицирование таблиц. Что это такое?  Партиционирование (partitioning) — это разбиение больших таблиц на логические части по выбранным..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Начиная с версии 5.1 mySQL поддерживает горизонтальное партицирование таблиц. Что это такое?  Партиционирование (partitioning) — это разбиение больших таблиц на логические части по выбранным..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Начиная с версии 5.1 mySQL поддерживает горизонтальное партицирование таблиц. Что это такое?  Партиционирование (partitioning) — это разбиение больших таблиц на логические части по выбранным..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Начиная с версии 5.1 mySQL поддерживает горизонтальное партицирование таблиц. Что это такое?  Партиционирование (partitioning) — это разбиение больших таблиц на логические части по выбранным..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Начиная с версии 5.1 mySQL поддерживает горизонтальное партицирование таблиц. Что это такое?  Партиционирование (partitioning) — это разбиение больших таблиц на логические части по выбранным..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/66151/db64fd75866b08787206bb9200063c74/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/66151/db64fd75866b08787206bb9200063c74/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/66151/db64fd75866b08787206bb9200063c74/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/66151/db64fd75866b08787206bb9200063c74/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/66151/db64fd75866b08787206bb9200063c74/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="66151" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2009-08-04T07:08:53.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/66151/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="Mysql, partitioning">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/66151/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.101.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/66151/db64fd75866b08787206bb9200063c74/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/youngest/" title="youngest" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_lilac"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/youngest/" class="tm-user-info__username">
+      youngest
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2009-08-04T07:08:53.000Z" title="2009-08-04, 11:08">4  августа  2009 в 11:08</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Партиционирование таблиц в mySQL</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">Начиная с версии 5.1 mySQL поддерживает горизонтальное партицирование таблиц. Что это такое? <b> Партиционирование (partitioning) — это разбиение больших таблиц на логические части по выбранным критериям.</b>. На нижнем уровне для myISAM таблиц, это физически разные файлы, по 3 на каждую партицию (описание таблицы, файл индексов, файл данных). Для innoDB таблиц в конфигурации по умолчанию – разные пространства таблиц в файлах innoDB (не забываем, что innoDB позволяет настраивать индивидуальные хранилища на уровне баз данных или даже конкретных таблиц). <br/>
+<br/>
+<b>Как это выглядит?</b><br/>
+<br/>
+<a name="habracut"></a><br/>
+<br/>
+<code>CREATE TABLE orders_range (<br/>
+ customer_surname VARCHAR(30),<br/>
+ store_id INT,<br/>
+ salesperson_id INT,<br/>
+ order_date DATE,<br/>
+ note VARCHAR(500)<br/>
+ ) ENGINE = MYISAM<br/>
+ PARTITION BY RANGE( YEAR(order_date) ) (<br/>
+ PARTITION p_old VALUES LESS THAN(2008),<br/>
+ PARTITION p_2008 VALUES LESS THAN(2009),<br/>
+ PARTITION p_2009 VALUES LESS THAN(MAXVALUE)<br/>
+ );</code><br/>
+<br/>
+Что мы получаем? Первая «таблица» будет хранить данные за «архивный» период, до 2008го года, вторая — за 2008й год, и «третья» — все остальное.<br/>
+<br/>
+Самое вкусное — запросы при этом совершенно не надо переписывать/оптимизировать:<br/>
+<br/>
+<code>select * from orders_range where order_date='2009-08-01';</code><br/>
+<br/>
+И вот что при этом происходит:<br/>
+<br/>
+<code>mysql> explain partitions select * from orders_range3 where order_date='2008-08-01';<br/>
++----+-------------+---------------+------------+--------+---------------+------+---------+------+------+-------+<br/>
+| id | select_type | table | partitions | type | possible_keys | key | key_len | ref | rows | Extra |<br/>
++----+-------------+---------------+------------+--------+---------------+------+---------+------+------+-------+<br/>
+| 1 | SIMPLE | orders_range3 | p_2008 | system | NULL | NULL | NULL | NULL | 1 | |<br/>
++----+-------------+---------------+------------+--------+---------------+------+---------+------+------+-------+<br/>
+1 row in set (0.00 sec)<br/>
+</code><br/>
+<br/>
+Мы видим, что при выполнении этого запроса работа будет идти исключительно с «подтаблицей» p_2008.<br/>
+<br/>
+Более того, ускорение достигается даже в случае выполнения запросов, затрагивающих все данные во всех партициях — ведь в этом случае сначала происходит первичная «обработка» таблиц по меньше, потом данные объединяются и производятся финальные вычисления. Так вот как раз «первые» этапы, в данном случае будут происходить гораздо быстрее.<br/>
+<br/>
+<b>Какие еще есть преимущества?</b><br/>
+<br/>
+Главным преимуществом я бы назвал тот факт, что партиция с «оперативными» данными (т.е. последними, по которым наиболее часто происходит выборка) имеют минимальный размер, и как следствие, могут постоянно находится в оперативной памяти.<br/>
+<br/>
+Если у вас есть таблица логов, в которую непрерывно идет запись и жесткие диски не успевают, а ставить рейд вам не позволяет религия, вы можете настроить партиционирование по хеш-функции, и указать по одной партиции на каждый доступный вам жесткий диск. В таком случае, новые данные будут равномерно писаться на все жесткие диски.<br/>
+<br/>
+<b>Какие способы «разделения» данных предоставляет mySQL?</b><br/>
+<br/>
+1. RANGE <br/>
+<br/>
+По диапазону значений<br/>
+<br/>
+PARTITION BY RANGE (store_id) (<br/>
+ PARTITION p0 VALUES LESS THAN (10),<br/>
+ PARTITION p1 VALUES LESS THAN (20),<br/>
+ PARTITION p3 VALUES LESS THAN (30)<br/>
+);<br/>
+<br/>
+2. LIST <br/>
+<br/>
+По точному списку значений<br/>
+<br/>
+PARTITION BY LIST(store_id) (<br/>
+ PARTITION pNorth VALUES IN (3,5,6,9,17),<br/>
+ PARTITION pEast VALUES IN (1,2,10,11,19,20)<br/>
+)<br/>
+<br/>
+Зачем, спросите вы? Разбивать на партиции необходимо либо исходя из соображений оптимизации выборки (что чаще) либо исходя из соображений оптимизации записи (реже). Соответственно, идеальный вариант — это когда вы разбиваете таблицу на максимально возможное количество партиций так, что бы 90% всех выборок происходило в пределах одной партиции. И если у вас сложная логика выборки (например, объекты расположенные в северных кварталах города, ID которых идут в разнобой) то иногда есть смысл перечислять их принудительно.<br/>
+<br/>
+3. HASH<br/>
+<br/>
+PARTITION BY HASH(store_id)<br/>
+PARTITIONS 4;<br/>
+<br/>
+Вы никак не управляете партицированием, просто указываете, по какому полю строить хеш и сколько «подтаблиц» создавать. Зачем? Гораздо быстрее происходит выборка по указанному полю. В некоторых случаях позволяет достигнуть «равномерного разброса» и ускорения записи данных.<br/>
+<br/>
+4. KEY<br/>
+<br/>
+Почти то же самое что и HASH, но более логично — по ключу.<br/>
+<br/>
+PARTITION BY KEY(s1)<br/>
+PARTITIONS 10;<br/>
+<br/>
+Т.е. выборка по указанному ключевому полю происходит максимально эффективно.<br/>
+<br/>
+Но тут так же следует определиться со способом партицирования. Хорошо подходит для счетчика посетителей, когда его логин является единственным идентификатором, по которому необходимо выбирать все остальные данные.<br/>
+<br/>
+<b>Чего нет? </b><br/>
+<br/>
+Нет вертикального партицирования. Это когда разные столбцы (поля) находятся в разных «подтаблицах». Поскольку иногда это бывает полезно, вы можете достичь этого самостоятельно, пусть даже не так прозрачно: разделить таблицу на две, связав их по первичному ключу. Если вам совсем хочется красоты — можете дополнительно создать по ним VIEW, например для того что бы не переписывать старые части кода.<br/>
+<br/>
+Зачем это делать? Например, в таблице, где у вас в основном числа и даты, есть одно поле VARCHAR (255) для комментариев, которое используется на порядок реже чем остальные поля. В случае если его вынести в другую таблицу, то мы получим фиксированный размер строки (mySQL сможет совершенно точно вычислять позицию нужной строки по индексу в файле данных). Таблица станет более устойчивой к сбоям в случае внештатных ситуаций (опять же, из-за фиксированного размера строки). Ну и существенно уменьшится сам размер таблицы.<br/>
+<br/>
+И заканчивая статью приведу пример более «реального» партицирования таблиц — помесячно. Так как LIST/RANGE принимают только целочисленные значения, то надо немного исхитрится:<br/>
+<br/>
+PARTITION BY RANGE( TO_DAYS(order_date) ) (<br/>
+ PARTITION y2009m1 VALUES LESS THAN( TO_DAYS('2009-02-01') ),<br/>
+ PARTITION y2009m2 VALUES LESS THAN( TO_DAYS('2009-03-01') ),<br/>
+ PARTITION y2009m3 VALUES LESS THAN( TO_DAYS('2009-04-01') )<br/>
+);<br/>
+<br/>
+PS: В mysql всегда приходится немного «исхитриться», так что скучно с ней не будет никогда, а мы в свою очередь никогда не останемся без работы :)</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BMysql%5D" class="tm-tags-list__link">Mysql</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bpartitioning%5D" class="tm-tags-list__link">partitioning</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 96: ↑96 и ↓0</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 96: ↑96 и ↓0" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+96</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">142K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    458
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/youngest/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_lilac"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 171 голос " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    99
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Александр В</span> <a href="https://habr.com/ru/users/youngest/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @youngest
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/66151/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 84 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner4878" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner4879" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/66151/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/66151/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"66151":{"id":"66151","timePublished":"2009-08-04T07:08:53+00:00","isCorporative":false,"lang":"ru","titleHtml":"Партиционирование таблиц в mySQL","leadData":{"textHtml":"Начиная с версии 5.1 mySQL поддерживает горизонтальное партицирование таблиц. Что это такое? \u003Cb\u003E Партиционирование (partitioning) — это разбиение больших таблиц на логические части по выбранным критериям.\u003C\u002Fb\u003E. На нижнем уровне для myISAM таблиц, это физически разные файлы, по 3 на каждую партицию (описание таблицы, файл индексов, файл данных). Для innoDB таблиц в конфигурации по умолчанию – разные пространства таблиц в файлах innoDB (не забываем, что innoDB позволяет настраивать индивидуальные хранилища на уровне баз данных или даже конкретных таблиц). \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EКак это выглядит?\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":99,"votesCount":171},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"34335","alias":"youngest","fullname":"Александр В","avatarUrl":null,"speciality":null},"statistics":{"commentsCount":84,"favoritesCount":458,"readingCount":141939,"score":96,"votesCount":96},"hubs":[{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EНачиная с версии 5.1 mySQL поддерживает горизонтальное партицирование таблиц. Что это такое? \u003Cb\u003E Партиционирование (partitioning) — это разбиение больших таблиц на логические части по выбранным критериям.\u003C\u002Fb\u003E. На нижнем уровне для myISAM таблиц, это физически разные файлы, по 3 на каждую партицию (описание таблицы, файл индексов, файл данных). Для innoDB таблиц в конфигурации по умолчанию – разные пространства таблиц в файлах innoDB (не забываем, что innoDB позволяет настраивать индивидуальные хранилища на уровне баз данных или даже конкретных таблиц). \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EКак это выглядит?\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003ECREATE TABLE orders_range (\u003Cbr\u002F\u003E\r\n customer_surname VARCHAR(30),\u003Cbr\u002F\u003E\r\n store_id INT,\u003Cbr\u002F\u003E\r\n salesperson_id INT,\u003Cbr\u002F\u003E\r\n order_date DATE,\u003Cbr\u002F\u003E\r\n note VARCHAR(500)\u003Cbr\u002F\u003E\r\n ) ENGINE = MYISAM\u003Cbr\u002F\u003E\r\n PARTITION BY RANGE( YEAR(order_date) ) (\u003Cbr\u002F\u003E\r\n PARTITION p_old VALUES LESS THAN(2008),\u003Cbr\u002F\u003E\r\n PARTITION p_2008 VALUES LESS THAN(2009),\u003Cbr\u002F\u003E\r\n PARTITION p_2009 VALUES LESS THAN(MAXVALUE)\u003Cbr\u002F\u003E\r\n );\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЧто мы получаем? Первая «таблица» будет хранить данные за «архивный» период, до 2008го года, вторая — за 2008й год, и «третья» — все остальное.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСамое вкусное — запросы при этом совершенно не надо переписывать\u002Fоптимизировать:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Eselect * from orders_range where order_date='2009-08-01';\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИ вот что при этом происходит:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Emysql\u003E explain partitions select * from orders_range3 where order_date='2008-08-01';\u003Cbr\u002F\u003E\r\n+----+-------------+---------------+------------+--------+---------------+------+---------+------+------+-------+\u003Cbr\u002F\u003E\r\n| id | select_type | table | partitions | type | possible_keys | key | key_len | ref | rows | Extra |\u003Cbr\u002F\u003E\r\n+----+-------------+---------------+------------+--------+---------------+------+---------+------+------+-------+\u003Cbr\u002F\u003E\r\n| 1 | SIMPLE | orders_range3 | p_2008 | system | NULL | NULL | NULL | NULL | 1 | |\u003Cbr\u002F\u003E\r\n+----+-------------+---------------+------------+--------+---------------+------+---------+------+------+-------+\u003Cbr\u002F\u003E\r\n1 row in set (0.00 sec)\u003Cbr\u002F\u003E\r\n\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМы видим, что при выполнении этого запроса работа будет идти исключительно с «подтаблицей» p_2008.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nБолее того, ускорение достигается даже в случае выполнения запросов, затрагивающих все данные во всех партициях — ведь в этом случае сначала происходит первичная «обработка» таблиц по меньше, потом данные объединяются и производятся финальные вычисления. Так вот как раз «первые» этапы, в данном случае будут происходить гораздо быстрее.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EКакие еще есть преимущества?\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nГлавным преимуществом я бы назвал тот факт, что партиция с «оперативными» данными (т.е. последними, по которым наиболее часто происходит выборка) имеют минимальный размер, и как следствие, могут постоянно находится в оперативной памяти.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли у вас есть таблица логов, в которую непрерывно идет запись и жесткие диски не успевают, а ставить рейд вам не позволяет религия, вы можете настроить партиционирование по хеш-функции, и указать по одной партиции на каждый доступный вам жесткий диск. В таком случае, новые данные будут равномерно писаться на все жесткие диски.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EКакие способы «разделения» данных предоставляет mySQL?\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n1. RANGE \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПо диапазону значений\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nPARTITION BY RANGE (store_id) (\u003Cbr\u002F\u003E\r\n PARTITION p0 VALUES LESS THAN (10),\u003Cbr\u002F\u003E\r\n PARTITION p1 VALUES LESS THAN (20),\u003Cbr\u002F\u003E\r\n PARTITION p3 VALUES LESS THAN (30)\u003Cbr\u002F\u003E\r\n);\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n2. LIST \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПо точному списку значений\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nPARTITION BY LIST(store_id) (\u003Cbr\u002F\u003E\r\n PARTITION pNorth VALUES IN (3,5,6,9,17),\u003Cbr\u002F\u003E\r\n PARTITION pEast VALUES IN (1,2,10,11,19,20)\u003Cbr\u002F\u003E\r\n)\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗачем, спросите вы? Разбивать на партиции необходимо либо исходя из соображений оптимизации выборки (что чаще) либо исходя из соображений оптимизации записи (реже). Соответственно, идеальный вариант — это когда вы разбиваете таблицу на максимально возможное количество партиций так, что бы 90% всех выборок происходило в пределах одной партиции. И если у вас сложная логика выборки (например, объекты расположенные в северных кварталах города, ID которых идут в разнобой) то иногда есть смысл перечислять их принудительно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n3. HASH\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nPARTITION BY HASH(store_id)\u003Cbr\u002F\u003E\r\nPARTITIONS 4;\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВы никак не управляете партицированием, просто указываете, по какому полю строить хеш и сколько «подтаблиц» создавать. Зачем? Гораздо быстрее происходит выборка по указанному полю. В некоторых случаях позволяет достигнуть «равномерного разброса» и ускорения записи данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n4. KEY\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПочти то же самое что и HASH, но более логично — по ключу.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nPARTITION BY KEY(s1)\u003Cbr\u002F\u003E\r\nPARTITIONS 10;\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТ.е. выборка по указанному ключевому полю происходит максимально эффективно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо тут так же следует определиться со способом партицирования. Хорошо подходит для счетчика посетителей, когда его логин является единственным идентификатором, по которому необходимо выбирать все остальные данные.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EЧего нет? \u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНет вертикального партицирования. Это когда разные столбцы (поля) находятся в разных «подтаблицах». Поскольку иногда это бывает полезно, вы можете достичь этого самостоятельно, пусть даже не так прозрачно: разделить таблицу на две, связав их по первичному ключу. Если вам совсем хочется красоты — можете дополнительно создать по ним VIEW, например для того что бы не переписывать старые части кода.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗачем это делать? Например, в таблице, где у вас в основном числа и даты, есть одно поле VARCHAR (255) для комментариев, которое используется на порядок реже чем остальные поля. В случае если его вынести в другую таблицу, то мы получим фиксированный размер строки (mySQL сможет совершенно точно вычислять позицию нужной строки по индексу в файле данных). Таблица станет более устойчивой к сбоям в случае внештатных ситуаций (опять же, из-за фиксированного размера строки). Ну и существенно уменьшится сам размер таблицы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИ заканчивая статью приведу пример более «реального» партицирования таблиц — помесячно. Так как LIST\u002FRANGE принимают только целочисленные значения, то надо немного исхитрится:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nPARTITION BY RANGE( TO_DAYS(order_date) ) (\u003Cbr\u002F\u003E\r\n PARTITION y2009m1 VALUES LESS THAN( TO_DAYS('2009-02-01') ),\u003Cbr\u002F\u003E\r\n PARTITION y2009m2 VALUES LESS THAN( TO_DAYS('2009-03-01') ),\u003Cbr\u002F\u003E\r\n PARTITION y2009m3 VALUES LESS THAN( TO_DAYS('2009-04-01') )\u003Cbr\u002F\u003E\r\n);\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nPS: В mysql всегда приходится немного «исхитриться», так что скучно с ней не будет никогда, а мы в свою очередь никогда не останемся без работы :)\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"Mysql"},{"titleHtml":"partitioning"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F66151\u002Fdb64fd75866b08787206bb9200063c74\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F66151\u002Fdb64fd75866b08787206bb9200063c74\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F66151\\\u002F\"},\"headline\":\"Партиционирование таблиц в mySQL\",\"datePublished\":\"2009-08-04T11:08:53+04:00\",\"dateModified\":\"2009-08-04T16:01:53+04:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Александр В\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Начиная с версии 5.1 mySQL поддерживает горизонтальное партицирование таблиц. Что это такое?  Партиционирование (partitioning) &mdash; это разбиение больших таблиц на...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F66151\\\u002F#post-content-body\",\"about\":[\"h_webdev\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F66151\\\u002Fdb64fd75866b08787206bb9200063c74\\\u002F\"]}","metaDescription":"Начиная с версии 5.1 mySQL поддерживает горизонтальное партицирование таблиц. Что это такое?  Партиционирование (partitioning) — это разбиение больших таблиц на логические части по выбранным...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":"webdev"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

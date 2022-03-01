@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Магия SSH / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/331348\/"},"headline":"Магия SSH","datePublished":"2017-06-21T18:03:42+03:00","dateModified":"2017-06-23T14:27:02+03:00","author":{"@type":"Person","name":"nitro2005"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"С SSH многие знакомы давно, но, как и я, не все подозревают о том, какие возможности таятся за этими магическими тремя буквами. Хотел бы поделиться своим небольш...","url":"https:\/\/habr.com\/ru\/post\/331348\/#post-content-body","about":["h_linux","h_sys_admin","h_nix","h_s_admin","f_admin"],"image":["https:\/\/habr.com\/share\/publication\/331348\/ab82dd5fb7a532365ec0f50c7340337d\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Магия SSH" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Магия SSH" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Магия SSH" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="С SSH многие знакомы давно, но, как и я, не все подозревают о том, какие возможности таятся за этими магическими тремя буквами. Хотел бы поделиться своим небольшим опытом использования SSH для решения..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="С SSH многие знакомы давно, но, как и я, не все подозревают о том, какие возможности таятся за этими магическими тремя буквами. Хотел бы поделиться своим небольшим опытом использования SSH для решения..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="С SSH многие знакомы давно, но, как и я, не все подозревают о том, какие возможности таятся за этими магическими тремя буквами. Хотел бы поделиться своим небольшим опытом использования SSH для решения..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="С SSH многие знакомы давно, но, как и я, не все подозревают о том, какие возможности таятся за этими магическими тремя буквами. Хотел бы поделиться своим небольшим опытом использования SSH для решения..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="С SSH многие знакомы давно, но, как и я, не все подозревают о том, какие возможности таятся за этими магическими тремя буквами. Хотел бы поделиться своим небольшим опытом использования SSH для решения..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/331348/ab82dd5fb7a532365ec0f50c7340337d/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/331348/ab82dd5fb7a532365ec0f50c7340337d/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/331348/ab82dd5fb7a532365ec0f50c7340337d/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/331348/ab82dd5fb7a532365ec0f50c7340337d/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/331348/ab82dd5fb7a532365ec0f50c7340337d/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="331348" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2017-06-21T15:03:42.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/331348/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="ssh, ssh tunnel, ssh-2, vpn, port forwarding">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/331348/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.109.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/331348/ab82dd5fb7a532365ec0f50c7340337d/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/nitro2005/" title="nitro2005" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_green"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/nitro2005/" class="tm-user-info__username">
+      nitro2005
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2017-06-21T15:03:42.000Z" title="2017-06-21, 18:03">21  июня  2017 в 18:03</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Магия SSH</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/linux/" class="tm-article-snippet__hubs-item-link"><span>Настройка Linux</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/sys_admin/" class="tm-article-snippet__hubs-item-link"><span>Системное администрирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/nix/" class="tm-article-snippet__hubs-item-link"><span>*nix</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/s_admin/" class="tm-article-snippet__hubs-item-link"><span>Серверное администрирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">С SSH многие знакомы давно, но, как и я, не все подозревают о том, какие возможности таятся за этими магическими тремя буквами. Хотел бы поделиться своим небольшим опытом использования SSH для решения различных административных задач.<br/>
+<br/>
+Оглавление:<br/>
+<br/>
+1) <a href="index.html.1.109.html#t1">Local TCP forwarding</a><br/>
+2) <a href="index.html.1.109.html#t2">Remote TCP forwarding</a><br/>
+3) <a href="index.html.1.109.html#t3">TCP forwarding chain через несколько узлов</a><br/>
+4) <a href="index.html.1.109.html#t4">TCP forwarding ssh-соединения</a><br/>
+5) <a href="index.html.1.109.html#t5">SSH VPN Tunnel</a><br/>
+6) <a href="index.html.1.109.html#t6">Коротко о беспарольном доступе</a><br/>
+7) <a href="index.html.1.109.html#t7">Спасибо (ссылки)</a><br/>
+<a name="habracut"></a><br/>
+<a name="t1"></a><h2>1) Local TCP forwarding</h2><br/>
+Начнем с простого — local TCP forwarding:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/web/682/bbf/053/682bbf05346443ec9074a50a35c76c30.png" alt="image" data-src="https://habrastorage.org/web/682/bbf/053/682bbf05346443ec9074a50a35c76c30.png"/><br/>
+<br/>
+Имеем удаленный сервер «host2» с неким приложением, допустим, PostgreSQL server, которое принимает TCP-соединения на порту 5432. При этом вполне логично, что на этом сервере стоит файрвол, который прямых соединений извне на порт 5432 не разрешает, но при этом есть доступ по SSH (по-умолчанию порт 22, рекомендую его изменить). Требуется подключиться с нашего рабочего места «host1» клиентским приложением к серверу PostgreSQL на «host2».<br/>
+<br/>
+Для этого на «host1» в консоли набираем:<br/>
+<br/>
+<code>host1# ssh -L 9999:localhost:5432 host2</code><br/>
+<br/>
+Теперь на «host1» мы можем соединяться с PostgreSQL сервером через локальный порт 9999:<br/>
+<br/>
+<code>host1# psql -h localhost -p 9999 -U postgres</code><br/>
+<br/>
+<div class="spoiler"><b class="spoiler_title">Если на «host1» Windows</b><div class="spoiler_text">Например, в PuTTy это делается так:<br/>
+Идем по дереву настроек: Connection → SSH → Tunnels.<br/>
+Далее в поле «Source port» вбиваем 9999, в «Destination» — localhost:5432, и нажимаем Add.<br/>
+Не забываем после этого сохранить настройки сессии, если требуется.<br/>
+<img src="https://habrastorage.org/r/w1560/web/3d0/cdd/dce/3d0cdddce88847388d3b4bd5e8ebed01.png" alt="image" data-src="https://habrastorage.org/web/3d0/cdd/dce/3d0cdddce88847388d3b4bd5e8ebed01.png"/><br/>
+</div></div><br/>
+<div class="spoiler"><b class="spoiler_title">Как это работает</b><div class="spoiler_text">После успешного подключения к SSH-серверу на «host2», на «host1» SSH-клиент начинает слушать порт 9999. При подключении к порту 9999 на «host1», SSH-сервер на «host2» устанавливает соединение с localhost (коим и является для себя самого «host2») на порт 5432 и передает по этому соединению данные, принятые ssh-клиентом на «host1» на порт 9999.<br/>
+ВАЖНО! Все указанные на схемах стрелками соединения являются отдельными TCP-соединениями (сессиями).<br/>
+</div></div><br/>
+<div class="spoiler"><b class="spoiler_title">Настройка SSH-сервера</b><div class="spoiler_text">Port forwarding, как правило, уже включен в настройках sshd по-умолчанию.<br/>
+/etc/ssh/sshd_config:<br/>
+<code>AllowTcpForwarding yes</code><br/>
+</div></div><br/>
+Мы также можем соединяться с приложением не на самом «host2», а на любой доступной ему машине:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/web/6f4/2d2/af8/6f42d2af88084934b08d66c81561980b.png" alt="image" data-src="https://habrastorage.org/web/6f4/2d2/af8/6f42d2af88084934b08d66c81561980b.png"/><br/>
+<br/>
+Для этого при пробросе портов вместо «localhost» указываем имя хоста, например «host3»:<br/>
+<br/>
+<code>host1# ssh -L 9999:host3:5432 host2</code><br/>
+<br/>
+Тут важно заметить, что «host3» должен быть известен (если это имя, а не IP-адрес) и доступен для машины «host2».<br/>
+<br/>
+Также можно через «host1» предоставить доступ любому другому узлу (назовем его «host1A») к сервису на «host3»:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/web/82d/7f8/345/82d7f834541042758af4fd65ba86aca9.png" alt="image" data-src="https://habrastorage.org/web/82d/7f8/345/82d7f834541042758af4fd65ba86aca9.png"/><br/>
+<br/>
+Для этого нужно вставить в команду соединения ssh IP-адрес интерфейса, на котором будет поднят локальный порт 9999:<br/>
+<br/>
+<code>ssh -L 0.0.0.0:9999:host3:5432 host2</code><br/>
+<br/>
+В данном примере порт 9999 будет открыт на всех доступных на «host1» IPv4 интерфейсах.<br/>
+<br/>
+<a name="t2"></a><h2>2) Remote TCP forwarding</h2><br/>
+Но что делать, если, например, «host2» не имеет белого IP-адреса, находится за NAT или вообще все входящие соединения к нему закрыты? Или, например, на «host2» стоит Windows и нет возможности поставить SSH-сервер?<br/>
+<br/>
+Для этого случая есть Remote TCP forwarding:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/web/0ed/834/76e/0ed83476e544420facb0898f014c854a.png" alt="image" data-src="https://habrastorage.org/web/0ed/834/76e/0ed83476e544420facb0898f014c854a.png"/><br/>
+<br/>
+Теперь нужно устанавливать ssh-соединение в обратном направлении — от «host2» к «host1». Т.е. наша административная рабочая станция будет SSH-сервером и будет доступна по SSH с «host2», а на «host2» нужно будет выполнить подключение SSH-клиентом:<br/>
+<br/>
+<code>ssh -R 9999:localhost:5432 host1</code><br/>
+<br/>
+<div class="spoiler"><b class="spoiler_title">Если на «host2» Windows</b><div class="spoiler_text">Например, в PuTTy это делается так:<br/>
+Идем по дереву настроек: Connection → SSH → Tunnels.<br/>
+Далее в поле «Source port» вбиваем 9999, в «Destination» — localhost:5432, а ниже выбираем «Remote», и нажимаем Add.<br/>
+Не забываем после этого сохранить настройки сессии, если требуется.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/web/724/8a7/87e/7248a787e21049abbde7fa45c36825cc.png" alt="image" data-src="https://habrastorage.org/web/724/8a7/87e/7248a787e21049abbde7fa45c36825cc.png"/><br/>
+</div></div><br/>
+<div class="spoiler"><b class="spoiler_title">Как это работает</b><div class="spoiler_text">После успешного подключения, на «host1» SSH-сервер начинает слушать порт 9999. При подключении к порту 9999 на «host1», SSH-клиент на «host2» устанавливает соединение с localhost (коим и является для себя самого «host2») на порт 5432 и передает по этому соединению данные, принятые ssh-сервером на «host1» на порт 9999.<br/>
+</div></div><br/>
+Также у вас возникнут дополнительные сложности с обеспечением безопасности на «host1», если вы не доверяете узлу «host2». Однако это выходит за рамки данной статьи.<br/>
+<br/>
+И, конечно, вы каким-то образом (сами или с посторонней помощью) должны инициировать ssh-соединение со стороны «host2» вводом приведенной выше команды, а «host1» должен иметь белый IP-адрес и открытый порт SSH.<br/>
+<br/>
+После установки ssh-соединения все работает аналогично предыдущей главе.<br/>
+<br/>
+<a name="t3"></a><h2>3) TCP forwarding chain через несколько узлов</h2><br/>
+В закрытых сетях часто бывает, что нужный нам узел напрямую недоступен. Т.е. мы можем зайти на нужный хост только по цепочке, например host1 → host2 → host3 → host4:<br/>
+<code>host1# ssh host2<br/>
+host2# ssh host3<br/>
+host3# ssh host4<br/>
+host4# echo hello host4</code><br/>
+<br/>
+Это может происходить например если эти узлы являются шлюзами, либо если на них доступны шлюзы только в соседние подсети.<br/>
+<br/>
+В таком случае мы также можем делать TCP forwarding по цепочке:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/web/0fe/32b/cf5/0fe32bcf5e4b43e78bf7beff99ce0d8e.png" alt="image" data-src="https://habrastorage.org/web/0fe/32b/cf5/0fe32bcf5e4b43e78bf7beff99ce0d8e.png"/><br/>
+<br/>
+Здесь порты 9991, 9992, 9993 выбраны для наглядности, на практике можно использовать один и тот же порт (например, 9999), если он свободен на всех узлах.<br/>
+<br/>
+Итого нужно выполнить следующую цепочку команд:<br/>
+<br/>
+<code>host1# ssh -L 9991:localhost:9992 host2<br/>
+host2# ssh -L 9992:localhost:9993 host3<br/>
+host3# ssh -L 9993:localhost:5432 host4</code><br/>
+<br/>
+<div class="spoiler"><b class="spoiler_title">Как это работает</b><div class="spoiler_text">После успешного выполнения перечисленных выше команд, на узлах выполняется следующее:<br/>
+<br/>
+<ul>
+<li>на «host1»: открывается порт 9991, при подключении к которому данные перенаправляются по ssh-соединению на порт 9992 на «host2»;</li>
+<li>на «host2»: открывается порт 9992, при подключении к которому данные перенаправляются по ssh-соединению на порт 9993 на «host3»;</li>
+<li>на «host3»: открывается порт 9993, при подключении к которому данные перенаправляются по ssh-соединению на порт 5432 на «host4»;</li>
+</ul><br/>
+Таким образом, при соединении на порт 9991 на «host1», данные перенаправляются по цепочке на «host4» на порт 5432.<br/>
+<br/>
+ВАЖНО! Все указанные на схемах стрелками соединения являются отдельными TCP-соединениями (сессиями).<br/>
+</div></div><br/>
+<a name="t4"></a><h2>4) TCP forwarding ssh-соединения</h2><br/>
+Иногда бывает нужно соединиться по ssh с сервером, который напрямую недоступен, а доступ возможен только по цепочке ssh-серверов (см. предыдущую главу). Теперь мы обладаем нужными знаниями чтобы сделать следующее:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/web/c96/af2/47a/c96af247a87743eb8bad70a5d90419bf.png" alt="image" data-src="https://habrastorage.org/web/c96/af2/47a/c96af247a87743eb8bad70a5d90419bf.png"/><br/>
+<br/>
+<code>host1# ssh -L 2222:localhost:2222 host2<br/>
+host2# ssh -L 2222:host4:22 host3</code><br/>
+<br/>
+Таким образом, на порту 2222 на «host1» у нас теперь есть форвардинг на порт SSH (22) на «host4». Можем соединиться:<br/>
+<br/>
+<code>host1# ssh -p 2222 localhost<br/>
+host4# echo hello host4</code><br/>
+<br/>
+Казалось бы, зачем это нужно? Например, вот зачем:<br/>
+<br/>
+<code># копируем файл на host4<br/>
+host1# scp -P 2222 /local/path/to/some/file localhost:/path/on/host4<br/>
+# копируем файл с host4<br/>
+host1# scp -P 2222 localhost:/path/on/host4 /local/path/to/some/file<br/>
+# делаем еще один замечательный TCP forwarding на host4<br/>
+host1# ssh -p 2222 -L 9999:localhost:5432 localhost<br/>
+host1# psql -h localhost -p 9999 -U postgres<br/>
+# обратите внимание, что порт для команды ssh задается ключем -p в нижнем регистре,<br/>
+# а для команды scp -P в верхнем регистре</code><br/>
+<br/>
+Ну и вообще, здорово что теперь «host4» так близко :)<br/>
+<br/>
+Вывод: можно делать TCP forwarding большого уровня вложенности.<br/>
+<br/>
+<div class="spoiler"><b class="spoiler_title">Замечания про RSA fingerprint</b><div class="spoiler_text">В некоторых случаях scp не отработает, пока не зайдете сначала через ssh -p 2222 localhost и не примете RSA fingerprint удаленного сервера.<br/>
+<br/>
+Если пользуетесь одним и тем же портом (2222) для доступа к разным удаленным серверам, то будут ошибки RSA fingerprint, который остался от предыдущего сервера. Его нужно будет удалить из ~/.ssh/known_hosts.<br/>
+</div></div><br/>
+<a name="t5"></a><h2>5) SSH VPN Tunnel</h2><br/>
+TCP port forwarding — это отличная возможность. Но что если нам нужно больше? Доступ по UDP, доступ к множеству портов и хостов, доступ к динамическим портам? Ответ очевиден — VPN. И всемогущий SSH начиная с версии 4.3 и здесь придет нам на помощь.<br/>
+<br/>
+Забегая вперед скажу: этот функционал SSH хорошо работает если вам нужно временное решение для каких-то административных задач. Для построения постоянных VPN этот вариант далеко не самый подходящий, т. к. он предполагает TCP-over-TCP, что плохо скажется на скорости соединения.<br/>
+<br/>
+<div class="spoiler"><b class="spoiler_title">Еще про TCP forwarding</b><div class="spoiler_text">А вот TCP port forwarding с помощью SSH, если его достаточно, во многих случаях выиграет по производительности у VPN, т. к. при TCP port forwarding передаются только данные приложения, а не исходные пакеты целиком вместе с заголовками, см. ссылку: <a href="http://blog.backslasher.net/ssh-openvpn-tunneling.html">http://blog.backslasher.net/ssh-openvpn-tunneling.html</a><br/>
+</div></div><br/>
+<b>Настройка SSH-сервера:</b><br/>
+PermitTunnel в настройках sshd по-умолчанию выключен, его нужно включить в /etc/ssh/sshd_config:<br/>
+<code>PermitTunnel yes</code><br/>
+или<br/>
+<code>PermitTunnel point-to-point</code><br/>
+<br/>
+<b>ВАЖНО</b>: для поднятия нового сетевого интерфейса туннеля и на ssh-клиенте, и на ssh-сервере необходимы права суперпользователя. Можно долго спорить о том, насколько это небезопасно, но в большинстве случаев на ssh-сервере достаточно настройки:<br/>
+<br/>
+<code>PermitRootLogin without-password</code><br/>
+<br/>
+Таким образом вы запрещаете вход root по паролю, а разрешаете только другими средствами, например, по ключу RSA, что гораздо безопаснее.<br/>
+<br/>
+Перезапускаем sshd:<br/>
+<code>sudo service sshd restart # centos</code><br/>
+или<br/>
+<code>/etc/init.d/ssh restart # (debian/ubuntu)</code><br/>
+<br/>
+Туннель поднимается при использовании магического ключа -w:<br/>
+<br/>
+<code>host1# sudo ssh -w 5:5 root@host2</code><br/>
+<br/>
+Где 5:5 — номер интерфейса на локальной машине и на удаленной соответственно. Здесь вас может смутить, что ifconfig не выдаст в списке интерфейса «tun5». Это потому что он в состоянии «down», а вот если вызвать «ifconfig -a» или «ifconfig tun5», то интерфейс будет виден:<br/>
+<br/>
+<code>host1# ifconfig tun5<br/>
+tun5 Link encap:UNSPEC HWaddr 00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00 <br/>
+ POINTOPOINT NOARP MULTICAST MTU:1500 Metric:1<br/>
+ RX packets:0 errors:0 dropped:0 overruns:0 frame:0<br/>
+ TX packets:0 errors:0 dropped:0 overruns:0 carrier:0<br/>
+ collisions:0 txqueuelen:500 <br/>
+ RX bytes:0 (0.0 b) TX bytes:0 (0.0 b)</code><br/>
+<br/>
+Назначаем интерфейсам IP-адреса и поднимаем их:<br/>
+<br/>
+<code>host1# sudo ifconfig tun5 192.168.150.101/24 pointopoint 192.168.150.102<br/>
+host2# sudo ifconfig tun5 192.168.150.102/24 pointopoint 192.168.150.101</code><br/>
+<br/>
+Если есть файрвол, не забываем разрешить соединения с интерфейса tun5:<br/>
+<br/>
+<code>host1# # сохраняем исходные правила файрвола<br/>
+host1# sudo iptables-save > /tmp/iptables.rules.orig<br/>
+host1# sudo iptables -I INPUT 1 -i tun5 -j ACCEPT<br/>
+host2# # сохраняем исходные правила файрвола<br/>
+host2# sudo iptables-save > /tmp/iptables.rules.orig<br/>
+host2# sudo iptables -I INPUT 1 -i tun5 -j ACCEPT</code><br/>
+<br/>
+На host1 это делать необязательно, здесь это сделано лишь для того чтобы ping работал в обе стороны.<br/>
+<br/>
+Наслаждаемся пингом:<br/>
+<br/>
+<code>host1# ping 192.168.150.102<br/>
+host2# ping 192.168.150.101</code><br/>
+<br/>
+Если рассмотреть более ранний пример с PostgreSQL, то теперь схема будет такая:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/web/6eb/45b/bb0/6eb45bbb0b604c61b0158981a832f47a.png" alt="image" data-src="https://habrastorage.org/web/6eb/45b/bb0/6eb45bbb0b604c61b0158981a832f47a.png"/><br/>
+<br/>
+А команда для подключения к серверу PostgreSQL будет выглядеть так:<br/>
+<br/>
+<code>host1# psql -h 192.168.150.102 -U postgres</code><br/>
+<br/>
+Ну а далее можно делать какой-либо из этих узлов шлюзом, если нужно обеспечить доступ не к одному узлу, а к сети. Например:<br/>
+<br/>
+<code>host2# # разрешаем IP forwarding<br/>
+host2# sudo sysctl -w net.ipv4.ip_forward=1<br/>
+host2# # разрешаем IP forwarding с host1<br/>
+host2# sudo iptables -I FORWARD 1 -s 192.168.150.101 -j ACCEPT<br/>
+host2# # разрешаем IP forwarding на host1<br/>
+host2# sudo iptables -I FORWARD 1 -d 192.168.150.101 -j ACCEPT<br/>
+host2# # маскируем IP адрес host1<br/>
+host2# sudo iptables -t nat -A POSTROUTING -s 192.168.150.101 -j MASQUERADE</code><br/>
+<br/>
+<code>host1# # Предположим, у host2 есть доступ к сети 192.168.2.x, куда нам нужно попасть с host1<br/>
+host1# # Прописываем host2 как шлюз в сеть 192.168.2.x<br/>
+host1# sudo ip route add 192.168.2.0/24 via 192.168.150.2<br/>
+host1# # Наслаждаемся доступом в сеть с host1<br/>
+host1# ping 192.168.2.1</code><br/>
+<br/>
+После окончания работы не забываем вернуть net.ipv4.ip_forward и файрвол в исходное состояние.<br/>
+<br/>
+<code>host1# sudo iptables-restore &lt; /tmp/iptables.rules.orig<br/>
+host2# sudo iptables-restore &lt; /tmp/iptables.rules.orig</code><br/>
+<br/>
+<div class="spoiler"><b class="spoiler_title">Под спойлером более интересный случай с временным расшариванием Интернета</b><div class="spoiler_text">Допустим, нужно настроить сервер в закрытой сети, где доступ в Интернет запрещен, но тем не менее у вас туда есть лазейка — доступ через один ssh-сервер или цепочку ssh-серверов. Предположим, для настройки сервера вам нужен на нем доступ в Интернет. Тогда проще самостоятельно настроить временный доступ в Интернет на требующем настройки сервере, чем просить это сделать обслуживающий персонал.<br/>
+<br/>
+Допустим, есть доступ по ssh с вашей рабочей машины host1 на сервер host2, с него — на host3, а уже оттуда — на нужный вам host4. Тогда делаем TCP forwarding для ssh (если с host1 вы сразу можете соединиться с host4, пропустите этот шаг):<br/>
+<br/>
+<code>host1# ssh -L 2222:localhost:2222 host2<br/>
+host2# ssh -L 2222:host4:22 host3</code><br/>
+<br/>
+Далее, соединяемся с host4 и поднимаем интерфейс tun5:<br/>
+<br/>
+<code>host1# sudo ssh -p 2222 -w 5:5 root@localhost<br/>
+host1# # или если host4 доступен сразу: sudo ssh -w 5:5 root@host4<br/>
+host1# sudo ifconfig tun5 192.168.150.101/24 pointopoint 192.168.150.102<br/>
+host4# sudo ifconfig tun5 192.168.150.102/24 pointopoint 192.168.150.101</code><br/>
+<br/>
+Смотрим таблицу маршрутизации на host4, допустим видим следующее:<br/>
+<br/>
+<code>host4# route -n<br/>
+Kernel IP routing table<br/>
+Destination Gateway Genmask Flags Metric Ref Use Iface<br/>
+192.168.150.0 0.0.0.0 255.255.255.0 U 0 0 0 tun5<br/>
+192.168.56.0 0.0.0.0 255.255.255.0 U 1 0 0 eth0<br/>
+0.0.0.0 192.168.56.254 0.0.0.0 UG 0 0 0 eth0</code><br/>
+<br/>
+<b>ВАЖНО</b>! Далее нам скорее всего захочется сделать маршрутом по-умолчанию интерфейс tun5 со шлюзом 192.168.150.101, через который будет доступен Интернет. Поэтому на данном этапе важно точно знать, какие маршруты нужно дописать, чтобы заменить маршрут по-умолчанию. Это важно, поскольку довольно часто маршруты на отдельные сети не прописывают отдельно, а просто задают маршрут по-умолчанию (0.0.0.0/0) со шлюзом, через который и идет весь межсетевой трафик. Более того, вполне вероятно что ваше ssh-соединение с сервером также использует исходный шлюз по-умолчанию.<br/>
+<br/>
+Для простоты в данном примере предположим, что никаких маршрутов кроме 192.168.56.0/24 серверу для нормального функционирования не нужно и что предыдущий ssh-хост host3 имеет IP-адрес из этой же сети.<br/>
+<br/>
+Запоминаем и записываем куда-нибудь исходную маршрутную таблицу со шлюзом по-умолчанию:<br/>
+<code>host4# route -n > routes.orig</code><br/>
+<br/>
+Настраиваем наш host1 для работы в качестве шлюза в Интернет для host4:<br/>
+<br/>
+<code>host1# # разрешаем IP forwarding<br/>
+host1# sudo sysctl -w net.ipv4.ip_forward=1<br/>
+host1# # сохраняем исходные правила файрвола<br/>
+host1# sudo iptables-save > /tmp/iptables.rules.orig<br/>
+host1# # разрешаем IP forwarding с host4<br/>
+host1# sudo iptables -I FORWARD 1 -s 192.168.150.102 -j ACCEPT<br/>
+host1# # разрешаем IP forwarding на host4<br/>
+host1# sudo iptables -I FORWARD 1 -d 192.168.150.102 -j ACCEPT<br/>
+host1# # маскируем IP адрес host4<br/>
+host1# sudo iptables -t nat -A POSTROUTING -s 192.168.150.102 -j MASQUERADE</code><br/>
+<br/>
+<div class="spoiler"><b class="spoiler_title">На всякий случай можно прописать серые сети на шлюз из текущего маршрута по-умолчанию</b><div class="spoiler_text">Если не прописаны:<br/>
+<code>sudo ip route add 192.168.0.0/16 via 192.168.56.254<br/>
+sudo ip route add 10.0.0.0/8 via 192.168.56.254<br/>
+sudo ip route add 172.16.0.0/12 via 192.168.56.254</code><br/>
+</div></div><br/>
+<br/>
+Изменяем маршрут по-умолчанию на host4 (ОСТОРОЖНО, см. предупреждение выше!):<br/>
+<br/>
+<code>host4# sudo ip route replace default via 192.168.150.101<br/>
+host4# route -n<br/>
+Kernel IP routing table<br/>
+Destination Gateway Genmask Flags Metric Ref Use Iface<br/>
+192.168.150.0 0.0.0.0 255.255.255.0 U 0 0 0 tun5<br/>
+192.168.56.0 0.0.0.0 255.255.255.0 U 1 0 0 eth0<br/>
+0.0.0.0 192.168.150.101 0.0.0.0 UG 0 0 0 tun5</code><br/>
+<br/>
+Если весь Интернет нам не нужен, а только конкретные IP-адреса/маски, то можно маршрут по-умолчанию не менять, а дописать только нужные нам адреса через шлюз на tun5.<br/>
+<br/>
+Проверяем, что есть Интернет:<br/>
+<br/>
+<code>host4# ping 8.8.8.8</code><br/>
+<br/>
+Отлично. Осталось настроить DNS. Есть множество способов это сделать, проще всего отредактировать файл /etc/resolv.conf и добавить туда строчки:<br/>
+<br/>
+<code>nameserver 8.8.8.8<br/>
+nameserver 8.8.4.4</code><br/>
+<br/>
+После этого Интернет должен быть полностью доступен:<br/>
+<br/>
+<code>host4# ping ya.ru</code><br/>
+<br/>
+После окончания работы не забываем вернуть все в исходное состояние:<br/>
+<br/>
+<code>host1# # восстанавливаем правила файрвола на host1<br/>
+host1# sudo iptables-restore &lt; /tmp/iptables.rules.orig<br/>
+host1# # не забудьте восстановить также значение net.ipv4.ip_forward</code><br/>
+<br/>
+<code>host2# # восстановите маршрут по-умолчанию на host4:<br/>
+host2# sudo ip route replace default via 192.168.56.254<br/>
+host2# # и уберите добавленные ранее DNS-сервера из /etc/resolv.conf</code><br/>
+</div></div><br/>
+<a name="t6"></a><h2>6) Коротко о беспарольном доступе</h2><br/>
+Думаю, все уже знают что авторизация по паролю это не про нас. Но на всякий случай впихну сюда краткую инструкцию по настройке аутентификации по ключу RSA:<br/>
+<br/>
+1. На клиентских машинах генерируем пользователю свой ключ RSA:<br/>
+<br/>
+<code>client1# ssh-keygen -t rsa</code><br/>
+<br/>
+По-умолчанию приватный ключ сохраняется в ~/.ssh/id_rsa, а открытый — в ~/.ssh/id_rsa.pub. Приватный ключ храните как зеницу ока и никому не давайте, никуда не копируйте.<br/>
+При создании ключа можно задать пароль (passphrase), которым ключ будет зашифрован.<br/>
+<br/>
+2. Клиентские открытые ключи нужно сохранить на ssh-сервере в файле ~/.ssh/authorized_keys (~ это домашняя директория того пользователя, которым будете логиниться), каждый на отдельной строке. Для того чтобы это не делать вручную, на каждом клиенте можно воспользоваться командой:<br/>
+<br/>
+<code>ssh-copy-id user@sshserver</code><br/>
+<br/>
+Где user — имя пользователя на сервере, sshserver — имя или IP-адрес ssh-сервера.<br/>
+<div class="spoiler"><b class="spoiler_title">Права на файл ~/.ssh/authorized_keys</b><div class="spoiler_text">UPD от <a href="https://habrahabr.ru/users/sabio/" class="user_link">sabio</a>: В случае ручного создания файла ~/.ssh/authorized_keys на ssh-сервере необходимо задать следующие права:<br/>
+<code>chmod 0700 ~/.ssh<br/>
+chmod 0600 ~/.ssh/authorized_keys</code><br/>
+</div></div><br/>
+<br/>
+3. Проверьте, что можете зайти на сервер по ключу, без ввода пароля (не путать с passphrase):<br/>
+<code>ssh user@sshserver</code><br/>
+Рекомендую не закрывать хотя бы одну активную ssh-сессию с сервером до тех пор, пока окончательно не закончите настройку и не убедитесь что все работает.<br/>
+<br/>
+4. Отключите на SSH-сервере возможность входа по паролю в файле /etc/ssh/sshd_config:<br/>
+<br/>
+<code>PasswordAuthentication no</code><br/>
+<br/>
+Возможность входа по открытому ключу обычно уже включена по-умолчанию:<br/>
+<br/>
+<code>PubkeyAuthentication yes</code><br/>
+<br/>
+Я обычно также отключаю две следующие опции:<br/>
+<br/>
+<code>GSSAPIAuthentication no<br/>
+UseDNS no</code><br/>
+<br/>
+В некоторых случаях это позволяет ускорить процесс соединения (например, когда на сервере нет доступа в Интернет).<br/>
+<br/>
+5. Перезапустите sshd:<br/>
+<code>service sshd restart</code><br/>
+или<br/>
+<code>/etc/init.d/ssh restart</code><br/>
+<br/>
+В случае ошибок полезно бывает смотреть лог /var/log/secure либо использовать опции -v, -vv или -vvv для вывода детального лога соединения:<br/>
+<code>ssh -vvv user@sshserver</code><br/>
+<br/>
+<a name="t7"></a><h2>7) Спасибо (ссылки)</h2><br/>
+<a href="https://help.ubuntu.com/community/SSH_VPN">help.ubuntu.com/community/SSH_VPN</a><br/>
+<a href="https://habrahabr.ru/post/87197/">habrahabr.ru/post/87197</a><br/>
+<a href="http://blog.backslasher.net/ssh-openvpn-tunneling.html">blog.backslasher.net/ssh-openvpn-tunneling.html</a></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bssh%5D" class="tm-tags-list__link">ssh</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bssh%20tunnel%5D" class="tm-tags-list__link">ssh tunnel</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bssh-2%5D" class="tm-tags-list__link">ssh-2</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bvpn%5D" class="tm-tags-list__link">vpn</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bport%20forwarding%5D" class="tm-tags-list__link">port forwarding</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/linux/" class="tm-hubs-list__link">
+    Настройка Linux
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/sys_admin/" class="tm-hubs-list__link">
+    Системное администрирование
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/nix/" class="tm-hubs-list__link">
+    *nix
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/s_admin/" class="tm-hubs-list__link">
+    Серверное администрирование
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 115: ↑106 и ↓9</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 115: ↑106 и ↓9" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+97</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">384K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    1567
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/nitro2005/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_green"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 46 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    42
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><!----> <a href="https://habr.com/ru/users/nitro2005/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @nitro2005
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Программист</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/331348/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 78 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner3413" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner3414" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/sistemnij_administrator" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Системный администратор
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        130
+    вакансий
+      </div></div><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/devops" target="_blank" class="tm-vacancies-block__vacancy-title">
+        DevOps инженер
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        87
+    вакансий
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/331348/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/331348/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"331348":{"id":"331348","timePublished":"2017-06-21T15:03:42+00:00","isCorporative":false,"lang":"ru","titleHtml":"Магия SSH","leadData":{"textHtml":"С SSH многие знакомы давно, но, как и я, не все подозревают о том, какие возможности таятся за этими магическими тремя буквами. Хотел бы поделиться своим небольшим опытом использования SSH для решения различных административных задач.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОглавление:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n1) \u003Ca href=\"#t1\"\u003ELocal TCP forwarding\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n2) \u003Ca href=\"#t2\"\u003ERemote TCP forwarding\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n3) \u003Ca href=\"#t3\"\u003ETCP forwarding chain через несколько узлов\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n4) \u003Ca href=\"#t4\"\u003ETCP forwarding ssh-соединения\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n5) \u003Ca href=\"#t5\"\u003ESSH VPN Tunnel\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n6) \u003Ca href=\"#t6\"\u003EКоротко о беспарольном доступе\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n7) \u003Ca href=\"#t7\"\u003EСпасибо (ссылки)\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":42,"votesCount":46},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"837869","alias":"nitro2005","fullname":null,"avatarUrl":null,"speciality":"Программист"},"statistics":{"commentsCount":78,"favoritesCount":1567,"readingCount":384495,"score":97,"votesCount":115},"hubs":[{"relatedData":null,"id":"36","alias":"linux","type":"collective","title":"Настройка Linux","titleHtml":"Настройка Linux","isProfiled":true},{"relatedData":null,"id":"221","alias":"sys_admin","type":"collective","title":"Системное администрирование","titleHtml":"Системное администрирование","isProfiled":true},{"relatedData":null,"id":"7289","alias":"nix","type":"collective","title":"*nix","titleHtml":"*nix","isProfiled":true},{"relatedData":null,"id":"17350","alias":"s_admin","type":"collective","title":"Серверное администрирование","titleHtml":"Серверное администрирование","isProfiled":true}],"flows":[{"id":"6","alias":"admin","title":"Администрирование"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EС SSH многие знакомы давно, но, как и я, не все подозревают о том, какие возможности таятся за этими магическими тремя буквами. Хотел бы поделиться своим небольшим опытом использования SSH для решения различных административных задач.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОглавление:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n1) \u003Ca href=\"#t1\"\u003ELocal TCP forwarding\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n2) \u003Ca href=\"#t2\"\u003ERemote TCP forwarding\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n3) \u003Ca href=\"#t3\"\u003ETCP forwarding chain через несколько узлов\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n4) \u003Ca href=\"#t4\"\u003ETCP forwarding ssh-соединения\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n5) \u003Ca href=\"#t5\"\u003ESSH VPN Tunnel\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n6) \u003Ca href=\"#t6\"\u003EКоротко о беспарольном доступе\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n7) \u003Ca href=\"#t7\"\u003EСпасибо (ссылки)\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"t1\"\u003E\u003C\u002Fa\u003E\u003Ch2\u003E1) Local TCP forwarding\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nНачнем с простого — local TCP forwarding:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fweb\u002F682\u002Fbbf\u002F053\u002F682bbf05346443ec9074a50a35c76c30.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fweb\u002F682\u002Fbbf\u002F053\u002F682bbf05346443ec9074a50a35c76c30.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИмеем удаленный сервер «host2» с неким приложением, допустим, PostgreSQL server, которое принимает TCP-соединения на порту 5432. При этом вполне логично, что на этом сервере стоит файрвол, который прямых соединений извне на порт 5432 не разрешает, но при этом есть доступ по SSH (по-умолчанию порт 22, рекомендую его изменить). Требуется подключиться с нашего рабочего места «host1» клиентским приложением к серверу PostgreSQL на «host2».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля этого на «host1» в консоли набираем:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# ssh -L 9999:localhost:5432 host2\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТеперь на «host1» мы можем соединяться с PostgreSQL сервером через локальный порт 9999:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# psql -h localhost -p 9999 -U postgres\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EЕсли на «host1» Windows\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EНапример, в PuTTy это делается так:\u003Cbr\u002F\u003E\r\nИдем по дереву настроек: Connection → SSH → Tunnels.\u003Cbr\u002F\u003E\r\nДалее в поле «Source port» вбиваем 9999, в «Destination» — localhost:5432, и нажимаем Add.\u003Cbr\u002F\u003E\r\nНе забываем после этого сохранить настройки сессии, если требуется.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fweb\u002F3d0\u002Fcdd\u002Fdce\u002F3d0cdddce88847388d3b4bd5e8ebed01.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fweb\u002F3d0\u002Fcdd\u002Fdce\u002F3d0cdddce88847388d3b4bd5e8ebed01.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EКак это работает\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EПосле успешного подключения к SSH-серверу на «host2», на «host1» SSH-клиент начинает слушать порт 9999. При подключении к порту 9999 на «host1», SSH-сервер на «host2» устанавливает соединение с localhost (коим и является для себя самого «host2») на порт 5432 и передает по этому соединению данные, принятые ssh-клиентом на «host1» на порт 9999.\u003Cbr\u002F\u003E\r\nВАЖНО! Все указанные на схемах стрелками соединения являются отдельными TCP-соединениями (сессиями).\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EНастройка SSH-сервера\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EPort forwarding, как правило, уже включен в настройках sshd по-умолчанию.\u003Cbr\u002F\u003E\r\n\u002Fetc\u002Fssh\u002Fsshd_config:\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EAllowTcpForwarding yes\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nМы также можем соединяться с приложением не на самом «host2», а на любой доступной ему машине:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fweb\u002F6f4\u002F2d2\u002Faf8\u002F6f42d2af88084934b08d66c81561980b.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fweb\u002F6f4\u002F2d2\u002Faf8\u002F6f42d2af88084934b08d66c81561980b.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля этого при пробросе портов вместо «localhost» указываем имя хоста, например «host3»:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# ssh -L 9999:host3:5432 host2\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТут важно заметить, что «host3» должен быть известен (если это имя, а не IP-адрес) и доступен для машины «host2».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТакже можно через «host1» предоставить доступ любому другому узлу (назовем его «host1A») к сервису на «host3»:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fweb\u002F82d\u002F7f8\u002F345\u002F82d7f834541042758af4fd65ba86aca9.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fweb\u002F82d\u002F7f8\u002F345\u002F82d7f834541042758af4fd65ba86aca9.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля этого нужно вставить в команду соединения ssh IP-адрес интерфейса, на котором будет поднят локальный порт 9999:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Essh -L 0.0.0.0:9999:host3:5432 host2\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ данном примере порт 9999 будет открыт на всех доступных на «host1» IPv4 интерфейсах.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"t2\"\u003E\u003C\u002Fa\u003E\u003Ch2\u003E2) Remote TCP forwarding\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nНо что делать, если, например, «host2» не имеет белого IP-адреса, находится за NAT или вообще все входящие соединения к нему закрыты? Или, например, на «host2» стоит Windows и нет возможности поставить SSH-сервер?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля этого случая есть Remote TCP forwarding:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fweb\u002F0ed\u002F834\u002F76e\u002F0ed83476e544420facb0898f014c854a.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fweb\u002F0ed\u002F834\u002F76e\u002F0ed83476e544420facb0898f014c854a.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТеперь нужно устанавливать ssh-соединение в обратном направлении — от «host2» к «host1». Т.е. наша административная рабочая станция будет SSH-сервером и будет доступна по SSH с «host2», а на «host2» нужно будет выполнить подключение SSH-клиентом:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Essh -R 9999:localhost:5432 host1\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EЕсли на «host2» Windows\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EНапример, в PuTTy это делается так:\u003Cbr\u002F\u003E\r\nИдем по дереву настроек: Connection → SSH → Tunnels.\u003Cbr\u002F\u003E\r\nДалее в поле «Source port» вбиваем 9999, в «Destination» — localhost:5432, а ниже выбираем «Remote», и нажимаем Add.\u003Cbr\u002F\u003E\r\nНе забываем после этого сохранить настройки сессии, если требуется.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fweb\u002F724\u002F8a7\u002F87e\u002F7248a787e21049abbde7fa45c36825cc.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fweb\u002F724\u002F8a7\u002F87e\u002F7248a787e21049abbde7fa45c36825cc.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EКак это работает\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EПосле успешного подключения, на «host1» SSH-сервер начинает слушать порт 9999. При подключении к порту 9999 на «host1», SSH-клиент на «host2» устанавливает соединение с localhost (коим и является для себя самого «host2») на порт 5432 и передает по этому соединению данные, принятые ssh-сервером на «host1» на порт 9999.\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nТакже у вас возникнут дополнительные сложности с обеспечением безопасности на «host1», если вы не доверяете узлу «host2». Однако это выходит за рамки данной статьи.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИ, конечно, вы каким-то образом (сами или с посторонней помощью) должны инициировать ssh-соединение со стороны «host2» вводом приведенной выше команды, а «host1» должен иметь белый IP-адрес и открытый порт SSH.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПосле установки ssh-соединения все работает аналогично предыдущей главе.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"t3\"\u003E\u003C\u002Fa\u003E\u003Ch2\u003E3) TCP forwarding chain через несколько узлов\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nВ закрытых сетях часто бывает, что нужный нам узел напрямую недоступен. Т.е. мы можем зайти на нужный хост только по цепочке, например host1 → host2 → host3 → host4:\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# ssh host2\u003Cbr\u002F\u003E\r\nhost2# ssh host3\u003Cbr\u002F\u003E\r\nhost3# ssh host4\u003Cbr\u002F\u003E\r\nhost4# echo hello host4\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто может происходить например если эти узлы являются шлюзами, либо если на них доступны шлюзы только в соседние подсети.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ таком случае мы также можем делать TCP forwarding по цепочке:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fweb\u002F0fe\u002F32b\u002Fcf5\u002F0fe32bcf5e4b43e78bf7beff99ce0d8e.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fweb\u002F0fe\u002F32b\u002Fcf5\u002F0fe32bcf5e4b43e78bf7beff99ce0d8e.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗдесь порты 9991, 9992, 9993 выбраны для наглядности, на практике можно использовать один и тот же порт (например, 9999), если он свободен на всех узлах.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИтого нужно выполнить следующую цепочку команд:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# ssh -L 9991:localhost:9992 host2\u003Cbr\u002F\u003E\r\nhost2# ssh -L 9992:localhost:9993 host3\u003Cbr\u002F\u003E\r\nhost3# ssh -L 9993:localhost:5432 host4\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EКак это работает\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EПосле успешного выполнения перечисленных выше команд, на узлах выполняется следующее:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eна «host1»: открывается порт 9991, при подключении к которому данные перенаправляются по ssh-соединению на порт 9992 на «host2»;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eна «host2»: открывается порт 9992, при подключении к которому данные перенаправляются по ssh-соединению на порт 9993 на «host3»;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eна «host3»: открывается порт 9993, при подключении к которому данные перенаправляются по ssh-соединению на порт 5432 на «host4»;\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nТаким образом, при соединении на порт 9991 на «host1», данные перенаправляются по цепочке на «host4» на порт 5432.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВАЖНО! Все указанные на схемах стрелками соединения являются отдельными TCP-соединениями (сессиями).\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"t4\"\u003E\u003C\u002Fa\u003E\u003Ch2\u003E4) TCP forwarding ssh-соединения\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nИногда бывает нужно соединиться по ssh с сервером, который напрямую недоступен, а доступ возможен только по цепочке ssh-серверов (см. предыдущую главу). Теперь мы обладаем нужными знаниями чтобы сделать следующее:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fweb\u002Fc96\u002Faf2\u002F47a\u002Fc96af247a87743eb8bad70a5d90419bf.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fweb\u002Fc96\u002Faf2\u002F47a\u002Fc96af247a87743eb8bad70a5d90419bf.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# ssh -L 2222:localhost:2222 host2\u003Cbr\u002F\u003E\r\nhost2# ssh -L 2222:host4:22 host3\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТаким образом, на порту 2222 на «host1» у нас теперь есть форвардинг на порт SSH (22) на «host4». Можем соединиться:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# ssh -p 2222 localhost\u003Cbr\u002F\u003E\r\nhost4# echo hello host4\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКазалось бы, зачем это нужно? Например, вот зачем:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E# копируем файл на host4\u003Cbr\u002F\u003E\r\nhost1# scp -P 2222 \u002Flocal\u002Fpath\u002Fto\u002Fsome\u002Ffile localhost:\u002Fpath\u002Fon\u002Fhost4\u003Cbr\u002F\u003E\r\n# копируем файл с host4\u003Cbr\u002F\u003E\r\nhost1# scp -P 2222 localhost:\u002Fpath\u002Fon\u002Fhost4 \u002Flocal\u002Fpath\u002Fto\u002Fsome\u002Ffile\u003Cbr\u002F\u003E\r\n# делаем еще один замечательный TCP forwarding на host4\u003Cbr\u002F\u003E\r\nhost1# ssh -p 2222 -L 9999:localhost:5432 localhost\u003Cbr\u002F\u003E\r\nhost1# psql -h localhost -p 9999 -U postgres\u003Cbr\u002F\u003E\r\n# обратите внимание, что порт для команды ssh задается ключем -p в нижнем регистре,\u003Cbr\u002F\u003E\r\n# а для команды scp -P в верхнем регистре\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНу и вообще, здорово что теперь «host4» так близко :)\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВывод: можно делать TCP forwarding большого уровня вложенности.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EЗамечания про RSA fingerprint\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EВ некоторых случаях scp не отработает, пока не зайдете сначала через ssh -p 2222 localhost и не примете RSA fingerprint удаленного сервера.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли пользуетесь одним и тем же портом (2222) для доступа к разным удаленным серверам, то будут ошибки RSA fingerprint, который остался от предыдущего сервера. Его нужно будет удалить из ~\u002F.ssh\u002Fknown_hosts.\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"t5\"\u003E\u003C\u002Fa\u003E\u003Ch2\u003E5) SSH VPN Tunnel\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nTCP port forwarding — это отличная возможность. Но что если нам нужно больше? Доступ по UDP, доступ к множеству портов и хостов, доступ к динамическим портам? Ответ очевиден — VPN. И всемогущий SSH начиная с версии 4.3 и здесь придет нам на помощь.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗабегая вперед скажу: этот функционал SSH хорошо работает если вам нужно временное решение для каких-то административных задач. Для построения постоянных VPN этот вариант далеко не самый подходящий, т. к. он предполагает TCP-over-TCP, что плохо скажется на скорости соединения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EЕще про TCP forwarding\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EА вот TCP port forwarding с помощью SSH, если его достаточно, во многих случаях выиграет по производительности у VPN, т. к. при TCP port forwarding передаются только данные приложения, а не исходные пакеты целиком вместе с заголовками, см. ссылку: \u003Ca href=\"http:\u002F\u002Fblog.backslasher.net\u002Fssh-openvpn-tunneling.html\"\u003Ehttp:\u002F\u002Fblog.backslasher.net\u002Fssh-openvpn-tunneling.html\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cb\u003EНастройка SSH-сервера:\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nPermitTunnel в настройках sshd по-умолчанию выключен, его нужно включить в \u002Fetc\u002Fssh\u002Fsshd_config:\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EPermitTunnel yes\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\nили\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EPermitTunnel point-to-point\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EВАЖНО\u003C\u002Fb\u003E: для поднятия нового сетевого интерфейса туннеля и на ssh-клиенте, и на ssh-сервере необходимы права суперпользователя. Можно долго спорить о том, насколько это небезопасно, но в большинстве случаев на ssh-сервере достаточно настройки:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EPermitRootLogin without-password\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТаким образом вы запрещаете вход root по паролю, а разрешаете только другими средствами, например, по ключу RSA, что гораздо безопаснее.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПерезапускаем sshd:\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Esudo service sshd restart # centos\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\nили\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E\u002Fetc\u002Finit.d\u002Fssh restart # (debian\u002Fubuntu)\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТуннель поднимается при использовании магического ключа -w:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# sudo ssh -w 5:5 root@host2\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nГде 5:5 — номер интерфейса на локальной машине и на удаленной соответственно. Здесь вас может смутить, что ifconfig не выдаст в списке интерфейса «tun5». Это потому что он в состоянии «down», а вот если вызвать «ifconfig -a» или «ifconfig tun5», то интерфейс будет виден:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# ifconfig tun5\u003Cbr\u002F\u003E\r\ntun5 Link encap:UNSPEC HWaddr 00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00 \u003Cbr\u002F\u003E\r\n POINTOPOINT NOARP MULTICAST MTU:1500 Metric:1\u003Cbr\u002F\u003E\r\n RX packets:0 errors:0 dropped:0 overruns:0 frame:0\u003Cbr\u002F\u003E\r\n TX packets:0 errors:0 dropped:0 overruns:0 carrier:0\u003Cbr\u002F\u003E\r\n collisions:0 txqueuelen:500 \u003Cbr\u002F\u003E\r\n RX bytes:0 (0.0 b) TX bytes:0 (0.0 b)\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНазначаем интерфейсам IP-адреса и поднимаем их:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# sudo ifconfig tun5 192.168.150.101\u002F24 pointopoint 192.168.150.102\u003Cbr\u002F\u003E\r\nhost2# sudo ifconfig tun5 192.168.150.102\u002F24 pointopoint 192.168.150.101\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли есть файрвол, не забываем разрешить соединения с интерфейса tun5:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# # сохраняем исходные правила файрвола\u003Cbr\u002F\u003E\r\nhost1# sudo iptables-save \u003E \u002Ftmp\u002Fiptables.rules.orig\u003Cbr\u002F\u003E\r\nhost1# sudo iptables -I INPUT 1 -i tun5 -j ACCEPT\u003Cbr\u002F\u003E\r\nhost2# # сохраняем исходные правила файрвола\u003Cbr\u002F\u003E\r\nhost2# sudo iptables-save \u003E \u002Ftmp\u002Fiptables.rules.orig\u003Cbr\u002F\u003E\r\nhost2# sudo iptables -I INPUT 1 -i tun5 -j ACCEPT\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа host1 это делать необязательно, здесь это сделано лишь для того чтобы ping работал в обе стороны.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНаслаждаемся пингом:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# ping 192.168.150.102\u003Cbr\u002F\u003E\r\nhost2# ping 192.168.150.101\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли рассмотреть более ранний пример с PostgreSQL, то теперь схема будет такая:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fweb\u002F6eb\u002F45b\u002Fbb0\u002F6eb45bbb0b604c61b0158981a832f47a.png\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fweb\u002F6eb\u002F45b\u002Fbb0\u002F6eb45bbb0b604c61b0158981a832f47a.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nА команда для подключения к серверу PostgreSQL будет выглядеть так:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# psql -h 192.168.150.102 -U postgres\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНу а далее можно делать какой-либо из этих узлов шлюзом, если нужно обеспечить доступ не к одному узлу, а к сети. Например:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost2# # разрешаем IP forwarding\u003Cbr\u002F\u003E\r\nhost2# sudo sysctl -w net.ipv4.ip_forward=1\u003Cbr\u002F\u003E\r\nhost2# # разрешаем IP forwarding с host1\u003Cbr\u002F\u003E\r\nhost2# sudo iptables -I FORWARD 1 -s 192.168.150.101 -j ACCEPT\u003Cbr\u002F\u003E\r\nhost2# # разрешаем IP forwarding на host1\u003Cbr\u002F\u003E\r\nhost2# sudo iptables -I FORWARD 1 -d 192.168.150.101 -j ACCEPT\u003Cbr\u002F\u003E\r\nhost2# # маскируем IP адрес host1\u003Cbr\u002F\u003E\r\nhost2# sudo iptables -t nat -A POSTROUTING -s 192.168.150.101 -j MASQUERADE\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# # Предположим, у host2 есть доступ к сети 192.168.2.x, куда нам нужно попасть с host1\u003Cbr\u002F\u003E\r\nhost1# # Прописываем host2 как шлюз в сеть 192.168.2.x\u003Cbr\u002F\u003E\r\nhost1# sudo ip route add 192.168.2.0\u002F24 via 192.168.150.2\u003Cbr\u002F\u003E\r\nhost1# # Наслаждаемся доступом в сеть с host1\u003Cbr\u002F\u003E\r\nhost1# ping 192.168.2.1\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПосле окончания работы не забываем вернуть net.ipv4.ip_forward и файрвол в исходное состояние.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# sudo iptables-restore &lt; \u002Ftmp\u002Fiptables.rules.orig\u003Cbr\u002F\u003E\r\nhost2# sudo iptables-restore &lt; \u002Ftmp\u002Fiptables.rules.orig\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EПод спойлером более интересный случай с временным расшариванием Интернета\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EДопустим, нужно настроить сервер в закрытой сети, где доступ в Интернет запрещен, но тем не менее у вас туда есть лазейка — доступ через один ssh-сервер или цепочку ssh-серверов. Предположим, для настройки сервера вам нужен на нем доступ в Интернет. Тогда проще самостоятельно настроить временный доступ в Интернет на требующем настройки сервере, чем просить это сделать обслуживающий персонал.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДопустим, есть доступ по ssh с вашей рабочей машины host1 на сервер host2, с него — на host3, а уже оттуда — на нужный вам host4. Тогда делаем TCP forwarding для ssh (если с host1 вы сразу можете соединиться с host4, пропустите этот шаг):\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# ssh -L 2222:localhost:2222 host2\u003Cbr\u002F\u003E\r\nhost2# ssh -L 2222:host4:22 host3\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДалее, соединяемся с host4 и поднимаем интерфейс tun5:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# sudo ssh -p 2222 -w 5:5 root@localhost\u003Cbr\u002F\u003E\r\nhost1# # или если host4 доступен сразу: sudo ssh -w 5:5 root@host4\u003Cbr\u002F\u003E\r\nhost1# sudo ifconfig tun5 192.168.150.101\u002F24 pointopoint 192.168.150.102\u003Cbr\u002F\u003E\r\nhost4# sudo ifconfig tun5 192.168.150.102\u002F24 pointopoint 192.168.150.101\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСмотрим таблицу маршрутизации на host4, допустим видим следующее:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost4# route -n\u003Cbr\u002F\u003E\r\nKernel IP routing table\u003Cbr\u002F\u003E\r\nDestination Gateway Genmask Flags Metric Ref Use Iface\u003Cbr\u002F\u003E\r\n192.168.150.0 0.0.0.0 255.255.255.0 U 0 0 0 tun5\u003Cbr\u002F\u003E\r\n192.168.56.0 0.0.0.0 255.255.255.0 U 1 0 0 eth0\u003Cbr\u002F\u003E\r\n0.0.0.0 192.168.56.254 0.0.0.0 UG 0 0 0 eth0\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EВАЖНО\u003C\u002Fb\u003E! Далее нам скорее всего захочется сделать маршрутом по-умолчанию интерфейс tun5 со шлюзом 192.168.150.101, через который будет доступен Интернет. Поэтому на данном этапе важно точно знать, какие маршруты нужно дописать, чтобы заменить маршрут по-умолчанию. Это важно, поскольку довольно часто маршруты на отдельные сети не прописывают отдельно, а просто задают маршрут по-умолчанию (0.0.0.0\u002F0) со шлюзом, через который и идет весь межсетевой трафик. Более того, вполне вероятно что ваше ssh-соединение с сервером также использует исходный шлюз по-умолчанию.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля простоты в данном примере предположим, что никаких маршрутов кроме 192.168.56.0\u002F24 серверу для нормального функционирования не нужно и что предыдущий ssh-хост host3 имеет IP-адрес из этой же сети.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗапоминаем и записываем куда-нибудь исходную маршрутную таблицу со шлюзом по-умолчанию:\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost4# route -n \u003E routes.orig\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНастраиваем наш host1 для работы в качестве шлюза в Интернет для host4:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# # разрешаем IP forwarding\u003Cbr\u002F\u003E\r\nhost1# sudo sysctl -w net.ipv4.ip_forward=1\u003Cbr\u002F\u003E\r\nhost1# # сохраняем исходные правила файрвола\u003Cbr\u002F\u003E\r\nhost1# sudo iptables-save \u003E \u002Ftmp\u002Fiptables.rules.orig\u003Cbr\u002F\u003E\r\nhost1# # разрешаем IP forwarding с host4\u003Cbr\u002F\u003E\r\nhost1# sudo iptables -I FORWARD 1 -s 192.168.150.102 -j ACCEPT\u003Cbr\u002F\u003E\r\nhost1# # разрешаем IP forwarding на host4\u003Cbr\u002F\u003E\r\nhost1# sudo iptables -I FORWARD 1 -d 192.168.150.102 -j ACCEPT\u003Cbr\u002F\u003E\r\nhost1# # маскируем IP адрес host4\u003Cbr\u002F\u003E\r\nhost1# sudo iptables -t nat -A POSTROUTING -s 192.168.150.102 -j MASQUERADE\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EНа всякий случай можно прописать серые сети на шлюз из текущего маршрута по-умолчанию\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EЕсли не прописаны:\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Esudo ip route add 192.168.0.0\u002F16 via 192.168.56.254\u003Cbr\u002F\u003E\r\nsudo ip route add 10.0.0.0\u002F8 via 192.168.56.254\u003Cbr\u002F\u003E\r\nsudo ip route add 172.16.0.0\u002F12 via 192.168.56.254\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИзменяем маршрут по-умолчанию на host4 (ОСТОРОЖНО, см. предупреждение выше!):\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost4# sudo ip route replace default via 192.168.150.101\u003Cbr\u002F\u003E\r\nhost4# route -n\u003Cbr\u002F\u003E\r\nKernel IP routing table\u003Cbr\u002F\u003E\r\nDestination Gateway Genmask Flags Metric Ref Use Iface\u003Cbr\u002F\u003E\r\n192.168.150.0 0.0.0.0 255.255.255.0 U 0 0 0 tun5\u003Cbr\u002F\u003E\r\n192.168.56.0 0.0.0.0 255.255.255.0 U 1 0 0 eth0\u003Cbr\u002F\u003E\r\n0.0.0.0 192.168.150.101 0.0.0.0 UG 0 0 0 tun5\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли весь Интернет нам не нужен, а только конкретные IP-адреса\u002Fмаски, то можно маршрут по-умолчанию не менять, а дописать только нужные нам адреса через шлюз на tun5.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПроверяем, что есть Интернет:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost4# ping 8.8.8.8\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОтлично. Осталось настроить DNS. Есть множество способов это сделать, проще всего отредактировать файл \u002Fetc\u002Fresolv.conf и добавить туда строчки:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Enameserver 8.8.8.8\u003Cbr\u002F\u003E\r\nnameserver 8.8.4.4\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПосле этого Интернет должен быть полностью доступен:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost4# ping ya.ru\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПосле окончания работы не забываем вернуть все в исходное состояние:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost1# # восстанавливаем правила файрвола на host1\u003Cbr\u002F\u003E\r\nhost1# sudo iptables-restore &lt; \u002Ftmp\u002Fiptables.rules.orig\u003Cbr\u002F\u003E\r\nhost1# # не забудьте восстановить также значение net.ipv4.ip_forward\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ehost2# # восстановите маршрут по-умолчанию на host4:\u003Cbr\u002F\u003E\r\nhost2# sudo ip route replace default via 192.168.56.254\u003Cbr\u002F\u003E\r\nhost2# # и уберите добавленные ранее DNS-сервера из \u002Fetc\u002Fresolv.conf\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"t6\"\u003E\u003C\u002Fa\u003E\u003Ch2\u003E6) Коротко о беспарольном доступе\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nДумаю, все уже знают что авторизация по паролю это не про нас. Но на всякий случай впихну сюда краткую инструкцию по настройке аутентификации по ключу RSA:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n1. На клиентских машинах генерируем пользователю свой ключ RSA:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Eclient1# ssh-keygen -t rsa\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПо-умолчанию приватный ключ сохраняется в ~\u002F.ssh\u002Fid_rsa, а открытый — в ~\u002F.ssh\u002Fid_rsa.pub. Приватный ключ храните как зеницу ока и никому не давайте, никуда не копируйте.\u003Cbr\u002F\u003E\r\nПри создании ключа можно задать пароль (passphrase), которым ключ будет зашифрован.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n2. Клиентские открытые ключи нужно сохранить на ssh-сервере в файле ~\u002F.ssh\u002Fauthorized_keys (~ это домашняя директория того пользователя, которым будете логиниться), каждый на отдельной строке. Для того чтобы это не делать вручную, на каждом клиенте можно воспользоваться командой:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Essh-copy-id user@sshserver\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nГде user — имя пользователя на сервере, sshserver — имя или IP-адрес ssh-сервера.\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003EПрава на файл ~\u002F.ssh\u002Fauthorized_keys\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EUPD от \u003Ca href=\"https:\u002F\u002Fhabrahabr.ru\u002Fusers\u002Fsabio\u002F\" class=\"user_link\"\u003Esabio\u003C\u002Fa\u003E: В случае ручного создания файла ~\u002F.ssh\u002Fauthorized_keys на ssh-сервере необходимо задать следующие права:\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Echmod 0700 ~\u002F.ssh\u003Cbr\u002F\u003E\r\nchmod 0600 ~\u002F.ssh\u002Fauthorized_keys\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n3. Проверьте, что можете зайти на сервер по ключу, без ввода пароля (не путать с passphrase):\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Essh user@sshserver\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\nРекомендую не закрывать хотя бы одну активную ssh-сессию с сервером до тех пор, пока окончательно не закончите настройку и не убедитесь что все работает.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n4. Отключите на SSH-сервере возможность входа по паролю в файле \u002Fetc\u002Fssh\u002Fsshd_config:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EPasswordAuthentication no\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВозможность входа по открытому ключу обычно уже включена по-умолчанию:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EPubkeyAuthentication yes\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯ обычно также отключаю две следующие опции:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EGSSAPIAuthentication no\u003Cbr\u002F\u003E\r\nUseDNS no\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ некоторых случаях это позволяет ускорить процесс соединения (например, когда на сервере нет доступа в Интернет).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n5. Перезапустите sshd:\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Eservice sshd restart\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\nили\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E\u002Fetc\u002Finit.d\u002Fssh restart\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ случае ошибок полезно бывает смотреть лог \u002Fvar\u002Flog\u002Fsecure либо использовать опции -v, -vv или -vvv для вывода детального лога соединения:\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Essh -vvv user@sshserver\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"t7\"\u003E\u003C\u002Fa\u003E\u003Ch2\u003E7) Спасибо (ссылки)\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fhelp.ubuntu.com\u002Fcommunity\u002FSSH_VPN\"\u003Ehelp.ubuntu.com\u002Fcommunity\u002FSSH_VPN\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fhabrahabr.ru\u002Fpost\u002F87197\u002F\"\u003Ehabrahabr.ru\u002Fpost\u002F87197\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fblog.backslasher.net\u002Fssh-openvpn-tunneling.html\"\u003Eblog.backslasher.net\u002Fssh-openvpn-tunneling.html\u003C\u002Fa\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"ssh"},{"titleHtml":"ssh tunnel"},{"titleHtml":"ssh-2"},{"titleHtml":"vpn"},{"titleHtml":"port forwarding"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F331348\u002Fab82dd5fb7a532365ec0f50c7340337d\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F331348\u002Fab82dd5fb7a532365ec0f50c7340337d\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F331348\\\u002F\"},\"headline\":\"Магия SSH\",\"datePublished\":\"2017-06-21T18:03:42+03:00\",\"dateModified\":\"2017-06-23T14:27:02+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"nitro2005\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"С SSH многие знакомы давно, но, как и я, не все подозревают о том, какие возможности таятся за этими магическими тремя буквами. Хотел бы поделиться своим небольш...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F331348\\\u002F#post-content-body\",\"about\":[\"h_linux\",\"h_sys_admin\",\"h_nix\",\"h_s_admin\",\"f_admin\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F331348\\\u002Fab82dd5fb7a532365ec0f50c7340337d\\\u002F\"]}","metaDescription":"С SSH многие знакомы давно, но, как и я, не все подозревают о том, какие возможности таятся за этими магическими тремя буквами. Хотел бы поделиться своим небольшим опытом использования SSH для решения...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"Системный администратор","vacanciesCount":130,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fsistemnij_administrator","itemHubs":["it-infrastructure","s_admin","server_side_optimization","sys_admin"]},{"title":"DevOps инженер","vacanciesCount":87,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fdevops","itemHubs":["devops","build_automation","sys_admin","virtualization","kubernetes"]}],"hubs":"linux,sys_admin,nix,s_admin"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

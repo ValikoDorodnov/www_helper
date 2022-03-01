@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Несколько советов о том, как ускорить сборку Docker-образов. Например, до 30 секунд / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/itsumma\/blog\/501680\/"},"headline":"Несколько советов о том, как ускорить сборку Docker-образов. Например, до 30 секунд","datePublished":"2020-05-14T10:02:01+03:00","dateModified":"2020-12-03T10:58:02+03:00","author":{"@type":"Person","name":"Евгений Финкельштейн"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Прежде чем фича попадет на прод, в наше время сложных оркестраторов и CI\/CD предстоит пройти долгий путь от коммита до тестов и доставки. Раньше можно было кинут...","url":"https:\/\/habr.com\/ru\/company\/itsumma\/blog\/501680\/#post-content-body","about":["c_itsumma","h_it-infrastructure","h_nginx","h_angular","h_github","f_develop","f_admin"],"image":["https:\/\/habr.com\/share\/publication\/501680\/ea3a82e1d868eba082677939928e9149\/","https:\/\/habrastorage.org\/webt\/po\/se\/ly\/poselyxzccug-jtxbstwdrpm7yg.jpeg","https:\/\/habrastorage.org\/webt\/pe\/ih\/sl\/peihslyjxkii0aw14jpyuyqe91w.png","https:\/\/habrastorage.org\/webt\/gg\/3y\/4x\/gg3y4xd2p1f0wg-3lv_1aw5z898.png","https:\/\/habrastorage.org\/webt\/us\/kf\/st\/uskfstv9s72xfhlbi1zq6iae2g4.png","https:\/\/habrastorage.org\/webt\/bn\/2g\/kj\/bn2gkjz2fmwmmo4cvatanfn9gu4.png","https:\/\/habrastorage.org\/webt\/rm\/jg\/nb\/rmjgnba2qdrrkiyndk8nlzu7koy.png","https:\/\/habrastorage.org\/webt\/0u\/k9\/vi\/0uk9viz8qpknwfpmgjdtiijogy0.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Несколько советов о том, как ускорить сборку Docker-образов. Например, до 30 секунд" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Несколько советов о том, как ускорить сборку Docker-образов. Например, до 30 секунд" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Несколько советов о том, как ускорить сборку Docker-образов. Например, до 30 секунд" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Прежде чем фича попадет на прод, в наше время сложных оркестраторов и CI/CD предстоит пройти долгий путь от коммита до тестов и доставки. Раньше можно было кинуть новые файлы по FTP (так больше никто..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Прежде чем фича попадет на прод, в наше время сложных оркестраторов и CI/CD предстоит пройти долгий путь от коммита до тестов и доставки. Раньше можно было кинуть новые файлы по FTP (так больше никто..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Прежде чем фича попадет на прод, в наше время сложных оркестраторов и CI/CD предстоит пройти долгий путь от коммита до тестов и доставки. Раньше можно было кинуть новые файлы по FTP (так больше никто..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Прежде чем фича попадет на прод, в наше время сложных оркестраторов и CI/CD предстоит пройти долгий путь от коммита до тестов и доставки. Раньше можно было кинуть новые файлы по FTP (так больше никто..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Прежде чем фича попадет на прод, в наше время сложных оркестраторов и CI/CD предстоит пройти долгий путь от коммита до тестов и доставки. Раньше можно было кинуть новые файлы по FTP (так больше никто..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habrastorage.org/webt/po/se/ly/poselyxzccug-jtxbstwdrpm7yg.jpeg" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habrastorage.org/webt/po/se/ly/poselyxzccug-jtxbstwdrpm7yg.jpeg" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habrastorage.org/webt/po/se/ly/poselyxzccug-jtxbstwdrpm7yg.jpeg" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habrastorage.org/webt/po/se/ly/poselyxzccug-jtxbstwdrpm7yg.jpeg" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habrastorage.org/webt/po/se/ly/poselyxzccug-jtxbstwdrpm7yg.jpeg?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="501680" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2020-05-14T07:02:01.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/itsumma/blog/501680/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="itsumma, docker, dockerfile, nodejs, github, github actions, angular, контейнеры, контейнеризация, multistage">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/501680/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.102.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habrastorage.org/webt/po/se/ly/poselyxzccug-jtxbstwdrpm7yg.jpeg" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="itsumma" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><div class="tm-company-card__branding tm-company-article__branding tm-company-card__branding_loading"><div class="tm-company-card__branding-placeholder"><!----></div> <a href="http://www.itsumma.ru/?utm_source=habr.com&amp;utm_medium=banner&amp;utm_campaign=shapka"><img src="https://habrastorage.org/getpro/habr/branding/019/597/8f6/0195978f6a995359231d8984f6db21bd.png" width="100%" class="tm-company-card__branding-image"></a></div></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/itsumma/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/757/81b/db7/75781bdb773986cb1efe18985b74b309.png" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">221.59</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/itsumma/profile/" class="tm-company-card__name">
+      ITSumma
+    </a> <div class="tm-company-card__description">Собираем безумных людей и вместе спасаем интернет</div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/Exsmund/" title="Exsmund" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/ab1/49a/fc8/ab149afc8904b3977b98d6139237f930.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/Exsmund/" class="tm-user-info__username">
+      Exsmund
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2020-05-14T07:02:01.000Z" title="2020-05-14, 10:02">14  мая  2020 в 10:02</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Несколько советов о том, как ускорить сборку Docker-образов. Например, до 30 секунд</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/itsumma/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании ITSumma</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/it-infrastructure/" class="tm-article-snippet__hubs-item-link"><span>IT-инфраструктура</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/nginx/" class="tm-article-snippet__hubs-item-link"><span>Nginx</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/angular/" class="tm-article-snippet__hubs-item-link"><span>Angular</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/github/" class="tm-article-snippet__hubs-item-link"><span>GitHub</span> <!----></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div><img height="1" src="https://vk.com/rtrg?p=VK-RTRG-476767-9fNIw" width="1" style="display: none;"><img height="1" src="https://www.facebook.com/tr?id=256004148111649&amp;ev=PageView&amp;noscript=1" width="1" style="display: none;"><img height="1" src="https://habr.com/ru/company/itsumma/blog/501680/?utm_source=habr.com&amp;utm_medium=cpc&amp;utm_campaign=post14052020" width="1" style="display: none;"></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><p>Прежде чем фича попадет на прод, в наше время сложных оркестраторов и CI/CD предстоит пройти долгий путь от коммита до тестов и доставки. Раньше можно было кинуть новые файлы по FTP (так больше никто не делает, верно?), и процесс «деплоя» занимал секунды. Теперь же надо создать merge request и ждать немалое время, пока фича доберётся до пользователей.</p><br/>
+<p>Часть этого пути — сборка Docker-образа. Иногда сборка длится минуты, иногда — десятки минут, что сложно назвать нормальным. В данной статье возьмём простое приложение, которое упакуем в образ, применим несколько методов для ускорения сборки и рассмотрим нюансы работы этих методов.</p><br/>
+<p><img src="https://habrastorage.org/r/w780q1/webt/po/se/ly/poselyxzccug-jtxbstwdrpm7yg.jpeg" data-src="https://habrastorage.org/webt/po/se/ly/poselyxzccug-jtxbstwdrpm7yg.jpeg" data-blurred="true"/></p><a name="habracut"></a><br/>
+<p>У нас неплохой опыт создания и поддержки сайтов СМИ: <a href="https://tass.ru/">ТАСС</a>, <a href="https://thebell.io/">The Bell</a>, <a href="https://novayagazeta.ru/">"Новая газета"</a>, <a href="https://republic.ru/">Republic</a>… Не так давно мы пополнили портфолио, выпустив в прод сайт <a href="https://reminder.media">Reminder</a>. И пока быстро допиливали новые фичи и чинили старые баги, медленный деплой стал большой проблемой.</p><br/>
+<p>Деплой мы делаем на GitLab. Собираем образы, пушим в GitLab Registry и раскатываем на проде. В этом списке самое долгое — это сборка образов. Для примера: без оптимизации каждая сборка бэкенда занимала 14 минут.</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/webt/pe/ih/sl/peihslyjxkii0aw14jpyuyqe91w.png" data-src="https://habrastorage.org/webt/pe/ih/sl/peihslyjxkii0aw14jpyuyqe91w.png"/></p><br/>
+<p>В конце концов стало понятно, что так жить больше нельзя, и мы сели разобраться, почему образы собираются столько времени. В итоге удалось сократить время сборки до 30 секунд!</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/webt/gg/3y/4x/gg3y4xd2p1f0wg-3lv_1aw5z898.png" data-src="https://habrastorage.org/webt/gg/3y/4x/gg3y4xd2p1f0wg-3lv_1aw5z898.png"/></p><br/>
+<p>Для данной статьи, чтобы не привязываться к окружению Reminder'а, рассмотрим пример сборки пустого приложения на Angular. Итак, создаём наше приложение:</p><br/>
+<pre><code class="bash">ng n app</code></pre><br/>
+<p>Добавляем в него PWA (мы же прогрессивные):</p><br/>
+<pre><code class="bash">ng add @angular/pwa --project app</code></pre><br/>
+<p>Пока скачивается миллион npm-пакетов, давайте разберемся, как устроен docker-образ. Docker предоставляет возможность упаковывать приложения и запускать их в изолированном окружении, которое называется контейнер. Благодаря изоляции можно запускать одновременно много контейнеров на одном сервере. Контейнеры значительно легче виртуальных машин, поскольку выполняются напрямую на ядре системы. Чтобы запустить контейнер с нашим приложением, нам нужно сначала создать образ, в котором мы упакуем всё, что необходимо для работы нашего приложения. По сути образ — это слепок файловой системы. К примеру, возьмём Dockerfile:</p><br/>
+<pre><code class="plaintext">FROM node:12.16.2
+WORKDIR /app
+COPY . .
+RUN npm ci
+RUN npm run build --prod</code></pre><br/>
+<p>Dockerfile — это набор инструкций; выполняя каждую из них, Docker будет сохранять изменения в файловой системе и накладывать их на предыдущие. Каждая команда создаёт свой слой. А готовый образ — это объединённые вместе слои.</p><br/>
+<p>Что важно знать: каждый слой докер умеет кэшировать. Если ничего не изменилось с прошлой сборки, то вместо выполнения команды докер возьмёт уже готовый слой. Поскольку основной прирост в скорости сборки будет за счет использования кэша, в замерах скорости сборки будем обращать внимание именно на сборку образа с готовым кэшем. Итак, по шагам:</p><br/>
+<ol>
+<li>Удаляем образы локально, чтобы предыдущие запуски не влияли на тест.<br/>
+<code>docker rmi $(docker images -q)</code></li>
+<li>Запускаем билд первый раз.<br/>
+<code>time docker build -t app .</code></li>
+<li>Меняем файл src/index.html — имитируем работу программиста.</li>
+<li>Запускаем билд второй раз.<br/>
+<code>time docker build -t app .</code></li>
+</ol><br/>
+<p>Если среду для сборки образов настроить правильно (о чем немного ниже), то докер при запуске сборки уже будет иметь на борту кучку кэшей. Наша задача — научиться использовать кэш так, чтобы сборка прошла максимально быстро. Поскольку мы предполагаем, что запуск сборки без кэша происходит всего один раз — самый первый, — стало быть, можем игнорировать то, насколько медленным был этот первый раз. В тестах нам важен второй запуск сборки, когда кэши уже прогреты и мы готовы печь наш пирог. Тем не менее, некоторые советы скажутся на первой сборке тоже.</p><br/>
+<p>Положим Dockerfile, описанный выше, в папку с проектом и запустим сборку. Все приведённые листинги сокращены для удобства чтения.</p><br/>
+<pre><code class="bash">$ time docker build -t app .
+Sending build context to Docker daemon 409MB
+Step 1/5 : FROM node:12.16.2
+Status: Downloaded newer image for node:12.16.2
+Step 2/5 : WORKDIR /app
+Step 3/5 : COPY . .
+Step 4/5 : RUN npm ci
+added 1357 packages in 22.47s
+Step 5/5 : RUN npm run build --prod
+Date: 2020-04-16T19:20:09.664Z - Hash: fffa0fddaa3425c55dd3 - Time: 37581ms
+Successfully built c8c279335f46
+Successfully tagged app:latest
+
+real 5m4.541s
+user 0m0.000s
+sys 0m0.000s</code></pre><br/>
+<p>Меняем содержимое src/index.html и запускаем второй раз.</p><br/>
+<pre><code class="bash">$ time docker build -t app .
+Sending build context to Docker daemon 409MB
+Step 1/5 : FROM node:12.16.2
+Step 2/5 : WORKDIR /app
+ ---> Using cache
+Step 3/5 : COPY . .
+Step 4/5 : RUN npm ci
+added 1357 packages in 22.47s
+Step 5/5 : RUN npm run build --prod
+Date: 2020-04-16T19:26:26.587Z - Hash: fffa0fddaa3425c55dd3 - Time: 37902ms
+Successfully built 79f335df92d3
+Successfully tagged app:latest
+
+real 3m33.262s
+user 0m0.000s
+sys 0m0.000s</code></pre><br/>
+<p>Чтобы посмотреть, получился ли у нас образ, выполним команду <code>docker images</code>:</p><br/>
+<pre><code class="bash">REPOSITORY   TAG      IMAGE ID       CREATED              SIZE
+app          latest   79f335df92d3   About a minute ago   1.74GB</code></pre><br/>
+<p>Перед сборкой докер берет все файлы в текущем контексте и отправляет их своему демону <code>Sending build context to Docker daemon 409MB</code>. Контекст для сборки указывается последним аргументом команды build. В нашем случае это текущая директория — «.», — и докер тащит всё, что есть у нас в этой папке. 409 Мбайт — это много: давайте думать, как это исправить.</p><br/>
+<h2 id="umenshaem-kontekst">Уменьшаем контекст</h2><br/>
+<p>Чтобы уменьшить контекст, есть два варианта. Либо положить все файлы, нужные для сборки, в отдельную папку и указывать контекст докеру именно на эту папку. Это может быть не всегда удобно, поэтому есть возможность указать исключения: что не надо тащить в контекст. Для этого положим в проект файл .dockerignore и укажем, что не нужно для сборки:</p><br/>
+<pre><code class="plaintext">.git
+/node_modules</code></pre><br/>
+<p>и запустим сборку ещё раз:</p><br/>
+<pre><code class="bash">$ time docker build -t app .
+Sending build context to Docker daemon 607.2kB
+Step 1/5 : FROM node:12.16.2
+Step 2/5 : WORKDIR /app
+ ---> Using cache
+Step 3/5 : COPY . .
+Step 4/5 : RUN npm ci
+added 1357 packages in 22.47s
+Step 5/5 : RUN npm run build --prod
+Date: 2020-04-16T19:33:54.338Z - Hash: fffa0fddaa3425c55dd3 - Time: 37313ms
+Successfully built 4942f010792a
+Successfully tagged app:latest
+
+real 1m47.763s
+user 0m0.000s
+sys 0m0.000s</code></pre><br/>
+<p>607.2 Кбайт — намного лучше, чем 409 Мбайт. А ещё мы уменьшили размер образа с 1.74 до 1.38Гбайт:</p><br/>
+<pre><code class="bash">REPOSITORY   TAG      IMAGE ID       CREATED         SIZE
+app          latest   4942f010792a   3 minutes ago   1.38GB</code></pre><br/>
+<p>Давайте попробуем ещё уменьшить размер образа.</p><br/>
+<h2 id="ispolzuem-alpine">Используем Alpine</h2><br/>
+<p>Ещё один способ сэкономить на размере образа — использовать маленький родительский образ. Родительский образ — это образ, на основе которого готовится наш образ. Нижний слой указывается командой <code>FROM</code> в Dockerfile. В нашем случае мы используем образ на основе Ubuntu, в котором уже стоит nodejs. И весит он …</p><br/>
+<pre><code class="bash">$ docker images -a | grep node
+node 12.16.2 406aa3abbc6c 17 minutes ago 916MB</code></pre><br/>
+<p>… почти гигабайт. Изрядно сократить объем можно, используя образ на основе Alpine Linux. Alpine — это очень маленький линукс. Докер-образ для nodejs на основе alpine весит всего 88.5 Мбайт. Поэтому давайте заменим наш жиииирный <del>вдомах</del> образ:</p><br/>
+<pre><code class="plaintext">FROM node:12.16.2-alpine3.11
+RUN apk --no-cache --update --virtual build-dependencies add \
+    python \
+    make \
+    g++
+WORKDIR /app
+COPY . .
+RUN npm ci
+RUN npm run build --prod</code></pre><br/>
+<p>Нам пришлось установить некоторые штуки, которые необходимы для сборки приложения. Да, Angular не собирается без питона ¯(°_o)/¯</p><br/>
+<p>Но зато размер образа сбросил 619 Мбайт:</p><br/>
+<pre><code class="bash">REPOSITORY   TAG      IMAGE ID       CREATED          SIZE
+app          latest   aa031edc315a   22 minutes ago   761MB</code></pre><br/>
+<p>Идём ещё дальше.</p><br/>
+<h2 id="multisteydzh-sborka">Мультистейдж сборка</h2><br/>
+<p>Не всё, что есть в образе, нужно нам в продакшене.</p><br/>
+<pre><code class="bash">$ docker run app ls -lah
+total 576K
+drwxr-xr-x 1 root root 4.0K Apr 16 19:54 .
+drwxr-xr-x 1 root root 4.0K Apr 16 20:00 ..
+-rwxr-xr-x 1 root root 19 Apr 17 2020 .dockerignore
+-rwxr-xr-x 1 root root 246 Apr 17 2020 .editorconfig
+-rwxr-xr-x 1 root root 631 Apr 17 2020 .gitignore
+-rwxr-xr-x 1 root root 181 Apr 17 2020 Dockerfile
+-rwxr-xr-x 1 root root 1020 Apr 17 2020 README.md
+-rwxr-xr-x 1 root root 3.6K Apr 17 2020 angular.json
+-rwxr-xr-x 1 root root 429 Apr 17 2020 browserslist
+drwxr-xr-x 3 root root 4.0K Apr 16 19:54 dist
+drwxr-xr-x 3 root root 4.0K Apr 17 2020 e2e
+-rwxr-xr-x 1 root root 1015 Apr 17 2020 karma.conf.js
+-rwxr-xr-x 1 root root 620 Apr 17 2020 ngsw-config.json
+drwxr-xr-x 1 root root 4.0K Apr 16 19:54 node_modules
+-rwxr-xr-x 1 root root 494.9K Apr 17 2020 package-lock.json
+-rwxr-xr-x 1 root root 1.3K Apr 17 2020 package.json
+drwxr-xr-x 5 root root 4.0K Apr 17 2020 src
+-rwxr-xr-x 1 root root 210 Apr 17 2020 tsconfig.app.json
+-rwxr-xr-x 1 root root 489 Apr 17 2020 tsconfig.json
+-rwxr-xr-x 1 root root 270 Apr 17 2020 tsconfig.spec.json
+-rwxr-xr-x 1 root root 1.9K Apr 17 2020 tslint.json</code></pre><br/>
+<p>С помощью <code>docker run app ls -lah</code> мы запустили контейнер на основе нашего образа <code>app</code> и выполнили в нем команду <code>ls -lah</code>, после чего контейнер завершил свою работу.</p><br/>
+<p>На проде нам нужна только папка <code>dist</code>. При этом файлы как-то нужно отдавать наружу. Можно запустить какой-нибудь HTTP-сервер на nodejs. Но мы сделаем проще. Угадайте русское слово, в котором четыре буквы «ы». Правильно! Ынжыныксы. Возьмём образ с nginx, положим в него папку <code>dist</code> и небольшой конфиг:</p><br/>
+<pre><code class="nginx">server {
+    listen 80 default_server;
+    server_name localhost;
+    charset utf-8;
+    root /app/dist;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}</code></pre><br/>
+<p>Это всё провернуть нам поможет multi-stage build. Изменим наш Dockerfile:</p><br/>
+<pre><code class="plaintext">FROM node:12.16.2-alpine3.11 as builder
+RUN apk --no-cache --update --virtual build-dependencies add \
+    python \
+    make \
+    g++
+WORKDIR /app
+COPY . .
+RUN npm ci
+RUN npm run build --prod
+
+FROM nginx:1.17.10-alpine
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx/static.conf /etc/nginx/conf.d
+COPY --from=builder /app/dist/app .</code></pre><br/>
+<p>Теперь у нас две инструкции <code>FROM</code> в Dockerfile, каждая из них запускает свой этап сборки. Первый мы назвали <code>builder</code>, а вот начиная с последнего FROM будет готовиться наш итоговый образ. Последним шагом копируем артефакт нашей сборки в предыдущем этапе в итоговый образ с nginx. Размер образа существенно уменьшился:</p><br/>
+<pre><code class="bash">REPOSITORY   TAG      IMAGE ID       CREATED          SIZE
+app          latest   2c6c5da07802   29 minutes ago   36MB</code></pre><br/>
+<p>Давайте запустим контейнер с нашим образом и убедимся, что всё работает:</p><br/>
+<pre><code class="bash">docker run -p8080:80 app</code></pre><br/>
+<p>Опцией -p8080:80 мы пробросили порт 8080 на нашей хостовой машине до порта 80 внутри контейнера, где крутится nginx. Открываем в браузере <a href="http://localhost:8080/">http://localhost:8080/</a> и видим наше приложение. Всё работает!</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/webt/us/kf/st/uskfstv9s72xfhlbi1zq6iae2g4.png" data-src="https://habrastorage.org/webt/us/kf/st/uskfstv9s72xfhlbi1zq6iae2g4.png"/></p><br/>
+<p>Уменьшение размера образа с 1.74 Гбайт до 36 Мбайт значительно сокращает время доставки вашего приложения в прод. Но давайте вернёмся ко времени сборки.</p><br/>
+<pre><code class="bash">$ time docker build -t app .
+Sending build context to Docker daemon 608.8kB
+Step 1/11 : FROM node:12.16.2-alpine3.11 as builder
+Step 2/11 : RUN apk --no-cache --update --virtual build-dependencies add python make g++
+ ---> Using cache
+Step 3/11 : WORKDIR /app
+ ---> Using cache
+Step 4/11 : COPY . .
+Step 5/11 : RUN npm ci
+added 1357 packages in 47.338s
+Step 6/11 : RUN npm run build --prod
+Date: 2020-04-16T21:16:03.899Z - Hash: fffa0fddaa3425c55dd3 - Time: 39948ms
+ ---> 27f1479221e4
+Step 7/11 : FROM nginx:stable-alpine
+Step 8/11 : WORKDIR /app
+ ---> Using cache
+Step 9/11 : RUN rm /etc/nginx/conf.d/default.conf
+ ---> Using cache
+Step 10/11 : COPY nginx/static.conf /etc/nginx/conf.d
+ ---> Using cache
+Step 11/11 : COPY --from=builder /app/dist/app .
+Successfully built d201471c91ad
+Successfully tagged app:latest
+
+real 2m17.700s
+user 0m0.000s
+sys 0m0.000s</code></pre><br/>
+<h2 id="menyaem-poryadok-sloyov">Меняем порядок слоёв</h2><br/>
+<p>Первые три шага у нас были закэшированы (подсказка <code>Using cache</code>). На четвёртом шаге копируются все файлы проекта и на пятом шаге ставятся зависимости <code>RUN npm ci</code> — целых 47.338s. Зачем каждый раз заново ставить зависимости, если они меняются очень редко? Давайте разберемся, почему они не закэшировались. Дело в том, что докер проверят слой за слоем, не поменялась ли команда и файлы, связанные с ней. На четвёртом шаге мы копируем все файлы нашего проекта, и среди них, конечно же, есть изменения, поэтому докер не только не берет из кэша этот слой, но и все последующие! Давайте внесём небольшие изменения в Dockerfile.</p><br/>
+<pre><code class="plaintext">FROM node:12.16.2-alpine3.11 as builder
+RUN apk --no-cache --update --virtual build-dependencies add \
+    python \
+    make \
+    g++
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build --prod
+
+FROM nginx:1.17.10-alpine
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx/static.conf /etc/nginx/conf.d
+COPY --from=builder /app/dist/app .</code></pre><br/>
+<p>Сначала копируются package.json и package-lock.json, затем ставятся зависимости, а только после этого копируется весь проект. В результате:</p><br/>
+<pre><code class="bash">$ time docker build -t app .
+Sending build context to Docker daemon 608.8kB
+Step 1/12 : FROM node:12.16.2-alpine3.11 as builder
+Step 2/12 : RUN apk --no-cache --update --virtual build-dependencies add python make g++
+ ---> Using cache
+Step 3/12 : WORKDIR /app
+ ---> Using cache
+Step 4/12 : COPY package*.json ./
+ ---> Using cache
+Step 5/12 : RUN npm ci
+ ---> Using cache
+Step 6/12 : COPY . .
+Step 7/12 : RUN npm run build --prod
+Date: 2020-04-16T21:29:44.770Z - Hash: fffa0fddaa3425c55dd3 - Time: 38287ms
+ ---> 1b9448c73558
+Step 8/12 : FROM nginx:stable-alpine
+Step 9/12 : WORKDIR /app
+ ---> Using cache
+Step 10/12 : RUN rm /etc/nginx/conf.d/default.conf
+ ---> Using cache
+Step 11/12 : COPY nginx/static.conf /etc/nginx/conf.d
+ ---> Using cache
+Step 12/12 : COPY --from=builder /app/dist/app .
+Successfully built a44dd7c217c3
+Successfully tagged app:latest
+
+real 0m46.497s
+user 0m0.000s
+sys 0m0.000s</code></pre><br/>
+<p>46 секунд вместо 3 минут — значительно лучше! Важен правильный порядок слоёв: сначала копируем то, что не меняется, затем то, что редко меняется, а в конце — то, что часто.</p><br/>
+<p>Далее немного слов о сборке образов в CI/CD системах.</p><br/>
+<h2 id="ispolzovanie-predyduschih-obrazov-dlya-kesha">Использование предыдущих образов для кэша</h2><br/>
+<p>Если мы используем для сборки какое-то SaaS-решение, то локальный кэш докера может оказаться чист и свеж. Чтобы докеру было откуда взять испеченные слои, дайте ему предыдущий собранный образ.</p><br/>
+<p>Рассмотрим для примера сборку нашего приложения в GitHub Actions. Используем такой конфиг</p><br/>
+<pre><code class="plaintext">on:
+  push:
+    branches:
+      - master
+
+name: Test docker build
+
+jobs:
+  deploy:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: docker.pkg.github.com/${{ github.repository }}/app
+      IMAGE_TAG: ${{ github.sha }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Login to GitHub Packages
+      env:
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        docker login docker.pkg.github.com -u $GITHUB_ACTOR -p $TOKEN
+
+    - name: Build
+      run: |
+        docker build \
+          -t $IMAGE_NAME:$IMAGE_TAG \
+          -t $IMAGE_NAME:latest \
+          .
+
+    - name: Push image to GitHub Packages
+      run: |
+        docker push $IMAGE_NAME:latest
+        docker push $IMAGE_NAME:$IMAGE_TAG
+
+    - name: Logout
+      run: |
+        docker logout docker.pkg.github.com</code></pre><br/>
+<p>Образ собирается и пушится в GitHub Packages за две минуты и 20 секунд:</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/webt/bn/2g/kj/bn2gkjz2fmwmmo4cvatanfn9gu4.png" data-src="https://habrastorage.org/webt/bn/2g/kj/bn2gkjz2fmwmmo4cvatanfn9gu4.png"/></p><br/>
+<p>Теперь изменим сборку так, чтобы использовался кэш на основе предыдущих собранных образов:</p><br/>
+<pre><code class="plaintext">on:
+  push:
+    branches:
+      - master
+
+name: Test docker build
+
+jobs:
+  deploy:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: docker.pkg.github.com/${{ github.repository }}/app
+      IMAGE_TAG: ${{ github.sha }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Login to GitHub Packages
+      env:
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        docker login docker.pkg.github.com -u $GITHUB_ACTOR -p $TOKEN
+
+    - name: Pull latest images
+      run: |
+        docker pull $IMAGE_NAME:latest || true
+        docker pull $IMAGE_NAME-builder-stage:latest || true
+
+    - name: Images list
+      run: |
+        docker images
+
+    - name: Build
+      run: |
+        docker build \
+          --target builder \
+          --cache-from $IMAGE_NAME-builder-stage:latest \
+          -t $IMAGE_NAME-builder-stage \
+          .
+        docker build \
+          --cache-from $IMAGE_NAME-builder-stage:latest \
+          --cache-from $IMAGE_NAME:latest \
+          -t $IMAGE_NAME:$IMAGE_TAG \
+          -t $IMAGE_NAME:latest \
+          .
+
+    - name: Push image to GitHub Packages
+      run: |
+        docker push $IMAGE_NAME-builder-stage:latest
+        docker push $IMAGE_NAME:latest
+        docker push $IMAGE_NAME:$IMAGE_TAG
+
+    - name: Logout
+      run: |
+        docker logout docker.pkg.github.com</code></pre><br/>
+<p>Для начала нужно рассказать, почему запускается две команды <code>build</code>. Дело в том, что в мультистейдж-сборке результирующим образом будет набор слоёв из последнего стейджа. При этом слои из предыдущих стейджей не попадут в образ. Поэтому при использовании финального образа с предыдущей сборки Docker не сможет найти готовые слои для сборки образа c nodejs (стейдж builder). Для того чтобы решить эту проблему, создаётся промежуточный образ <code>$IMAGE_NAME-builder-stage</code> и отправляется в GitHub Packages, чтобы его можно было использовать в последующей сборке как источник кэша.</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/webt/rm/jg/nb/rmjgnba2qdrrkiyndk8nlzu7koy.png" data-src="https://habrastorage.org/webt/rm/jg/nb/rmjgnba2qdrrkiyndk8nlzu7koy.png"/></p><br/>
+<p>Общее время сборки сократилось до полутора минут. Полминуты тратится на подтягивание предыдущих образов.</p><br/>
+<h2 id="predvaritelnoe-sozdanie-obrazov">Предварительное создание образов</h2><br/>
+<p>Ещё один способ решить проблему чистого кэша докера — часть слоёв вынести в другой Dockerfile, собрать его отдельно, запушить в Container Registry и использовать как родительский.</p><br/>
+<p>Создаём свой образ nodejs для сборки Angular-приложения. Создаём в проекте Dockerfile.node</p><br/>
+<pre><code class="plaintext">FROM node:12.16.2-alpine3.11
+RUN apk --no-cache --update --virtual build-dependencies add \
+    python \
+    make \
+    g++</code></pre><br/>
+<p>Собираем и пушим публичный образ в Docker Hub:</p><br/>
+<pre><code class="bash">docker build -t exsmund/node-for-angular -f Dockerfile.node .
+docker push exsmund/node-for-angular:latest</code></pre><br/>
+<p>Теперь в нашем основном Dockerfile используем готовый образ:</p><br/>
+<pre><code class="plaintext">FROM exsmund/node-for-angular:latest as builder
+...</code></pre><br/>
+<p>В нашем примере время сборки не уменьшилось, но предварительно созданные образы могут быть полезны, если у вас много проектов и в каждом из них приходится ставить одинаковые зависимости.</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/webt/0u/k9/vi/0uk9viz8qpknwfpmgjdtiijogy0.png" data-src="https://habrastorage.org/webt/0u/k9/vi/0uk9viz8qpknwfpmgjdtiijogy0.png"/></p><br/>
+<p>Мы рассмотрели несколько методов ускорения сборки докер-образов. Если хочется, чтобы деплой проходил быстро, попробуйте применить в своём проекте:</p><br/>
+<ul>
+<li>уменьшение контекста;</li>
+<li>использование небольших родительских образов;</li>
+<li>мультистейдж-сборку;</li>
+<li>изменение порядка инструкций в Dockerfile, чтобы эффективно использовать кэш;</li>
+<li>настройку кэша в CI/CD-системах;</li>
+<li>предварительное создание образов.</li>
+</ul><br/>
+<p>Надеюсь, на примере станет понятнее, как работает Docker, и вы сможете оптимально настроить ваш деплой. Для того, чтобы поиграться с примерами из статьи, создан репозиторий <a href="https://github.com/devopsprodigy/test-docker-build">https://github.com/devopsprodigy/test-docker-build</a>.</p></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bitsumma%5D" class="tm-tags-list__link">itsumma</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bdocker%5D" class="tm-tags-list__link">docker</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bdockerfile%5D" class="tm-tags-list__link">dockerfile</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bnodejs%5D" class="tm-tags-list__link">nodejs</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bgithub%5D" class="tm-tags-list__link">github</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bgithub%20actions%5D" class="tm-tags-list__link">github actions</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bangular%5D" class="tm-tags-list__link">angular</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BA%D0%BE%D0%BD%D1%82%D0%B5%D0%B9%D0%BD%D0%B5%D1%80%D1%8B%5D" class="tm-tags-list__link">контейнеры</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BA%D0%BE%D0%BD%D1%82%D0%B5%D0%B9%D0%BD%D0%B5%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F%5D" class="tm-tags-list__link">контейнеризация</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bmultistage%5D" class="tm-tags-list__link">multistage</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/itsumma/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании ITSumma
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/it-infrastructure/" class="tm-hubs-list__link">
+    IT-инфраструктура
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/nginx/" class="tm-hubs-list__link">
+    Nginx
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/angular/" class="tm-hubs-list__link">
+    Angular
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/github/" class="tm-hubs-list__link">
+    GitHub
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 54: ↑53 и ↓1</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 54: ↑53 и ↓1" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+52</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">21K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    234
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/itsumma/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/757/81b/db7/75781bdb773986cb1efe18985b74b309.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/itsumma/profile/" class="tm-company-snippet__title">ITSumma</a> <div class="tm-company-snippet__description">Собираем безумных людей и вместе спасаем интернет</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="http://itsumma.ru" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Сайт
+    </a><a href="https://career.habr.com/companies/itsumma" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Хабр Карьера
+    </a><a href="https://facebook.com/itsumma" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Facebook
+    </a><a href="https://vk.com/itsumma" rel="noopener" target="_blank" class="tm-article-author__contact">
+      ВКонтакте
+    </a><a href="https://github.com/itsumma" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Github
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/Exsmund/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/ab1/49a/fc8/ab149afc8904b3977b98d6139237f930.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 14 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    14
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Евгений Финкельштейн</span> <a href="https://habr.com/ru/users/Exsmund/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @Exsmund
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Head of Dev ITSumma</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/itsumma/blog/501680/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 33 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2008-08-11T20:00:00.000Z" title="2008-08-12, 00:00">12  августа  2008</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="http://www.itsumma.ru/?utm_source=habr.com&amp;utm_campaign=anketaco" target="_blank" class="tm-company-basic-info__link">
+      www.itsumma.ru
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    101–200 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2009-11-24T14:12:50.000Z" title="2009-11-24, 17:12">24  ноября  2009</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Представитель</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://habr.com/ru/users/ITSumma/" class="tm-company-basic-info__link">
+      ITSumma
+    </a></dd></dl></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/itsumma/blog/501680/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/itsumma/blog/501680/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"501680":{"id":"501680","timePublished":"2020-05-14T07:02:01+00:00","isCorporative":true,"lang":"ru","titleHtml":"Несколько советов о том, как ускорить сборку Docker-образов. Например, до 30 секунд","leadData":{"textHtml":"\u003Cp\u003EПрежде чем фича попадет на прод, в наше время сложных оркестраторов и CI\u002FCD предстоит пройти долгий путь от коммита до тестов и доставки. Раньше можно было кинуть новые файлы по FTP (так больше никто не делает, верно?), и процесс «деплоя» занимал секунды. Теперь же надо создать merge request и ждать немалое время, пока фича доберётся до пользователей.\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EЧасть этого пути — сборка Docker-образа. Иногда сборка длится минуты, иногда — десятки минут, что сложно назвать нормальным. В данной статье возьмём простое приложение, которое упакуем в образ, применим несколько методов для ускорения сборки и рассмотрим нюансы работы этих методов.\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fpo\u002Fse\u002Fly\u002Fposelyxzccug-jtxbstwdrpm7yg.jpeg\"\u003E\u003C\u002Fp\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":14,"votesCount":14},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"91266","alias":"Exsmund","fullname":"Евгений Финкельштейн","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002Fab1\u002F49a\u002Ffc8\u002Fab149afc8904b3977b98d6139237f930.jpg","speciality":"Head of Dev ITSumma"},"statistics":{"commentsCount":33,"favoritesCount":234,"readingCount":21081,"score":52,"votesCount":54},"hubs":[{"relatedData":null,"id":"12926","alias":"itsumma","type":"corporative","title":"Блог компании ITSumma","titleHtml":"Блог компании ITSumma","isProfiled":false},{"relatedData":null,"id":"6398","alias":"it-infrastructure","type":"collective","title":"IT-инфраструктура","titleHtml":"IT-инфраструктура","isProfiled":true},{"relatedData":null,"id":"6659","alias":"nginx","type":"collective","title":"Nginx","titleHtml":"Nginx","isProfiled":true},{"relatedData":null,"id":"18109","alias":"angular","type":"collective","title":"Angular","titleHtml":"Angular","isProfiled":true},{"relatedData":null,"id":"18790","alias":"github","type":"collective","title":"GitHub","titleHtml":"GitHub","isProfiled":false}],"flows":[{"id":"1","alias":"develop","title":"Разработка"},{"id":"6","alias":"admin","title":"Администрирование"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cp\u003EПрежде чем фича попадет на прод, в наше время сложных оркестраторов и CI\u002FCD предстоит пройти долгий путь от коммита до тестов и доставки. Раньше можно было кинуть новые файлы по FTP (так больше никто не делает, верно?), и процесс «деплоя» занимал секунды. Теперь же надо создать merge request и ждать немалое время, пока фича доберётся до пользователей.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЧасть этого пути — сборка Docker-образа. Иногда сборка длится минуты, иногда — десятки минут, что сложно назвать нормальным. В данной статье возьмём простое приложение, которое упакуем в образ, применим несколько методов для ускорения сборки и рассмотрим нюансы работы этих методов.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fpo\u002Fse\u002Fly\u002Fposelyxzccug-jtxbstwdrpm7yg.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fpo\u002Fse\u002Fly\u002Fposelyxzccug-jtxbstwdrpm7yg.jpeg\" data-blurred=\"true\"\u002F\u003E\u003C\u002Fp\u003E\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EУ нас неплохой опыт создания и поддержки сайтов СМИ: \u003Ca href=\"https:\u002F\u002Ftass.ru\u002F\"\u003EТАСС\u003C\u002Fa\u003E, \u003Ca href=\"https:\u002F\u002Fthebell.io\u002F\"\u003EThe Bell\u003C\u002Fa\u003E, \u003Ca href=\"https:\u002F\u002Fnovayagazeta.ru\u002F\"\u003E\"Новая газета\"\u003C\u002Fa\u003E, \u003Ca href=\"https:\u002F\u002Frepublic.ru\u002F\"\u003ERepublic\u003C\u002Fa\u003E… Не так давно мы пополнили портфолио, выпустив в прод сайт \u003Ca href=\"https:\u002F\u002Freminder.media\"\u003EReminder\u003C\u002Fa\u003E. И пока быстро допиливали новые фичи и чинили старые баги, медленный деплой стал большой проблемой.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДеплой мы делаем на GitLab. Собираем образы, пушим в GitLab Registry и раскатываем на проде. В этом списке самое долгое — это сборка образов. Для примера: без оптимизации каждая сборка бэкенда занимала 14 минут.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fpe\u002Fih\u002Fsl\u002Fpeihslyjxkii0aw14jpyuyqe91w.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fpe\u002Fih\u002Fsl\u002Fpeihslyjxkii0aw14jpyuyqe91w.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ конце концов стало понятно, что так жить больше нельзя, и мы сели разобраться, почему образы собираются столько времени. В итоге удалось сократить время сборки до 30 секунд!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fgg\u002F3y\u002F4x\u002Fgg3y4xd2p1f0wg-3lv_1aw5z898.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fgg\u002F3y\u002F4x\u002Fgg3y4xd2p1f0wg-3lv_1aw5z898.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДля данной статьи, чтобы не привязываться к окружению Reminder'а, рассмотрим пример сборки пустого приложения на Angular. Итак, создаём наше приложение:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Eng n app\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДобавляем в него PWA (мы же прогрессивные):\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Eng add @angular\u002Fpwa --project app\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПока скачивается миллион npm-пакетов, давайте разберемся, как устроен docker-образ. Docker предоставляет возможность упаковывать приложения и запускать их в изолированном окружении, которое называется контейнер. Благодаря изоляции можно запускать одновременно много контейнеров на одном сервере. Контейнеры значительно легче виртуальных машин, поскольку выполняются напрямую на ядре системы. Чтобы запустить контейнер с нашим приложением, нам нужно сначала создать образ, в котором мы упакуем всё, что необходимо для работы нашего приложения. По сути образ — это слепок файловой системы. К примеру, возьмём Dockerfile:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EFROM node:12.16.2\nWORKDIR \u002Fapp\nCOPY . .\nRUN npm ci\nRUN npm run build --prod\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EDockerfile — это набор инструкций; выполняя каждую из них, Docker будет сохранять изменения в файловой системе и накладывать их на предыдущие. Каждая команда создаёт свой слой. А готовый образ — это объединённые вместе слои.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЧто важно знать: каждый слой докер умеет кэшировать. Если ничего не изменилось с прошлой сборки, то вместо выполнения команды докер возьмёт уже готовый слой. Поскольку основной прирост в скорости сборки будет за счет использования кэша, в замерах скорости сборки будем обращать внимание именно на сборку образа с готовым кэшем. Итак, по шагам:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EУдаляем образы локально, чтобы предыдущие запуски не влияли на тест.\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Edocker rmi $(docker images -q)\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EЗапускаем билд первый раз.\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Etime docker build -t app .\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EМеняем файл src\u002Findex.html — имитируем работу программиста.\u003C\u002Fli\u003E\r\n\u003Cli\u003EЗапускаем билд второй раз.\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Etime docker build -t app .\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕсли среду для сборки образов настроить правильно (о чем немного ниже), то докер при запуске сборки уже будет иметь на борту кучку кэшей. Наша задача — научиться использовать кэш так, чтобы сборка прошла максимально быстро. Поскольку мы предполагаем, что запуск сборки без кэша происходит всего один раз — самый первый, — стало быть, можем игнорировать то, насколько медленным был этот первый раз. В тестах нам важен второй запуск сборки, когда кэши уже прогреты и мы готовы печь наш пирог. Тем не менее, некоторые советы скажутся на первой сборке тоже.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПоложим Dockerfile, описанный выше, в папку с проектом и запустим сборку. Все приведённые листинги сокращены для удобства чтения.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ time docker build -t app .\nSending build context to Docker daemon 409MB\nStep 1\u002F5 : FROM node:12.16.2\nStatus: Downloaded newer image for node:12.16.2\nStep 2\u002F5 : WORKDIR \u002Fapp\nStep 3\u002F5 : COPY . .\nStep 4\u002F5 : RUN npm ci\nadded 1357 packages in 22.47s\nStep 5\u002F5 : RUN npm run build --prod\nDate: 2020-04-16T19:20:09.664Z - Hash: fffa0fddaa3425c55dd3 - Time: 37581ms\nSuccessfully built c8c279335f46\nSuccessfully tagged app:latest\n\nreal 5m4.541s\nuser 0m0.000s\nsys 0m0.000s\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EМеняем содержимое src\u002Findex.html и запускаем второй раз.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ time docker build -t app .\nSending build context to Docker daemon 409MB\nStep 1\u002F5 : FROM node:12.16.2\nStep 2\u002F5 : WORKDIR \u002Fapp\n ---\u003E Using cache\nStep 3\u002F5 : COPY . .\nStep 4\u002F5 : RUN npm ci\nadded 1357 packages in 22.47s\nStep 5\u002F5 : RUN npm run build --prod\nDate: 2020-04-16T19:26:26.587Z - Hash: fffa0fddaa3425c55dd3 - Time: 37902ms\nSuccessfully built 79f335df92d3\nSuccessfully tagged app:latest\n\nreal 3m33.262s\nuser 0m0.000s\nsys 0m0.000s\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЧтобы посмотреть, получился ли у нас образ, выполним команду \u003Ccode\u003Edocker images\u003C\u002Fcode\u003E:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003EREPOSITORY   TAG      IMAGE ID       CREATED              SIZE\napp          latest   79f335df92d3   About a minute ago   1.74GB\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПеред сборкой докер берет все файлы в текущем контексте и отправляет их своему демону \u003Ccode\u003ESending build context to Docker daemon 409MB\u003C\u002Fcode\u003E. Контекст для сборки указывается последним аргументом команды build. В нашем случае это текущая директория — «.», — и докер тащит всё, что есть у нас в этой папке. 409 Мбайт — это много: давайте думать, как это исправить.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"umenshaem-kontekst\"\u003EУменьшаем контекст\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЧтобы уменьшить контекст, есть два варианта. Либо положить все файлы, нужные для сборки, в отдельную папку и указывать контекст докеру именно на эту папку. Это может быть не всегда удобно, поэтому есть возможность указать исключения: что не надо тащить в контекст. Для этого положим в проект файл .dockerignore и укажем, что не нужно для сборки:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E.git\n\u002Fnode_modules\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003Eи запустим сборку ещё раз:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ time docker build -t app .\nSending build context to Docker daemon 607.2kB\nStep 1\u002F5 : FROM node:12.16.2\nStep 2\u002F5 : WORKDIR \u002Fapp\n ---\u003E Using cache\nStep 3\u002F5 : COPY . .\nStep 4\u002F5 : RUN npm ci\nadded 1357 packages in 22.47s\nStep 5\u002F5 : RUN npm run build --prod\nDate: 2020-04-16T19:33:54.338Z - Hash: fffa0fddaa3425c55dd3 - Time: 37313ms\nSuccessfully built 4942f010792a\nSuccessfully tagged app:latest\n\nreal 1m47.763s\nuser 0m0.000s\nsys 0m0.000s\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E607.2 Кбайт — намного лучше, чем 409 Мбайт. А ещё мы уменьшили размер образа с 1.74 до 1.38Гбайт:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003EREPOSITORY   TAG      IMAGE ID       CREATED         SIZE\napp          latest   4942f010792a   3 minutes ago   1.38GB\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДавайте попробуем ещё уменьшить размер образа.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"ispolzuem-alpine\"\u003EИспользуем Alpine\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕщё один способ сэкономить на размере образа — использовать маленький родительский образ. Родительский образ — это образ, на основе которого готовится наш образ. Нижний слой указывается командой \u003Ccode\u003EFROM\u003C\u002Fcode\u003E в Dockerfile. В нашем случае мы используем образ на основе Ubuntu, в котором уже стоит nodejs. И весит он …\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ docker images -a | grep node\nnode 12.16.2 406aa3abbc6c 17 minutes ago 916MB\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E… почти гигабайт. Изрядно сократить объем можно, используя образ на основе Alpine Linux. Alpine — это очень маленький линукс. Докер-образ для nodejs на основе alpine весит всего 88.5 Мбайт. Поэтому давайте заменим наш жиииирный \u003Cdel\u003Eвдомах\u003C\u002Fdel\u003E образ:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EFROM node:12.16.2-alpine3.11\nRUN apk --no-cache --update --virtual build-dependencies add \\\n    python \\\n    make \\\n    g++\nWORKDIR \u002Fapp\nCOPY . .\nRUN npm ci\nRUN npm run build --prod\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНам пришлось установить некоторые штуки, которые необходимы для сборки приложения. Да, Angular не собирается без питона ¯(°_o)\u002F¯\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНо зато размер образа сбросил 619 Мбайт:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003EREPOSITORY   TAG      IMAGE ID       CREATED          SIZE\napp          latest   aa031edc315a   22 minutes ago   761MB\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИдём ещё дальше.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"multisteydzh-sborka\"\u003EМультистейдж сборка\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНе всё, что есть в образе, нужно нам в продакшене.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ docker run app ls -lah\ntotal 576K\ndrwxr-xr-x 1 root root 4.0K Apr 16 19:54 .\ndrwxr-xr-x 1 root root 4.0K Apr 16 20:00 ..\n-rwxr-xr-x 1 root root 19 Apr 17 2020 .dockerignore\n-rwxr-xr-x 1 root root 246 Apr 17 2020 .editorconfig\n-rwxr-xr-x 1 root root 631 Apr 17 2020 .gitignore\n-rwxr-xr-x 1 root root 181 Apr 17 2020 Dockerfile\n-rwxr-xr-x 1 root root 1020 Apr 17 2020 README.md\n-rwxr-xr-x 1 root root 3.6K Apr 17 2020 angular.json\n-rwxr-xr-x 1 root root 429 Apr 17 2020 browserslist\ndrwxr-xr-x 3 root root 4.0K Apr 16 19:54 dist\ndrwxr-xr-x 3 root root 4.0K Apr 17 2020 e2e\n-rwxr-xr-x 1 root root 1015 Apr 17 2020 karma.conf.js\n-rwxr-xr-x 1 root root 620 Apr 17 2020 ngsw-config.json\ndrwxr-xr-x 1 root root 4.0K Apr 16 19:54 node_modules\n-rwxr-xr-x 1 root root 494.9K Apr 17 2020 package-lock.json\n-rwxr-xr-x 1 root root 1.3K Apr 17 2020 package.json\ndrwxr-xr-x 5 root root 4.0K Apr 17 2020 src\n-rwxr-xr-x 1 root root 210 Apr 17 2020 tsconfig.app.json\n-rwxr-xr-x 1 root root 489 Apr 17 2020 tsconfig.json\n-rwxr-xr-x 1 root root 270 Apr 17 2020 tsconfig.spec.json\n-rwxr-xr-x 1 root root 1.9K Apr 17 2020 tslint.json\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EС помощью \u003Ccode\u003Edocker run app ls -lah\u003C\u002Fcode\u003E мы запустили контейнер на основе нашего образа \u003Ccode\u003Eapp\u003C\u002Fcode\u003E и выполнили в нем команду \u003Ccode\u003Els -lah\u003C\u002Fcode\u003E, после чего контейнер завершил свою работу.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНа проде нам нужна только папка \u003Ccode\u003Edist\u003C\u002Fcode\u003E. При этом файлы как-то нужно отдавать наружу. Можно запустить какой-нибудь HTTP-сервер на nodejs. Но мы сделаем проще. Угадайте русское слово, в котором четыре буквы «ы». Правильно! Ынжыныксы. Возьмём образ с nginx, положим в него папку \u003Ccode\u003Edist\u003C\u002Fcode\u003E и небольшой конфиг:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"nginx\"\u003Eserver {\n    listen 80 default_server;\n    server_name localhost;\n    charset utf-8;\n    root \u002Fapp\u002Fdist;\n\n    location \u002F {\n        try_files $uri $uri\u002F \u002Findex.html;\n    }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЭто всё провернуть нам поможет multi-stage build. Изменим наш Dockerfile:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EFROM node:12.16.2-alpine3.11 as builder\nRUN apk --no-cache --update --virtual build-dependencies add \\\n    python \\\n    make \\\n    g++\nWORKDIR \u002Fapp\nCOPY . .\nRUN npm ci\nRUN npm run build --prod\n\nFROM nginx:1.17.10-alpine\nRUN rm \u002Fetc\u002Fnginx\u002Fconf.d\u002Fdefault.conf\nCOPY nginx\u002Fstatic.conf \u002Fetc\u002Fnginx\u002Fconf.d\nCOPY --from=builder \u002Fapp\u002Fdist\u002Fapp .\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТеперь у нас две инструкции \u003Ccode\u003EFROM\u003C\u002Fcode\u003E в Dockerfile, каждая из них запускает свой этап сборки. Первый мы назвали \u003Ccode\u003Ebuilder\u003C\u002Fcode\u003E, а вот начиная с последнего FROM будет готовиться наш итоговый образ. Последним шагом копируем артефакт нашей сборки в предыдущем этапе в итоговый образ с nginx. Размер образа существенно уменьшился:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003EREPOSITORY   TAG      IMAGE ID       CREATED          SIZE\napp          latest   2c6c5da07802   29 minutes ago   36MB\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДавайте запустим контейнер с нашим образом и убедимся, что всё работает:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Edocker run -p8080:80 app\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОпцией -p8080:80 мы пробросили порт 8080 на нашей хостовой машине до порта 80 внутри контейнера, где крутится nginx. Открываем в браузере \u003Ca href=\"http:\u002F\u002Flocalhost:8080\u002F\"\u003Ehttp:\u002F\u002Flocalhost:8080\u002F\u003C\u002Fa\u003E и видим наше приложение. Всё работает!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fus\u002Fkf\u002Fst\u002Fuskfstv9s72xfhlbi1zq6iae2g4.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fus\u002Fkf\u002Fst\u002Fuskfstv9s72xfhlbi1zq6iae2g4.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EУменьшение размера образа с 1.74 Гбайт до 36 Мбайт значительно сокращает время доставки вашего приложения в прод. Но давайте вернёмся ко времени сборки.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ time docker build -t app .\nSending build context to Docker daemon 608.8kB\nStep 1\u002F11 : FROM node:12.16.2-alpine3.11 as builder\nStep 2\u002F11 : RUN apk --no-cache --update --virtual build-dependencies add python make g++\n ---\u003E Using cache\nStep 3\u002F11 : WORKDIR \u002Fapp\n ---\u003E Using cache\nStep 4\u002F11 : COPY . .\nStep 5\u002F11 : RUN npm ci\nadded 1357 packages in 47.338s\nStep 6\u002F11 : RUN npm run build --prod\nDate: 2020-04-16T21:16:03.899Z - Hash: fffa0fddaa3425c55dd3 - Time: 39948ms\n ---\u003E 27f1479221e4\nStep 7\u002F11 : FROM nginx:stable-alpine\nStep 8\u002F11 : WORKDIR \u002Fapp\n ---\u003E Using cache\nStep 9\u002F11 : RUN rm \u002Fetc\u002Fnginx\u002Fconf.d\u002Fdefault.conf\n ---\u003E Using cache\nStep 10\u002F11 : COPY nginx\u002Fstatic.conf \u002Fetc\u002Fnginx\u002Fconf.d\n ---\u003E Using cache\nStep 11\u002F11 : COPY --from=builder \u002Fapp\u002Fdist\u002Fapp .\nSuccessfully built d201471c91ad\nSuccessfully tagged app:latest\n\nreal 2m17.700s\nuser 0m0.000s\nsys 0m0.000s\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"menyaem-poryadok-sloyov\"\u003EМеняем порядок слоёв\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПервые три шага у нас были закэшированы (подсказка \u003Ccode\u003EUsing cache\u003C\u002Fcode\u003E). На четвёртом шаге копируются все файлы проекта и на пятом шаге ставятся зависимости \u003Ccode\u003ERUN npm ci\u003C\u002Fcode\u003E — целых 47.338s. Зачем каждый раз заново ставить зависимости, если они меняются очень редко? Давайте разберемся, почему они не закэшировались. Дело в том, что докер проверят слой за слоем, не поменялась ли команда и файлы, связанные с ней. На четвёртом шаге мы копируем все файлы нашего проекта, и среди них, конечно же, есть изменения, поэтому докер не только не берет из кэша этот слой, но и все последующие! Давайте внесём небольшие изменения в Dockerfile.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EFROM node:12.16.2-alpine3.11 as builder\nRUN apk --no-cache --update --virtual build-dependencies add \\\n    python \\\n    make \\\n    g++\nWORKDIR \u002Fapp\nCOPY package*.json .\u002F\nRUN npm ci\nCOPY . .\nRUN npm run build --prod\n\nFROM nginx:1.17.10-alpine\nRUN rm \u002Fetc\u002Fnginx\u002Fconf.d\u002Fdefault.conf\nCOPY nginx\u002Fstatic.conf \u002Fetc\u002Fnginx\u002Fconf.d\nCOPY --from=builder \u002Fapp\u002Fdist\u002Fapp .\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСначала копируются package.json и package-lock.json, затем ставятся зависимости, а только после этого копируется весь проект. В результате:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E$ time docker build -t app .\nSending build context to Docker daemon 608.8kB\nStep 1\u002F12 : FROM node:12.16.2-alpine3.11 as builder\nStep 2\u002F12 : RUN apk --no-cache --update --virtual build-dependencies add python make g++\n ---\u003E Using cache\nStep 3\u002F12 : WORKDIR \u002Fapp\n ---\u003E Using cache\nStep 4\u002F12 : COPY package*.json .\u002F\n ---\u003E Using cache\nStep 5\u002F12 : RUN npm ci\n ---\u003E Using cache\nStep 6\u002F12 : COPY . .\nStep 7\u002F12 : RUN npm run build --prod\nDate: 2020-04-16T21:29:44.770Z - Hash: fffa0fddaa3425c55dd3 - Time: 38287ms\n ---\u003E 1b9448c73558\nStep 8\u002F12 : FROM nginx:stable-alpine\nStep 9\u002F12 : WORKDIR \u002Fapp\n ---\u003E Using cache\nStep 10\u002F12 : RUN rm \u002Fetc\u002Fnginx\u002Fconf.d\u002Fdefault.conf\n ---\u003E Using cache\nStep 11\u002F12 : COPY nginx\u002Fstatic.conf \u002Fetc\u002Fnginx\u002Fconf.d\n ---\u003E Using cache\nStep 12\u002F12 : COPY --from=builder \u002Fapp\u002Fdist\u002Fapp .\nSuccessfully built a44dd7c217c3\nSuccessfully tagged app:latest\n\nreal 0m46.497s\nuser 0m0.000s\nsys 0m0.000s\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E46 секунд вместо 3 минут — значительно лучше! Важен правильный порядок слоёв: сначала копируем то, что не меняется, затем то, что редко меняется, а в конце — то, что часто.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДалее немного слов о сборке образов в CI\u002FCD системах.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"ispolzovanie-predyduschih-obrazov-dlya-kesha\"\u003EИспользование предыдущих образов для кэша\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕсли мы используем для сборки какое-то SaaS-решение, то локальный кэш докера может оказаться чист и свеж. Чтобы докеру было откуда взять испеченные слои, дайте ему предыдущий собранный образ.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EРассмотрим для примера сборку нашего приложения в GitHub Actions. Используем такой конфиг\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Eon:\n  push:\n    branches:\n      - master\n\nname: Test docker build\n\njobs:\n  deploy:\n    name: Build\n    runs-on: ubuntu-latest\n    env:\n      IMAGE_NAME: docker.pkg.github.com\u002F${{ github.repository }}\u002Fapp\n      IMAGE_TAG: ${{ github.sha }}\n\n    steps:\n    - name: Checkout\n      uses: actions\u002Fcheckout@v2\n\n    - name: Login to GitHub Packages\n      env:\n        TOKEN: ${{ secrets.GITHUB_TOKEN }}\n      run: |\n        docker login docker.pkg.github.com -u $GITHUB_ACTOR -p $TOKEN\n\n    - name: Build\n      run: |\n        docker build \\\n          -t $IMAGE_NAME:$IMAGE_TAG \\\n          -t $IMAGE_NAME:latest \\\n          .\n\n    - name: Push image to GitHub Packages\n      run: |\n        docker push $IMAGE_NAME:latest\n        docker push $IMAGE_NAME:$IMAGE_TAG\n\n    - name: Logout\n      run: |\n        docker logout docker.pkg.github.com\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОбраз собирается и пушится в GitHub Packages за две минуты и 20 секунд:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fbn\u002F2g\u002Fkj\u002Fbn2gkjz2fmwmmo4cvatanfn9gu4.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fbn\u002F2g\u002Fkj\u002Fbn2gkjz2fmwmmo4cvatanfn9gu4.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТеперь изменим сборку так, чтобы использовался кэш на основе предыдущих собранных образов:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Eon:\n  push:\n    branches:\n      - master\n\nname: Test docker build\n\njobs:\n  deploy:\n    name: Build\n    runs-on: ubuntu-latest\n    env:\n      IMAGE_NAME: docker.pkg.github.com\u002F${{ github.repository }}\u002Fapp\n      IMAGE_TAG: ${{ github.sha }}\n\n    steps:\n    - name: Checkout\n      uses: actions\u002Fcheckout@v2\n\n    - name: Login to GitHub Packages\n      env:\n        TOKEN: ${{ secrets.GITHUB_TOKEN }}\n      run: |\n        docker login docker.pkg.github.com -u $GITHUB_ACTOR -p $TOKEN\n\n    - name: Pull latest images\n      run: |\n        docker pull $IMAGE_NAME:latest || true\n        docker pull $IMAGE_NAME-builder-stage:latest || true\n\n    - name: Images list\n      run: |\n        docker images\n\n    - name: Build\n      run: |\n        docker build \\\n          --target builder \\\n          --cache-from $IMAGE_NAME-builder-stage:latest \\\n          -t $IMAGE_NAME-builder-stage \\\n          .\n        docker build \\\n          --cache-from $IMAGE_NAME-builder-stage:latest \\\n          --cache-from $IMAGE_NAME:latest \\\n          -t $IMAGE_NAME:$IMAGE_TAG \\\n          -t $IMAGE_NAME:latest \\\n          .\n\n    - name: Push image to GitHub Packages\n      run: |\n        docker push $IMAGE_NAME-builder-stage:latest\n        docker push $IMAGE_NAME:latest\n        docker push $IMAGE_NAME:$IMAGE_TAG\n\n    - name: Logout\n      run: |\n        docker logout docker.pkg.github.com\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДля начала нужно рассказать, почему запускается две команды \u003Ccode\u003Ebuild\u003C\u002Fcode\u003E. Дело в том, что в мультистейдж-сборке результирующим образом будет набор слоёв из последнего стейджа. При этом слои из предыдущих стейджей не попадут в образ. Поэтому при использовании финального образа с предыдущей сборки Docker не сможет найти готовые слои для сборки образа c nodejs (стейдж builder). Для того чтобы решить эту проблему, создаётся промежуточный образ \u003Ccode\u003E$IMAGE_NAME-builder-stage\u003C\u002Fcode\u003E и отправляется в GitHub Packages, чтобы его можно было использовать в последующей сборке как источник кэша.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Frm\u002Fjg\u002Fnb\u002Frmjgnba2qdrrkiyndk8nlzu7koy.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Frm\u002Fjg\u002Fnb\u002Frmjgnba2qdrrkiyndk8nlzu7koy.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОбщее время сборки сократилось до полутора минут. Полминуты тратится на подтягивание предыдущих образов.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"predvaritelnoe-sozdanie-obrazov\"\u003EПредварительное создание образов\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕщё один способ решить проблему чистого кэша докера — часть слоёв вынести в другой Dockerfile, собрать его отдельно, запушить в Container Registry и использовать как родительский.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСоздаём свой образ nodejs для сборки Angular-приложения. Создаём в проекте Dockerfile.node\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EFROM node:12.16.2-alpine3.11\nRUN apk --no-cache --update --virtual build-dependencies add \\\n    python \\\n    make \\\n    g++\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСобираем и пушим публичный образ в Docker Hub:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Edocker build -t exsmund\u002Fnode-for-angular -f Dockerfile.node .\ndocker push exsmund\u002Fnode-for-angular:latest\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТеперь в нашем основном Dockerfile используем готовый образ:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EFROM exsmund\u002Fnode-for-angular:latest as builder\n...\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ нашем примере время сборки не уменьшилось, но предварительно созданные образы могут быть полезны, если у вас много проектов и в каждом из них приходится ставить одинаковые зависимости.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002F0u\u002Fk9\u002Fvi\u002F0uk9viz8qpknwfpmgjdtiijogy0.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F0u\u002Fk9\u002Fvi\u002F0uk9viz8qpknwfpmgjdtiijogy0.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EМы рассмотрели несколько методов ускорения сборки докер-образов. Если хочется, чтобы деплой проходил быстро, попробуйте применить в своём проекте:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eуменьшение контекста;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eиспользование небольших родительских образов;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eмультистейдж-сборку;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eизменение порядка инструкций в Dockerfile, чтобы эффективно использовать кэш;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eнастройку кэша в CI\u002FCD-системах;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eпредварительное создание образов.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНадеюсь, на примере станет понятнее, как работает Docker, и вы сможете оптимально настроить ваш деплой. Для того, чтобы поиграться с примерами из статьи, создан репозиторий \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fdevopsprodigy\u002Ftest-docker-build\"\u003Ehttps:\u002F\u002Fgithub.com\u002Fdevopsprodigy\u002Ftest-docker-build\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"itsumma"},{"titleHtml":"docker"},{"titleHtml":"dockerfile"},{"titleHtml":"nodejs"},{"titleHtml":"github"},{"titleHtml":"github actions"},{"titleHtml":"angular"},{"titleHtml":"контейнеры"},{"titleHtml":"контейнеризация"},{"titleHtml":"multistage"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fpo\u002Fse\u002Fly\u002Fposelyxzccug-jtxbstwdrpm7yg.jpeg","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fpo\u002Fse\u002Fly\u002Fposelyxzccug-jtxbstwdrpm7yg.jpeg","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fitsumma\\\u002Fblog\\\u002F501680\\\u002F\"},\"headline\":\"Несколько советов о том, как ускорить сборку Docker-образов. Например, до 30 секунд\",\"datePublished\":\"2020-05-14T10:02:01+03:00\",\"dateModified\":\"2020-12-03T10:58:02+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Евгений Финкельштейн\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Прежде чем фича попадет на прод, в наше время сложных оркестраторов и CI\\\u002FCD предстоит пройти долгий путь от коммита до тестов и доставки. Раньше можно было кинут...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fitsumma\\\u002Fblog\\\u002F501680\\\u002F#post-content-body\",\"about\":[\"c_itsumma\",\"h_it-infrastructure\",\"h_nginx\",\"h_angular\",\"h_github\",\"f_develop\",\"f_admin\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F501680\\\u002Fea3a82e1d868eba082677939928e9149\\\u002F\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fpo\\\u002Fse\\\u002Fly\\\u002Fposelyxzccug-jtxbstwdrpm7yg.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fpe\\\u002Fih\\\u002Fsl\\\u002Fpeihslyjxkii0aw14jpyuyqe91w.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fgg\\\u002F3y\\\u002F4x\\\u002Fgg3y4xd2p1f0wg-3lv_1aw5z898.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fus\\\u002Fkf\\\u002Fst\\\u002Fuskfstv9s72xfhlbi1zq6iae2g4.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fbn\\\u002F2g\\\u002Fkj\\\u002Fbn2gkjz2fmwmmo4cvatanfn9gu4.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Frm\\\u002Fjg\\\u002Fnb\\\u002Frmjgnba2qdrrkiyndk8nlzu7koy.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F0u\\\u002Fk9\\\u002Fvi\\\u002F0uk9viz8qpknwfpmgjdtiijogy0.png\"]}","metaDescription":"Прежде чем фича попадет на прод, в наше время сложных оркестраторов и CI\u002FCD предстоит пройти долгий путь от коммита до тестов и доставки. Раньше можно было кинуть новые файлы по FTP (так больше никто...","mainImageUrl":null,"amp":false,"customTrackerLinks":["https:\u002F\u002Fvk.com\u002Frtrg?p=VK-RTRG-476767-9fNIw","https:\u002F\u002Fwww.facebook.com\u002Ftr?id=256004148111649&ev=PageView&noscript=1","https:\u002F\u002Fhabr.com\u002Fru\u002Fcompany\u002Fitsumma\u002Fblog\u002F501680\u002F?utm_source=habr.com&utm_medium=cpc&utm_campaign=post14052020"]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"itsumma":{"alias":"itsumma","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002F757\u002F81b\u002Fdb7\u002F75781bdb773986cb1efe18985b74b309.png","titleHtml":"ITSumma","descriptionHtml":"Собираем безумных людей и вместе спасаем интернет","relatedData":null,"statistics":{"postsCount":172,"newsCount":197,"vacanciesCount":0,"employeesCount":43,"careerRating":null,"subscribersCount":44455,"rating":221.59,"invest":null},"foundationDate":{"year":"2008","month":"08","day":"12"},"location":{"city":null,"region":null,"country":{"id":"168","title":"Россия"}},"siteUrl":"http:\u002F\u002Fwww.itsumma.ru\u002F?utm_source=habr.com&utm_campaign=anketaco","staffNumber":"101–200 человек","registrationDate":"2009-11-24T14:12:50+00:00","representativeUser":{"alias":"ITSumma","fullname":"ITSumma"},"contacts":[{"title":"Сайт","url":"http:\u002F\u002Fitsumma.ru"},{"title":"Хабр Карьера","url":"https:\u002F\u002Fcareer.habr.com\u002Fcompanies\u002Fitsumma"},{"title":"Facebook","url":"https:\u002F\u002Ffacebook.com\u002Fitsumma"},{"title":"ВКонтакте","url":"https:\u002F\u002Fvk.com\u002Fitsumma"},{"title":"Github","url":"https:\u002F\u002Fgithub.com\u002Fitsumma"}],"settings":{"analyticsSettings":[{"type":"ga","trackingId":"UA-12159557-2"},{"type":"ym","trackingId":"57099715"}],"branding":{"imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fbranding\u002F019\u002F597\u002F8f6\u002F0195978f6a995359231d8984f6db21bd.png","linkUrl":"http:\u002F\u002Fwww.itsumma.ru\u002F?utm_source=habr.com&utm_medium=banner&utm_campaign=shapka","pixelUrl":null},"status":"active","isStartup":false},"metadata":{"titleHtml":"ITSumma, Россия - Собираем безумных людей и вместе спасаем интернет с 12 августа 2008 г.","title":"ITSumma, Россия - Собираем безумных людей и вместе спасаем интернет с 12 августа 2008 г.","keywords":["Производство и разработка электроники","Процессоры","Компьютерное железо","Open source","Софт","itsumma","kubernetes","linux","k8s","intel","информационная безопасность","github","мониторинг","google","разработка","microsoft","open source","docker","kafka","grafana","перевод","devops","шифрование","nvidia","инфраструктура"],"descriptionHtml":"172 статьи от авторов компании ITSumma","description":"172 статьи от авторов компании ITSumma"},"aDeskSettings":null,"careerAlias":"itsumma"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

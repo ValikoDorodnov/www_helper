@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>SQL ключи во всех подробностях / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/oleg-bunin\/blog\/348172\/"},"headline":"SQL ключи во всех подробностях","datePublished":"2018-02-02T17:40:30+03:00","dateModified":"2018-02-03T17:14:23+03:00","author":{"@type":"Person","name":"Олег Бунин"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"В Интернете полно догматических заповедей о том, как нужно выбирать и использовать ключи в реляционных базах данных. Иногда споры даже переходят в холивары: испо...","url":"https:\/\/habr.com\/ru\/company\/oleg-bunin\/blog\/348172\/#post-content-body","about":["c_oleg-bunin","h_mysql","h_postgresql","h_sql","h_db_admins","f_develop","f_admin"],"image":["https:\/\/habr.com\/share\/publication\/348172\/9a2e43ebc0a8d3ecd325f59506e580a5\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="SQL ключи во всех подробностях" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="SQL ключи во всех подробностях" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="SQL ключи во всех подробностях" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="В Интернете полно догматических заповедей о том, как нужно выбирать и использовать ключи в реляционных базах данных. Иногда споры даже переходят в холивары: использовать естественные или искусственные..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="В Интернете полно догматических заповедей о том, как нужно выбирать и использовать ключи в реляционных базах данных. Иногда споры даже переходят в холивары: использовать естественные или искусственные..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="В Интернете полно догматических заповедей о том, как нужно выбирать и использовать ключи в реляционных базах данных. Иногда споры даже переходят в холивары: использовать естественные или искусственные..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="В Интернете полно догматических заповедей о том, как нужно выбирать и использовать ключи в реляционных базах данных. Иногда споры даже переходят в холивары: использовать естественные или искусственные..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="В Интернете полно догматических заповедей о том, как нужно выбирать и использовать ключи в реляционных базах данных. Иногда споры даже переходят в холивары: использовать естественные или искусственные..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/348172/9a2e43ebc0a8d3ecd325f59506e580a5/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/348172/9a2e43ebc0a8d3ecd325f59506e580a5/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/348172/9a2e43ebc0a8d3ecd325f59506e580a5/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/348172/9a2e43ebc0a8d3ecd325f59506e580a5/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/348172/9a2e43ebc0a8d3ecd325f59506e580a5/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="348172" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2018-02-02T14:40:30.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/oleg-bunin/blog/348172/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="sql, индексы">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/348172/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.36.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/348172/9a2e43ebc0a8d3ecd325f59506e580a5/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><a href="https://effect.habr.com/a/daQC1eydgfn2fl8VvaRyQCoM1YyIcFs_5BAw8738dXCaeQnBBpjA3FVKDKHMK-x5rhCNspTg8YGJWCfzB0Zfh71p7kUjZTe2bo82XsekgGEuaXc04ZB_6hziWZFAtHYvJNQq0sF6" rel="noopener" target="_blank" class="tm-feature__link"><img alt height="20" src="https://effect.habr.com/a/0hPKpGPDA4POk5G_nM7K6zGf1mNPyhcLdY4wi3PuvvMwrfOPIl7_BnCdMkelIeg1Xu8OPJGFf-Nh47iCOpewXQw90L4UH4vO-dVNlsHWQ9hPfCJKSpkrJ-i69XVrZkJBw_94VKa2KkrXB9n3guntoNVoJ1xZfSONqVMi-jtPXjhzGbnUUFwzN_ZB1pmMqeKIApmZNPCMBAIGi1hPn1a_51yYFanA0pzt" width="20" class="tm-feature__icon">
+    Питчи недели фронтендеров
+  </a></div> <a href="https://effect.habr.com/a/LMrLBfTOE1-szDX6K9TrERnYm0n669hNNqouUTUhcksnezHEMeTDMMEx6K2nCN44AePBf_CkFT2TVARJhUzoHQSmnz1CepDD-GRTKLmPMIKm288H" target="_blank" class="tm-top-link" style="color:#99ddff;">
+  Основы основ финтеха
+</a> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="oleg-bunin" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><!----></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/oleg-bunin/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/add/eb3/e91/addeb3e91fe453f9d78c7b52b8dc6a90.png" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">349.95</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/oleg-bunin/profile/" class="tm-company-card__name">
+      Конференции Олега Бунина (Онтико)
+    </a> <div class="tm-company-card__description">Профессиональные конференции для IT-разработчиков</div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/olegbunin/" title="olegbunin" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/fdb/8a5/6e3/fdb8a56e3bbf010b012a4eb597cdf134.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/olegbunin/" class="tm-user-info__username">
+      olegbunin
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2018-02-02T14:40:30.000Z" title="2018-02-02, 17:40">2  февраля  2018 в 17:40</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>SQL ключи во всех подробностях</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/oleg-bunin/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании Конференции Олега Бунина (Онтико)</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/mysql/" class="tm-article-snippet__hubs-item-link"><span>MySQL</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/postgresql/" class="tm-article-snippet__hubs-item-link"><span>PostgreSQL</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/sql/" class="tm-article-snippet__hubs-item-link"><span>SQL</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/db_admins/" class="tm-article-snippet__hubs-item-link"><span>Администрирование баз данных</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-translation"><span>
+        Перевод
+      </span></div></div> <!----> <!----></div></div> <div class="tm-article-presenter__origin"><a href="https://begriffs.com/posts/2018-01-01-sql-keys-in-depth.html" target="_blank" class="tm-article-presenter__origin-link">
+                Автор оригинала:
+                <span>
+                  Joe Nelson
+                </span></a></div> <div data-gallery-root="" lang="ru" class="tm-article-body"><div><img height="1" src="https://habrahabr.ru/company/oleg-bunin/blog/348172/" width="1" style="display: none;"></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">В Интернете полно догматических заповедей о том, как нужно выбирать и использовать ключи в реляционных базах данных. Иногда споры даже переходят в холивары: использовать естественные или искусственные ключи? Автоинкрементные целые или UUID?<br/>
+<br/>
+Прочитав шестьдесят четыре статьи, пролистав разделы пяти книг и задав кучу вопросов в IRC и StackOverflow, я (автор оригинальной статьи <strong>Joe «begriffs» Nelson</strong>), как мне кажется, собрал куски паззла воедино и теперь смогу примирить противников. Многие споры относительно ключей возникают, на самом деле, из-за неправильного понимания чужой точки зрения.<br/>
+<br/>
+<h3>Содержание</h3><br/>
+<ul>
+<li><a href="index.html.1.36.html#keys">Что же такое «ключи»?</a></li>
+<li><a href="index.html.1.36.html#happening">Любопытный случай первичных ключей</a></li>
+<li><a href="index.html.1.36.html#choice">Выбор естественных ключей</a></li>
+<li><a href="index.html.1.36.html#artificial">Искусственные ключи</a></li>
+<li><a href="index.html.1.36.html#surrogate">Суррогатные ключи</a></li>
+<li><a href="index.html.1.36.html#auto-increment">Автоинкрементные BIGINT</a></li>
+<li><a href="index.html.1.36.html#uuid">UUID</a></li>
+<li><a href="index.html.1.36.html#sum">Итоги и рекомендации</a></li>
+</ul><br/>
+Давайте разделим проблему на части, а в конце соберём её снова. Для начала зададим вопрос – что же такое «ключ»?<br/>
+<a name="habracut"></a><a name="keys"></a><br/>
+<h3>Что же такое «ключи»?</h3><br/>
+Забудем на минуту о <em>первичных</em> ключах, нас интересует более общая идея. Ключ — это колонка (column) или колонки, не имеющие в строках дублирующих значений. Кроме того, колонки должны быть неприводимо уникальными, то есть никакое подмножество колонок не обладает такой уникальностью.<br/>
+<br/>
+Для примера рассмотрим таблицу для подсчёта карт в карточной игре:<br/>
+<br/>
+<pre><code class="sql">CREATE TABLE cards_seen (
+  suit text,
+  face text
+);</code></pre><br/>
+Если мы отслеживаем одну колоду (то есть без повторяющихся карт), то сочетание рубашки и лица уникально и нам бы не хотелось вносить в таблицу одинаковые рубашку и лицо дважды, потому что это будет избыточно. Если карта есть в таблице, то мы видели её, в противном случае — не видели.<br/>
+<br/>
+Мы можем и должны задать базе данных это ограничение, добавив следующее:<br/>
+<br/>
+<pre><code class="sql">CREATE TABLE cards_seen (
+  suit text,
+  face text,
+
+  UNIQUE (suit, face)
+);</code></pre><br/>
+Сами по себе ни <code>suit</code> (рубашка), ни <code>face</code> (лицо) не являются уникальными, мы можем увидеть разные карты с одинаковыми рубашкой или лицом. Поскольку <code>(suit, face)</code> уникально, а отдельные колонки не уникальны, можно утверждать, что их сочетание неприводимо, а <code>(suit, face)</code> является ключом.<br/>
+<br/>
+В более общей ситуации, когда нужно отслеживать несколько колод карт, можно добавить новое поле и записывать сколько раз мы видели карту:<br/>
+<br/>
+<pre><code class="sql">CREATE TABLE cards_seen (
+  suit text,
+  face text,
+  seen int
+);</code></pre><br/>
+Хотя тройка <code>(suit, face, seen)</code> получается уникальной, она не является ключом, потому что подмножество <code>(suit, face)</code> тоже должно быть уникальным. Это необходимо, поскольку две строки с одинаковыми рубашкой и лицом, но разными значениями <code>seen</code> будут противоречащей информацией. Поэтому ключом является <code>(suit, face)</code>, и больше в этой таблице нет никаких ключей.<br/>
+<br/>
+<blockquote><h4>Ограничения уникальности</h4><br/>
+В PostgreSQL предпочтительным способом добавления ограничения уникальности является его прямое объявление, как в нашем примере. Использование индексов для соблюдения ограничения уникальности может понадобится в отдельных случаях, но не стоит обращаться к ним напрямую. Нет необходимости в ручном создании индексов для колонок, уже объявленных уникальными; такие действия будут просто дублировать автоматическое создание индекса.</blockquote><br/>
+Также в таблице без проблем может быть несколько ключей, и мы должны объявить их <em>все</em>, чтобы соблюдать их уникальность в базе данных.<br/>
+<br/>
+Вот два примера таблиц с несколькими ключами.<br/>
+<br/>
+<pre><code class="sql">-- Три ключа
+CREATE TABLE tax_brackets (
+  min_income  numeric(8,2),
+  max_income  numeric(8,2),
+  tax_percent numeric(3,1),
+
+  UNIQUE(min_income),
+  UNIQUE(max_income),
+  UNIQUE(tax_percent)
+);
+
+-- Два ключа
+CREATE TABLE flight_roster (
+  departure timestamptz,
+  gate text,
+  pilot text
+
+  UNIQUE(departure, gate),
+  UNIQUE(departure, pilot)
+);</code></pre><br/>
+Ради краткости в примерах отсутствуют любые другие ограничения, которые были бы на практике. Например, у карт не должно быть отрицательное число просмотров, и значение NULL недопустимо для большинства рассмотренных колонок (за исключением колонки <code>max_income</code> для налоговых групп, в которой NULL может обозначать бесконечность).<br/>
+<a name="happening"></a><br/>
+<h3>Любопытный случай первичных ключей</h3><br/>
+То, что в предыдущем разделе мы назвали просто «ключами», обычно называется «потенциальными ключами» (candidate keys). Термин «candidate» подразумевает, что все такие ключи конкурируют за почётную роль «первичного ключа» (primary key), а оставшиеся назначаются «альтернативными ключами» (alternate keys).<br/>
+<br/>
+Потребовалось какое-то время, чтобы в реализациях SQL пропало несоответствие ключей и реляционной модели, самые ранние базы данных были заточены под низкоуровневую концепцию первичного ключа. Первичные ключи в таких базах требовались для идентификации физического расположения строки на носителях с последовательным доступом к данным. Вот как это объясняет Джо Селко:<br/>
+<br/>
+<blockquote>Термин «ключ» означал ключ сортировки файла, который был нужен для выполнения любых операций обработки в последовательной файловой системе. Набор перфокарт считывался в одном и только в одном порядке; невозможно было «вернуться назад». Первые накопители на магнитных лентах имитировали такое же поведение и не позволяли выполнять двунаправленный доступ. Т.е., первоначальный Sybase SQL Server для чтения предыдущей строки требовал «перемотки» таблицы на начало.</blockquote><br/>
+В современном SQL не нужно ориентироваться на физическое представление информации, таблицы моделируют связи и внутренний порядок строк вообще не важен. Однако, и сейчас SQL-сервер по умолчанию создаёт кластерный индекс для первичных ключей и, по старой традиции, физически выстраивает порядок строк.<br/>
+<br/>
+В большинстве баз данных первичные ключи сохранились как пережиток прошлого, и едва ли обеспечивают что-то, кроме отражения или определения физического расположения. Например, в таблице PostgreSQL объявление первичного ключа автоматически накладывает ограничение NOT NULL и определяет внешний ключ по умолчанию. К тому же первичные ключи являются предпочтительными столбцами для оператора JOIN.<br/>
+<br/>
+Первичный ключ не отменяет возможности объявления и других ключей. В то же время, если ни один ключ не назначен первичным, то таблица все равно будет нормально работать. Молния, во всяком случае, в вас не ударит.<br/>
+<a name="choice"></a><br/>
+<h3>Нахождение естественных ключей</h3><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w780q1/webt/jm/md/3o/jmmd3odorwwctoymsqqob8vh1zu.jpeg" data-src="https://habrastorage.org/webt/jm/md/3o/jmmd3odorwwctoymsqqob8vh1zu.jpeg" data-blurred="true"/></div><br/>
+Рассмотренные выше ключи называются «естественными», потому что они являются свойствами моделируемого объекта интересными сами по себе, даже если никто не стремится сделать из них ключ.<br/>
+<br/>
+Первое, что стоит помнить при исследовании таблицы на предмет возможных естественных ключей — нужно стараться не перемудрить. Пользователь sqlvogel на StackExchange даёт следующий совет:<br/>
+<br/>
+<blockquote>У некоторых людей возникают сложности с выбором «естественного» ключа из-за того, что они придумывают гипотетические ситуации, в которых определённый ключ может и не быть уникальным. Они не понимают самого смысла задачи. Смысл ключа в том, чтобы определить правило, по которому атрибуты в любой момент времени должны быть и всегда будут уникальными в конкретной таблице. Таблица содержит данные в конкретном и хорошо понимаемом контексте (в «предметной области» или в «области дискурса») и единственное значение имеет применение ограничения в этой конкретной области.</blockquote><br/>
+Практика показывает, что нужно вводить ограничение по ключу, когда колонка уникальна при имеющихся значениях и будет оставаться такой при вероятных сценариях. А при необходимости ограничение можно устранить (если это вас беспокоит, то ниже мы расскажем о стабильности ключа.)<br/>
+<br/>
+Например, база данных членов хобби-клуба может иметь уникальность в двух колонках — first_name, last_name. При небольшом объёме данных дубликаты маловероятны, и до возникновения реального конфликта использовать такой ключ вполне разумно.<br/>
+<br/>
+С ростом базы данных и увеличением объёма информации, выбор естественного ключа может стать сложнее. Хранимые нами данные являются упрощением внешней реальности, и не содержат в себе некоторые аспекты, которыми различаются объекты в мире, такие как их изменяющиеся со временем координаты. Если у объекта отсутствует какой-либо код, то как различить две банки с напитком или две коробки с овсянкой, кроме как по их расположению в пространстве или по небольшим различиям в весе или упаковке?<br/>
+<br/>
+Именно поэтому органы стандартизации создают и наносят на продукцию различительные метки. На автомобилях штампуется Vehicle Identification Number (VIN), в книгах печатается ISBN, на упаковке пищевых товаров есть UPC. Вы можете возразить, что эти числа не кажутся естественными. Так почему же я называю их естественными ключами?<br/>
+<br/>
+Естественность или искусственность уникальных свойств в базе данных относительна к внешнему миру. Ключ, который при своём создании в органе стандартизации или государственном учреждении был искусственным, становится для нас естественным, потому что в целом мире он становится стандартом и/или печатается на объектах. <br/>
+Существует множество отраслевых, общественных и международных стандартов для различных объектов, в том числе для валют, языков, финансовых инструментов, химических веществ и медицинских диагнозов. Вот некоторые из значений, которые часто используются в качестве естественных ключей:<br/>
+<br/>
+<ul>
+<li>Коды стран по ISO 3166</li>
+<li>Коды языков по ISO 639</li>
+<li>Коды валют по ISO 4217</li>
+<li>Биржевые обозначения ISIN</li>
+<li>UPC/EAN, VIN, GTIN, ISBN</li>
+<li>имена логинов</li>
+<li>адреса электронной почты</li>
+<li>номера комнат</li>
+<li>mac-адрес в сети</li>
+<li>(широта, долгота) для точек на поверхности Земли</li>
+</ul><br/>
+Рекомендуем объявлять ключи, когда это возможно и разумно, может быть, даже несколько ключей на таблицу. Но помните, что у всего вышеперечисленного могут быть исключения.<br/>
+<br/>
+<ul>
+<li>Не у всех есть адрес электронной почты, хотя в некоторых условиях использования базы данных это может быть приемлемо. Кроме того, люди время от времени меняют свои электронные адреса. (Подробнее о стабильности ключей позже.)</li>
+<li>Биржевые обозначения ISIN время от времени изменяются, например, символы GOOG и GOOGL не точно описывают реорганизацию компании из Google в Alphabet. Иногда может возникнуть путаница, как, например, с TWTR и TWTRQ, некоторые инвесторы ошибочно покупали последние во время IPO Twitter.</li>
+<li>Номера социального страхования используются только гражданами США, имеют ограничения конфиденциальности и повторно используются после смерти. Кроме того, после кражи документов люди могут получить новые номера. Наконец, один и тот же номер может идентифицировать и лицо, и идентификатор налога на прибыль.</li>
+<li>Почтовые индексы — плохой выбор для городов. У некоторых городов общий индекс, или наоборот в одном городе бывает несколько индексов.</li>
+</ul><br/>
+<a name="artificial"></a><br/>
+<h3>Искусственные ключи</h3><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/i8/d7/gx/i8d7gx7j1n5dp71oiowl2qhyfyo.png" data-src="https://habrastorage.org/webt/i8/d7/gx/i8d7gx7j1n5dp71oiowl2qhyfyo.png"/></div><br/>
+С учётом того, что ключ – это колонка, в каждой строке которой находятся уникальные значения, одним из способов его создания является жульничество – в каждую строку можно записать выдуманные уникальные значения. Это и есть искусственные ключи: придуманный код, используемый для ссылки на данные или объекты.<br/>
+<br/>
+Очень важно то, что код генерируется из самой базы данных и неизвестен никому, кроме пользователей базы данных. Именно это отличает искусственные ключи от стандартизированных естественных ключей.<br/>
+<br/>
+Преимущество естественных ключей заключается в защите от дублирования или противоречивости строк таблицы, искусственные же ключи полезны потому, что они позволяют людям или другим системам проще ссылаться на строку, а также повышают скорость операций поиска и объединения, так как не используют сравнения строковых (или многостолбцовых) ключей.<br/>
+<blockquote><h4>Суррогаты</h4><br/>
+Искусственные ключи используются в качестве привязки – вне зависимости от изменения правил и колонок, одну строку всегда можно идентифицировать одинаковым способом. Искусственный ключ, используемый для этой цели, называется «суррогатным ключом» и требует особого внимания. Суррогаты мы рассмотрим ниже.</blockquote>Не являющиеся суррогатами искусственные ключи удобны для ссылок на строку <em>снаружи</em> базы данных. Искусственный ключ кратко идентифицирует данные или объект: он может быть указан как URL, прикреплён к счёту, продиктован по телефону, получен в банке или напечатан на номерном знаке. (Номерной знак автомобиля для нас является естественным ключом, но разработан государством как искусственный ключ.)<br/>
+<br/>
+Искусственные ключи нужно выбирать, учитывая возможные способы их передачи, чтобы минимизировать опечатки и ошибки. Надо учесть, что ключ могут произносить, читать напечатанным, отправлять по SMS, читать написанным от руки, вводить с клавиатуры и встраивать в URL. Дополнительно, некоторые искусственные ключи, например, номера кредитных карт, содержат <a href="https://begriffs.com/posts/2017-10-21-sql-domain-integrity.html#credit-card-validation">контрольную сумму</a>, чтобы при возникновении определённых ошибок их можно было хотя бы распознать.<br/>
+<br/>
+Примеры:<br/>
+<br/>
+<ul>
+<li>Для номерных знаков США существуют <a href="https://en.wikipedia.org/wiki/United_States_license_plate_designs_and_serial_formats#Skipping_characters">правила</a> об использовании неоднозначных признаков, например <code>O</code> и <code>0</code>.</li>
+<li>Больницы и аптеки должны быть особенно аккуратны, учитывая почерк врачей.</li>
+<li>Передаёте эсэмэской код подтверждения? Не выходите за пределы набора символов <a href="https://en.wikipedia.org/wiki/GSM_03.38">GSM 03.38</a>.</li>
+<li>В отличие от Base64, кодирующего произвольные байтовые данные, <a href="https://philzimmermann.com/docs/human-oriented-base-32-encoding.txt">Base32</a> использует ограниченный набор символов, который удобно использовать людям и обрабатывать на старых компьютерных системах.</li>
+<li><a href="https://arxiv.org/html/0901.4016">Proquints</a> – это читаемые, записываемые и произносимые идентификаторы. Это произносимые (PRO-nouncable) пятёрки (QUINT-uplets) однозначно понимаемых согласных и гласных букв.</li>
+</ul><br/>
+Учтите, что как только вы познакомите мир со своим искусственным ключом, люди странным образом начнут придавать ему особое внимание. Достаточно посмотреть на «блатные» номерные знаки или на систему создания произносимых идентификаторов, которая превратилась в печально известный <a href="http://thedailywtf.com/articles/The-Automated-Curse-Generator">автоматизированный генератор ругательств</a>.<br/>
+<br/>
+Даже, если ограничиться числовыми ключами, есть табу типа <a href="https://en.wikipedia.org/wiki/Thirteenth_floor">тринадцатого этажа</a>. Несмотря на то, что proquints обладают большей плотностью информации на произносимый слог, числа тоже неплохи во многих случаях: в URL, пин-клавиатурах и написанных от руки записях, если получатель знает, что ключ состоит только из цифр. <br/>
+Однако, обратите внимание, что не стоит использовать последовательный порядок в публично открытых числовых ключах, поскольку это позволяет рыться в ресурсах (<code>/videos/1.mpeg</code>, <code>/videos/2.mpeg</code>, и так далее), а также создаёт утечку информации о количестве данных. Наложите на последовательность чисел сеть Фейстеля и сохраните уникальность, скрыв при этом порядок чисел. <br/>
+В wiki PostgreSQL есть пример функции <a href="https://wiki.postgresql.org/wiki/Pseudo_encrypt"> псевдошифрования</a>:<br/>
+<br/>
+<pre><code class="sql">CREATE OR REPLACE FUNCTION pseudo_encrypt(VALUE int) returns int AS $$
+DECLARE
+l1 int;
+l2 int;
+r1 int;
+r2 int;
+i int:=0;
+BEGIN
+ l1:= (VALUE >> 16) &amp; 65535;
+ r1:= VALUE &amp; 65535;
+ WHILE i &lt; 3 LOOP
+   l2 := r1;
+   r2 := l1 # ((((1366 * r1 + 150889) % 714025) / 714025.0) * 32767)::int;
+   l1 := l2;
+   r1 := r2;
+   i := i + 1;
+ END LOOP;
+ RETURN ((r1 &lt;&lt; 16) + l1);
+END;
+$$ LANGUAGE plpgsql strict immutable;</code></pre><br/>
+Эта функция является обратной самой себе (т.е. <code>pseudo_encrypt(pseudo_encrypt(x)) = x</code>). Точное воспроизведение функции является своего рода безопасностью через неясность, и если кто-нибудь догадается, что вы использовали сеть Фейстеля из документации PostgreSQL, то ему будет легко получить исходную последовательность. Однако вместо <code>(((1366 * r1 + 150889) % 714025) / 714025.0)</code> можно использовать другую функцию с областью значений от 0 до 1, например, просто поэкспериментировать с числами в предыдущем выражении.<br/>
+<br/>
+Вот, как использовать pseudo_encrypt:<br/>
+<br/>
+<pre><code class="sql">CREATE SEQUENCE my_table_seq;
+
+CREATE TABLE my_table (
+  short_id int NOT NULL
+    DEFAULT pseudo_encrypt(
+      nextval('my_table_seq')::int
+    ),
+  -- другие колонки …
+
+  UNIQUE (short_id)
+);</code></pre><br/>
+Такое решение сохраняет случайные значения в столбце <code>short_id</code>, если же важно поддерживать высокие скорости обработки данных, то можно хранить в таблице саму инкрементную последовательность и преобразовывать её при запросе отображения с помощью <code>pseudo_encrypt</code>. Как мы увидим позже, индексирование рандомизированных значений может привести к увеличению объёма записи.<br/>
+<br/>
+В предыдущем примере для <code>short_id</code> использовались целые значения обычного размера, для <code>bigint</code> есть другие функции Фейстеля, например <a href="https://en.wikipedia.org/wiki/XTEA">XTEA</a>.<br/>
+<br/>
+Ещё один способ запутать последовательность целых чисел заключается в преобразовании её в короткие строки. Попробуйте воспользоваться расширением <a href="https://github.com/iCyberon/pg_hashids">pg_hashids</a>:<br/>
+<br/>
+<pre><code class="sql">CREATE EXTENSION pg_hashids;
+
+CREATE SEQUENCE my_table_seq;
+
+CREATE TABLE my_table (
+  short_id text NOT NULL
+    DEFAULT id_encode(
+      nextval('my_table_seq'),
+      ' long string as table-specific salt '
+    ),
+  -- другие колонки …
+
+  UNIQUE (short_id)
+);
+
+INSERT INTO my_table VALUES
+  (DEFAULT), (DEFAULT), (DEFAULT);
+
+SELECT * FROM my_table;
+/*
+┌──────────┐
+│ short_id │
+├──────────┤
+│ R4       │
+│ ya       │
+│ Ll       │
+└──────────┘
+*/</code></pre><br/>
+Здесь снова будет быстрее хранить в таблице сами целые числа и преобразовывать их по запросу, но замерьте производительность и посмотрите, имеет ли это смысл на самом деле.<br/>
+<br/>
+Теперь, чётко разграничив смысл искусственных и естественных ключей, мы видим, что споры «естественные против искусственных» являются ложной дихотомией. Искусственные и естественные ключи не исключают друг друга! В одной таблице могут быть и те, и другие. На самом деле, таблица с искусственным ключом должна обеспечивать и естественный ключ, за редким исключением, когда не существует естественного ключа (например, в таблице кодов купонов):<br/>
+<br/>
+<pre><code class="sql">-- Редкий пример таблицы: нет потенциальных естественных ключей,
+-- которые можно объявить вместе с искусственным ключом "code"
+
+CREATE TABLE coupons (
+  code text NOT NULL,
+  amount numeric(5,2) NOT NULL,
+  redeemed boolean NOT NULL DEFAULT false,
+
+  UNIQUE (code)
+);</code></pre><br/>
+Если у вас есть искусственный ключ и вы не объявляете естественные ключи, когда они существуют, то оставляете последние незащищёнными:<br/>
+<br/>
+<pre><code class="sql">CREATE TABLE cars (
+  car_id bigserial NOT NULL,
+  vin varchar(17) NOT NULL,
+  year int NOT NULL,
+
+  UNIQUE (car_id)
+  -- нужно было добавить
+  -- UNIQUE (vin)
+);
+
+-- К сожалению, это успешно выполнится
+INSERT INTO cars (vin, year) VALUES
+  ('1FTJW36F2TEA03179', 1996),
+  ('1FTJW36F2TEA03179', 1997);</code></pre><br/>
+Единственным аргументом против объявления дополнительных ключей является то, что каждый новый несёт за собой ещё один уникальный индекс и увеличивает затраты на запись в таблицу. Конечно, зависит от того, насколько вам важна корректность данных, но, скорее всего, ключи все же стоит объявлять.<br/>
+<br/>
+Также стоит объявлять несколько искусственных ключей, если они есть. Например, у организации есть кандидаты на работу (Applicants) и сотрудники (Employees). Каждый сотрудник когда-то был кандидатом, и относится к кандидатам по своему собственному идентификатору, который также должен быть и ключом сотрудника. Ещё один пример, можно задать идентификатор сотрудника и имя логина как два ключа в Employees.<br/>
+<a name="surrogate"></a><br/>
+<h3>Суррогатные ключи</h3><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w780q1/webt/dd/-f/zg/dd-fzgs_e5sakqf9cstti_kpcr0.jpeg" data-src="https://habrastorage.org/webt/dd/-f/zg/dd-fzgs_e5sakqf9cstti_kpcr0.jpeg" data-blurred="true"/></div><br/>
+Как уже упоминалось, важный тип искусственного ключа называется «суррогатный ключ». Он не должен быть кратким и передаваемым, как другие искусственные ключи, а используется как внутренняя метка, всегда идентифицирующая строку. Он используется в SQL, но приложение не обращается к нему явным образом.<br/>
+<br/>
+Если вам знакомы <a href="https://www.postgresql.org/docs/10/static/ddl-system-columns.html">системные колонки (system columns)</a> из PostgreSQL, то вы можете воспринимать суррогаты почти как параметр реализации базы данных (вроде ctid), который однако никогда не меняется. Значение суррогата выбирается один раз для каждой строки и потом никогда не изменяется.<br/>
+<br/>
+Суррогатные ключи отлично подходят в качестве внешних ключей, при этом необходимо указать каскадные ограничения <code>ON UPDATE RESTRICT</code>, чтобы соответствовать неизменности суррогата.<br/>
+<br/>
+С другой стороны, внешние ключи к публично передаваемым ключам должны быть помечены <code>ON UPDATE CASCADE</code>, чтобы обеспечить максимальную гибкость. (Каскадное обновление выполняется на том же <a href="https://begriffs.com/posts/2017-08-01-practical-guide-sql-isolation.html">уровне изоляции</a>, что и окружающая его транзакция, поэтому не беспокойтесь о проблемах с параллельным доступом – база данных справится, если выбрать строгий уровень изоляции.)<br/>
+<br/>
+Не делайте суррогатные ключи «естественными». Как только вы покажете значение суррогатного ключа конечным пользователям, или, что хуже, позволите им работать с этим значением (в частности через поиск), то фактически придадите ключу значимость. Потом показанный ключ из вашей базы данных может стать естественным ключом в чьей-то чужой БД.<br/>
+<br/>
+Принуждение внешних систем к использованию других искусственных ключей, специально предназначенных для передачи, позволяет нам при необходимости изменять эти ключи в соответствии с меняющимися потребностями, в то же время поддерживая внутреннюю целостность ссылок с помощью суррогатов.<br/>
+<a name="auto-increment"></a><br/>
+<h4>Автоинкрементные bigint</h4><br/>
+Чаще всего для суррогатных ключей используют автоинкрементную колонку «bigserial», также известную как <code>IDENTITY</code>. (На самом деле, PostgreSQL 10 теперь, как и Oracle, поддерживает конструкцию IDENTITY, см. <a href="https://www.postgresql.org/docs/10/static/sql-createtable.html">CREATE TABLE</a>.)<br/>
+<br/>
+Однако, я считаю, что автоинкрементное целое плохой выбор для суррогатных ключей. Такое мнение непопулярно, поэтому позвольте мне объясниться.<br/>
+<br/>
+Недостатки последовательных ключей:<br/>
+<br/>
+<ul>
+<li>Если все последовательности начинаются с 1 и постепенно увеличиваются, то у строк из разных таблиц будут одинаковые значения ключей. Такой вариант неидеален, предпочтительнее все же использовать непересекающиеся множества ключей в таблицах, чтобы, например, запросы не смогли бы случайно перепутать константы в JOIN и вернуть неожиданные результаты. (Как вариант для обеспечения отсутствия пересечений, можно составить каждую последовательность из чисел, кратных различным простым, но это будет довольно трудоёмко.)</li>
+<li> Вызов <code>nextval()</code> для генерации последовательности в современных распределённых SQL, приводит к тому, что вся система хуже масштабируется.</li>
+<li>Поглощение данных из базы данных, в которой тоже использовались последовательные ключи, приведет к конфликтам, потому что последовательные значения не будут уникальными в разных системах.</li>
+<li>С философской точки зрения последовательное увеличение чисел связано со старыми системами, в которых подразумевался порядок строк. Если же вы теперь хотите упорядочить строки, то делайте это явным образом, с помощью колонки меток времени или чего-то имеющего смысл в ваших данных. В противном случае нарушается первая нормальная форма.</li>
+<li>(Слабая причина, но) эти короткие идентификаторы так и тянет сообщить кому-нибудь.</li>
+</ul><br/>
+<a name="uuid"></a><br/>
+<h4>UUID</h4><br/>
+Давайте рассмотрим другой вариант: использование больших целых чисел (128-битных), генерируемых в соответствии со случайным шаблоном. Алгоритмы генерации таких универсальных уникальных идентификаторов (universally unique identifier, UUID) имеют чрезвычайно малую вероятность выбора одного значения дважды, даже при одновременном выполнении на двух разных процессорах.<br/>
+<br/>
+В таком случае, UUID кажутся естественным выбором для использования в качестве суррогатных ключей, не правда ли? Если вы хотите пометить строки уникальным образом, то ничто не сравнится с уникальной меткой!<br/>
+<br/>
+Так почему же все не пользуются ими в PostgreSQL? На это есть несколько надуманных причин и одна логичная, которую можно обойти, и я представлю бенчмарки, чтобы проиллюстрировать свое мнение.<br/>
+<br/>
+Для начала, расскажу о надуманных причинах. Некоторые люди думают, что UUID — это строки, потому что они записываются в традиционном шестнадцатеричном виде с дефисом: 5bd68e64-ff52-4f54-ace4-3cd9161c8b7f. Действительно, некоторые базы данных не имеют компактного (128-битного) типа uuid, но в PostgreSQL <a href="https://www.postgresql.org/docs/current/static/datatype-uuid.html">он есть</a> и имеет размер двух bigint, т.е., по сравнению с объёмом прочей информации в базе данных, издержки незначительны.<br/>
+<br/>
+Ещё UUID незаслуженно обвиняется в громоздкости, но кто будет их произносить, печатать или читать? Мы говорили, что это имеет смысл для показываемых искусственных ключей, но никто (по определению) не должен увидеть суррогатный UUID. Возможно, с UUID будет иметь дело разработчик, запускающий команды SQL в psql для отладки системы, но на этом всё. А разработчик может ссылаться на строки и с помощью более удобных ключей, если они заданы.<br/>
+<br/>
+<strong>Реальная проблема с UUID в том, что сильно рандомизированные значения приводят к увеличению объёма записи (write amplification) из-за записей полных страниц в журнал с упреждающей записью (write-ahead log, WAL).</strong> Однако, на самом деле снижение производительности зависит от алгоритма генерации UUID.<br/>
+<br/>
+Давайте измерим write amplification. По правде говоря, проблема в старых файловых системах. Когда PostgreSQL выполняет запись на диск, она изменяет «страницу» на диске. При отключении питания компьютера большинство файловых систем всё равно сообщит об успешной записи ещё до того, как данные безопасно сохранились на диске. Если PostgreSQL наивно воспримет такое действие завершённым, то при последующей загрузке системы база данных будет повреждена.<br/>
+<br/>
+Раз PostgreSQL не может доверять большинству ОС/файловых систем/конфигураций дисков в вопросе обеспечения неразрывности, база данных сохраняет полное состояние изменённой дисковой страницы в журнал с упреждающей записью (write-ahead log), который можно будет использовать для восстановления после возможного сбоя. Индексирование сильно рандомизированных значений наподобие UUID обычно затрагивает кучу различных страниц диска и приводит к записи полного размера страницы (обычно 4 или 8 КБ) в WAL для каждой новой записи. Это так называемая полностраничная запись (full-page write, FPW).<br/>
+<br/>
+Некоторые алгоритмы генерации UUID (такие, как «snowflake» от Twitter или <code>uuid_generate_v1()</code> в расширении <a href="https://www.postgresql.org/docs/10/static/uuid-ossp.html">uuid-ossp</a> для PostgreSQL) создают на каждой машине монотонно увеличивающиеся значения. Такой подход консолидирует записи в меньшее количество страниц диска и снижает FPW.<br/>
+<br/>
+Давайте измерим влияние FPW для различных алгоритмов генерации UUID, а также исследуем статистику WAL. Я использовал следующую конфигурацию для замера.<br/>
+<br/>
+<ul>
+<li>Экземпляр EC2 с запущенным ami-aa2ea6d0<br/>
+<ul>
+<li>Ubuntu Server 16.04 LTS (HVM)</li>
+<li>EBS General Purpose (SSD)</li>
+<li>c3.xlarge</li>
+<li>vCPU: 4</li>
+<li>RAM GiB: 7.5</li>
+<li>Disk GB: 2 x 40 (SSD)</li>
+</ul></li>
+<li>PostgreSQL, собранная из исходников<br/>
+<ul>
+<li><a href="https://ftp.postgresql.org/pub/source/v10.1/postgresql-10.1.tar.gz">ftp.postgresql.org/pub/source/v10.1/postgresql-10.1.tar.gz</a></li>
+<li><code>./configure --with-uuid=ossp CFLAGS="-O3"</code></li>
+</ul></li>
+<li>Конфигурация базы данных по умолчанию, со следующими исключениями:<br/>
+<ul>
+<li>max_wal_size=‘10GB’;</li>
+<li>checkpoint_timeout=‘2h’;</li>
+<li>synchronous_commit=‘off’;</li>
+</ul></li>
+</ul><br/>
+Схема:<br/>
+<br/>
+<pre><code class="sql">CREATE EXTENSION "uuid-ossp";
+CREATE EXTENSION pgcrypto;
+
+CREATE TABLE u_v1 ( u uuid PRIMARY KEY );
+CREATE TABLE u_crypto ( u uuid PRIMARY KEY );</code></pre><br/>
+Перед тек, как добавить UUID в каждую таблицу, находим текущую позицию write-ahead log.<br/>
+<br/>
+<pre><code class="sql">SELECT pg_walfile_name(pg_current_wal_lsn());
+
+/* Например,
+
+     pg_walfile_name
+--------------------------
+ 000000010000000000000001
+*/</code></pre><br/>
+Я использовал такую позицию, чтобы получить статистику об использовании WAL после проведения бенчмарка. Так мы получим статистику событий, выполняемых последовательно после начальной позиции:<br/>
+<br/>
+<pre><code class="sql">pg_waldump --stats 000000010000000000000001</code></pre><br/>
+Я провёл тесты трёх сценариев:<br/>
+<br/>
+<ol>
+<li>Добавление UUID, сгенерированных алгоритмом <code>gen_random_uuid()</code> (<a href="https://www.postgresql.org/docs/10/static/pgcrypto.html">pgcrypto</a>)</li>
+<li> Добавление из <code>uuid_generate_v1()</code> (предоставленного [uuid-ossp] (https://www.postgresql.org/docs/10/static/uuid-ossp.html)</li>
+<li>Снова добавление из <code>gen_random_uuid()</code>, но теперь с параметром <code>full_page_writes='off'</code> в конфигурации БД. Это покажет, насколько всё будет быстрее без увеличения FPW.</li>
+</ol><br/>
+Для каждого из этих сценариев я начинал с пустой таблицы и вставлял 2<sup>20</sup> UUID и повторял процедуру шестнадцать раз, замеряя каждый из них, чтобы отследить, как меняется производительность при большем количестве данных в таблице.<br/>
+<br/>
+<pre><code class="sql">-- например, я выполнял это в psql 16 раз с параметром \timing
+
+INSERT INTO u_crypto (
+  SELECT gen_random_uuid()
+  FROM generate_series(1, 1024*1024)
+);</code></pre><br/>
+И вот результаты замеров скорости:<br/>
+<br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/yf/nq/li/yfnqliema9cvcptjyar_ibmdctu.png" data-src="https://habrastorage.org/webt/yf/nq/li/yfnqliema9cvcptjyar_ibmdctu.png"/></div><br/>
+<i>График скорости вставки UUID</i><br/>
+<br/>
+Вот статистика WAL для каждого из способов:<br/>
+<br/>
+<pre>gen_random_uuid()
+
+Тип          N      (%)   Размер записи    (%)   Размер FPI    (%)
+----         -      ---   -----------      ---   --------      ---
+XLOG       260 (  0.15)         13139 (  0.09)     484420 ( 30.94)
+Heap2      765 (  0.45)        265926 (  1.77)     376832 ( 24.07)
+Heap     79423 ( 46.55)       6657121 ( 44.20)     299776 ( 19.14)
+Btree    89354 ( 52.37)       7959710 ( 52.85)     404832 ( 25.85)
+
+uuid_generate_v1()
+
+Тип          N      (%)   Размер записи    (%)   Размер FPI    (%)
+----         -      ---   -----------      ---   --------      ---
+XLOG         0 (  0.00)             0 (  0.00)          0 (  0.00)
+Heap2        0 (  0.00)             0 (  0.00)          0 (  0.00)
+Heap    104326 ( 49.88)       7407146 ( 44.56)          0 (  0.00)
+Btree   104816 ( 50.12)       9215394 ( 55.44)          0 (  0.00)
+
+gen_random_uuid() with fpw=off
+
+Тип          N      (%)   Размер записи    (%)   Размер FPI    (%)
+----         -      ---   -----------      ---   --------      ---
+XLOG         4 (  0.00)           291 (  0.00)         64 (  0.84)
+Heap2        0 (  0.00)             0 (  0.00)          0 (  0.00)
+Heap    107778 ( 49.88)       7654268 ( 46.08)          0 (  0.00)
+Btree   108260 ( 50.11)       8956097 ( 53.91)       7556 ( 99.16)</pre><br/>
+Результаты подтверждают, что <code>gen_random_uuid</code> создаёт существенную активность в WAL из-за полностраничных образов (full-page images, FPI), а другие способы этим не страдают. Конечно, в третьем методе я просто запретил базе данных делать это. Однако запрет FPW совсем не то, что стоило бы использовать в реальности, если только вы не полностью уверены в файловой системе и конфигурации дисков. В <a href="https://blog.2ndquadrant.com/pg-phriday-postgres-zfs/">этой статье</a> утверждается, что ZFS может быть безопасным для отключения FPW, но пользуйтесь им с осторожностью.<br/>
+<br/>
+Явным победителем в моём бенчмарке оказался <code>uuid_generate_v1()</code> – он быстр и не замедляется при накоплении строк. Расширение uuid-ossp по умолчанию установлено в таких облачных базах данных, как RDS и Citus Cloud, и будет доступно без дополнительных усилий.<br/>
+<br/>
+В документация есть предупреждение о uuid_generate_v1:<br/>
+<br/>
+<blockquote>В нём используется MAC-адрес компьютера и метка времени. Учитывайте, что UUID такого типа раскрывают информацию о компьютере, который создал идентификатор, и время его создания, что может быть неприемлемым, когда требуется высокая безопасность.</blockquote><br/>
+<br/>
+Однако я не думаю, что настоящая проблема, потому что суррогатный ключ не передаётся. Если же это всё-таки важно для вас, в библиотеке есть <code>uuid_generate_v1mc()</code>, скрывающий mac-адрес компьютера.<br/>
+<a name="sum"></a><br/>
+<h3>Итоги и рекомендации</h3><br/>
+Теперь, когда мы познакомились с различными типами ключей и вариантами их использования, я хочу перечислить мои рекомендации по применению их в ваших базах данных.<br/>
+<br/>
+Для каждой таблицы:<br/>
+<br/>
+<ol>
+<li>Определите и объявите все естественные ключи.</li>
+<li>Создайте суррогатный ключ <code>&lt;table_name>_id</code> типа <code>uuid</code> со значением по умолчанию в <code>uuid_generate_v1()</code>. Можете даже пометить его как первичный ключ. Если добавить в этот идентификатор название таблицы, это упростит JOIN, т.е. получите <code>JOIN foo USING (bar_id)</code> вместо <code>JOIN foo ON (foo.bar_id = bar.id)</code>. Не передавайте этот ключ клиентам и вообще не выводите за пределы базы данных.</li>
+<li>Для промежуточных таблиц, через которые происходит JOIN, объявляйте все колонки внешних ключей как единый составной первичный ключ.</li>
+<li>При необходимости добавьте искусственный ключ, который можно использовать в URL или других указаниях ссылки на строку. Используйте сетку Фейстеля или pg_hashids, чтобы замаскировать автоинкрементные целые.</li>
+<li>Указывайте каскадное ограничение <code>ON UPDATE RESTRICT</code>, используя суррогатные UUID в качестве внешних ключей, а для внешних искусственных ключей – <code>ON UPDATE CASCADE</code>. Выбирайте естественные ключи, исходя из собственной логики.</li>
+</ol><br/>
+<br/>
+Такой подход обеспечивает стабильность внутренних ключей, в то же время допуская и даже защищая естественные ключи. К тому же, видимые искусственные ключи не становятся к чему-либо привязанными. Правильно во всем разобравшись, можно не зацикливаться только на «первичных ключах» и пользоваться всеми возможностями применения ключей.<br/>
+<br/>
+<hr/><br/>
+Обсуждать подобные профессиональные вопросы мы предлагаем на наших конференциях. Если у вас за плечами большой опыт в ИТ-сфере, наболело, накипело и хочется высказаться, поделиться опытом или где-то попросить совета, то на майском фестивале конференций <a href="http://ritfest.ru/">РИТ++</a> будут для этого все условия, 8 тематических направлений начиная от фронтенда и мобильной разработки, и заканчивая DevOps и управлением. Подать заявку на выступление можно <a href="http://speakers.ritfest.ru/">здесь</a>.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bsql%5D" class="tm-tags-list__link">sql</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B8%D0%BD%D0%B4%D0%B5%D0%BA%D1%81%D1%8B%5D" class="tm-tags-list__link">индексы</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/oleg-bunin/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании Конференции Олега Бунина (Онтико)
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/mysql/" class="tm-hubs-list__link">
+    MySQL
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/postgresql/" class="tm-hubs-list__link">
+    PostgreSQL
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/sql/" class="tm-hubs-list__link">
+    SQL
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/db_admins/" class="tm-hubs-list__link">
+    Администрирование баз данных
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 36: ↑33 и ↓3</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 36: ↑33 и ↓3" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+30</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">153K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    348
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/oleg-bunin/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/add/eb3/e91/addeb3e91fe453f9d78c7b52b8dc6a90.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/oleg-bunin/profile/" class="tm-company-snippet__title">Конференции Олега Бунина (Онтико)</a> <div class="tm-company-snippet__description">Профессиональные конференции для IT-разработчиков</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="https://facebook.com/oleg.bunin" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Facebook
+    </a><a href="https://facebook.com/HighLoadConference" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Facebook
+    </a><a href="https://twitter.com/HighLoadConf" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Twitter
+    </a><a href="https://telegram.me/HighLoadTalks" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Telegram
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/olegbunin/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/fdb/8a5/6e3/fdb8a56e3bbf010b012a4eb597cdf134.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 626 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    304
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">1</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Олег Бунин</span> <a href="https://habr.com/ru/users/olegbunin/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @olegbunin
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/oleg-bunin/blog/348172/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 119 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2007-12-31T21:00:00.000Z" title="2008-01-01, 00:00">1  января  2008</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="http://www.ontico.ru/" target="_blank" class="tm-company-basic-info__link">
+      www.ontico.ru
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    31–50 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2010-02-24T19:37:40.000Z" title="2010-02-24, 22:37">24  февраля  2010</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Представитель</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://habr.com/" class="tm-company-basic-info__link router-link-active">
+      
+    </a></dd></dl></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/oleg-bunin/blog/348172/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/oleg-bunin/blog/348172/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"348172":{"id":"348172","timePublished":"2018-02-02T14:40:30+00:00","isCorporative":true,"lang":"ru","titleHtml":"SQL ключи во всех подробностях","leadData":{"textHtml":"В Интернете полно догматических заповедей о том, как нужно выбирать и использовать ключи в реляционных базах данных. Иногда споры даже переходят в холивары: использовать естественные или искусственные ключи? Автоинкрементные целые или UUID?\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nПрочитав шестьдесят четыре статьи, пролистав разделы пяти книг и задав кучу вопросов в IRC и StackOverflow, я (автор оригинальной статьи \u003Cstrong\u003EJoe «begriffs» Nelson\u003C\u002Fstrong\u003E), как мне кажется, собрал куски паззла воедино и теперь смогу примирить противников. Многие споры относительно ключей возникают, на самом деле, из-за неправильного понимания чужой точки зрения.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Ch3\u003EСодержание\u003C\u002Fh3\u003E\u003Cbr\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"#keys\"\u003EЧто же такое «ключи»?\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#happening\"\u003EЛюбопытный случай первичных ключей\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#choice\"\u003EВыбор естественных ключей\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#artificial\"\u003EИскусственные ключи\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#surrogate\"\u003EСуррогатные ключи\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#auto-increment\"\u003EАвтоинкрементные BIGINT\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#uuid\"\u003EUUID\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#sum\"\u003EИтоги и рекомендации\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u003E\r\nДавайте разделим проблему на части, а в конце соберём её снова. Для начала зададим вопрос – что же такое «ключ»?\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"translation","data":{"originalAuthorName":"Joe Nelson","originalUrl":"https:\u002F\u002Fbegriffs.com\u002Fposts\u002F2018-01-01-sql-keys-in-depth.html"}}],"author":{"scoreStats":{"score":304,"votesCount":626},"rating":1,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"54661","alias":"olegbunin","fullname":"Олег Бунин","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002Ffdb\u002F8a5\u002F6e3\u002Ffdb8a56e3bbf010b012a4eb597cdf134.jpg","speciality":null},"statistics":{"commentsCount":119,"favoritesCount":348,"readingCount":153099,"score":30,"votesCount":36},"hubs":[{"relatedData":null,"id":"14332","alias":"oleg-bunin","type":"corporative","title":"Блог компании Конференции Олега Бунина (Онтико)","titleHtml":"Блог компании Конференции Олега Бунина (Онтико)","isProfiled":false},{"relatedData":null,"id":"306","alias":"mysql","type":"collective","title":"MySQL","titleHtml":"MySQL","isProfiled":true},{"relatedData":null,"id":"358","alias":"postgresql","type":"collective","title":"PostgreSQL","titleHtml":"PostgreSQL","isProfiled":true},{"relatedData":null,"id":"594","alias":"sql","type":"collective","title":"SQL","titleHtml":"SQL","isProfiled":true},{"relatedData":null,"id":"17681","alias":"db_admins","type":"collective","title":"Администрирование баз данных","titleHtml":"Администрирование баз данных","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"},{"id":"6","alias":"admin","title":"Администрирование"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EВ Интернете полно догматических заповедей о том, как нужно выбирать и использовать ключи в реляционных базах данных. Иногда споры даже переходят в холивары: использовать естественные или искусственные ключи? Автоинкрементные целые или UUID?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПрочитав шестьдесят четыре статьи, пролистав разделы пяти книг и задав кучу вопросов в IRC и StackOverflow, я (автор оригинальной статьи \u003Cstrong\u003EJoe «begriffs» Nelson\u003C\u002Fstrong\u003E), как мне кажется, собрал куски паззла воедино и теперь смогу примирить противников. Многие споры относительно ключей возникают, на самом деле, из-за неправильного понимания чужой точки зрения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EСодержание\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"#keys\"\u003EЧто же такое «ключи»?\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#happening\"\u003EЛюбопытный случай первичных ключей\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#choice\"\u003EВыбор естественных ключей\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#artificial\"\u003EИскусственные ключи\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#surrogate\"\u003EСуррогатные ключи\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#auto-increment\"\u003EАвтоинкрементные BIGINT\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#uuid\"\u003EUUID\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#sum\"\u003EИтоги и рекомендации\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nДавайте разделим проблему на части, а в конце соберём её снова. Для начала зададим вопрос – что же такое «ключ»?\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Ca name=\"keys\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EЧто же такое «ключи»?\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЗабудем на минуту о \u003Cem\u003Eпервичных\u003C\u002Fem\u003E ключах, нас интересует более общая идея. Ключ — это колонка (column) или колонки, не имеющие в строках дублирующих значений. Кроме того, колонки должны быть неприводимо уникальными, то есть никакое подмножество колонок не обладает такой уникальностью.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля примера рассмотрим таблицу для подсчёта карт в карточной игре:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003ECREATE TABLE cards_seen (\n  suit text,\n  face text\n);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЕсли мы отслеживаем одну колоду (то есть без повторяющихся карт), то сочетание рубашки и лица уникально и нам бы не хотелось вносить в таблицу одинаковые рубашку и лицо дважды, потому что это будет избыточно. Если карта есть в таблице, то мы видели её, в противном случае — не видели.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМы можем и должны задать базе данных это ограничение, добавив следующее:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003ECREATE TABLE cards_seen (\n  suit text,\n  face text,\n\n  UNIQUE (suit, face)\n);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nСами по себе ни \u003Ccode\u003Esuit\u003C\u002Fcode\u003E (рубашка), ни \u003Ccode\u003Eface\u003C\u002Fcode\u003E (лицо) не являются уникальными, мы можем увидеть разные карты с одинаковыми рубашкой или лицом. Поскольку \u003Ccode\u003E(suit, face)\u003C\u002Fcode\u003E уникально, а отдельные колонки не уникальны, можно утверждать, что их сочетание неприводимо, а \u003Ccode\u003E(suit, face)\u003C\u002Fcode\u003E является ключом.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ более общей ситуации, когда нужно отслеживать несколько колод карт, можно добавить новое поле и записывать сколько раз мы видели карту:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003ECREATE TABLE cards_seen (\n  suit text,\n  face text,\n  seen int\n);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nХотя тройка \u003Ccode\u003E(suit, face, seen)\u003C\u002Fcode\u003E получается уникальной, она не является ключом, потому что подмножество \u003Ccode\u003E(suit, face)\u003C\u002Fcode\u003E тоже должно быть уникальным. Это необходимо, поскольку две строки с одинаковыми рубашкой и лицом, но разными значениями \u003Ccode\u003Eseen\u003C\u002Fcode\u003E будут противоречащей информацией. Поэтому ключом является \u003Ccode\u003E(suit, face)\u003C\u002Fcode\u003E, и больше в этой таблице нет никаких ключей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Ch4\u003EОграничения уникальности\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВ PostgreSQL предпочтительным способом добавления ограничения уникальности является его прямое объявление, как в нашем примере. Использование индексов для соблюдения ограничения уникальности может понадобится в отдельных случаях, но не стоит обращаться к ним напрямую. Нет необходимости в ручном создании индексов для колонок, уже объявленных уникальными; такие действия будут просто дублировать автоматическое создание индекса.\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nТакже в таблице без проблем может быть несколько ключей, и мы должны объявить их \u003Cem\u003Eвсе\u003C\u002Fem\u003E, чтобы соблюдать их уникальность в базе данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВот два примера таблиц с несколькими ключами.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E-- Три ключа\nCREATE TABLE tax_brackets (\n  min_income  numeric(8,2),\n  max_income  numeric(8,2),\n  tax_percent numeric(3,1),\n\n  UNIQUE(min_income),\n  UNIQUE(max_income),\n  UNIQUE(tax_percent)\n);\n\n-- Два ключа\nCREATE TABLE flight_roster (\n  departure timestamptz,\n  gate text,\n  pilot text\n\n  UNIQUE(departure, gate),\n  UNIQUE(departure, pilot)\n);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nРади краткости в примерах отсутствуют любые другие ограничения, которые были бы на практике. Например, у карт не должно быть отрицательное число просмотров, и значение NULL недопустимо для большинства рассмотренных колонок (за исключением колонки \u003Ccode\u003Emax_income\u003C\u002Fcode\u003E для налоговых групп, в которой NULL может обозначать бесконечность).\u003Cbr\u002F\u003E\r\n\u003Ca name=\"happening\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EЛюбопытный случай первичных ключей\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nТо, что в предыдущем разделе мы назвали просто «ключами», обычно называется «потенциальными ключами» (candidate keys). Термин «candidate» подразумевает, что все такие ключи конкурируют за почётную роль «первичного ключа» (primary key), а оставшиеся назначаются «альтернативными ключами» (alternate keys).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПотребовалось какое-то время, чтобы в реализациях SQL пропало несоответствие ключей и реляционной модели, самые ранние базы данных были заточены под низкоуровневую концепцию первичного ключа. Первичные ключи в таких базах требовались для идентификации физического расположения строки на носителях с последовательным доступом к данным. Вот как это объясняет Джо Селко:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EТермин «ключ» означал ключ сортировки файла, который был нужен для выполнения любых операций обработки в последовательной файловой системе. Набор перфокарт считывался в одном и только в одном порядке; невозможно было «вернуться назад». Первые накопители на магнитных лентах имитировали такое же поведение и не позволяли выполнять двунаправленный доступ. Т.е., первоначальный Sybase SQL Server для чтения предыдущей строки требовал «перемотки» таблицы на начало.\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nВ современном SQL не нужно ориентироваться на физическое представление информации, таблицы моделируют связи и внутренний порядок строк вообще не важен. Однако, и сейчас SQL-сервер по умолчанию создаёт кластерный индекс для первичных ключей и, по старой традиции, физически выстраивает порядок строк.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ большинстве баз данных первичные ключи сохранились как пережиток прошлого, и едва ли обеспечивают что-то, кроме отражения или определения физического расположения. Например, в таблице PostgreSQL объявление первичного ключа автоматически накладывает ограничение NOT NULL и определяет внешний ключ по умолчанию. К тому же первичные ключи являются предпочтительными столбцами для оператора JOIN.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПервичный ключ не отменяет возможности объявления и других ключей. В то же время, если ни один ключ не назначен первичным, то таблица все равно будет нормально работать. Молния, во всяком случае, в вас не ударит.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"choice\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EНахождение естественных ключей\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fjm\u002Fmd\u002F3o\u002Fjmmd3odorwwctoymsqqob8vh1zu.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fjm\u002Fmd\u002F3o\u002Fjmmd3odorwwctoymsqqob8vh1zu.jpeg\" data-blurred=\"true\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nРассмотренные выше ключи называются «естественными», потому что они являются свойствами моделируемого объекта интересными сами по себе, даже если никто не стремится сделать из них ключ.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПервое, что стоит помнить при исследовании таблицы на предмет возможных естественных ключей — нужно стараться не перемудрить. Пользователь sqlvogel на StackExchange даёт следующий совет:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EУ некоторых людей возникают сложности с выбором «естественного» ключа из-за того, что они придумывают гипотетические ситуации, в которых определённый ключ может и не быть уникальным. Они не понимают самого смысла задачи. Смысл ключа в том, чтобы определить правило, по которому атрибуты в любой момент времени должны быть и всегда будут уникальными в конкретной таблице. Таблица содержит данные в конкретном и хорошо понимаемом контексте (в «предметной области» или в «области дискурса») и единственное значение имеет применение ограничения в этой конкретной области.\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nПрактика показывает, что нужно вводить ограничение по ключу, когда колонка уникальна при имеющихся значениях и будет оставаться такой при вероятных сценариях. А при необходимости ограничение можно устранить (если это вас беспокоит, то ниже мы расскажем о стабильности ключа.)\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНапример, база данных членов хобби-клуба может иметь уникальность в двух колонках — first_name, last_name. При небольшом объёме данных дубликаты маловероятны, и до возникновения реального конфликта использовать такой ключ вполне разумно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nС ростом базы данных и увеличением объёма информации, выбор естественного ключа может стать сложнее. Хранимые нами данные являются упрощением внешней реальности, и не содержат в себе некоторые аспекты, которыми различаются объекты в мире, такие как их изменяющиеся со временем координаты. Если у объекта отсутствует какой-либо код, то как различить две банки с напитком или две коробки с овсянкой, кроме как по их расположению в пространстве или по небольшим различиям в весе или упаковке?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИменно поэтому органы стандартизации создают и наносят на продукцию различительные метки. На автомобилях штампуется Vehicle Identification Number (VIN), в книгах печатается ISBN, на упаковке пищевых товаров есть UPC. Вы можете возразить, что эти числа не кажутся естественными. Так почему же я называю их естественными ключами?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕстественность или искусственность уникальных свойств в базе данных относительна к внешнему миру. Ключ, который при своём создании в органе стандартизации или государственном учреждении был искусственным, становится для нас естественным, потому что в целом мире он становится стандартом и\u002Fили печатается на объектах. \u003Cbr\u002F\u003E\r\nСуществует множество отраслевых, общественных и международных стандартов для различных объектов, в том числе для валют, языков, финансовых инструментов, химических веществ и медицинских диагнозов. Вот некоторые из значений, которые часто используются в качестве естественных ключей:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EКоды стран по ISO 3166\u003C\u002Fli\u003E\r\n\u003Cli\u003EКоды языков по ISO 639\u003C\u002Fli\u003E\r\n\u003Cli\u003EКоды валют по ISO 4217\u003C\u002Fli\u003E\r\n\u003Cli\u003EБиржевые обозначения ISIN\u003C\u002Fli\u003E\r\n\u003Cli\u003EUPC\u002FEAN, VIN, GTIN, ISBN\u003C\u002Fli\u003E\r\n\u003Cli\u003Eимена логинов\u003C\u002Fli\u003E\r\n\u003Cli\u003Eадреса электронной почты\u003C\u002Fli\u003E\r\n\u003Cli\u003Eномера комнат\u003C\u002Fli\u003E\r\n\u003Cli\u003Emac-адрес в сети\u003C\u002Fli\u003E\r\n\u003Cli\u003E(широта, долгота) для точек на поверхности Земли\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nРекомендуем объявлять ключи, когда это возможно и разумно, может быть, даже несколько ключей на таблицу. Но помните, что у всего вышеперечисленного могут быть исключения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EНе у всех есть адрес электронной почты, хотя в некоторых условиях использования базы данных это может быть приемлемо. Кроме того, люди время от времени меняют свои электронные адреса. (Подробнее о стабильности ключей позже.)\u003C\u002Fli\u003E\r\n\u003Cli\u003EБиржевые обозначения ISIN время от времени изменяются, например, символы GOOG и GOOGL не точно описывают реорганизацию компании из Google в Alphabet. Иногда может возникнуть путаница, как, например, с TWTR и TWTRQ, некоторые инвесторы ошибочно покупали последние во время IPO Twitter.\u003C\u002Fli\u003E\r\n\u003Cli\u003EНомера социального страхования используются только гражданами США, имеют ограничения конфиденциальности и повторно используются после смерти. Кроме того, после кражи документов люди могут получить новые номера. Наконец, один и тот же номер может идентифицировать и лицо, и идентификатор налога на прибыль.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПочтовые индексы — плохой выбор для городов. У некоторых городов общий индекс, или наоборот в одном городе бывает несколько индексов.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"artificial\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EИскусственные ключи\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fi8\u002Fd7\u002Fgx\u002Fi8d7gx7j1n5dp71oiowl2qhyfyo.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fi8\u002Fd7\u002Fgx\u002Fi8d7gx7j1n5dp71oiowl2qhyfyo.png\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nС учётом того, что ключ – это колонка, в каждой строке которой находятся уникальные значения, одним из способов его создания является жульничество – в каждую строку можно записать выдуманные уникальные значения. Это и есть искусственные ключи: придуманный код, используемый для ссылки на данные или объекты.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОчень важно то, что код генерируется из самой базы данных и неизвестен никому, кроме пользователей базы данных. Именно это отличает искусственные ключи от стандартизированных естественных ключей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПреимущество естественных ключей заключается в защите от дублирования или противоречивости строк таблицы, искусственные же ключи полезны потому, что они позволяют людям или другим системам проще ссылаться на строку, а также повышают скорость операций поиска и объединения, так как не используют сравнения строковых (или многостолбцовых) ключей.\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Ch4\u003EСуррогаты\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nИскусственные ключи используются в качестве привязки – вне зависимости от изменения правил и колонок, одну строку всегда можно идентифицировать одинаковым способом. Искусственный ключ, используемый для этой цели, называется «суррогатным ключом» и требует особого внимания. Суррогаты мы рассмотрим ниже.\u003C\u002Fblockquote\u003EНе являющиеся суррогатами искусственные ключи удобны для ссылок на строку \u003Cem\u003Eснаружи\u003C\u002Fem\u003E базы данных. Искусственный ключ кратко идентифицирует данные или объект: он может быть указан как URL, прикреплён к счёту, продиктован по телефону, получен в банке или напечатан на номерном знаке. (Номерной знак автомобиля для нас является естественным ключом, но разработан государством как искусственный ключ.)\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИскусственные ключи нужно выбирать, учитывая возможные способы их передачи, чтобы минимизировать опечатки и ошибки. Надо учесть, что ключ могут произносить, читать напечатанным, отправлять по SMS, читать написанным от руки, вводить с клавиатуры и встраивать в URL. Дополнительно, некоторые искусственные ключи, например, номера кредитных карт, содержат \u003Ca href=\"https:\u002F\u002Fbegriffs.com\u002Fposts\u002F2017-10-21-sql-domain-integrity.html#credit-card-validation\"\u003Eконтрольную сумму\u003C\u002Fa\u003E, чтобы при возникновении определённых ошибок их можно было хотя бы распознать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПримеры:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EДля номерных знаков США существуют \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FUnited_States_license_plate_designs_and_serial_formats#Skipping_characters\"\u003Eправила\u003C\u002Fa\u003E об использовании неоднозначных признаков, например \u003Ccode\u003EO\u003C\u002Fcode\u003E и \u003Ccode\u003E0\u003C\u002Fcode\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003EБольницы и аптеки должны быть особенно аккуратны, учитывая почерк врачей.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПередаёте эсэмэской код подтверждения? Не выходите за пределы набора символов \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FGSM_03.38\"\u003EGSM 03.38\u003C\u002Fa\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВ отличие от Base64, кодирующего произвольные байтовые данные, \u003Ca href=\"https:\u002F\u002Fphilzimmermann.com\u002Fdocs\u002Fhuman-oriented-base-32-encoding.txt\"\u003EBase32\u003C\u002Fa\u003E использует ограниченный набор символов, который удобно использовать людям и обрабатывать на старых компьютерных системах.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Farxiv.org\u002Fhtml\u002F0901.4016\"\u003EProquints\u003C\u002Fa\u003E – это читаемые, записываемые и произносимые идентификаторы. Это произносимые (PRO-nouncable) пятёрки (QUINT-uplets) однозначно понимаемых согласных и гласных букв.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nУчтите, что как только вы познакомите мир со своим искусственным ключом, люди странным образом начнут придавать ему особое внимание. Достаточно посмотреть на «блатные» номерные знаки или на систему создания произносимых идентификаторов, которая превратилась в печально известный \u003Ca href=\"http:\u002F\u002Fthedailywtf.com\u002Farticles\u002FThe-Automated-Curse-Generator\"\u003Eавтоматизированный генератор ругательств\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДаже, если ограничиться числовыми ключами, есть табу типа \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FThirteenth_floor\"\u003Eтринадцатого этажа\u003C\u002Fa\u003E. Несмотря на то, что proquints обладают большей плотностью информации на произносимый слог, числа тоже неплохи во многих случаях: в URL, пин-клавиатурах и написанных от руки записях, если получатель знает, что ключ состоит только из цифр. \u003Cbr\u002F\u003E\r\nОднако, обратите внимание, что не стоит использовать последовательный порядок в публично открытых числовых ключах, поскольку это позволяет рыться в ресурсах (\u003Ccode\u003E\u002Fvideos\u002F1.mpeg\u003C\u002Fcode\u003E, \u003Ccode\u003E\u002Fvideos\u002F2.mpeg\u003C\u002Fcode\u003E, и так далее), а также создаёт утечку информации о количестве данных. Наложите на последовательность чисел сеть Фейстеля и сохраните уникальность, скрыв при этом порядок чисел. \u003Cbr\u002F\u003E\r\nВ wiki PostgreSQL есть пример функции \u003Ca href=\"https:\u002F\u002Fwiki.postgresql.org\u002Fwiki\u002FPseudo_encrypt\"\u003E псевдошифрования\u003C\u002Fa\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003ECREATE OR REPLACE FUNCTION pseudo_encrypt(VALUE int) returns int AS $$\nDECLARE\nl1 int;\nl2 int;\nr1 int;\nr2 int;\ni int:=0;\nBEGIN\n l1:= (VALUE \u003E\u003E 16) &amp; 65535;\n r1:= VALUE &amp; 65535;\n WHILE i &lt; 3 LOOP\n   l2 := r1;\n   r2 := l1 # ((((1366 * r1 + 150889) % 714025) \u002F 714025.0) * 32767)::int;\n   l1 := l2;\n   r1 := r2;\n   i := i + 1;\n END LOOP;\n RETURN ((r1 &lt;&lt; 16) + l1);\nEND;\n$$ LANGUAGE plpgsql strict immutable;\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭта функция является обратной самой себе (т.е. \u003Ccode\u003Epseudo_encrypt(pseudo_encrypt(x)) = x\u003C\u002Fcode\u003E). Точное воспроизведение функции является своего рода безопасностью через неясность, и если кто-нибудь догадается, что вы использовали сеть Фейстеля из документации PostgreSQL, то ему будет легко получить исходную последовательность. Однако вместо \u003Ccode\u003E(((1366 * r1 + 150889) % 714025) \u002F 714025.0)\u003C\u002Fcode\u003E можно использовать другую функцию с областью значений от 0 до 1, например, просто поэкспериментировать с числами в предыдущем выражении.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВот, как использовать pseudo_encrypt:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003ECREATE SEQUENCE my_table_seq;\n\nCREATE TABLE my_table (\n  short_id int NOT NULL\n    DEFAULT pseudo_encrypt(\n      nextval('my_table_seq')::int\n    ),\n  -- другие колонки …\n\n  UNIQUE (short_id)\n);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТакое решение сохраняет случайные значения в столбце \u003Ccode\u003Eshort_id\u003C\u002Fcode\u003E, если же важно поддерживать высокие скорости обработки данных, то можно хранить в таблице саму инкрементную последовательность и преобразовывать её при запросе отображения с помощью \u003Ccode\u003Epseudo_encrypt\u003C\u002Fcode\u003E. Как мы увидим позже, индексирование рандомизированных значений может привести к увеличению объёма записи.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ предыдущем примере для \u003Ccode\u003Eshort_id\u003C\u002Fcode\u003E использовались целые значения обычного размера, для \u003Ccode\u003Ebigint\u003C\u002Fcode\u003E есть другие функции Фейстеля, например \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FXTEA\"\u003EXTEA\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕщё один способ запутать последовательность целых чисел заключается в преобразовании её в короткие строки. Попробуйте воспользоваться расширением \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FiCyberon\u002Fpg_hashids\"\u003Epg_hashids\u003C\u002Fa\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003ECREATE EXTENSION pg_hashids;\n\nCREATE SEQUENCE my_table_seq;\n\nCREATE TABLE my_table (\n  short_id text NOT NULL\n    DEFAULT id_encode(\n      nextval('my_table_seq'),\n      ' long string as table-specific salt '\n    ),\n  -- другие колонки …\n\n  UNIQUE (short_id)\n);\n\nINSERT INTO my_table VALUES\n  (DEFAULT), (DEFAULT), (DEFAULT);\n\nSELECT * FROM my_table;\n\u002F*\n┌──────────┐\n│ short_id │\n├──────────┤\n│ R4       │\n│ ya       │\n│ Ll       │\n└──────────┘\n*\u002F\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗдесь снова будет быстрее хранить в таблице сами целые числа и преобразовывать их по запросу, но замерьте производительность и посмотрите, имеет ли это смысл на самом деле.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТеперь, чётко разграничив смысл искусственных и естественных ключей, мы видим, что споры «естественные против искусственных» являются ложной дихотомией. Искусственные и естественные ключи не исключают друг друга! В одной таблице могут быть и те, и другие. На самом деле, таблица с искусственным ключом должна обеспечивать и естественный ключ, за редким исключением, когда не существует естественного ключа (например, в таблице кодов купонов):\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E-- Редкий пример таблицы: нет потенциальных естественных ключей,\n-- которые можно объявить вместе с искусственным ключом \"code\"\n\nCREATE TABLE coupons (\n  code text NOT NULL,\n  amount numeric(5,2) NOT NULL,\n  redeemed boolean NOT NULL DEFAULT false,\n\n  UNIQUE (code)\n);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЕсли у вас есть искусственный ключ и вы не объявляете естественные ключи, когда они существуют, то оставляете последние незащищёнными:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003ECREATE TABLE cars (\n  car_id bigserial NOT NULL,\n  vin varchar(17) NOT NULL,\n  year int NOT NULL,\n\n  UNIQUE (car_id)\n  -- нужно было добавить\n  -- UNIQUE (vin)\n);\n\n-- К сожалению, это успешно выполнится\nINSERT INTO cars (vin, year) VALUES\n  ('1FTJW36F2TEA03179', 1996),\n  ('1FTJW36F2TEA03179', 1997);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЕдинственным аргументом против объявления дополнительных ключей является то, что каждый новый несёт за собой ещё один уникальный индекс и увеличивает затраты на запись в таблицу. Конечно, зависит от того, насколько вам важна корректность данных, но, скорее всего, ключи все же стоит объявлять.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТакже стоит объявлять несколько искусственных ключей, если они есть. Например, у организации есть кандидаты на работу (Applicants) и сотрудники (Employees). Каждый сотрудник когда-то был кандидатом, и относится к кандидатам по своему собственному идентификатору, который также должен быть и ключом сотрудника. Ещё один пример, можно задать идентификатор сотрудника и имя логина как два ключа в Employees.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"surrogate\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EСуррогатные ключи\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fdd\u002F-f\u002Fzg\u002Fdd-fzgs_e5sakqf9cstti_kpcr0.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fdd\u002F-f\u002Fzg\u002Fdd-fzgs_e5sakqf9cstti_kpcr0.jpeg\" data-blurred=\"true\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nКак уже упоминалось, важный тип искусственного ключа называется «суррогатный ключ». Он не должен быть кратким и передаваемым, как другие искусственные ключи, а используется как внутренняя метка, всегда идентифицирующая строку. Он используется в SQL, но приложение не обращается к нему явным образом.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли вам знакомы \u003Ca href=\"https:\u002F\u002Fwww.postgresql.org\u002Fdocs\u002F10\u002Fstatic\u002Fddl-system-columns.html\"\u003Eсистемные колонки (system columns)\u003C\u002Fa\u003E из PostgreSQL, то вы можете воспринимать суррогаты почти как параметр реализации базы данных (вроде ctid), который однако никогда не меняется. Значение суррогата выбирается один раз для каждой строки и потом никогда не изменяется.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСуррогатные ключи отлично подходят в качестве внешних ключей, при этом необходимо указать каскадные ограничения \u003Ccode\u003EON UPDATE RESTRICT\u003C\u002Fcode\u003E, чтобы соответствовать неизменности суррогата.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nС другой стороны, внешние ключи к публично передаваемым ключам должны быть помечены \u003Ccode\u003EON UPDATE CASCADE\u003C\u002Fcode\u003E, чтобы обеспечить максимальную гибкость. (Каскадное обновление выполняется на том же \u003Ca href=\"https:\u002F\u002Fbegriffs.com\u002Fposts\u002F2017-08-01-practical-guide-sql-isolation.html\"\u003Eуровне изоляции\u003C\u002Fa\u003E, что и окружающая его транзакция, поэтому не беспокойтесь о проблемах с параллельным доступом – база данных справится, если выбрать строгий уровень изоляции.)\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНе делайте суррогатные ключи «естественными». Как только вы покажете значение суррогатного ключа конечным пользователям, или, что хуже, позволите им работать с этим значением (в частности через поиск), то фактически придадите ключу значимость. Потом показанный ключ из вашей базы данных может стать естественным ключом в чьей-то чужой БД.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПринуждение внешних систем к использованию других искусственных ключей, специально предназначенных для передачи, позволяет нам при необходимости изменять эти ключи в соответствии с меняющимися потребностями, в то же время поддерживая внутреннюю целостность ссылок с помощью суррогатов.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"auto-increment\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EАвтоинкрементные bigint\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nЧаще всего для суррогатных ключей используют автоинкрементную колонку «bigserial», также известную как \u003Ccode\u003EIDENTITY\u003C\u002Fcode\u003E. (На самом деле, PostgreSQL 10 теперь, как и Oracle, поддерживает конструкцию IDENTITY, см. \u003Ca href=\"https:\u002F\u002Fwww.postgresql.org\u002Fdocs\u002F10\u002Fstatic\u002Fsql-createtable.html\"\u003ECREATE TABLE\u003C\u002Fa\u003E.)\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОднако, я считаю, что автоинкрементное целое плохой выбор для суррогатных ключей. Такое мнение непопулярно, поэтому позвольте мне объясниться.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНедостатки последовательных ключей:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EЕсли все последовательности начинаются с 1 и постепенно увеличиваются, то у строк из разных таблиц будут одинаковые значения ключей. Такой вариант неидеален, предпочтительнее все же использовать непересекающиеся множества ключей в таблицах, чтобы, например, запросы не смогли бы случайно перепутать константы в JOIN и вернуть неожиданные результаты. (Как вариант для обеспечения отсутствия пересечений, можно составить каждую последовательность из чисел, кратных различным простым, но это будет довольно трудоёмко.)\u003C\u002Fli\u003E\r\n\u003Cli\u003E Вызов \u003Ccode\u003Enextval()\u003C\u002Fcode\u003E для генерации последовательности в современных распределённых SQL, приводит к тому, что вся система хуже масштабируется.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПоглощение данных из базы данных, в которой тоже использовались последовательные ключи, приведет к конфликтам, потому что последовательные значения не будут уникальными в разных системах.\u003C\u002Fli\u003E\r\n\u003Cli\u003EС философской точки зрения последовательное увеличение чисел связано со старыми системами, в которых подразумевался порядок строк. Если же вы теперь хотите упорядочить строки, то делайте это явным образом, с помощью колонки меток времени или чего-то имеющего смысл в ваших данных. В противном случае нарушается первая нормальная форма.\u003C\u002Fli\u003E\r\n\u003Cli\u003E(Слабая причина, но) эти короткие идентификаторы так и тянет сообщить кому-нибудь.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"uuid\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EUUID\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nДавайте рассмотрим другой вариант: использование больших целых чисел (128-битных), генерируемых в соответствии со случайным шаблоном. Алгоритмы генерации таких универсальных уникальных идентификаторов (universally unique identifier, UUID) имеют чрезвычайно малую вероятность выбора одного значения дважды, даже при одновременном выполнении на двух разных процессорах.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ таком случае, UUID кажутся естественным выбором для использования в качестве суррогатных ключей, не правда ли? Если вы хотите пометить строки уникальным образом, то ничто не сравнится с уникальной меткой!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак почему же все не пользуются ими в PostgreSQL? На это есть несколько надуманных причин и одна логичная, которую можно обойти, и я представлю бенчмарки, чтобы проиллюстрировать свое мнение.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля начала, расскажу о надуманных причинах. Некоторые люди думают, что UUID — это строки, потому что они записываются в традиционном шестнадцатеричном виде с дефисом: 5bd68e64-ff52-4f54-ace4-3cd9161c8b7f. Действительно, некоторые базы данных не имеют компактного (128-битного) типа uuid, но в PostgreSQL \u003Ca href=\"https:\u002F\u002Fwww.postgresql.org\u002Fdocs\u002Fcurrent\u002Fstatic\u002Fdatatype-uuid.html\"\u003Eон есть\u003C\u002Fa\u003E и имеет размер двух bigint, т.е., по сравнению с объёмом прочей информации в базе данных, издержки незначительны.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕщё UUID незаслуженно обвиняется в громоздкости, но кто будет их произносить, печатать или читать? Мы говорили, что это имеет смысл для показываемых искусственных ключей, но никто (по определению) не должен увидеть суррогатный UUID. Возможно, с UUID будет иметь дело разработчик, запускающий команды SQL в psql для отладки системы, но на этом всё. А разработчик может ссылаться на строки и с помощью более удобных ключей, если они заданы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EРеальная проблема с UUID в том, что сильно рандомизированные значения приводят к увеличению объёма записи (write amplification) из-за записей полных страниц в журнал с упреждающей записью (write-ahead log, WAL).\u003C\u002Fstrong\u003E Однако, на самом деле снижение производительности зависит от алгоритма генерации UUID.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДавайте измерим write amplification. По правде говоря, проблема в старых файловых системах. Когда PostgreSQL выполняет запись на диск, она изменяет «страницу» на диске. При отключении питания компьютера большинство файловых систем всё равно сообщит об успешной записи ещё до того, как данные безопасно сохранились на диске. Если PostgreSQL наивно воспримет такое действие завершённым, то при последующей загрузке системы база данных будет повреждена.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРаз PostgreSQL не может доверять большинству ОС\u002Fфайловых систем\u002Fконфигураций дисков в вопросе обеспечения неразрывности, база данных сохраняет полное состояние изменённой дисковой страницы в журнал с упреждающей записью (write-ahead log), который можно будет использовать для восстановления после возможного сбоя. Индексирование сильно рандомизированных значений наподобие UUID обычно затрагивает кучу различных страниц диска и приводит к записи полного размера страницы (обычно 4 или 8 КБ) в WAL для каждой новой записи. Это так называемая полностраничная запись (full-page write, FPW).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНекоторые алгоритмы генерации UUID (такие, как «snowflake» от Twitter или \u003Ccode\u003Euuid_generate_v1()\u003C\u002Fcode\u003E в расширении \u003Ca href=\"https:\u002F\u002Fwww.postgresql.org\u002Fdocs\u002F10\u002Fstatic\u002Fuuid-ossp.html\"\u003Euuid-ossp\u003C\u002Fa\u003E для PostgreSQL) создают на каждой машине монотонно увеличивающиеся значения. Такой подход консолидирует записи в меньшее количество страниц диска и снижает FPW.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДавайте измерим влияние FPW для различных алгоритмов генерации UUID, а также исследуем статистику WAL. Я использовал следующую конфигурацию для замера.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EЭкземпляр EC2 с запущенным ami-aa2ea6d0\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EUbuntu Server 16.04 LTS (HVM)\u003C\u002Fli\u003E\r\n\u003Cli\u003EEBS General Purpose (SSD)\u003C\u002Fli\u003E\r\n\u003Cli\u003Ec3.xlarge\u003C\u002Fli\u003E\r\n\u003Cli\u003EvCPU: 4\u003C\u002Fli\u003E\r\n\u003Cli\u003ERAM GiB: 7.5\u003C\u002Fli\u003E\r\n\u003Cli\u003EDisk GB: 2 x 40 (SSD)\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EPostgreSQL, собранная из исходников\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fftp.postgresql.org\u002Fpub\u002Fsource\u002Fv10.1\u002Fpostgresql-10.1.tar.gz\"\u003Eftp.postgresql.org\u002Fpub\u002Fsource\u002Fv10.1\u002Fpostgresql-10.1.tar.gz\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E.\u002Fconfigure --with-uuid=ossp CFLAGS=\"-O3\"\u003C\u002Fcode\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EКонфигурация базы данных по умолчанию, со следующими исключениями:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Emax_wal_size=‘10GB’;\u003C\u002Fli\u003E\r\n\u003Cli\u003Echeckpoint_timeout=‘2h’;\u003C\u002Fli\u003E\r\n\u003Cli\u003Esynchronous_commit=‘off’;\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nСхема:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003ECREATE EXTENSION \"uuid-ossp\";\nCREATE EXTENSION pgcrypto;\n\nCREATE TABLE u_v1 ( u uuid PRIMARY KEY );\nCREATE TABLE u_crypto ( u uuid PRIMARY KEY );\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПеред тек, как добавить UUID в каждую таблицу, находим текущую позицию write-ahead log.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003ESELECT pg_walfile_name(pg_current_wal_lsn());\n\n\u002F* Например,\n\n     pg_walfile_name\n--------------------------\n 000000010000000000000001\n*\u002F\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЯ использовал такую позицию, чтобы получить статистику об использовании WAL после проведения бенчмарка. Так мы получим статистику событий, выполняемых последовательно после начальной позиции:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003Epg_waldump --stats 000000010000000000000001\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЯ провёл тесты трёх сценариев:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EДобавление UUID, сгенерированных алгоритмом \u003Ccode\u003Egen_random_uuid()\u003C\u002Fcode\u003E (\u003Ca href=\"https:\u002F\u002Fwww.postgresql.org\u002Fdocs\u002F10\u002Fstatic\u002Fpgcrypto.html\"\u003Epgcrypto\u003C\u002Fa\u003E)\u003C\u002Fli\u003E\r\n\u003Cli\u003E Добавление из \u003Ccode\u003Euuid_generate_v1()\u003C\u002Fcode\u003E (предоставленного [uuid-ossp] (https:\u002F\u002Fwww.postgresql.org\u002Fdocs\u002F10\u002Fstatic\u002Fuuid-ossp.html)\u003C\u002Fli\u003E\r\n\u003Cli\u003EСнова добавление из \u003Ccode\u003Egen_random_uuid()\u003C\u002Fcode\u003E, но теперь с параметром \u003Ccode\u003Efull_page_writes='off'\u003C\u002Fcode\u003E в конфигурации БД. Это покажет, насколько всё будет быстрее без увеличения FPW.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nДля каждого из этих сценариев я начинал с пустой таблицы и вставлял 2\u003Csup\u003E20\u003C\u002Fsup\u003E UUID и повторял процедуру шестнадцать раз, замеряя каждый из них, чтобы отследить, как меняется производительность при большем количестве данных в таблице.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E-- например, я выполнял это в psql 16 раз с параметром \\timing\n\nINSERT INTO u_crypto (\n  SELECT gen_random_uuid()\n  FROM generate_series(1, 1024*1024)\n);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nИ вот результаты замеров скорости:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fyf\u002Fnq\u002Fli\u002Fyfnqliema9cvcptjyar_ibmdctu.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fyf\u002Fnq\u002Fli\u002Fyfnqliema9cvcptjyar_ibmdctu.png\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EГрафик скорости вставки UUID\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВот статистика WAL для каждого из способов:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003Egen_random_uuid()\n\nТип          N      (%)   Размер записи    (%)   Размер FPI    (%)\n----         -      ---   -----------      ---   --------      ---\nXLOG       260 (  0.15)         13139 (  0.09)     484420 ( 30.94)\nHeap2      765 (  0.45)        265926 (  1.77)     376832 ( 24.07)\nHeap     79423 ( 46.55)       6657121 ( 44.20)     299776 ( 19.14)\nBtree    89354 ( 52.37)       7959710 ( 52.85)     404832 ( 25.85)\n\nuuid_generate_v1()\n\nТип          N      (%)   Размер записи    (%)   Размер FPI    (%)\n----         -      ---   -----------      ---   --------      ---\nXLOG         0 (  0.00)             0 (  0.00)          0 (  0.00)\nHeap2        0 (  0.00)             0 (  0.00)          0 (  0.00)\nHeap    104326 ( 49.88)       7407146 ( 44.56)          0 (  0.00)\nBtree   104816 ( 50.12)       9215394 ( 55.44)          0 (  0.00)\n\ngen_random_uuid() with fpw=off\n\nТип          N      (%)   Размер записи    (%)   Размер FPI    (%)\n----         -      ---   -----------      ---   --------      ---\nXLOG         4 (  0.00)           291 (  0.00)         64 (  0.84)\nHeap2        0 (  0.00)             0 (  0.00)          0 (  0.00)\nHeap    107778 ( 49.88)       7654268 ( 46.08)          0 (  0.00)\nBtree   108260 ( 50.11)       8956097 ( 53.91)       7556 ( 99.16)\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nРезультаты подтверждают, что \u003Ccode\u003Egen_random_uuid\u003C\u002Fcode\u003E создаёт существенную активность в WAL из-за полностраничных образов (full-page images, FPI), а другие способы этим не страдают. Конечно, в третьем методе я просто запретил базе данных делать это. Однако запрет FPW совсем не то, что стоило бы использовать в реальности, если только вы не полностью уверены в файловой системе и конфигурации дисков. В \u003Ca href=\"https:\u002F\u002Fblog.2ndquadrant.com\u002Fpg-phriday-postgres-zfs\u002F\"\u003Eэтой статье\u003C\u002Fa\u003E утверждается, что ZFS может быть безопасным для отключения FPW, но пользуйтесь им с осторожностью.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯвным победителем в моём бенчмарке оказался \u003Ccode\u003Euuid_generate_v1()\u003C\u002Fcode\u003E – он быстр и не замедляется при накоплении строк. Расширение uuid-ossp по умолчанию установлено в таких облачных базах данных, как RDS и Citus Cloud, и будет доступно без дополнительных усилий.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ документация есть предупреждение о uuid_generate_v1:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EВ нём используется MAC-адрес компьютера и метка времени. Учитывайте, что UUID такого типа раскрывают информацию о компьютере, который создал идентификатор, и время его создания, что может быть неприемлемым, когда требуется высокая безопасность.\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОднако я не думаю, что настоящая проблема, потому что суррогатный ключ не передаётся. Если же это всё-таки важно для вас, в библиотеке есть \u003Ccode\u003Euuid_generate_v1mc()\u003C\u002Fcode\u003E, скрывающий mac-адрес компьютера.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"sum\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EИтоги и рекомендации\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nТеперь, когда мы познакомились с различными типами ключей и вариантами их использования, я хочу перечислить мои рекомендации по применению их в ваших базах данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля каждой таблицы:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EОпределите и объявите все естественные ключи.\u003C\u002Fli\u003E\r\n\u003Cli\u003EСоздайте суррогатный ключ \u003Ccode\u003E&lt;table_name\u003E_id\u003C\u002Fcode\u003E типа \u003Ccode\u003Euuid\u003C\u002Fcode\u003E со значением по умолчанию в \u003Ccode\u003Euuid_generate_v1()\u003C\u002Fcode\u003E. Можете даже пометить его как первичный ключ. Если добавить в этот идентификатор название таблицы, это упростит JOIN, т.е. получите \u003Ccode\u003EJOIN foo USING (bar_id)\u003C\u002Fcode\u003E вместо \u003Ccode\u003EJOIN foo ON (foo.bar_id = bar.id)\u003C\u002Fcode\u003E. Не передавайте этот ключ клиентам и вообще не выводите за пределы базы данных.\u003C\u002Fli\u003E\r\n\u003Cli\u003EДля промежуточных таблиц, через которые происходит JOIN, объявляйте все колонки внешних ключей как единый составной первичный ключ.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПри необходимости добавьте искусственный ключ, который можно использовать в URL или других указаниях ссылки на строку. Используйте сетку Фейстеля или pg_hashids, чтобы замаскировать автоинкрементные целые.\u003C\u002Fli\u003E\r\n\u003Cli\u003EУказывайте каскадное ограничение \u003Ccode\u003EON UPDATE RESTRICT\u003C\u002Fcode\u003E, используя суррогатные UUID в качестве внешних ключей, а для внешних искусственных ключей – \u003Ccode\u003EON UPDATE CASCADE\u003C\u002Fcode\u003E. Выбирайте естественные ключи, исходя из собственной логики.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТакой подход обеспечивает стабильность внутренних ключей, в то же время допуская и даже защищая естественные ключи. К тому же, видимые искусственные ключи не становятся к чему-либо привязанными. Правильно во всем разобравшись, можно не зацикливаться только на «первичных ключах» и пользоваться всеми возможностями применения ключей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Chr\u002F\u003E\u003Cbr\u002F\u003E\r\nОбсуждать подобные профессиональные вопросы мы предлагаем на наших конференциях. Если у вас за плечами большой опыт в ИТ-сфере, наболело, накипело и хочется высказаться, поделиться опытом или где-то попросить совета, то на майском фестивале конференций \u003Ca href=\"http:\u002F\u002Fritfest.ru\u002F\"\u003EРИТ++\u003C\u002Fa\u003E будут для этого все условия, 8 тематических направлений начиная от фронтенда и мобильной разработки, и заканчивая DevOps и управлением. Подать заявку на выступление можно \u003Ca href=\"http:\u002F\u002Fspeakers.ritfest.ru\u002F\"\u003Eздесь\u003C\u002Fa\u003E.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"sql"},{"titleHtml":"индексы"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F348172\u002F9a2e43ebc0a8d3ecd325f59506e580a5\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F348172\u002F9a2e43ebc0a8d3ecd325f59506e580a5\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Foleg-bunin\\\u002Fblog\\\u002F348172\\\u002F\"},\"headline\":\"SQL ключи во всех подробностях\",\"datePublished\":\"2018-02-02T17:40:30+03:00\",\"dateModified\":\"2018-02-03T17:14:23+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Олег Бунин\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"В Интернете полно догматических заповедей о том, как нужно выбирать и использовать ключи в реляционных базах данных. Иногда споры даже переходят в холивары: испо...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Foleg-bunin\\\u002Fblog\\\u002F348172\\\u002F#post-content-body\",\"about\":[\"c_oleg-bunin\",\"h_mysql\",\"h_postgresql\",\"h_sql\",\"h_db_admins\",\"f_develop\",\"f_admin\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F348172\\\u002F9a2e43ebc0a8d3ecd325f59506e580a5\\\u002F\"]}","metaDescription":"В Интернете полно догматических заповедей о том, как нужно выбирать и использовать ключи в реляционных базах данных. Иногда споры даже переходят в холивары: использовать естественные или искусственные...","mainImageUrl":null,"amp":false,"customTrackerLinks":["https:\u002F\u002Fhabrahabr.ru\u002Fcompany\u002Foleg-bunin\u002Fblog\u002F348172\u002F"]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"oleg-bunin":{"alias":"oleg-bunin","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002Fadd\u002Feb3\u002Fe91\u002Faddeb3e91fe453f9d78c7b52b8dc6a90.png","titleHtml":"Конференции Олега Бунина (Онтико)","descriptionHtml":"Профессиональные конференции для IT-разработчиков","relatedData":null,"statistics":{"postsCount":727,"newsCount":9,"vacanciesCount":0,"employeesCount":104,"careerRating":null,"subscribersCount":50773,"rating":349.95,"invest":null},"foundationDate":{"year":"2008","month":"01","day":"01"},"location":{"city":{"id":"447159","title":"Москва"},"region":{"id":"1885","title":"Москва и Московская обл."},"country":{"id":"168","title":"Россия"}},"siteUrl":"http:\u002F\u002Fwww.ontico.ru\u002F","staffNumber":"31–50 человек","registrationDate":"2010-02-24T19:37:40+00:00","representativeUser":[],"contacts":[{"title":"Facebook","url":"https:\u002F\u002Ffacebook.com\u002Foleg.bunin"},{"title":"Facebook","url":"https:\u002F\u002Ffacebook.com\u002FHighLoadConference"},{"title":"Twitter","url":"https:\u002F\u002Ftwitter.com\u002FHighLoadConf"},{"title":"Telegram","url":"https:\u002F\u002Ftelegram.me\u002FHighLoadTalks"}],"settings":{"analyticsSettings":[{"type":"ym","trackingId":"55760638"}],"branding":null,"status":"active","isStartup":false},"metadata":{"titleHtml":"Конференции Олега Бунина (Онтико), Москва - Профессиональные конференции для IT-разработчиков с 1 января 2008 г.","title":"Конференции Олега Бунина (Онтико), Москва - Профессиональные конференции для IT-разработчиков с 1 января 2008 г.","keywords":["Конференции","Высокая производительность","Управление разработкой","Программирование","Управление персоналом","highload++","devops","конференции","highload","управление людьми","teamleadconf","python","frontendconf","appsconf","frontend","тимлид","конференция","рит++","интервью","devopsconf","php","управление командой","postgresql","программирование","javascript"],"descriptionHtml":"727 статей от авторов компании Конференции Олега Бунина (Онтико)","description":"727 статей от авторов компании Конференции Олега Бунина (Онтико)"},"aDeskSettings":null,"careerAlias":"ontico"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":true,"featurer":[{"title":"Питчи недели фронтендеров","gal":"pitch_ft_2022_1","image":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002F0hPKpGPDA4POk5G_nM7K6zGf1mNPyhcLdY4wi3PuvvMwrfOPIl7_BnCdMkelIeg1Xu8OPJGFf-Nh47iCOpewXQw90L4UH4vO-dVNlsHWQ9hPfCJKSpkrJ-i69XVrZkJBw_94VKa2KkrXB9n3guntoNVoJ1xZfSONqVMi-jtPXjhzGbnUUFwzN_ZB1pmMqeKIApmZNPCMBAIGi1hPn1a_51yYFanA0pzt"},"link":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002FdaQC1eydgfn2fl8VvaRyQCoM1YyIcFs_5BAw8738dXCaeQnBBpjA3FVKDKHMK-x5rhCNspTg8YGJWCfzB0Zfh71p7kUjZTe2bo82XsekgGEuaXc04ZB_6hziWZFAtHYvJNQq0sF6"}}],"megaposts":[{"title":"Основы основ финтеха","color":"#99ddff","link":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002FLMrLBfTOE1-szDX6K9TrERnYm0n669hNNqouUTUhcksnezHEMeTDMMEx6K2nCN44AePBf_CkFT2TVARJhUzoHQSmnz1CepDD-GRTKLmPMIKm288H"},"events":{"view":"V9FWjElD5-a7KGCuK9BTYhJP9vWJezPuhy1CfXqomyBieN8vmELV4UU6HONy66rKlwTT1SLRTFdlNQ"}}],"promoLinks":[{"title":"Почему программисты пишут статьи? ","label":"Мегапост","external":false,"link":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002FxPv4loN6qiQkgWtwfwBAjggQ35k2OHoE-tF4EsQMLayg19A3Rfb2fhCXYFL0WwHabrS3LyZDO8ynORBMmV5lYoT2YtKigvLPJFVEaYU8jYrW"},"events":{"view":"3fYjPCFjs4F8zrQOLUErIYxMidOvhj5dGrBrCaWTudKOU_MnxiSwoHBMpCsmotxw7qfp-SOxjB5gYg"}},{"title":"А как прошел ваш 2021? Исследуем рынок труда в IT, строим тренды и ищем аномалии","label":"Промо","external":true,"link":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002FCyRu8HDaj339r4cOL2DTqMhrM70sH9a5bpswo7DE1fjWqBTShGbitB6lx0BgZpRYVtcGmS4ncVw8Iybb-WofhBtLwTLUtZbRS5xe5kq2gbgstCBqg0nEtCFcsYHM0V9dPXk3_KGBs_mrDy9G5EjKt-aAGePsHaM"},"events":{"view":"lQRHbpNtkfAWOhHBAyaczTHCUKusZo6Xr-4lcLW7ZpoK1DFyoZpNpSxUpX6w_4y8tOsrjrxBJhHAyA"}}],"promoPosts":[{"title":"Красивое: смотрим тренды рынка труда в IT вместе с вами","label":"Промо","external":true,"image":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002FksRhsjubzZYCSSHY5kXiXLX3thqJ7wAFPB9FzLVYGiJ4qub9qzfOTsX8kVaBZBDvkH8XzYrkCGMCi1SZrkQbVLrXCWXKqo8b3Qdb8599xAUqXNRlZZRpysNYMgdBkRtUD5XEWXtvRtoMSb8ABdhvEkPwZSb9qwiKdicWjA8nI661xAhUUzbXptIc9jrcXdGE6Vg_TLym7CvIrzmA"},"link":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002Fq64-KuL0pABnXF8xDHYFFG-iKTc7QbHtGfyzRHdYDuTjTk1HYiYnV4CHqEWxu_RArh1YjvCLAlFfB2cwNPnkmoRP0U8PJWKQ-WVjNUpEgSvBoxBvYF7EIa2cpQ3wcFRM2DVu8xsq-r4-WHm6HcAFU8v5C1qLiv0"}},{"title":"Истощающая тревога: что такое стресс и как с ним бороться","label":"Интересно","external":false,"image":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002F_GyqGw_HIH-smfZ6U2WEgKrbkVeXuWTD42--KQ8MgydQRfkubjMYKW6l0c1Tbd6YC-qU_gDIg2T8ciWD015HhkwHdKEX-OOeay7WCn2qIEJCYJ_o1jDkylOYiZymrEOpwp4Req_NoF9UMospzCwoef7F7Q35DrmKkwcXd_PHusHu_iEYo0NPhHN_8RTRDQuTmxaefYzhFKjv"},"link":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002FAOAIz_puEKEsjd5vDW1MIqXfjAurAO_Fadc5ByKefoTfXfAYszC6-rLPttbvMd5a064lZoioyU2rvIbP3u76jxF2RFUCZ29uIZtzdWJHVFKA3aokbhjXinNx5-EFwqKQj2OBl9X3Kg"}},{"title":"Неделе фронтендеров на Хабр Карьере ","label":"Событие","external":false,"image":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002FNIeitqIFMlZyeApiIZuLnQsluWYh03zyrOe74QY2mS0ljDpqdKEJCIj9PSFpDnjAJpXAG1IZ3HW9Vb1V_QhHfldEA_KSSOxnvA5vb-iscJ7uWtyYr80Q3PhQyI1gIt7jDuhqTL2b0REyjuZvD4MDcyMVO8cXf9YszSNQVW5tKMWFuBQ6Wa7kuwfuewM0IWY6dIa8kHvzup0-XiQfME5u"},"link":{"url":"https:\u002F\u002Feffect.habr.com\u002Fa\u002F7m7NSciEQN1xMaETsutR0vey60xgoB4WEOFci1seMnUJtCCWyWEbbpTx7gqA8tXpNSR4MtVGqXkW7za4pG2PXG9TDvuReik6IR5_PwNbsy4Fwz8or_YXdSY0Q3dfQL-Xdhgyck7d_BDFpAH5C-0eQQ"}}]},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>HTTP/2: готовимся к переходу / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/selectel\/blog\/278167\/"},"headline":"HTTP\/2: готовимся к переходу","datePublished":"2016-03-01T11:03:25+03:00","dateModified":"2016-03-02T17:07:29+03:00","author":{"@type":"Person","name":"Андрей Емельянов"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"В&nbsp;прошлом году в&nbsp;мире сетевых технологий произошло очень важное событие: была утверждена и&nbsp;стандартизирована новая версия протокола HTTP&nbsp;&mdash; HTTP\/2. HTTP\/2 уже п...","url":"https:\/\/habr.com\/ru\/company\/selectel\/blog\/278167\/#post-content-body","about":["c_selectel","h_webdev","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/278167\/1c2bc146754ae21e4bcdc6e9e229dfd9\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="HTTP/2: готовимся к переходу" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="HTTP/2: готовимся к переходу" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="HTTP/2: готовимся к переходу" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="В&amp;nbsp;прошлом году в&amp;nbsp;мире сетевых технологий произошло очень важное событие: была утверждена и&amp;nbsp;стандартизирована новая версия протокола HTTP&amp;nbsp;&amp;mdash; HTTP/2. HTTP/2 уже..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="В&amp;nbsp;прошлом году в&amp;nbsp;мире сетевых технологий произошло очень важное событие: была утверждена и&amp;nbsp;стандартизирована новая версия протокола HTTP&amp;nbsp;&amp;mdash; HTTP/2. HTTP/2 уже..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="В&amp;nbsp;прошлом году в&amp;nbsp;мире сетевых технологий произошло очень важное событие: была утверждена и&amp;nbsp;стандартизирована новая версия протокола HTTP&amp;nbsp;&amp;mdash; HTTP/2. HTTP/2 уже..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="В&amp;nbsp;прошлом году в&amp;nbsp;мире сетевых технологий произошло очень важное событие: была утверждена и&amp;nbsp;стандартизирована новая версия протокола HTTP&amp;nbsp;&amp;mdash; HTTP/2. HTTP/2 уже..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="В&amp;nbsp;прошлом году в&amp;nbsp;мире сетевых технологий произошло очень важное событие: была утверждена и&amp;nbsp;стандартизирована новая версия протокола HTTP&amp;nbsp;&amp;mdash; HTTP/2. HTTP/2 уже..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/278167/1c2bc146754ae21e4bcdc6e9e229dfd9/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/278167/1c2bc146754ae21e4bcdc6e9e229dfd9/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/278167/1c2bc146754ae21e4bcdc6e9e229dfd9/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/278167/1c2bc146754ae21e4bcdc6e9e229dfd9/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/278167/1c2bc146754ae21e4bcdc6e9e229dfd9/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="278167" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2016-03-01T08:03:25.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/selectel/blog/278167/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="HTTP/2, HTTP, веб-технологии, оптимизация сайта, селектел, selectel">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/278167/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.76.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/278167/1c2bc146754ae21e4bcdc6e9e229dfd9/" data-vmid="image:href"><link data-vue-meta="ssr" rel="amphtml" href="https://habr.com/ru/amp/post/278167/">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="selectel" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><!----></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/selectel/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/66a/f7d/039/66af7d03979b6d18654293d8f1e72837.png" width="48" class="tm-entity-image__pic"></div></a> <a href="https://career.habr.com/companies/selectel" rel="noopener" target="_blank" class="tm-grade tm-company-card__rating"><div class="tm-rating"><div class="tm-rating__header"><svg height="24" width="24" class="tm-svg-img tm-svg-grade__icon"><title>Оценка компании на Хабр Карьере</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#grade"></use></svg> <div class="tm-rating__counter tm-rating__counter_variant-grade">4.74</div></div> <div class="tm-rating__text tm-rating__text_variant-grade">
+    Оценка
+  </div></div></a> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">1236.49</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/selectel/profile/" class="tm-company-card__name">
+      Selectel
+    </a> <div class="tm-company-card__description">IT-инфраструктура для бизнеса</div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/AndreiYemelianov/" title="AndreiYemelianov" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/347/f4b/fb4/347f4bfb46683a4f0f96adf67d5db358.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/AndreiYemelianov/" class="tm-user-info__username">
+      AndreiYemelianov
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2016-03-01T08:03:25.000Z" title="2016-03-01, 11:03">1  марта  2016 в 11:03</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>HTTP/2: готовимся к переходу</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/selectel/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании Selectel</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div><img height="1" src="https://vk.com/rtrg?p=VK-RTRG-372010-170Bk" width="1" style="display: none;"></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/bd0/7ba/9a8/bd07ba9a8607d3bb617b96467dd206ae.png" alt="HTTP/2" width="100%" height="100%" data-src="https://habrastorage.org/getpro/habr/post_images/bd0/7ba/9a8/bd07ba9a8607d3bb617b96467dd206ae.png"/><br/>
+<br/>
+В прошлом году в мире сетевых технологий произошло очень важное событие: была утверждена и стандартизирована новая версия протокола HTTP — HTTP/2. HTTP/2 уже поддерживается в популярных веб-серверах: Apache и Nginx. Идёт работа по внедрению HTTP/2 в IIS. Реализована поддержка и в большинстве современных браузеров. <br/>
+<br/>
+Использование HTTP/2 за последнее время существенно расширилось.<br/>
+<a name="habracut"></a><br/>
+По данным на середину 2015 года, процент сайтов и веб-сервисов, перешедших на HTTP/2, был невелик ― всего 0,4%. <a href="http://w3techs.com/technologies/breakdown/ce-http2/ranking" rel="nofollow">Совсем свежая статистика</a> (январь 2016) свидетельствует о значительном росте: с 0,4 до 6,5%. Есть все основания полагать, что в ближайшее время темпы роста будут увеличиваться.<br/>
+<br/>
+Задуматься о практических аспектах перехода на HTTP/2 стоит уже сейчас. Эту тему мы хотели бы затронуть в сегодняшней статье. Особенно нас будет интересовать проблема адаптации существующих приёмов оптимизации производительности веб-сайтов под специфику нового протокола.<br/>
+Прежде чем перейти непосредственно к рассмотрению этого вопроса, обратимся к истории протокола HTTP/2 и кратко опишем основные нововведения, отличающие его от HTTP/1.1.<br/>
+<br/>
+<h2>От HTTP к HTTP/2</h2><br/>
+<h3>Немного истории</h3><br/>
+<a href="https://www.w3.org/Protocols/HTTP/AsImplemented.html" rel="nofollow">Первое описание протокола HTTP</a> (HyperText Transfer Protocol) было опубликовано в 1991 году. В 1999 году была разработана и описана версия HTTP 1.1, используемая и по сей день. В то далёкое время (почти 20 лет назад) веб-сайты были совсем не такими, как сейчас. За относительно небольшой период времени сайты стали «весить» гораздо больше. Домашняя страница среднестатического современного сайта содержит примерно 1,9 МБ данных: изображения, JS, CSS и многое другое.<br/>
+<br/>
+Из-за ограничения на количество одновременных подключений в HTTP/1.1 загрузка страниц, содержащих большое количество «тяжёлого» контента, осуществляется медленно. Можно выделить два пути решения этой проблемы. Первый заключается в использовании различных техник оптимизации производительности (о некоторых из них мы <a href="https://blog.selectel.ru/staticheskie-sajty-nastrojka-i-optimizaciya/">уже писали</a>), а второй — в попытке модификации самого протокола HTTP с целью устранения возможных узких мест. Рассмотрим такие попытки более подробно.<br/>
+<br/>
+Первый масштабный проект реформирования HTTP был представлен в 2009 году инженерами Google. Это протокол <a href="http://googleresearch.blogspot.co.uk/2009/11/2x-faster-web.html" rel="nofollow">SPDY</a>, целью которого в первую очередь было ускорение работы веб-сайтов и приложений путём модификации традиционных способов приёма и отправки запросов. <br/>
+<br/>
+SPDY требует поддержки как на стороне сервера, так и на стороне клиента. Разработчики Google создали специализированные модули для Apache (<a href="https://developers.google.com/speed/spdy/mod_spdy/" rel="nofollow">mod_spdy</a>) и для Nginx (<a href="http://nginx.org/en/docs/http/ngx_http_spdy_module.html" rel="nofollow">ngx_http_spdy_module</a>). Поддерживается он и практически во всех популярных браузерах.<br/>
+<br/>
+HTTP/2, представленный шестью годами позже, во многом основывается на SPDY. Новая версия HTTP была создана рабочей группой Hypertext Transfer Protocol working group. В мае 2015 года спецификация HTTP/2 была опубликована как <a href="https://tools.ietf.org/html/rfc7540" rel="nofollow">RFC 7540</a>. <br/>
+<br/>
+Протокол HTTP/2 обратно совместим с HTTP/1.1. Изменения, направленные на устранение узких мест и повышения производительности, во многом продолжают линию SPDY. Рассмотрим вкратце наиболее важные из них.<br/>
+<br/>
+<h2>HTTP/2: основные нововведения</h2><br/>
+<h3>Мультиплексирование</h3><br/>
+Возможно, это самое главное преимущество HTTP/2. В HTTP/1.1 для каждого запроса требуется устанавливать отдельное TCP-соединение. Мультиплексирование же позволяет браузеру выполнять множество запросов в рамках одного TCP-соединения:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/0d1/26e/26a/0d126e26a6ee3d6925e7e824ca7df364.png" alt="HTTP/2" width="100%" height="100%" data-src="https://habrastorage.org/getpro/habr/post_images/0d1/26e/26a/0d126e26a6ee3d6925e7e824ca7df364.png"/><br/>
+<br/>
+В современных браузерах количество одновременных TCP-соединений ограничено. Поэтому страницы с большим количеством статического контента загружаются не так быстро, как хотелось бы.<br/>
+<br/>
+В HTTP/2 благодаря мультиплексированию статические элементы загружаются параллельно, и благодаря этому существенно улучшается производительность.<br/>
+<br/>
+<h3>Приоритеты</h3><br/>
+Ещё одно нововведение HTTP/2 — это приоритизация. Каждому запросу можно назначить приоритет.<br/>
+Существует два подхода к назначению приоритетов: на основе веса и на основе зависимостей.<br/>
+<br/>
+В первом подходе каждый поток получает определённый вес. Потом на основе веса сервер распределяет нагрузку между потоками. Такой подход уже использовался в протоколе SPDY. <br/>
+<br/>
+Второй метод, являющийся основным в HTTP/2, заключается в следующем: браузер просит сервер загружать определённые элементы контента в первую очередь. Например, браузер может попросить сервер сначала загрузить CSS-файлы или JavaScript, а уже потом — HTML или изображения. <br/>
+<br/>
+В HTTP/2 приоритизация является не обязательным, а желательным методом. Однако мультиплексирование без неё работать должным образом не будет. Скорость загрузки может быть даже ниже, чем HTTP/1.1. Ресурсы с более низким приоритетом будут занимать полосу, что приведёт снижению производительности.<br/>
+<br/>
+<h3>Сжатие HTTP-заголовков</h3><br/>
+Современная веб-страница состоит из множества элементов: изображения, JS, CSS и другие. В запросе на загрузку каждого из этих элементов браузер передаёт HTTP-заголовок. Отправляя запрошенные элементы, сервер также добавляет к ним заголовок. Всё это сопряжено с излишним расходованием ресурсов.<br/>
+ <br/>
+В HTTP/2 заголовки передаются в сжатом виде. Благодаря этому уменьшается количество информации, которой обмениваются между собой сервер и браузер. Вместо алгоритмов gzip/deflate используется <a href="http://http2.github.io/http2-spec/compression.html" rel="nofollow">HPACK</a>. Это снижает уязвимость к <a href="https://en.wikipedia.org/wiki/BREACH_(security_exploit)" rel="nofollow">атакам типа BREACH</a>. <br/>
+<br/>
+<h2>HTTP/2 и безопасность</h2><br/>
+Одним из важнейших требований протокола SPDY является обязательное шифрование (HTTPS) соединения между клиентом и сервером. В HTTP/2 оно обязательного характера не имеет. Однако разработчики браузеров приняли решение внедрить новый протокол только для TLS(HTTPS)-соединений. Поэтому тем, кто задумывается о переходе на HTTP/2, нужно сначала перейти на HTTPS.<br/>
+<br/>
+Это нужно не только для HTTP/2. В поиске Google использование безопасного соединения является <a href="https://googlewebmastercentral.blogspot.ru/2014/08/https-as-ranking-signal.html" rel="nofollow">одним из критериев ранжирования</a>. Браузеры (см. <a href="http://www.zdnet.com/article/google-chrome-gets-ready-to-mark-all-http-sites-as-bad/" rel="nofollow">здесь</a> и <a href="https://blog.mozilla.org/security/2015/04/30/deprecating-non-secure-http/" rel="nofollow">здесь</a>) скоро будут помечать сайты, не поддерживающие https, как «небезопасные». Добавим также, что многие возможности HTML5 ― например, геолокация ― без безопасного соединения <a href="https://code.google.com/p/chromium/issues/detail?id=464874" rel="nofollow">будут недоступны</a>.<br/>
+<br/>
+<h2>Базовая настройка HTTP/2 в Nginx и Apache</h2><br/>
+Приведём краткие инструкции по включению и базовой настройке HTTP/2 в Nginx и Apache. Как уже было сказано выше, большинство современных браузеров работают с HTTP/2 только через TLS, поэтому в конфигурации вашего веб-сервера должны быть прописаны соответствующие настройки.<br/>
+<br/>
+<h3>Nginx</h3><br/>
+Поддержка HTTP/2 реализована только в новейших версиях Nginx (1.9.5 и выше). Если у вас установлена другая версия, вам потребуется обновить её.<br/>
+<br/>
+После этого откройте конфигурационный файл /etc/nginx/nginx.conf и найдите в секции server следующую строку:<br/>
+<br/>
+<pre>
+listen 443 ssl;
+</pre><br/>
+<br/>
+и замените её на:<br/>
+<br/>
+<pre>
+listen 443 ssl http2;
+</pre><br/>
+<br/>
+Сохраните внесённые изменения и перезагрузите Nginx:<br/>
+<br/>
+<pre>
+$ sudo service nginx reload
+</pre><br/>
+<br/>
+<h3>Apache</h3><br/>
+В Apache HTTP/2 поддерживается только в версиях 2.4.17 и выше. Если у вас установлена более ранняя версия, выполните обновление и подключите модуль <a href="https://httpd.apache.org/docs/2.4/mod/mod_http2.html" rel="nofollow">mod_http2</a>. После этого добавьте в конфигурационный файл следующие строки:<br/>
+<br/>
+<pre>
+# for a https server
+Protocols h2 http/1.1
+
+# for a http server
+Protocols h2c http/1.1
+</pre><br/>
+<br/>
+После этого перезапустите Apache. Вот и всё — для базовой настройки этого вполне достаточно. <br/>
+<br/>
+<h2>HTTP/2 и оптимизация сайтов</h2><br/>
+HTTP/2 обратно совместим с HTTP/1.1. Поэтому вы в принципе можете не предпринимать никаких действий: работе вашего сервиса ничего не угрожает.<br/>
+Но по мере перехода популярных веб-серверов и веб-браузеров на HTTP/2 вы увидите, что ваш сайт, который когда-то был оптимизирован для увеличения скорости загрузки страниц и повышения производительности, уже работает не так быстро, как раньше. <br/>
+<br/>
+Многие способы оптимизации, успешно используемые в HTTP/1.1, в HTTP/2 работать не будут. Некоторые из них потребуется модифицировать, а от некоторых ― отказаться вообще. Рассмотрим этот вопрос более подробно.<br/>
+<br/>
+<h3>Объединение изображений в спрайты</h3> <br/>
+В HTTP/1.1 было удобнее загрузить одно большое изображение, чем делать множество запросов и загружать много маленьких. Это обусловлено тем, что запросы ставятся в очередь друг за другом. Самый распространённый способ увеличения скорости загрузки заключался в объединении множественных небольших изображений в <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Images/Implementing_image_sprites_in_CSS">спрайт-файл</a>.<br/>
+<br/>
+Спрайт возвращался в ответ на единственный запрос. Даже если пользователь заходил на страницу, на которой находится всего одно небольшое изображение, нужно было загрузить весь спрайт.<br/>
+<br/>
+В HTTP/2 c его мультиплексированием таких проблем нет, однако использование спрайтов в определённых ситуациях может оказаться полезным. Объединение нескольких изображений в спрайт (особенно если все эти изображения находятся на одной странице) помогает улучшить сжатие и таким образом снизить общий объём загружаемых данных.<br/>
+<br/>
+<h3>Встраивание изображений с помощью DataURI</h3><br/>
+Ещё один популярный способ решения проблемы множественных HTTP-запросов в HTTP/1.1 ― <a href="https://css-tricks.com/data-uris/" rel="nofollow">встраивание изображений с использованием Data URI</a>. Это существенно увеличивает в размере таблицу стилей. <br/>
+<br/>
+Если одновременно со встраиванием изображений для оптимизации используется ещё и конкатенация JS и CSS, пользователю скорее всего придётся загрузить весь соответствующий код, даже если он не будет посещать страницу с этими изображениями.<br/>
+В HTTP/2 такая практика скорее ухудшит, а не улучшит производительность. <br/>
+<br/>
+<h3>Конкатенация JS и CSS</h3><br/>
+Для оптимизации работы сайтов часто используется конкатенация небольших CSS- и JS-файлов. Много маленьких файлов объединяются в один большой. Таким образом удаётся обойти лимит на количество HTTP-запросов.<br/>
+<br/>
+Однако при использовании конкатенации может возникнуть та же проблема, что и со спрайтами: зайдя на какую-то одну страницу сайта, пользователь загрузит все используемые на нём СSS- и JS-файлы (при этом очень вероятно, что большинство из этих файлов ему никогда не понадобятся). Конечно, можно тщательно отбирать файлы для каждой страницы сайта, но это будет занимать слишком много времени.<br/>
+<br/>
+Ещё одна сложность заключается в том, что все элементы конкатенированного файла нужно вычищать из кэша одновременно. Невозможно сделать так, чтобы для одних элементов была выставлена одна дата истечения срока действия, а для других (которые к тому же и используются гораздо чаще) — другая. Если изменить хотя бы одну строку в CSS — срок действия истечёт сразу у всех элементов.<br/>
+<br/>
+Стоит ли пользоваться конкатенацией в HTTP/2? Если HTTP-запросы не требуют существенных затрат ресурсов, то без неё вполне можно обойтись. Загрузка множества небольших файлов стилей никакой проблемы не составит. Не будет и трудностей с истечением сроков действия и кэшированием.<br/>
+<br/>
+<h3>Доменное шардирование</h3><br/>
+В HTTP/1.1 имеется ограничение на количество открытых соединений. Чтобы обойти это ограничение, приходится загружать статические ресурсы с нескольких поддоменов одного домена. Такой приём называется доменным шардированием; он часто используется, например, для страниц с большим количеством изображений. Это помогает увеличить скорость загрузки, но вместе с тем и создаёт <a href="http://calendar.perfplanet.com/2013/reducing-domain-sharding/" rel="nofollow">дополнительные проблемы</a>.<br/>
+<br/>
+С переходом HTTP/2 необходимость в доменном шардировании отпадает. Вы можете запросить столько ресурсов, сколько вам требуется. Более того, в случае с HTTP/2 шардирование не улучшит производительность, а приведёт скорее к противоположному эффекту, так как создаст дополнительные TCP-соединения и будет мешать приоритизации. <br/>
+<br/>
+<h2>Когда переходить?</h2><br/>
+Когда планировать переход на HTTP/2? Однозначного ответа на этот вопрос нет и быть не может. Дадим, однако, одну подсказку: регулярно просматривайте логи посещаемости вашего сервиса. Когда вы увидите, что большая часть посетителей используют поддерживающие HTTP/2 браузеры — можно переходить. На текущий момент поддержка HTTP/2 реализована в Chrome (в том числе и в мобильной версии для Android), Firefox, Opera, Edge, Safari.<br/>
+<br/>
+При планировании перехода следует учитывать и особенности вашего проекта. Если у вас много пользователей, которые приходят к вам с мобильных устройств, то это означает, что вам желательно перейти на HTTP/2 как можно скорее. На смартфонах и планшетах преимущества нового протокола будут особенно очевидными. Однако и здесь нужно учитывать множество нюансов: например, <a href="http://www.opera.com/blogs/india/2015/05/opera-mini-becomes-one-of-the-worlds-most-popular-android-apps/" rel="nofollow">во многих регионах мира</a> до сих пор много пользователей браузера Opera Mini, а он HTTP/2 пока что не поддерживает.<br/>
+<br/>
+Если вы планируете запускать новый веб-сервис — задумайтесь о перспективе перехода на HTTP/2. Конечно, вам ещё придётся использовать HTTP/1.1 в течение какого-то времени, но уже сейчас вы можете принять меры по оптимизации, которые облегчат вам жизнь в будущем.<br/>
+<br/>
+<h2>Полезные ссылки</h2><br/>
+В заключение приведём для заинтересованных читателей несколько полезных ссылок по теме:<br/>
+<br/>
+<ul>
+<li><a href="http://httpwg.org/specs/rfc7540.html" rel="nofollow">полный текст спецификации HTTP/2</a>;</li>
+<li><a href="https://http2.github.io/faq/" rel="nofollow">HTTP/2 FAQ</a> — краткая, но информативная выдержка из спецификаций по ссылке выше;</li>
+<li><a href="http://daniel.haxx.se/http2/" rel="nofollow">разъяснения по HTTP/2</a>, написанные разработчиком утилиты curl Даниэлем Стернбергом (см. также <a href="https://habrahabr.ru/post/221427/" rel="nofollow">русский перевод</a>);</li>
+<li><a href="https://docs.google.com/presentation/d/1r7QXGYOLCh4fcUq0jDdDwKJWNqWK1o4xMtYpKZCJYjM/edit" rel="nofollow">презентация об оптимизации сайтов под HTTP/2</a>.</li>
+</ul><br/>
+<br/>
+Читателей, которые по тем или иным причинам не могут оставлять комментарии здесь, приглашаем <a href="https://blog.selectel.ru/http2-gotovimsya-k-perexodu/">в наш блог</a>.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BHTTP%2F2%5D" class="tm-tags-list__link">HTTP/2</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BHTTP%5D" class="tm-tags-list__link">HTTP</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B2%D0%B5%D0%B1-%D1%82%D0%B5%D1%85%D0%BD%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D0%B8%5D" class="tm-tags-list__link">веб-технологии</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BE%D0%BF%D1%82%D0%B8%D0%BC%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0%5D" class="tm-tags-list__link">оптимизация сайта</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%81%D0%B5%D0%BB%D0%B5%D0%BA%D1%82%D0%B5%D0%BB%5D" class="tm-tags-list__link">селектел</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bselectel%5D" class="tm-tags-list__link">selectel</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/selectel/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании Selectel
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 56: ↑55 и ↓1</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 56: ↑55 и ↓1" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+54</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">133K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    449
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/selectel/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/66a/f7d/039/66af7d03979b6d18654293d8f1e72837.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/selectel/profile/" class="tm-company-snippet__title">Selectel</a> <div class="tm-company-snippet__description">IT-инфраструктура для бизнеса</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="https://facebook.com/selectel" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Facebook
+    </a><a href="https://vk.com/selectel" rel="noopener" target="_blank" class="tm-article-author__contact">
+      ВКонтакте
+    </a><a href="https://telegram.me/SelectelNews" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Telegram
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/AndreiYemelianov/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/347/f4b/fb4/347f4bfb46683a4f0f96adf67d5db358.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 212 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    140
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Андрей Емельянов</span> <a href="https://habr.com/ru/users/AndreiYemelianov/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @AndreiYemelianov
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/selectel/blog/278167/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 92 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2007-09-10T20:00:00.000Z" title="2007-09-11, 00:00">11  сентября  2007</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://selectel.ru/" target="_blank" class="tm-company-basic-info__link">
+      selectel.ru
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    501–1 000 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2010-03-15T19:29:17.000Z" title="2010-03-15, 22:29">15  марта  2010</time></dd></dl> <!----></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/selectel/blog/278167/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/selectel/blog/278167/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"278167":{"id":"278167","timePublished":"2016-03-01T08:03:25+00:00","isCorporative":true,"lang":"ru","titleHtml":"HTTP\u002F2: готовимся к переходу","leadData":{"textHtml":"\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fbd0\u002F7ba\u002F9a8\u002Fbd07ba9a8607d3bb617b96467dd206ae.png\" alt=\"HTTP\u002F2\" width=\"100%\" height=\"100%\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ&nbsp;прошлом году в&nbsp;мире сетевых технологий произошло очень важное событие: была утверждена и&nbsp;стандартизирована новая версия протокола HTTP&nbsp;&mdash; HTTP\u002F2. HTTP\u002F2 уже поддерживается в&nbsp;популярных веб-серверах: Apache и Nginx. Идёт работа по внедрению HTTP\u002F2 в IIS. Реализована поддержка и&nbsp;в&nbsp;большинстве современных браузеров. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИспользование HTTP\u002F2 за&nbsp;последнее время существенно расширилось.\u003Cbr\u002F\u003E\r\n","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":140,"votesCount":212},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"62226","alias":"AndreiYemelianov","fullname":"Андрей Емельянов","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F347\u002Ff4b\u002Ffb4\u002F347f4bfb46683a4f0f96adf67d5db358.jpg","speciality":"Пользователь"},"statistics":{"commentsCount":92,"favoritesCount":449,"readingCount":133056,"score":54,"votesCount":56},"hubs":[{"relatedData":null,"id":"14740","alias":"selectel","type":"corporative","title":"Блог компании Selectel","titleHtml":"Блог компании Selectel","isProfiled":false},{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fbd0\u002F7ba\u002F9a8\u002Fbd07ba9a8607d3bb617b96467dd206ae.png\" alt=\"HTTP\u002F2\" width=\"100%\" height=\"100%\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fbd0\u002F7ba\u002F9a8\u002Fbd07ba9a8607d3bb617b96467dd206ae.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ прошлом году в мире сетевых технологий произошло очень важное событие: была утверждена и стандартизирована новая версия протокола HTTP — HTTP\u002F2. HTTP\u002F2 уже поддерживается в популярных веб-серверах: Apache и Nginx. Идёт работа по внедрению HTTP\u002F2 в IIS. Реализована поддержка и в большинстве современных браузеров. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИспользование HTTP\u002F2 за последнее время существенно расширилось.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nПо данным на середину 2015 года, процент сайтов и веб-сервисов, перешедших на HTTP\u002F2, был невелик ― всего 0,4%. \u003Ca href=\"http:\u002F\u002Fw3techs.com\u002Ftechnologies\u002Fbreakdown\u002Fce-http2\u002Franking\" rel=\"nofollow\"\u003EСовсем свежая статистика\u003C\u002Fa\u003E (январь 2016) свидетельствует о значительном росте: с 0,4 до 6,5%. Есть все основания полагать, что в ближайшее время темпы роста будут увеличиваться.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗадуматься о практических аспектах перехода на HTTP\u002F2 стоит уже сейчас. Эту тему мы хотели бы затронуть в сегодняшней статье. Особенно нас будет интересовать проблема адаптации существующих приёмов оптимизации производительности веб-сайтов под специфику нового протокола.\u003Cbr\u002F\u003E\r\nПрежде чем перейти непосредственно к рассмотрению этого вопроса, обратимся к истории протокола HTTP\u002F2 и кратко опишем основные нововведения, отличающие его от HTTP\u002F1.1.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EОт HTTP к HTTP\u002F2\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EНемного истории\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fwww.w3.org\u002FProtocols\u002FHTTP\u002FAsImplemented.html\" rel=\"nofollow\"\u003EПервое описание протокола HTTP\u003C\u002Fa\u003E (HyperText Transfer Protocol) было опубликовано в 1991 году. В 1999 году была разработана и описана версия HTTP 1.1, используемая и по сей день. В то далёкое время (почти 20 лет назад) веб-сайты были совсем не такими, как сейчас. За относительно небольшой период времени сайты стали «весить» гораздо больше. Домашняя страница среднестатического современного сайта содержит примерно 1,9 МБ данных: изображения, JS, CSS и многое другое.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИз-за ограничения на количество одновременных подключений в HTTP\u002F1.1 загрузка страниц, содержащих большое количество «тяжёлого» контента, осуществляется медленно. Можно выделить два пути решения этой проблемы. Первый заключается в использовании различных техник оптимизации производительности (о некоторых из них мы \u003Ca href=\"https:\u002F\u002Fblog.selectel.ru\u002Fstaticheskie-sajty-nastrojka-i-optimizaciya\u002F\"\u003Eуже писали\u003C\u002Fa\u003E), а второй — в попытке модификации самого протокола HTTP с целью устранения возможных узких мест. Рассмотрим такие попытки более подробно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПервый масштабный проект реформирования HTTP был представлен в 2009 году инженерами Google. Это протокол \u003Ca href=\"http:\u002F\u002Fgoogleresearch.blogspot.co.uk\u002F2009\u002F11\u002F2x-faster-web.html\" rel=\"nofollow\"\u003ESPDY\u003C\u002Fa\u003E, целью которого в первую очередь было ускорение работы веб-сайтов и приложений путём модификации традиционных способов приёма и отправки запросов. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nSPDY требует поддержки как на стороне сервера, так и на стороне клиента. Разработчики Google создали специализированные модули для Apache (\u003Ca href=\"https:\u002F\u002Fdevelopers.google.com\u002Fspeed\u002Fspdy\u002Fmod_spdy\u002F\" rel=\"nofollow\"\u003Emod_spdy\u003C\u002Fa\u003E) и для Nginx (\u003Ca href=\"http:\u002F\u002Fnginx.org\u002Fen\u002Fdocs\u002Fhttp\u002Fngx_http_spdy_module.html\" rel=\"nofollow\"\u003Engx_http_spdy_module\u003C\u002Fa\u003E). Поддерживается он и практически во всех популярных браузерах.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nHTTP\u002F2, представленный шестью годами позже, во многом основывается на SPDY. Новая версия HTTP была создана рабочей группой Hypertext Transfer Protocol working group. В мае 2015 года спецификация HTTP\u002F2 была опубликована как \u003Ca href=\"https:\u002F\u002Ftools.ietf.org\u002Fhtml\u002Frfc7540\" rel=\"nofollow\"\u003ERFC 7540\u003C\u002Fa\u003E. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПротокол HTTP\u002F2 обратно совместим с HTTP\u002F1.1. Изменения, направленные на устранение узких мест и повышения производительности, во многом продолжают линию SPDY. Рассмотрим вкратце наиболее важные из них.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EHTTP\u002F2: основные нововведения\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EМультиплексирование\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВозможно, это самое главное преимущество HTTP\u002F2. В HTTP\u002F1.1 для каждого запроса требуется устанавливать отдельное TCP-соединение. Мультиплексирование же позволяет браузеру выполнять множество запросов в рамках одного TCP-соединения:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F0d1\u002F26e\u002F26a\u002F0d126e26a6ee3d6925e7e824ca7df364.png\" alt=\"HTTP\u002F2\" width=\"100%\" height=\"100%\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F0d1\u002F26e\u002F26a\u002F0d126e26a6ee3d6925e7e824ca7df364.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ современных браузерах количество одновременных TCP-соединений ограничено. Поэтому страницы с большим количеством статического контента загружаются не так быстро, как хотелось бы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ HTTP\u002F2 благодаря мультиплексированию статические элементы загружаются параллельно, и благодаря этому существенно улучшается производительность.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EПриоритеты\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЕщё одно нововведение HTTP\u002F2 — это приоритизация. Каждому запросу можно назначить приоритет.\u003Cbr\u002F\u003E\r\nСуществует два подхода к назначению приоритетов: на основе веса и на основе зависимостей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ первом подходе каждый поток получает определённый вес. Потом на основе веса сервер распределяет нагрузку между потоками. Такой подход уже использовался в протоколе SPDY. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВторой метод, являющийся основным в HTTP\u002F2, заключается в следующем: браузер просит сервер загружать определённые элементы контента в первую очередь. Например, браузер может попросить сервер сначала загрузить CSS-файлы или JavaScript, а уже потом — HTML или изображения. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ HTTP\u002F2 приоритизация является не обязательным, а желательным методом. Однако мультиплексирование без неё работать должным образом не будет. Скорость загрузки может быть даже ниже, чем HTTP\u002F1.1. Ресурсы с более низким приоритетом будут занимать полосу, что приведёт снижению производительности.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EСжатие HTTP-заголовков\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nСовременная веб-страница состоит из множества элементов: изображения, JS, CSS и другие. В запросе на загрузку каждого из этих элементов браузер передаёт HTTP-заголовок. Отправляя запрошенные элементы, сервер также добавляет к ним заголовок. Всё это сопряжено с излишним расходованием ресурсов.\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\nВ HTTP\u002F2 заголовки передаются в сжатом виде. Благодаря этому уменьшается количество информации, которой обмениваются между собой сервер и браузер. Вместо алгоритмов gzip\u002Fdeflate используется \u003Ca href=\"http:\u002F\u002Fhttp2.github.io\u002Fhttp2-spec\u002Fcompression.html\" rel=\"nofollow\"\u003EHPACK\u003C\u002Fa\u003E. Это снижает уязвимость к \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FBREACH_(security_exploit)\" rel=\"nofollow\"\u003Eатакам типа BREACH\u003C\u002Fa\u003E. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EHTTP\u002F2 и безопасность\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nОдним из важнейших требований протокола SPDY является обязательное шифрование (HTTPS) соединения между клиентом и сервером. В HTTP\u002F2 оно обязательного характера не имеет. Однако разработчики браузеров приняли решение внедрить новый протокол только для TLS(HTTPS)-соединений. Поэтому тем, кто задумывается о переходе на HTTP\u002F2, нужно сначала перейти на HTTPS.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто нужно не только для HTTP\u002F2. В поиске Google использование безопасного соединения является \u003Ca href=\"https:\u002F\u002Fgooglewebmastercentral.blogspot.ru\u002F2014\u002F08\u002Fhttps-as-ranking-signal.html\" rel=\"nofollow\"\u003Eодним из критериев ранжирования\u003C\u002Fa\u003E. Браузеры (см. \u003Ca href=\"http:\u002F\u002Fwww.zdnet.com\u002Farticle\u002Fgoogle-chrome-gets-ready-to-mark-all-http-sites-as-bad\u002F\" rel=\"nofollow\"\u003Eздесь\u003C\u002Fa\u003E и \u003Ca href=\"https:\u002F\u002Fblog.mozilla.org\u002Fsecurity\u002F2015\u002F04\u002F30\u002Fdeprecating-non-secure-http\u002F\" rel=\"nofollow\"\u003Eздесь\u003C\u002Fa\u003E) скоро будут помечать сайты, не поддерживающие https, как «небезопасные». Добавим также, что многие возможности HTML5 ― например, геолокация ― без безопасного соединения \u003Ca href=\"https:\u002F\u002Fcode.google.com\u002Fp\u002Fchromium\u002Fissues\u002Fdetail?id=464874\" rel=\"nofollow\"\u003Eбудут недоступны\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EБазовая настройка HTTP\u002F2 в Nginx и Apache\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nПриведём краткие инструкции по включению и базовой настройке HTTP\u002F2 в Nginx и Apache. Как уже было сказано выше, большинство современных браузеров работают с HTTP\u002F2 только через TLS, поэтому в конфигурации вашего веб-сервера должны быть прописаны соответствующие настройки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003ENginx\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nПоддержка HTTP\u002F2 реализована только в новейших версиях Nginx (1.9.5 и выше). Если у вас установлена другая версия, вам потребуется обновить её.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПосле этого откройте конфигурационный файл \u002Fetc\u002Fnginx\u002Fnginx.conf и найдите в секции server следующую строку:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\nlisten 443 ssl;\n\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nи замените её на:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\nlisten 443 ssl http2;\n\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСохраните внесённые изменения и перезагрузите Nginx:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\n$ sudo service nginx reload\n\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EApache\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВ Apache HTTP\u002F2 поддерживается только в версиях 2.4.17 и выше. Если у вас установлена более ранняя версия, выполните обновление и подключите модуль \u003Ca href=\"https:\u002F\u002Fhttpd.apache.org\u002Fdocs\u002F2.4\u002Fmod\u002Fmod_http2.html\" rel=\"nofollow\"\u003Emod_http2\u003C\u002Fa\u003E. После этого добавьте в конфигурационный файл следующие строки:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\n# for a https server\nProtocols h2 http\u002F1.1\n\n# for a http server\nProtocols h2c http\u002F1.1\n\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПосле этого перезапустите Apache. Вот и всё — для базовой настройки этого вполне достаточно. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EHTTP\u002F2 и оптимизация сайтов\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nHTTP\u002F2 обратно совместим с HTTP\u002F1.1. Поэтому вы в принципе можете не предпринимать никаких действий: работе вашего сервиса ничего не угрожает.\u003Cbr\u002F\u003E\r\nНо по мере перехода популярных веб-серверов и веб-браузеров на HTTP\u002F2 вы увидите, что ваш сайт, который когда-то был оптимизирован для увеличения скорости загрузки страниц и повышения производительности, уже работает не так быстро, как раньше. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМногие способы оптимизации, успешно используемые в HTTP\u002F1.1, в HTTP\u002F2 работать не будут. Некоторые из них потребуется модифицировать, а от некоторых ― отказаться вообще. Рассмотрим этот вопрос более подробно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EОбъединение изображений в спрайты\u003C\u002Fh3\u003E \u003Cbr\u002F\u003E\r\nВ HTTP\u002F1.1 было удобнее загрузить одно большое изображение, чем делать множество запросов и загружать много маленьких. Это обусловлено тем, что запросы ставятся в очередь друг за другом. Самый распространённый способ увеличения скорости загрузки заключался в объединении множественных небольших изображений в \u003Ca href=\"https:\u002F\u002Fdeveloper.mozilla.org\u002Fen-US\u002Fdocs\u002FWeb\u002FCSS\u002FCSS_Images\u002FImplementing_image_sprites_in_CSS\"\u003Eспрайт-файл\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСпрайт возвращался в ответ на единственный запрос. Даже если пользователь заходил на страницу, на которой находится всего одно небольшое изображение, нужно было загрузить весь спрайт.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ HTTP\u002F2 c его мультиплексированием таких проблем нет, однако использование спрайтов в определённых ситуациях может оказаться полезным. Объединение нескольких изображений в спрайт (особенно если все эти изображения находятся на одной странице) помогает улучшить сжатие и таким образом снизить общий объём загружаемых данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EВстраивание изображений с помощью DataURI\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЕщё один популярный способ решения проблемы множественных HTTP-запросов в HTTP\u002F1.1 ― \u003Ca href=\"https:\u002F\u002Fcss-tricks.com\u002Fdata-uris\u002F\" rel=\"nofollow\"\u003Eвстраивание изображений с использованием Data URI\u003C\u002Fa\u003E. Это существенно увеличивает в размере таблицу стилей. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли одновременно со встраиванием изображений для оптимизации используется ещё и конкатенация JS и CSS, пользователю скорее всего придётся загрузить весь соответствующий код, даже если он не будет посещать страницу с этими изображениями.\u003Cbr\u002F\u003E\r\nВ HTTP\u002F2 такая практика скорее ухудшит, а не улучшит производительность. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EКонкатенация JS и CSS\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nДля оптимизации работы сайтов часто используется конкатенация небольших CSS- и JS-файлов. Много маленьких файлов объединяются в один большой. Таким образом удаётся обойти лимит на количество HTTP-запросов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОднако при использовании конкатенации может возникнуть та же проблема, что и со спрайтами: зайдя на какую-то одну страницу сайта, пользователь загрузит все используемые на нём СSS- и JS-файлы (при этом очень вероятно, что большинство из этих файлов ему никогда не понадобятся). Конечно, можно тщательно отбирать файлы для каждой страницы сайта, но это будет занимать слишком много времени.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕщё одна сложность заключается в том, что все элементы конкатенированного файла нужно вычищать из кэша одновременно. Невозможно сделать так, чтобы для одних элементов была выставлена одна дата истечения срока действия, а для других (которые к тому же и используются гораздо чаще) — другая. Если изменить хотя бы одну строку в CSS — срок действия истечёт сразу у всех элементов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСтоит ли пользоваться конкатенацией в HTTP\u002F2? Если HTTP-запросы не требуют существенных затрат ресурсов, то без неё вполне можно обойтись. Загрузка множества небольших файлов стилей никакой проблемы не составит. Не будет и трудностей с истечением сроков действия и кэшированием.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EДоменное шардирование\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВ HTTP\u002F1.1 имеется ограничение на количество открытых соединений. Чтобы обойти это ограничение, приходится загружать статические ресурсы с нескольких поддоменов одного домена. Такой приём называется доменным шардированием; он часто используется, например, для страниц с большим количеством изображений. Это помогает увеличить скорость загрузки, но вместе с тем и создаёт \u003Ca href=\"http:\u002F\u002Fcalendar.perfplanet.com\u002F2013\u002Freducing-domain-sharding\u002F\" rel=\"nofollow\"\u003Eдополнительные проблемы\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nС переходом HTTP\u002F2 необходимость в доменном шардировании отпадает. Вы можете запросить столько ресурсов, сколько вам требуется. Более того, в случае с HTTP\u002F2 шардирование не улучшит производительность, а приведёт скорее к противоположному эффекту, так как создаст дополнительные TCP-соединения и будет мешать приоритизации. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EКогда переходить?\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nКогда планировать переход на HTTP\u002F2? Однозначного ответа на этот вопрос нет и быть не может. Дадим, однако, одну подсказку: регулярно просматривайте логи посещаемости вашего сервиса. Когда вы увидите, что большая часть посетителей используют поддерживающие HTTP\u002F2 браузеры — можно переходить. На текущий момент поддержка HTTP\u002F2 реализована в Chrome (в том числе и в мобильной версии для Android), Firefox, Opera, Edge, Safari.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПри планировании перехода следует учитывать и особенности вашего проекта. Если у вас много пользователей, которые приходят к вам с мобильных устройств, то это означает, что вам желательно перейти на HTTP\u002F2 как можно скорее. На смартфонах и планшетах преимущества нового протокола будут особенно очевидными. Однако и здесь нужно учитывать множество нюансов: например, \u003Ca href=\"http:\u002F\u002Fwww.opera.com\u002Fblogs\u002Findia\u002F2015\u002F05\u002Fopera-mini-becomes-one-of-the-worlds-most-popular-android-apps\u002F\" rel=\"nofollow\"\u003Eво многих регионах мира\u003C\u002Fa\u003E до сих пор много пользователей браузера Opera Mini, а он HTTP\u002F2 пока что не поддерживает.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли вы планируете запускать новый веб-сервис — задумайтесь о перспективе перехода на HTTP\u002F2. Конечно, вам ещё придётся использовать HTTP\u002F1.1 в течение какого-то времени, но уже сейчас вы можете принять меры по оптимизации, которые облегчат вам жизнь в будущем.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EПолезные ссылки\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nВ заключение приведём для заинтересованных читателей несколько полезных ссылок по теме:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"http:\u002F\u002Fhttpwg.org\u002Fspecs\u002Frfc7540.html\" rel=\"nofollow\"\u003Eполный текст спецификации HTTP\u002F2\u003C\u002Fa\u003E;\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fhttp2.github.io\u002Ffaq\u002F\" rel=\"nofollow\"\u003EHTTP\u002F2 FAQ\u003C\u002Fa\u003E — краткая, но информативная выдержка из спецификаций по ссылке выше;\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"http:\u002F\u002Fdaniel.haxx.se\u002Fhttp2\u002F\" rel=\"nofollow\"\u003Eразъяснения по HTTP\u002F2\u003C\u002Fa\u003E, написанные разработчиком утилиты curl Даниэлем Стернбергом (см. также \u003Ca href=\"https:\u002F\u002Fhabrahabr.ru\u002Fpost\u002F221427\u002F\" rel=\"nofollow\"\u003Eрусский перевод\u003C\u002Fa\u003E);\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fdocs.google.com\u002Fpresentation\u002Fd\u002F1r7QXGYOLCh4fcUq0jDdDwKJWNqWK1o4xMtYpKZCJYjM\u002Fedit\" rel=\"nofollow\"\u003Eпрезентация об оптимизации сайтов под HTTP\u002F2\u003C\u002Fa\u003E.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЧитателей, которые по тем или иным причинам не могут оставлять комментарии здесь, приглашаем \u003Ca href=\"https:\u002F\u002Fblog.selectel.ru\u002Fhttp2-gotovimsya-k-perexodu\u002F\"\u003Eв наш блог\u003C\u002Fa\u003E.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"HTTP\u002F2"},{"titleHtml":"HTTP"},{"titleHtml":"веб-технологии"},{"titleHtml":"оптимизация сайта"},{"titleHtml":"селектел"},{"titleHtml":"selectel"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F278167\u002F1c2bc146754ae21e4bcdc6e9e229dfd9\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F278167\u002F1c2bc146754ae21e4bcdc6e9e229dfd9\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fselectel\\\u002Fblog\\\u002F278167\\\u002F\"},\"headline\":\"HTTP\\\u002F2: готовимся к переходу\",\"datePublished\":\"2016-03-01T11:03:25+03:00\",\"dateModified\":\"2016-03-02T17:07:29+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Андрей Емельянов\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"В&nbsp;прошлом году в&nbsp;мире сетевых технологий произошло очень важное событие: была утверждена и&nbsp;стандартизирована новая версия протокола HTTP&nbsp;&mdash; HTTP\\\u002F2. HTTP\\\u002F2 уже п...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fselectel\\\u002Fblog\\\u002F278167\\\u002F#post-content-body\",\"about\":[\"c_selectel\",\"h_webdev\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F278167\\\u002F1c2bc146754ae21e4bcdc6e9e229dfd9\\\u002F\"]}","metaDescription":"В&nbsp;прошлом году в&nbsp;мире сетевых технологий произошло очень важное событие: была утверждена и&nbsp;стандартизирована новая версия протокола HTTP&nbsp;&mdash; HTTP\u002F2. HTTP\u002F2 уже...","mainImageUrl":null,"amp":true,"customTrackerLinks":["https:\u002F\u002Fvk.com\u002Frtrg?p=VK-RTRG-372010-170Bk"]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"selectel":{"alias":"selectel","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002F66a\u002Ff7d\u002F039\u002F66af7d03979b6d18654293d8f1e72837.png","titleHtml":"Selectel","descriptionHtml":"IT-инфраструктура для бизнеса","relatedData":null,"statistics":{"postsCount":1048,"newsCount":47,"vacanciesCount":15,"employeesCount":105,"careerRating":4.74,"subscribersCount":30283,"rating":1236.49,"invest":null},"foundationDate":{"year":"2007","month":"09","day":"11"},"location":{"city":{"id":"447733","title":"Санкт-Петербург"},"region":{"id":"1948","title":"Санкт-Петербург и область"},"country":{"id":"168","title":"Россия"}},"siteUrl":"https:\u002F\u002Fselectel.ru\u002F","staffNumber":"501–1 000 человек","registrationDate":"2010-03-15T19:29:17+00:00","representativeUser":null,"contacts":[{"title":"Facebook","url":"https:\u002F\u002Ffacebook.com\u002Fselectel"},{"title":"ВКонтакте","url":"https:\u002F\u002Fvk.com\u002Fselectel"},{"title":"Telegram","url":"https:\u002F\u002Ftelegram.me\u002FSelectelNews"}],"settings":{"analyticsSettings":[{"type":"ga","trackingId":"UA-8163992-13"}],"branding":null,"status":"active","isStartup":false},"metadata":{"titleHtml":"Selectel, Санкт-Петербург - IT-инфраструктура для бизнеса с 11 сентября 2007 г.","title":"Selectel, Санкт-Петербург - IT-инфраструктура для бизнеса с 11 сентября 2007 г.","keywords":["Компьютерное железо","Гаджеты","IT-инфраструктура","IT-компании","Научно-популярное","selectel","селектел","процессоры","linux","гаджеты","чипы","будущее","космос","intel","китай","компьютеры","старое железо","железо","электроника","операционные системы","одноплатники","история техники","raspberry","дата-центры","selectel cloud"],"descriptionHtml":"1 048 статей от авторов компании Selectel","description":"1 048 статей от авторов компании Selectel"},"aDeskSettings":null,"careerAlias":"selectel"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

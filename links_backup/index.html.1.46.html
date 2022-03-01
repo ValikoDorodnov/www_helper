@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Тесты на Codeception для PHP-бэкендов / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/lamoda\/blog\/452136\/"},"headline":"Тесты на Codeception для PHP-бэкендов","datePublished":"2019-05-29T16:00:02+03:00","dateModified":"2019-05-29T18:54:15+03:00","author":{"@type":"Person","name":"Павел Сташевский"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Всем привет! Меня зовут Паша, и я QA инженер команды Order Processing в Lamoda. Недавно я выступал на PHP Badoo Meetup. Сегодня хочу представить расшифровку свое...","url":"https:\/\/habr.com\/ru\/company\/lamoda\/blog\/452136\/#post-content-body","about":["c_lamoda","h_it_testing","h_php","h_web_testing","f_develop"],"image":["https:\/\/habrastorage.org\/webt\/qx\/ci\/0f\/qxci0fma8tivrntsz95gv-d802e.jpeg","https:\/\/habrastorage.org\/webt\/bp\/ac\/nt\/bpacntwtc_xvl52su3nh7-vvidi.jpeg","https:\/\/habrastorage.org\/webt\/c9\/zy\/bk\/c9zybkm3eu-kvkxc_uvpcte_h0u.jpeg","https:\/\/habrastorage.org\/webt\/uj\/s_\/zv\/ujs_zvshqpzmecycdggm3mys4nq.jpeg","https:\/\/habrastorage.org\/webt\/uc\/z-\/ab\/ucz-abgapgah_r9qo6uoitkstg8.jpeg","https:\/\/habrastorage.org\/webt\/68\/iu\/kl\/68iuklk2oherxt4ov7odgrszyli.jpeg","https:\/\/habrastorage.org\/webt\/es\/gp\/eg\/esgpegswio_kwmtqer7gkqvjfgi.jpeg","https:\/\/habrastorage.org\/webt\/zo\/5p\/bo\/zo5pbox8a8xxic2n8972phohhd0.jpeg","https:\/\/habrastorage.org\/webt\/8c\/gg\/yr\/8cggyrxinincflxsx2ti3o4klwq.jpeg","https:\/\/habrastorage.org\/webt\/wm\/hw\/g0\/wmhwg0-0xviw0be73xgrwfppsfi.jpeg","https:\/\/habrastorage.org\/webt\/84\/kr\/ol\/84krold4wqwi4ckxe4trmr8u9oq.jpeg","https:\/\/habrastorage.org\/webt\/5a\/w5\/sm\/5aw5smemb1fabsbsyvt5eit70r8.jpeg","https:\/\/habrastorage.org\/webt\/hb\/-y\/ul\/hb-yulyfmetwazoatr4oukazpli.jpeg","https:\/\/habrastorage.org\/webt\/kx\/lf\/m9\/kxlfm9zppbdqmgj_i_ekaripjw4.jpeg","https:\/\/habrastorage.org\/webt\/n9\/cb\/y8\/n9cby8a1hoiicw5fqprvzsfxsae.jpeg","https:\/\/habrastorage.org\/webt\/d7\/xu\/2g\/d7xu2gg75_-vjff1ejruhj2dvba.jpeg","https:\/\/habrastorage.org\/webt\/qy\/my\/hj\/qymyhjaocwm0apzi7orjlot7hnw.jpeg","https:\/\/habrastorage.org\/webt\/hb\/iq\/jf\/hbiqjftacif8wg-67x666c7l5yc.jpeg","https:\/\/habrastorage.org\/webt\/nm\/kh\/n0\/nmkhn0sdps-qtoowra4mrtgtu8m.jpeg"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Тесты на Codeception для PHP-бэкендов" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Тесты на Codeception для PHP-бэкендов" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Тесты на Codeception для PHP-бэкендов" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Всем привет! Меня зовут Паша, и я QA инженер команды Order Processing в Lamoda. Недавно я выступал на PHP Badoo Meetup. Сегодня хочу представить расшифровку своего доклада. 
+
+Речь пойдет про..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Всем привет! Меня зовут Паша, и я QA инженер команды Order Processing в Lamoda. Недавно я выступал на PHP Badoo Meetup. Сегодня хочу представить расшифровку своего доклада. 
+
+Речь пойдет про..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Всем привет! Меня зовут Паша, и я QA инженер команды Order Processing в Lamoda. Недавно я выступал на PHP Badoo Meetup. Сегодня хочу представить расшифровку своего доклада. 
+
+Речь пойдет про..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Всем привет! Меня зовут Паша, и я QA инженер команды Order Processing в Lamoda. Недавно я выступал на PHP Badoo Meetup. Сегодня хочу представить расшифровку своего доклада. 
+
+Речь пойдет про..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Всем привет! Меня зовут Паша, и я QA инженер команды Order Processing в Lamoda. Недавно я выступал на PHP Badoo Meetup. Сегодня хочу представить расшифровку своего доклада. 
+
+Речь пойдет про..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/452136/339d349b43411b81303ea7c2e3065ffe/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/452136/339d349b43411b81303ea7c2e3065ffe/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/452136/339d349b43411b81303ea7c2e3065ffe/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/452136/339d349b43411b81303ea7c2e3065ffe/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/452136/339d349b43411b81303ea7c2e3065ffe/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="452136" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2019-05-29T13:00:02.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/lamoda/blog/452136/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="php, codeception, автоматизация тестирования">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/452136/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.46.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/452136/339d349b43411b81303ea7c2e3065ffe/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="lamoda" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><div class="tm-company-card__branding tm-company-article__branding tm-company-card__branding_loading"><div class="tm-company-card__branding-placeholder"><!----></div> <img src="https://habrastorage.org/getpro/habr/branding/184/9f9/5c7/1849f95c7dcc56ce846da652b0c2506f.png" width="100%" class="tm-company-card__branding-image"></div></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/lamoda/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/cdd/710/61a/cdd71061ae61f0c4f273ddcaaec533c7.png" width="48" class="tm-entity-image__pic"></div></a> <a href="https://career.habr.com/companies/latech" rel="noopener" target="_blank" class="tm-grade tm-company-card__rating"><div class="tm-rating"><div class="tm-rating__header"><svg height="24" width="24" class="tm-svg-img tm-svg-grade__icon"><title>Оценка компании на Хабр Карьере</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#grade"></use></svg> <div class="tm-rating__counter tm-rating__counter_variant-grade">4.58</div></div> <div class="tm-rating__text tm-rating__text_variant-grade">
+    Оценка
+  </div></div></a> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">158.97</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/lamoda/profile/" class="tm-company-card__name">
+      Lamoda
+    </a> <div class="tm-company-card__description">Code the lifestyle</div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/pavelstashevsky/" title="pavelstashevsky" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_pink"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/pavelstashevsky/" class="tm-user-info__username">
+      pavelstashevsky
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2019-05-29T13:00:02.000Z" title="2019-05-29, 16:00">29  мая  2019 в 16:00</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Тесты на Codeception для PHP-бэкендов</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/lamoda/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании Lamoda</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/it_testing/" class="tm-article-snippet__hubs-item-link"><span>Тестирование IT-систем</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/php/" class="tm-article-snippet__hubs-item-link"><span>PHP</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/web_testing/" class="tm-article-snippet__hubs-item-link"><span>Тестирование веб-сервисов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">Всем привет! Меня зовут Паша, и я QA инженер команды Order Processing в Lamoda. Недавно я выступал на PHP Badoo Meetup. Сегодня хочу представить расшифровку своего доклада. <br/>
+<br/>
+Речь пойдет про Codeception, про то, как мы его используем в Lamoda и как на нем пишем тесты. <br/>
+<br/>
+<div class="oembed"><div><div style="left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.2493%;"><div class="tm-iframe_temp" data-src="https://www.youtube.com/embed/rg1h7mJrU7Y?rel=0&amp;showinfo=1&amp;start=&amp;hl=en-US" data-style="border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;" id="" width=""></div></div></div></div><br/>
+<a name="habracut"></a><br/>
+В Lamoda много сервисов. Есть сервисы клиентские, которые взаимодействуют непосредственно с нашими пользователями, с пользователями сайта, мобильного приложения. Про них мы говорить не будем. А есть то, что у нас в компании называется глубокие бэкенды — это наши системы бэк-офиса, которые автоматизируют наши бизнес-процессы. К ним относятся доставка, склад, автоматизация фотостудий и колл-центра. Большинство этих сервисов разрабатываются на PHP. <br/>
+<br/>
+Если говорить кратко про наш стек, то это PHP + Symfony. Кое-где старые проекты на Zend’e. В качестве баз данных используется PostgreSQL и MySQL, в качестве систем обмена сообщениями — Rabbit или Kafka.<br/>
+<br/>
+<b>Почему PHP-бэкенды?</b><br/>
+<br/>
+Потому что у них, как правило, развесистый API — это либо REST, кое-где есть чуть-чуть SOAP’а. Если у них есть UI, то это UI больше вспомогательный, который используют наши внутренние пользователи.<br/>
+<br/>
+<b>Зачем нам в Lamoda автотесты?</b><br/>
+<br/>
+Вообще, когда я пришел работать в Lamoda, там был такой лозунг: “Давайте избавимся от ручного регресса”. Не будем вручную ничего регрессионно тестировать. И мы работали над этой задачей. Собственно, вот одна из главных причин, зачем нам нужны автотесты — чтобы не гонять регресс руками. А зачем нам это нужно? Правильно, чтобы быстро релизить. Чтобы мы могли безболезненно, очень быстро выкатывать наши релизы и при этом иметь некоторую сетку из автотестов, которые нам будут говорить, хорошо или нехорошо. Это, наверное, самые главные цели. Но есть еще парочка вспомогательных, про которые я тоже хочу сказать.<br/>
+<br/>
+Зачем нужны автотесты?<br/>
+<br/>
+<ol>
+<li>Не тестировать регресс руками</li>
+<li>Быстро релизить</li>
+<li>Использовать в качестве документации</li>
+<li>Ускорить onboarding новых сотрудников</li>
+<li>Автотесты удобно использовать (в некоторых случаях) в качестве документации. Иногда проще зайти в тесты, посмотреть, какие кейсы покрыты, как они работают, и понять, как работает тот или иной функционал, и ускорить вхождение новых сотрудников — как разработчиков, так и тестировщиков, — в новый проект. Когда садишься писать автотесты, сразу становится понятно, как работает система.</li>
+</ol><br/>
+Ок, поговорили о том, зачем нам нужны автотесты. Теперь поговорим о том, какие тесты мы пишем в Lamoda.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/qx/ci/0f/qxci0fma8tivrntsz95gv-d802e.jpeg" alt="image" data-src="https://habrastorage.org/webt/qx/ci/0f/qxci0fma8tivrntsz95gv-d802e.jpeg" data-blurred="true"/><br/>
+<br/>
+Это достаточно стандартная пирамида тестирования, начиная от unit-тестов, заканчивая E2E-тестами, где тестируются уже некоторые бизнес-цепочки. Про нижние два уровня я говорить не буду, не зря они таким белым цветом закрашены. Это тесты на сам код, их пишут у нас разработчики. Тестировщик, в крайнем случае, может зайти в Pull Request, посмотреть код и сказать: “Ну, что-то тут недостаточно кейсов, давайте покроем еще что-нибудь”. На этом работа тестировщика для этих тестов заканчивается.<br/>
+<br/>
+Мы будем говорить про уровни выше, которые у нас пишут и разработчики, и тестировщики. Начнем с системных тестов. Это тесты, которые тестируют API (REST или SOAP), тестируют некую внутреннюю логику систем, различные команды, разборы очередей в Rabbit или обмен с внешними системами. Как правило, эти тесты достаточно атомарные. Они не проверяют какую-то цепочку, а проверяют одно действие. Например, один API-метод или одну команду. И проверяют как можно на большем количестве кейсов, как позитивных, так и негативных.<br/>
+<br/>
+Идем дальше, E2E-тесты. Я их поделил на 2 части. У нас есть тесты, которые тестируют связку UI и бэкенда. И есть тесты, которые мы называем flow-тесты. Они тестируют цепочку — жизнь объекта от начала до конца. <br/>
+<br/>
+Например, у нас есть система управления процессинга нашими заказами. Внутри такой системы может быть тест — заказ от создания до доставки, то есть прохождение его по всем статусам. Именно по таким тестам потом очень легко и просто смотреть, как работает система. Вы сразу видите весь flow определенных объектов, с какими внешними системами все это взаимодействует, какие команды для этого используются.<br/>
+<br/>
+Поскольку у нас этим UI пользуются внутренние пользователи, нам не важна кросс-браузерность. Мы не гоняем на каких-то фермах эти тесты, нам достаточно проверить в одном браузере, а иногда даже не нужно использовать браузер.<br/>
+<br/>
+“Почему Codeception мы выбрали для автоматизации тестирования?” — наверное, спросите вы. <br/>
+<br/>
+Если честно, у меня нет ответа на этот вопрос. Когда я пришел в Lamoda, Codeception уже был выбран как стандарт, чтобы писать автотесты, и я столкнулся с ним по факту. Но, поработав какое-то время с этим фреймворком, я все-таки понял, почему Codeception. Этим я и хочу с вами поделиться.<br/>
+<br/>
+<b>Почему Codeception?</b><br/>
+<br/>
+<ol>
+<li>Можно писать и запускать одинаково тесты любых видов (unit, functional, acceptance).</li>
+<li>Многие грабли уже решены, много модулей уже написано.</li>
+<li>Во всех проектах, несмотря на немного разные потребности, тесты будут выглядеть одинаково.</li>
+<li>Концепция Codeception предполагает, что на этом фреймворке вы пишете любые тесты: unit, интеграционные, функциональные, приемочные. И они у вас, по крайней мере, будут одинаково запускаться.</li>
+<li>Codeception — это достаточно мощный комбайн, в котором уже решено много проблем, много вопросов, много задач для тестов. Если что-то не решено, то скорее всего, вы найдете что-то извне — некоторый аддон для какой-то специфической работы. Вам не нужно писать какие-то тестовые обертки для баз данных, для еще чего-то. Просто берете и подключаете к Codeception модули и работаете с ними.</li>
+<li>Ну и такой плюс (наверное, он больше подходит для больших компаний, когда у вас много проектов и сервисов) — во всех проектах тесты будут выглядеть плюс-минус одинаково. Это очень здорово.</li>
+</ol><br/>
+Кратко скажу, что из себя представляет Codeception, поскольку многие с ним работали.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/bp/ac/nt/bpacntwtc_xvl52su3nh7-vvidi.jpeg" alt="image" data-src="https://habrastorage.org/webt/bp/ac/nt/bpacntwtc_xvl52su3nh7-vvidi.jpeg" data-blurred="true"/><br/>
+<br/>
+Codeception работает по модели акторов. После того, как вы его затягиваете в проект и инициализируете, генерируется такая структура.<br/>
+<br/>
+У нас есть yml-файлы, вот там снизу — <i>functional.suite.yml</i>, <i>integration.suit.yml</i>, <i>unit.suite.yml</i>. В них создается конфигурация ваших тестов. Есть папочки под каждый вид тестов, где эти тесты лежат, есть 3 вспомогательных папочки:<br/>
+<br/>
+_<i>data</i> — для тестовых данных;<br/>
+_<i>output</i> — куда кладутся отчеты (xml, html);<br/>
+_<i>support </i>— куда кладутся какие-то вспомогательные хелперы, функции и все, что вы напишите, чтобы использовать в ваших тестах.<br/>
+<br/>
+Для начала я расскажу, что мы взяли от Codeception и используем из коробки, ничего не дорабатывая, не решая дополнительных задач или проблем.<br/>
+<br/>
+<b>Стандартные модули</b><br/>
+<br/>
+<ol>
+<li>PhpBrowser</li>
+<li>REST</li>
+<li>Db</li>
+<li>Cli</li>
+<li>AMQP</li>
+</ol><br/>
+Первый такой модуль — это PhpBrowser. Этот модуль — обертка над Guzzle, который позволяет взаимодействовать с вашим приложением: открывать странички, заполнять формы, сабмитить формы. И если вам не важно кроссбраузерное и браузерное тестирование, если вы вдруг тестируете UI, можно использовать PhpBrowser. Как правило, в наших UI-тестах мы его и используем, потому что нам не нужно какой-то сложной логики взаимодействия, нам достаточно открыть страничку и что-то небольшое там сделать.<br/>
+<br/>
+Второй модуль, который мы используем, — REST. Думаю, из названия понятно, что он делает. Для любых http-взаимодействий можно использовать этот модуль. В нем, мне кажется, решены практически все взаимодействия: хедеры, cookie, авторизация. Все, что нужно, в нем есть.<br/>
+<br/>
+Третий модуль, который мы используем из коробки, — это модуль Db. В последних версиях Codeception туда добавлена поддержка не одной, а нескольких баз данных. Поэтому, если вдруг у вас в проекте несколько баз данных, теперь это работает из коробки.<br/>
+<br/>
+Модуль Cli, который позволяет запускать <b>shell</b> — и <b>bash</b>-команды из тестов, и мы его тоже используем.<br/>
+<br/>
+Есть модуль AMQP, который работает с любыми брокерами сообщений, которые основаны на этом протоколе. Хочу заметить, что официально он протестирован на RabbitMQ. Поскольку мы используем RabbitMQ, у нас с ним все окей.<br/>
+<br/>
+На самом деле, Codeception, по крайней мере, в нашем случае покрывает 80-85% всех нужных нам задач. Но над кое-чем все-таки пришлось поработать.<br/>
+<br/>
+Начнем с SOAP.<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/c9/zy/bk/c9zybkm3eu-kvkxc_uvpcte_h0u.jpeg" alt="image" data-src="https://habrastorage.org/webt/c9/zy/bk/c9zybkm3eu-kvkxc_uvpcte_h0u.jpeg" data-blurred="true"/><br/>
+<br/>
+В наших сервисах кое-где есть SOAP-эндпоинты. Их нужно тестировать, дергать, что-то с ними делать. Но вы скажете, что в Codeception есть такой модуль, который позволяет отправлять запросы и что-то потом делать с ответами. Как-то парсить, проверочки добавлять и все окей. Но SOAP-модуль не работает из коробки с несколькими эндпоинтами SOAP.<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/uj/s_/zv/ujs_zvshqpzmecycdggm3mys4nq.jpeg" alt="image" data-src="https://habrastorage.org/webt/uj/s_/zv/ujs_zvshqpzmecycdggm3mys4nq.jpeg" data-blurred="true"/><br/>
+<br/>
+У нас, например, есть монолиты, у которых несколько WSDL, несколько SOAP-эндпоинтов. Это означает, что нельзя в Codeception-модуле это так сконфигурировать в yml-файле, чтобы работать сразу с несколькими.<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/uc/z-/ab/ucz-abgapgah_r9qo6uoitkstg8.jpeg" alt="image" data-src="https://habrastorage.org/webt/uc/z-/ab/ucz-abgapgah_r9qo6uoitkstg8.jpeg" data-blurred="true"/><br/>
+<br/>
+У Codeception есть динамическая реконфигурация модуля, и вы можете написать какой-то свой адаптер, чтобы получать, например, модуль SOAP и динамически его реконфигурировать. В данном случае необходимо подменять эндпоинт и используемую схему. Тогда в тесте, если вам нужно поменять эндпоинт, на который вы хотите отправить запрос, получаем наш адаптер и меняем на новый эндпоинт, на новую схему и отправляем на нее запрос.<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/68/iu/kl/68iuklk2oherxt4ov7odgrszyli.jpeg" alt="image" data-src="https://habrastorage.org/webt/68/iu/kl/68iuklk2oherxt4ov7odgrszyli.jpeg" data-blurred="true"/><br/>
+<br/>
+В Codeception нет работы с Kafka и нет никаких сторонних более-менее официальных аддонов, чтобы работать с Kafka. В этом нет ничего страшного, мы написали свой модуль.<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/es/gp/eg/esgpegswio_kwmtqer7gkqvjfgi.jpeg" alt="image" data-src="https://habrastorage.org/webt/es/gp/eg/esgpegswio_kwmtqer7gkqvjfgi.jpeg" data-blurred="true"/><br/>
+<br/>
+Так он конфигурируется в yml-файле. Задаются некоторые настройки для брокеров, для консьюмеров и для топиков. Эти настройки, когда вы пишете свой модуль, можно потом подтянуть в модули функцией initialize и этот модуль инициализировать этими же настройками. И, собственно, у модуля реализовать все остальные методы — положить сообщение в топик и считать его. Это все, что вам нужно от этого модуля.<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/zo/5p/bo/zo5pbox8a8xxic2n8972phohhd0.jpeg" alt="image" data-src="https://habrastorage.org/webt/zo/5p/bo/zo5pbox8a8xxic2n8972phohhd0.jpeg" data-blurred="true"/><br/>
+<br/>
+<b>Вывод</b>: модули для Codeception писать легко. <br/>
+<br/>
+Идем дальше. Как я уже сказал, в Codeception есть модуль Cli — обертка для <i>shell</i>-команд и работы с их output’ом. <br/>
+<img src="https://habrastorage.org/r/w780q1/webt/8c/gg/yr/8cggyrxinincflxsx2ti3o4klwq.jpeg" alt="image" data-src="https://habrastorage.org/webt/8c/gg/yr/8cggyrxinincflxsx2ti3o4klwq.jpeg" data-blurred="true"/><br/>
+<br/>
+Но иногда <i>shell</i>-команду нужно запустить не в тестах, а в приложении. Вообще тесты и приложения — это немного разные сущности, они могут лежать в разных местах. Тесты могут запускаться в одном месте, а приложение может быть в другом.<br/>
+<br/>
+Так зачем нам нужно запускать <i>shell</i> в тестах? <br/>
+<br/>
+У нас есть в приложениях команды, которые, например, разбирают очереди в RabbitMQ и двигают объекты по статусам. Эти команды в прод-режиме запускаются из-под супервизора. Супервизор следит за их выполнением. Если они упали, то он их заново запускает и так далее.<br/>
+<br/>
+Когда мы тестируем, супервизор у нас не запущен. Иначе тесты становятся нестабильными, непредсказуемыми. Мы сами хотим управлять запуском этих команд внутри приложения. Поэтому нам нужно из тестов запустить эти команды в приложении. У нас используются два варианта. Что один, что другой — в принципе, все то же самое, и все работает.<br/>
+<br/>
+Как запускать<i> shell</i> в приложении?<br/>
+<br/>
+Первое: запускать тесты в том же самом месте, где находится приложение. Поскольку все приложения у нас в Docker’е, тесты можно запускать в том же контейнере, где находится сам сервис.<br/>
+<br/>
+Второй вариант: делать под тесты отдельный контейнер, некоторый <i>test runner</i>, но делать его таким же, как приложение. То есть из того же Docker-образа, и тогда все будет работать аналогично.<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/wm/hw/g0/wmhwg0-0xviw0be73xgrwfppsfi.jpeg" alt="image" data-src="https://habrastorage.org/webt/wm/hw/g0/wmhwg0-0xviw0be73xgrwfppsfi.jpeg" data-blurred="true"/><br/>
+<br/>
+Еще одна задача, с которой мы столкнулись в тестах — это работа с различными файловыми системами. Ниже пример того, с чем можно и нужно работать. Для нас актуальны первые три. Это Webdav, SFTP и амазоновская файловая система. <br/>
+<br/>
+С чем нужно работать?<br/>
+<br/>
+<ol>
+<li>Webdav</li>
+<li>FTP/SFTP</li>
+<li>AWS S3</li>
+<li>Local</li>
+<li>Azure, Dropbox, google drive</li>
+</ol><br/>
+Если порыться в Codeception, можно найти какие-то модули практически для любой более-менее популярной файловой системы.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/84/kr/ol/84krold4wqwi4ckxe4trmr8u9oq.jpeg" alt="image" data-src="https://habrastorage.org/webt/84/kr/ol/84krold4wqwi4ckxe4trmr8u9oq.jpeg" data-blurred="true"/><br/>
+<br/>
+Единственное, что я не нашел, это для Webdav’a. Но эти файловый системы плюс-минус одинаковые в плане внешней работы с ними, и нам хочется работать с ними одинаково.<br/>
+<br/>
+Мы написали свой модуль, который называется Flysystem. Он лежит на <a href="https://github.com/lamoda/codeception-flysystem">Github</a> в открытом доступе и поддерживает 2 файловые системы — SFTP и Webdav — и позволяет работать с обеими по одинаковому API. <br/>
+<img src="https://habrastorage.org/r/w780q1/webt/5a/w5/sm/5aw5smemb1fabsbsyvt5eit70r8.jpeg" alt="image" data-src="https://habrastorage.org/webt/5a/w5/sm/5aw5smemb1fabsbsyvt5eit70r8.jpeg" data-blurred="true"/><br/>
+<br/>
+Получить список файлов, почистить директорию, записать файл, и так далее. Если туда добавить еще и амазоновскую файловую систему, наши потребности точно покроются.<br/>
+<br/>
+Следующий момент, я считаю, очень важный для автотестов, тем более системного уровня, — это работа с базами данных. Вообще, хочется чтобы было, как на картинке, — ВЖУХ и все завелось, заработало, и вот эти базы данных в тестах меньше бы поддерживать.<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/hb/-y/ul/hb-yulyfmetwazoatr4oukazpli.jpeg" alt="image" data-src="https://habrastorage.org/webt/hb/-y/ul/hb-yulyfmetwazoatr4oukazpli.jpeg" data-blurred="true"/><br/>
+<br/>
+Какие я вижу здесь основные задачи:<br/>
+<br/>
+<ol>
+<li>Как раскатать БД нужной структуры — Db</li>
+<li>Как заполнить БД тестовыми данными — Db, Fixtures</li>
+<li>Как делать выборки и проверки — Db</li>
+</ol><br/>
+Для всех 3-х задач в Codeception есть 2 модуля — Db, про который я уже говорил, другой называется Fixtures.<br/>
+<br/>
+Из этих 2 модулей и 3 задач мы используем только DB для третьей задачи.<br/>
+<br/>
+Для первой задачи можно использовать DB. Там можно сконфигурировать SQL-дамп, из которого будет разворачиваться база данных, ну и модуль с фикстурами, думаю, понятно, зачем нужен.<br/>
+<br/>
+Там будут фикстуры в виде массивов, которые можно персистить в базу данных.<br/>
+<br/>
+Как я сказал, первые 2 задачи мы решаем немного по-другому, сейчас я расскажу, как мы это делаем.<br/>
+<br/>
+<b>Разворачивание БД</b><br/>
+<br/>
+<ol>
+<li>Поднимаем контейнер с PostgreSQL или MySQL</li>
+<li>Накатываем все миграции с помощью doctrine migrations</li>
+</ol><br/>
+Первое — про разворачивание базы данных. Каким образом у нас происходит это в тестах. Мы поднимаем контейнер с нужной базой данных — либо PostgreSQL, либо MySQL, потом накатываем все нужные миграции с помощью <i>doctrine migrations</i>. Все, база данных нужной структуры готова, ее можно использовать в тестах.<br/>
+<br/>
+Почему мы не используем дапм — потому что тогда его не нужно поддерживать. Это какой-то дамп, который лежит с тестами, который нужно постоянно актуализировать, если что-то меняется в базе данных. Есть миграции — не нужно поддерживать дамп.<br/>
+<br/>
+Второй момент — создание тестовых данных. Мы не используем модуль Fixtures от Codeception, мы используем <i>Symfony</i>-бандл для фикстур.<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/kx/lf/m9/kxlfm9zppbdqmgj_i_ekaripjw4.jpeg" alt="image" data-src="https://habrastorage.org/webt/kx/lf/m9/kxlfm9zppbdqmgj_i_ekaripjw4.jpeg" data-blurred="true"/><br/>
+<br/>
+Здесь есть <a href="https://github.com/doctrine/DoctrineFixturesBundle">ссылка</a> на него и пример того, как можно создавать фикстуру в базу данных.<br/>
+<br/>
+У вас фикстура тогда будет создаваться как некоторый объект предметной области, ее можно заперсистить в базу данных, и тестовые данные будут готовы.<br/>
+<br/>
+Почему DoctrineFixtureBundle?<br/>
+<br/>
+<ol>
+<li>Проще создавать цепочки связанных объектов.</li>
+<li>Меньше дупликации данных, если фикстуры для разных тестов похожи.</li>
+<li>Меньше правок при изменении структуры БД.</li>
+<li>Фикстуры-классы гораздо нагляднее чем массивы.</li>
+</ol><br/>
+Почему мы его используем? Да по той же причине — эти фикстуры гораздо проще поддерживать, чем фикстуры от Codeception. Проще создавать цепочки связанных объектов, потому что это все заложено в Symfony-бандл. Нужно меньше дублировать данные, потому что фикстуры можно наследовать, это классы. Если меняется структура базы данных, эти массивы всегда нужно править, а классы — не всегда. Фикстуры в виде объектов предметной области всегда нагляднее, чем массивы.<br/>
+<br/>
+Про базы данных поговорили, поговорим немного про моки.<br/>
+<br/>
+Поскольку это тесты достаточно высокого уровня, которые тестируют систему целиком и поскольку наши системы достаточно сильно взаимосвязаны, понятно, что есть некоторые обмены и взаимодействия. Сейчас мы поговорим про моки на взаимодействие между системами.<br/>
+<br/>
+<b>Правила для моков</b><br/>
+<br/>
+<ol>
+<li>Мокаем все внешние http-взаимодейтвия сервиса</li>
+<li>Проверяем не только позитивные, но и негативные сценарии</li>
+</ol><br/>
+Взаимодействия — это некоторые http-взаимодействия по REST или SOAP. Все эти взаимодействия в рамках тестов мы мокируем. То есть у нас в тестах нигде не идет реального обращения к внешним системам. Это делает тесты стабильными. Потому что внешний сервис может работать, может не работать, может медленно отвечать, может быстро, в общем, неизвестно, какое у него поведение. Поэтому мы все это покрываем моками.<br/>
+<br/>
+Еще у нас есть такое правило. Мы мокаем не только позитивные взаимодействия, но и стараемся проверять какие-то негативные кейсы. Например, когда сторонний сервис отвечает 500ой ошибкой либо выдает какую-то более осмысленную ошибку, — это все стараемся проверять.<br/>
+<br/>
+Для моков мы используем Wiremock, сам Codeception поддерживает…, у него есть такой официальный аддон Httpmock, но Wiremock нам понравился больше. Каким образом он работает?<br/>
+<br/>
+<br/>
+<br/>
+Wiremock поднимается как отдельный Docker-контейнер во время тестов, и все запросы, который должны идти ко внешней системе, идут на Wiremock. <br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/n9/cb/y8/n9cby8a1hoiicw5fqprvzsfxsae.jpeg" alt="image" data-src="https://habrastorage.org/webt/n9/cb/y8/n9cby8a1hoiicw5fqprvzsfxsae.jpeg" data-blurred="true"/><br/>
+<br/>
+У Wiremock, если посмотреть на слайд — там есть такой квадратик, Request Mapping, у него есть набор таких маппингов, которые говорят о том, что, если пришел такой запрос, надо отдать такой ответ. Все очень просто: пришел запрос — получил мок.<br/>
+<br/>
+Моки можно создавать статически, тогда контейнер, когда уже с Wiremock поднимется, эти моки будут доступны, их можно использовать в ручном тестировании. Можно создавать динамически, прямо в коде, в каком-нибудь тесте.<br/>
+<br/>
+Здесь приведен пример, как создать мок динамически, вы видите, описание достаточно декларативное, из кода сразу понятно, что за мок мы создаем: мок для метода GET, который придет на такой URL, и, собственно, что вернуть.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/d7/xu/2g/d7xu2gg75_-vjff1ejruhj2dvba.jpeg" alt="image" data-src="https://habrastorage.org/webt/d7/xu/2g/d7xu2gg75_-vjff1ejruhj2dvba.jpeg" data-blurred="true"/><br/>
+<br/>
+Кроме того, что этот мок можно создать, у Wiremock есть возможность потом еще и проверить, какой запрос ушел на этот мок. Это тоже бывает очень полезно в тестах.<br/>
+<br/>
+Про сам Codeception, наверное, все, и несколько слов о том, как запускаются наши тесты, и немного инфраструктурщины.<br/>
+<br/>
+Что у нас используется?<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/qy/my/hj/qymyhjaocwm0apzi7orjlot7hnw.jpeg" alt="image" data-src="https://habrastorage.org/webt/qy/my/hj/qymyhjaocwm0apzi7orjlot7hnw.jpeg" data-blurred="true"/><br/>
+<br/>
+Ну, во-первых, все сервисы у нас в Docker, поэтому запуск тестового окружения представляет собой поднятие нужных контейнеров.<br/>
+<br/>
+Для внутренних команд используется Make, в качестве CI используется Bamboo.<br/>
+<br/>
+Как выглядит запуск тестов на CI?<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/hb/iq/jf/hbiqjftacif8wg-67x666c7l5yc.jpeg" alt="image" data-src="https://habrastorage.org/webt/hb/iq/jf/hbiqjftacif8wg-67x666c7l5yc.jpeg" data-blurred="true"/><br/>
+<br/>
+Сначала мы билдим нужную версию приложения, потом поднимаем окружение — это приложение, все сервисы, которые ему нужны, вроде Kafka, Rabbit, база данных и на базу данных мы накатываем миграцию.<br/>
+<br/>
+Все это окружение поднимается с помощью Docker Compose. Именно в CI, на проде все контейнеры крутятся под Kubernetes. Затем запускаем тесты и прогоняем.<br/>
+<br/>
+Сколько времени это все занимает?<br/>
+<br/>
+Все зависит от конкретного сервиса, но, как правило, подъем окружения до запуска тестов — это 5-10 минут, тесты — от 6 до 30 минут.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/nm/kh/n0/nmkhn0sdps-qtoowra4mrtgtu8m.jpeg" alt="image" data-src="https://habrastorage.org/webt/nm/kh/n0/nmkhn0sdps-qtoowra4mrtgtu8m.jpeg" data-blurred="true"/><br/>
+<br/>
+Сразу предупрежу этот вопрос, пока все тесты гоняются в одном потоке.<br/>
+<br/>
+Ну и такой вопрос. Как часто надо запускать тесты? Конечно, чем чаще, тем лучше. Чем раньше вы сможете поймать проблему, тем быстрее вы сможете ее решить.<br/>
+<br/>
+У нас есть 2 главных правила. Когда задача переходит в тестирование, на ней должны проходить все тесты, и unit, и не unit-тесты. Если какие-то тесты не проходят, это повод перевести задачу в фиксинг.<br/>
+<br/>
+Естественно, когда мы выкатываем релиз. На релизе все тесты должны обязательно проходить.<br/>
+<br/>
+В конце мне хотелось бы сказать что-то воодушевляющее — пишите тесты, пусть они будут зелеными, используйте Codeception, делайте моки. Думаю, вы все это прекрасно понимаете.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bphp%5D" class="tm-tags-list__link">php</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bcodeception%5D" class="tm-tags-list__link">codeception</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B0%D0%B2%D1%82%D0%BE%D0%BC%D0%B0%D1%82%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F%20%D1%82%D0%B5%D1%81%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%5D" class="tm-tags-list__link">автоматизация тестирования</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/lamoda/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании Lamoda
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/it_testing/" class="tm-hubs-list__link">
+    Тестирование IT-систем
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/php/" class="tm-hubs-list__link">
+    PHP
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/web_testing/" class="tm-hubs-list__link">
+    Тестирование веб-сервисов
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 29: ↑29 и ↓0</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 29: ↑29 и ↓0" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+29</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">15K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    69
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/lamoda/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/cdd/710/61a/cdd71061ae61f0c4f273ddcaaec533c7.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/lamoda/profile/" class="tm-company-snippet__title">Lamoda</a> <div class="tm-company-snippet__description">Code the lifestyle</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="http://tech.lamoda.ru" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Сайт
+    </a><a href="http://lamoda.ru" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Сайт
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/pavelstashevsky/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_pink"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 10 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    8
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Павел Сташевский</span> <a href="https://habr.com/ru/users/pavelstashevsky/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @pavelstashevsky
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">QA engineer</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/lamoda/blog/452136/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 8 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2011-03-04T21:00:00.000Z" title="2011-03-05, 00:00">5  марта  2011</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="http://tech.lamoda.ru" target="_blank" class="tm-company-basic-info__link">
+      tech.lamoda.ru
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    5 001–10 000 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2018-09-20T09:17:42.000Z" title="2018-09-20, 12:17">20  сентября  2018</time></dd></dl> <!----></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/lamoda/blog/452136/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/lamoda/blog/452136/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"452136":{"id":"452136","timePublished":"2019-05-29T13:00:02+00:00","isCorporative":true,"lang":"ru","titleHtml":"Тесты на Codeception для PHP-бэкендов","leadData":{"textHtml":"Всем привет! Меня зовут Паша, и я QA инженер команды Order Processing в Lamoda. Недавно я выступал на PHP Badoo Meetup. Сегодня хочу представить расшифровку своего доклада. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРечь пойдет про Codeception, про то, как мы его используем в Lamoda и как на нем пишем тесты. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"oembed\"\u003E\u003Cdiv\u003E\u003Cdiv style=\"left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.2493%;\"\u003E\u003Ciframe src=\"https:\u002F\u002Fwww.youtube.com\u002Fembed\u002Frg1h7mJrU7Y?rel=0&amp;showinfo=1&amp;start=&amp;hl=en-US\" style=\"border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;\" allowfullscreen scrolling=\"no\"\u003E\u003C\u002Fiframe\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n","imageUrl":null,"buttonTextHtml":null,"image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":8,"votesCount":10},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"2051867","alias":"pavelstashevsky","fullname":"Павел Сташевский","avatarUrl":null,"speciality":"QA engineer"},"statistics":{"commentsCount":8,"favoritesCount":69,"readingCount":15047,"score":29,"votesCount":29},"hubs":[{"relatedData":null,"id":"22117","alias":"lamoda","type":"corporative","title":"Блог компании Lamoda","titleHtml":"Блог компании Lamoda","isProfiled":false},{"relatedData":null,"id":"210","alias":"it_testing","type":"collective","title":"Тестирование IT-систем","titleHtml":"Тестирование IT-систем","isProfiled":true},{"relatedData":null,"id":"260","alias":"php","type":"collective","title":"PHP","titleHtml":"PHP","isProfiled":true},{"relatedData":null,"id":"19279","alias":"web_testing","type":"collective","title":"Тестирование веб-сервисов","titleHtml":"Тестирование веб-сервисов","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EВсем привет! Меня зовут Паша, и я QA инженер команды Order Processing в Lamoda. Недавно я выступал на PHP Badoo Meetup. Сегодня хочу представить расшифровку своего доклада. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРечь пойдет про Codeception, про то, как мы его используем в Lamoda и как на нем пишем тесты. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"oembed\"\u003E\u003Cdiv\u003E\u003Cdiv style=\"left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.2493%;\"\u003E\u003Cdiv class=\"tm-iframe_temp\" data-src=\"https:\u002F\u002Fwww.youtube.com\u002Fembed\u002Frg1h7mJrU7Y?rel=0&amp;showinfo=1&amp;start=&amp;hl=en-US\" data-style=\"border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;\" id=\"\" width=\"\"\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nВ Lamoda много сервисов. Есть сервисы клиентские, которые взаимодействуют непосредственно с нашими пользователями, с пользователями сайта, мобильного приложения. Про них мы говорить не будем. А есть то, что у нас в компании называется глубокие бэкенды — это наши системы бэк-офиса, которые автоматизируют наши бизнес-процессы. К ним относятся доставка, склад, автоматизация фотостудий и колл-центра. Большинство этих сервисов разрабатываются на PHP. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли говорить кратко про наш стек, то это PHP + Symfony. Кое-где старые проекты на Zend’e. В качестве баз данных используется PostgreSQL и MySQL, в качестве систем обмена сообщениями — Rabbit или Kafka.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EПочему PHP-бэкенды?\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПотому что у них, как правило, развесистый API — это либо REST, кое-где есть чуть-чуть SOAP’а. Если у них есть UI, то это UI больше вспомогательный, который используют наши внутренние пользователи.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EЗачем нам в Lamoda автотесты?\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВообще, когда я пришел работать в Lamoda, там был такой лозунг: “Давайте избавимся от ручного регресса”. Не будем вручную ничего регрессионно тестировать. И мы работали над этой задачей. Собственно, вот одна из главных причин, зачем нам нужны автотесты — чтобы не гонять регресс руками. А зачем нам это нужно? Правильно, чтобы быстро релизить. Чтобы мы могли безболезненно, очень быстро выкатывать наши релизы и при этом иметь некоторую сетку из автотестов, которые нам будут говорить, хорошо или нехорошо. Это, наверное, самые главные цели. Но есть еще парочка вспомогательных, про которые я тоже хочу сказать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗачем нужны автотесты?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EНе тестировать регресс руками\u003C\u002Fli\u003E\r\n\u003Cli\u003EБыстро релизить\u003C\u002Fli\u003E\r\n\u003Cli\u003EИспользовать в качестве документации\u003C\u002Fli\u003E\r\n\u003Cli\u003EУскорить onboarding новых сотрудников\u003C\u002Fli\u003E\r\n\u003Cli\u003EАвтотесты удобно использовать (в некоторых случаях) в качестве документации. Иногда проще зайти в тесты, посмотреть, какие кейсы покрыты, как они работают, и понять, как работает тот или иной функционал, и ускорить вхождение новых сотрудников — как разработчиков, так и тестировщиков, — в новый проект. Когда садишься писать автотесты, сразу становится понятно, как работает система.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nОк, поговорили о том, зачем нам нужны автотесты. Теперь поговорим о том, какие тесты мы пишем в Lamoda.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fqx\u002Fci\u002F0f\u002Fqxci0fma8tivrntsz95gv-d802e.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fqx\u002Fci\u002F0f\u002Fqxci0fma8tivrntsz95gv-d802e.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто достаточно стандартная пирамида тестирования, начиная от unit-тестов, заканчивая E2E-тестами, где тестируются уже некоторые бизнес-цепочки. Про нижние два уровня я говорить не буду, не зря они таким белым цветом закрашены. Это тесты на сам код, их пишут у нас разработчики. Тестировщик, в крайнем случае, может зайти в Pull Request, посмотреть код и сказать: “Ну, что-то тут недостаточно кейсов, давайте покроем еще что-нибудь”. На этом работа тестировщика для этих тестов заканчивается.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМы будем говорить про уровни выше, которые у нас пишут и разработчики, и тестировщики. Начнем с системных тестов. Это тесты, которые тестируют API (REST или SOAP), тестируют некую внутреннюю логику систем, различные команды, разборы очередей в Rabbit или обмен с внешними системами. Как правило, эти тесты достаточно атомарные. Они не проверяют какую-то цепочку, а проверяют одно действие. Например, один API-метод или одну команду. И проверяют как можно на большем количестве кейсов, как позитивных, так и негативных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИдем дальше, E2E-тесты. Я их поделил на 2 части. У нас есть тесты, которые тестируют связку UI и бэкенда. И есть тесты, которые мы называем flow-тесты. Они тестируют цепочку — жизнь объекта от начала до конца. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНапример, у нас есть система управления процессинга нашими заказами. Внутри такой системы может быть тест — заказ от создания до доставки, то есть прохождение его по всем статусам. Именно по таким тестам потом очень легко и просто смотреть, как работает система. Вы сразу видите весь flow определенных объектов, с какими внешними системами все это взаимодействует, какие команды для этого используются.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоскольку у нас этим UI пользуются внутренние пользователи, нам не важна кросс-браузерность. Мы не гоняем на каких-то фермах эти тесты, нам достаточно проверить в одном браузере, а иногда даже не нужно использовать браузер.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n“Почему Codeception мы выбрали для автоматизации тестирования?” — наверное, спросите вы. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли честно, у меня нет ответа на этот вопрос. Когда я пришел в Lamoda, Codeception уже был выбран как стандарт, чтобы писать автотесты, и я столкнулся с ним по факту. Но, поработав какое-то время с этим фреймворком, я все-таки понял, почему Codeception. Этим я и хочу с вами поделиться.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EПочему Codeception?\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EМожно писать и запускать одинаково тесты любых видов (unit, functional, acceptance).\u003C\u002Fli\u003E\r\n\u003Cli\u003EМногие грабли уже решены, много модулей уже написано.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВо всех проектах, несмотря на немного разные потребности, тесты будут выглядеть одинаково.\u003C\u002Fli\u003E\r\n\u003Cli\u003EКонцепция Codeception предполагает, что на этом фреймворке вы пишете любые тесты: unit, интеграционные, функциональные, приемочные. И они у вас, по крайней мере, будут одинаково запускаться.\u003C\u002Fli\u003E\r\n\u003Cli\u003ECodeception — это достаточно мощный комбайн, в котором уже решено много проблем, много вопросов, много задач для тестов. Если что-то не решено, то скорее всего, вы найдете что-то извне — некоторый аддон для какой-то специфической работы. Вам не нужно писать какие-то тестовые обертки для баз данных, для еще чего-то. Просто берете и подключаете к Codeception модули и работаете с ними.\u003C\u002Fli\u003E\r\n\u003Cli\u003EНу и такой плюс (наверное, он больше подходит для больших компаний, когда у вас много проектов и сервисов) — во всех проектах тесты будут выглядеть плюс-минус одинаково. Это очень здорово.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nКратко скажу, что из себя представляет Codeception, поскольку многие с ним работали.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fbp\u002Fac\u002Fnt\u002Fbpacntwtc_xvl52su3nh7-vvidi.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fbp\u002Fac\u002Fnt\u002Fbpacntwtc_xvl52su3nh7-vvidi.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nCodeception работает по модели акторов. После того, как вы его затягиваете в проект и инициализируете, генерируется такая структура.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУ нас есть yml-файлы, вот там снизу — \u003Ci\u003Efunctional.suite.yml\u003C\u002Fi\u003E, \u003Ci\u003Eintegration.suit.yml\u003C\u002Fi\u003E, \u003Ci\u003Eunit.suite.yml\u003C\u002Fi\u003E. В них создается конфигурация ваших тестов. Есть папочки под каждый вид тестов, где эти тесты лежат, есть 3 вспомогательных папочки:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n_\u003Ci\u003Edata\u003C\u002Fi\u003E — для тестовых данных;\u003Cbr\u002F\u003E\r\n_\u003Ci\u003Eoutput\u003C\u002Fi\u003E — куда кладутся отчеты (xml, html);\u003Cbr\u002F\u003E\r\n_\u003Ci\u003Esupport \u003C\u002Fi\u003E— куда кладутся какие-то вспомогательные хелперы, функции и все, что вы напишите, чтобы использовать в ваших тестах.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля начала я расскажу, что мы взяли от Codeception и используем из коробки, ничего не дорабатывая, не решая дополнительных задач или проблем.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EСтандартные модули\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EPhpBrowser\u003C\u002Fli\u003E\r\n\u003Cli\u003EREST\u003C\u002Fli\u003E\r\n\u003Cli\u003EDb\u003C\u002Fli\u003E\r\n\u003Cli\u003ECli\u003C\u002Fli\u003E\r\n\u003Cli\u003EAMQP\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nПервый такой модуль — это PhpBrowser. Этот модуль — обертка над Guzzle, который позволяет взаимодействовать с вашим приложением: открывать странички, заполнять формы, сабмитить формы. И если вам не важно кроссбраузерное и браузерное тестирование, если вы вдруг тестируете UI, можно использовать PhpBrowser. Как правило, в наших UI-тестах мы его и используем, потому что нам не нужно какой-то сложной логики взаимодействия, нам достаточно открыть страничку и что-то небольшое там сделать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВторой модуль, который мы используем, — REST. Думаю, из названия понятно, что он делает. Для любых http-взаимодействий можно использовать этот модуль. В нем, мне кажется, решены практически все взаимодействия: хедеры, cookie, авторизация. Все, что нужно, в нем есть.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТретий модуль, который мы используем из коробки, — это модуль Db. В последних версиях Codeception туда добавлена поддержка не одной, а нескольких баз данных. Поэтому, если вдруг у вас в проекте несколько баз данных, теперь это работает из коробки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМодуль Cli, который позволяет запускать \u003Cb\u003Eshell\u003C\u002Fb\u003E — и \u003Cb\u003Ebash\u003C\u002Fb\u003E-команды из тестов, и мы его тоже используем.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсть модуль AMQP, который работает с любыми брокерами сообщений, которые основаны на этом протоколе. Хочу заметить, что официально он протестирован на RabbitMQ. Поскольку мы используем RabbitMQ, у нас с ним все окей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа самом деле, Codeception, по крайней мере, в нашем случае покрывает 80-85% всех нужных нам задач. Но над кое-чем все-таки пришлось поработать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНачнем с SOAP.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fc9\u002Fzy\u002Fbk\u002Fc9zybkm3eu-kvkxc_uvpcte_h0u.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fc9\u002Fzy\u002Fbk\u002Fc9zybkm3eu-kvkxc_uvpcte_h0u.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ наших сервисах кое-где есть SOAP-эндпоинты. Их нужно тестировать, дергать, что-то с ними делать. Но вы скажете, что в Codeception есть такой модуль, который позволяет отправлять запросы и что-то потом делать с ответами. Как-то парсить, проверочки добавлять и все окей. Но SOAP-модуль не работает из коробки с несколькими эндпоинтами SOAP.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fuj\u002Fs_\u002Fzv\u002Fujs_zvshqpzmecycdggm3mys4nq.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fuj\u002Fs_\u002Fzv\u002Fujs_zvshqpzmecycdggm3mys4nq.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУ нас, например, есть монолиты, у которых несколько WSDL, несколько SOAP-эндпоинтов. Это означает, что нельзя в Codeception-модуле это так сконфигурировать в yml-файле, чтобы работать сразу с несколькими.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fuc\u002Fz-\u002Fab\u002Fucz-abgapgah_r9qo6uoitkstg8.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fuc\u002Fz-\u002Fab\u002Fucz-abgapgah_r9qo6uoitkstg8.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУ Codeception есть динамическая реконфигурация модуля, и вы можете написать какой-то свой адаптер, чтобы получать, например, модуль SOAP и динамически его реконфигурировать. В данном случае необходимо подменять эндпоинт и используемую схему. Тогда в тесте, если вам нужно поменять эндпоинт, на который вы хотите отправить запрос, получаем наш адаптер и меняем на новый эндпоинт, на новую схему и отправляем на нее запрос.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F68\u002Fiu\u002Fkl\u002F68iuklk2oherxt4ov7odgrszyli.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F68\u002Fiu\u002Fkl\u002F68iuklk2oherxt4ov7odgrszyli.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ Codeception нет работы с Kafka и нет никаких сторонних более-менее официальных аддонов, чтобы работать с Kafka. В этом нет ничего страшного, мы написали свой модуль.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fes\u002Fgp\u002Feg\u002Fesgpegswio_kwmtqer7gkqvjfgi.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fes\u002Fgp\u002Feg\u002Fesgpegswio_kwmtqer7gkqvjfgi.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак он конфигурируется в yml-файле. Задаются некоторые настройки для брокеров, для консьюмеров и для топиков. Эти настройки, когда вы пишете свой модуль, можно потом подтянуть в модули функцией initialize и этот модуль инициализировать этими же настройками. И, собственно, у модуля реализовать все остальные методы — положить сообщение в топик и считать его. Это все, что вам нужно от этого модуля.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fzo\u002F5p\u002Fbo\u002Fzo5pbox8a8xxic2n8972phohhd0.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fzo\u002F5p\u002Fbo\u002Fzo5pbox8a8xxic2n8972phohhd0.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EВывод\u003C\u002Fb\u003E: модули для Codeception писать легко. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИдем дальше. Как я уже сказал, в Codeception есть модуль Cli — обертка для \u003Ci\u003Eshell\u003C\u002Fi\u003E-команд и работы с их output’ом. \u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F8c\u002Fgg\u002Fyr\u002F8cggyrxinincflxsx2ti3o4klwq.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F8c\u002Fgg\u002Fyr\u002F8cggyrxinincflxsx2ti3o4klwq.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо иногда \u003Ci\u003Eshell\u003C\u002Fi\u003E-команду нужно запустить не в тестах, а в приложении. Вообще тесты и приложения — это немного разные сущности, они могут лежать в разных местах. Тесты могут запускаться в одном месте, а приложение может быть в другом.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак зачем нам нужно запускать \u003Ci\u003Eshell\u003C\u002Fi\u003E в тестах? \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУ нас есть в приложениях команды, которые, например, разбирают очереди в RabbitMQ и двигают объекты по статусам. Эти команды в прод-режиме запускаются из-под супервизора. Супервизор следит за их выполнением. Если они упали, то он их заново запускает и так далее.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКогда мы тестируем, супервизор у нас не запущен. Иначе тесты становятся нестабильными, непредсказуемыми. Мы сами хотим управлять запуском этих команд внутри приложения. Поэтому нам нужно из тестов запустить эти команды в приложении. У нас используются два варианта. Что один, что другой — в принципе, все то же самое, и все работает.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКак запускать\u003Ci\u003E shell\u003C\u002Fi\u003E в приложении?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПервое: запускать тесты в том же самом месте, где находится приложение. Поскольку все приложения у нас в Docker’е, тесты можно запускать в том же контейнере, где находится сам сервис.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВторой вариант: делать под тесты отдельный контейнер, некоторый \u003Ci\u003Etest runner\u003C\u002Fi\u003E, но делать его таким же, как приложение. То есть из того же Docker-образа, и тогда все будет работать аналогично.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fwm\u002Fhw\u002Fg0\u002Fwmhwg0-0xviw0be73xgrwfppsfi.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fwm\u002Fhw\u002Fg0\u002Fwmhwg0-0xviw0be73xgrwfppsfi.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕще одна задача, с которой мы столкнулись в тестах — это работа с различными файловыми системами. Ниже пример того, с чем можно и нужно работать. Для нас актуальны первые три. Это Webdav, SFTP и амазоновская файловая система. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nС чем нужно работать?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EWebdav\u003C\u002Fli\u003E\r\n\u003Cli\u003EFTP\u002FSFTP\u003C\u002Fli\u003E\r\n\u003Cli\u003EAWS S3\u003C\u002Fli\u003E\r\n\u003Cli\u003ELocal\u003C\u002Fli\u003E\r\n\u003Cli\u003EAzure, Dropbox, google drive\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nЕсли порыться в Codeception, можно найти какие-то модули практически для любой более-менее популярной файловой системы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F84\u002Fkr\u002Fol\u002F84krold4wqwi4ckxe4trmr8u9oq.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F84\u002Fkr\u002Fol\u002F84krold4wqwi4ckxe4trmr8u9oq.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕдинственное, что я не нашел, это для Webdav’a. Но эти файловый системы плюс-минус одинаковые в плане внешней работы с ними, и нам хочется работать с ними одинаково.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМы написали свой модуль, который называется Flysystem. Он лежит на \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Flamoda\u002Fcodeception-flysystem\"\u003EGithub\u003C\u002Fa\u003E в открытом доступе и поддерживает 2 файловые системы — SFTP и Webdav — и позволяет работать с обеими по одинаковому API. \u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F5a\u002Fw5\u002Fsm\u002F5aw5smemb1fabsbsyvt5eit70r8.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F5a\u002Fw5\u002Fsm\u002F5aw5smemb1fabsbsyvt5eit70r8.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПолучить список файлов, почистить директорию, записать файл, и так далее. Если туда добавить еще и амазоновскую файловую систему, наши потребности точно покроются.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСледующий момент, я считаю, очень важный для автотестов, тем более системного уровня, — это работа с базами данных. Вообще, хочется чтобы было, как на картинке, — ВЖУХ и все завелось, заработало, и вот эти базы данных в тестах меньше бы поддерживать.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fhb\u002F-y\u002Ful\u002Fhb-yulyfmetwazoatr4oukazpli.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fhb\u002F-y\u002Ful\u002Fhb-yulyfmetwazoatr4oukazpli.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКакие я вижу здесь основные задачи:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EКак раскатать БД нужной структуры — Db\u003C\u002Fli\u003E\r\n\u003Cli\u003EКак заполнить БД тестовыми данными — Db, Fixtures\u003C\u002Fli\u003E\r\n\u003Cli\u003EКак делать выборки и проверки — Db\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nДля всех 3-х задач в Codeception есть 2 модуля — Db, про который я уже говорил, другой называется Fixtures.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИз этих 2 модулей и 3 задач мы используем только DB для третьей задачи.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля первой задачи можно использовать DB. Там можно сконфигурировать SQL-дамп, из которого будет разворачиваться база данных, ну и модуль с фикстурами, думаю, понятно, зачем нужен.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТам будут фикстуры в виде массивов, которые можно персистить в базу данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКак я сказал, первые 2 задачи мы решаем немного по-другому, сейчас я расскажу, как мы это делаем.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EРазворачивание БД\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EПоднимаем контейнер с PostgreSQL или MySQL\u003C\u002Fli\u003E\r\n\u003Cli\u003EНакатываем все миграции с помощью doctrine migrations\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nПервое — про разворачивание базы данных. Каким образом у нас происходит это в тестах. Мы поднимаем контейнер с нужной базой данных — либо PostgreSQL, либо MySQL, потом накатываем все нужные миграции с помощью \u003Ci\u003Edoctrine migrations\u003C\u002Fi\u003E. Все, база данных нужной структуры готова, ее можно использовать в тестах.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПочему мы не используем дапм — потому что тогда его не нужно поддерживать. Это какой-то дамп, который лежит с тестами, который нужно постоянно актуализировать, если что-то меняется в базе данных. Есть миграции — не нужно поддерживать дамп.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВторой момент — создание тестовых данных. Мы не используем модуль Fixtures от Codeception, мы используем \u003Ci\u003ESymfony\u003C\u002Fi\u003E-бандл для фикстур.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fkx\u002Flf\u002Fm9\u002Fkxlfm9zppbdqmgj_i_ekaripjw4.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fkx\u002Flf\u002Fm9\u002Fkxlfm9zppbdqmgj_i_ekaripjw4.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗдесь есть \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fdoctrine\u002FDoctrineFixturesBundle\"\u003Eссылка\u003C\u002Fa\u003E на него и пример того, как можно создавать фикстуру в базу данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУ вас фикстура тогда будет создаваться как некоторый объект предметной области, ее можно заперсистить в базу данных, и тестовые данные будут готовы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПочему DoctrineFixtureBundle?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EПроще создавать цепочки связанных объектов.\u003C\u002Fli\u003E\r\n\u003Cli\u003EМеньше дупликации данных, если фикстуры для разных тестов похожи.\u003C\u002Fli\u003E\r\n\u003Cli\u003EМеньше правок при изменении структуры БД.\u003C\u002Fli\u003E\r\n\u003Cli\u003EФикстуры-классы гораздо нагляднее чем массивы.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nПочему мы его используем? Да по той же причине — эти фикстуры гораздо проще поддерживать, чем фикстуры от Codeception. Проще создавать цепочки связанных объектов, потому что это все заложено в Symfony-бандл. Нужно меньше дублировать данные, потому что фикстуры можно наследовать, это классы. Если меняется структура базы данных, эти массивы всегда нужно править, а классы — не всегда. Фикстуры в виде объектов предметной области всегда нагляднее, чем массивы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПро базы данных поговорили, поговорим немного про моки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоскольку это тесты достаточно высокого уровня, которые тестируют систему целиком и поскольку наши системы достаточно сильно взаимосвязаны, понятно, что есть некоторые обмены и взаимодействия. Сейчас мы поговорим про моки на взаимодействие между системами.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EПравила для моков\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EМокаем все внешние http-взаимодейтвия сервиса\u003C\u002Fli\u003E\r\n\u003Cli\u003EПроверяем не только позитивные, но и негативные сценарии\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nВзаимодействия — это некоторые http-взаимодействия по REST или SOAP. Все эти взаимодействия в рамках тестов мы мокируем. То есть у нас в тестах нигде не идет реального обращения к внешним системам. Это делает тесты стабильными. Потому что внешний сервис может работать, может не работать, может медленно отвечать, может быстро, в общем, неизвестно, какое у него поведение. Поэтому мы все это покрываем моками.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕще у нас есть такое правило. Мы мокаем не только позитивные взаимодействия, но и стараемся проверять какие-то негативные кейсы. Например, когда сторонний сервис отвечает 500ой ошибкой либо выдает какую-то более осмысленную ошибку, — это все стараемся проверять.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля моков мы используем Wiremock, сам Codeception поддерживает…, у него есть такой официальный аддон Httpmock, но Wiremock нам понравился больше. Каким образом он работает?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nWiremock поднимается как отдельный Docker-контейнер во время тестов, и все запросы, который должны идти ко внешней системе, идут на Wiremock. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fn9\u002Fcb\u002Fy8\u002Fn9cby8a1hoiicw5fqprvzsfxsae.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fn9\u002Fcb\u002Fy8\u002Fn9cby8a1hoiicw5fqprvzsfxsae.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУ Wiremock, если посмотреть на слайд — там есть такой квадратик, Request Mapping, у него есть набор таких маппингов, которые говорят о том, что, если пришел такой запрос, надо отдать такой ответ. Все очень просто: пришел запрос — получил мок.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМоки можно создавать статически, тогда контейнер, когда уже с Wiremock поднимется, эти моки будут доступны, их можно использовать в ручном тестировании. Можно создавать динамически, прямо в коде, в каком-нибудь тесте.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗдесь приведен пример, как создать мок динамически, вы видите, описание достаточно декларативное, из кода сразу понятно, что за мок мы создаем: мок для метода GET, который придет на такой URL, и, собственно, что вернуть.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fd7\u002Fxu\u002F2g\u002Fd7xu2gg75_-vjff1ejruhj2dvba.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fd7\u002Fxu\u002F2g\u002Fd7xu2gg75_-vjff1ejruhj2dvba.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКроме того, что этот мок можно создать, у Wiremock есть возможность потом еще и проверить, какой запрос ушел на этот мок. Это тоже бывает очень полезно в тестах.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПро сам Codeception, наверное, все, и несколько слов о том, как запускаются наши тесты, и немного инфраструктурщины.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЧто у нас используется?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fqy\u002Fmy\u002Fhj\u002Fqymyhjaocwm0apzi7orjlot7hnw.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fqy\u002Fmy\u002Fhj\u002Fqymyhjaocwm0apzi7orjlot7hnw.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНу, во-первых, все сервисы у нас в Docker, поэтому запуск тестового окружения представляет собой поднятие нужных контейнеров.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля внутренних команд используется Make, в качестве CI используется Bamboo.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКак выглядит запуск тестов на CI?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fhb\u002Fiq\u002Fjf\u002Fhbiqjftacif8wg-67x666c7l5yc.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fhb\u002Fiq\u002Fjf\u002Fhbiqjftacif8wg-67x666c7l5yc.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСначала мы билдим нужную версию приложения, потом поднимаем окружение — это приложение, все сервисы, которые ему нужны, вроде Kafka, Rabbit, база данных и на базу данных мы накатываем миграцию.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВсе это окружение поднимается с помощью Docker Compose. Именно в CI, на проде все контейнеры крутятся под Kubernetes. Затем запускаем тесты и прогоняем.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСколько времени это все занимает?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВсе зависит от конкретного сервиса, но, как правило, подъем окружения до запуска тестов — это 5-10 минут, тесты — от 6 до 30 минут.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fnm\u002Fkh\u002Fn0\u002Fnmkhn0sdps-qtoowra4mrtgtu8m.jpeg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fnm\u002Fkh\u002Fn0\u002Fnmkhn0sdps-qtoowra4mrtgtu8m.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСразу предупрежу этот вопрос, пока все тесты гоняются в одном потоке.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНу и такой вопрос. Как часто надо запускать тесты? Конечно, чем чаще, тем лучше. Чем раньше вы сможете поймать проблему, тем быстрее вы сможете ее решить.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУ нас есть 2 главных правила. Когда задача переходит в тестирование, на ней должны проходить все тесты, и unit, и не unit-тесты. Если какие-то тесты не проходят, это повод перевести задачу в фиксинг.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕстественно, когда мы выкатываем релиз. На релизе все тесты должны обязательно проходить.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ конце мне хотелось бы сказать что-то воодушевляющее — пишите тесты, пусть они будут зелеными, используйте Codeception, делайте моки. Думаю, вы все это прекрасно понимаете.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"php"},{"titleHtml":"codeception"},{"titleHtml":"автоматизация тестирования"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F452136\u002F339d349b43411b81303ea7c2e3065ffe\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F452136\u002F339d349b43411b81303ea7c2e3065ffe\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Flamoda\\\u002Fblog\\\u002F452136\\\u002F\"},\"headline\":\"Тесты на Codeception для PHP-бэкендов\",\"datePublished\":\"2019-05-29T16:00:02+03:00\",\"dateModified\":\"2019-05-29T18:54:15+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Павел Сташевский\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Всем привет! Меня зовут Паша, и я QA инженер команды Order Processing в Lamoda. Недавно я выступал на PHP Badoo Meetup. Сегодня хочу представить расшифровку свое...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Flamoda\\\u002Fblog\\\u002F452136\\\u002F#post-content-body\",\"about\":[\"c_lamoda\",\"h_it_testing\",\"h_php\",\"h_web_testing\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fqx\\\u002Fci\\\u002F0f\\\u002Fqxci0fma8tivrntsz95gv-d802e.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fbp\\\u002Fac\\\u002Fnt\\\u002Fbpacntwtc_xvl52su3nh7-vvidi.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fc9\\\u002Fzy\\\u002Fbk\\\u002Fc9zybkm3eu-kvkxc_uvpcte_h0u.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fuj\\\u002Fs_\\\u002Fzv\\\u002Fujs_zvshqpzmecycdggm3mys4nq.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fuc\\\u002Fz-\\\u002Fab\\\u002Fucz-abgapgah_r9qo6uoitkstg8.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F68\\\u002Fiu\\\u002Fkl\\\u002F68iuklk2oherxt4ov7odgrszyli.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fes\\\u002Fgp\\\u002Feg\\\u002Fesgpegswio_kwmtqer7gkqvjfgi.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fzo\\\u002F5p\\\u002Fbo\\\u002Fzo5pbox8a8xxic2n8972phohhd0.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F8c\\\u002Fgg\\\u002Fyr\\\u002F8cggyrxinincflxsx2ti3o4klwq.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fwm\\\u002Fhw\\\u002Fg0\\\u002Fwmhwg0-0xviw0be73xgrwfppsfi.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F84\\\u002Fkr\\\u002Fol\\\u002F84krold4wqwi4ckxe4trmr8u9oq.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F5a\\\u002Fw5\\\u002Fsm\\\u002F5aw5smemb1fabsbsyvt5eit70r8.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fhb\\\u002F-y\\\u002Ful\\\u002Fhb-yulyfmetwazoatr4oukazpli.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fkx\\\u002Flf\\\u002Fm9\\\u002Fkxlfm9zppbdqmgj_i_ekaripjw4.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fn9\\\u002Fcb\\\u002Fy8\\\u002Fn9cby8a1hoiicw5fqprvzsfxsae.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fd7\\\u002Fxu\\\u002F2g\\\u002Fd7xu2gg75_-vjff1ejruhj2dvba.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fqy\\\u002Fmy\\\u002Fhj\\\u002Fqymyhjaocwm0apzi7orjlot7hnw.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fhb\\\u002Fiq\\\u002Fjf\\\u002Fhbiqjftacif8wg-67x666c7l5yc.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fnm\\\u002Fkh\\\u002Fn0\\\u002Fnmkhn0sdps-qtoowra4mrtgtu8m.jpeg\"]}","metaDescription":"Всем привет! Меня зовут Паша, и я QA инженер команды Order Processing в Lamoda. Недавно я выступал на PHP Badoo Meetup. Сегодня хочу представить расшифровку своего доклада. \r\n\r\nРечь пойдет про...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"lamoda":{"alias":"lamoda","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002Fcdd\u002F710\u002F61a\u002Fcdd71061ae61f0c4f273ddcaaec533c7.png","titleHtml":"Lamoda","descriptionHtml":"Code the lifestyle","relatedData":null,"statistics":{"postsCount":79,"newsCount":1,"vacanciesCount":0,"employeesCount":51,"careerRating":4.58,"subscribersCount":10526,"rating":158.97,"invest":null},"foundationDate":{"year":"2011","month":"03","day":"05"},"location":{"city":{"id":"447159","title":"Москва"},"region":{"id":"1885","title":"Москва и Московская обл."},"country":{"id":"168","title":"Россия"}},"siteUrl":"http:\u002F\u002Ftech.lamoda.ru","staffNumber":"5 001–10 000 человек","registrationDate":"2018-09-20T09:17:42+00:00","representativeUser":null,"contacts":[{"title":"Сайт","url":"http:\u002F\u002Ftech.lamoda.ru"},{"title":"Сайт","url":"http:\u002F\u002Flamoda.ru"}],"settings":{"analyticsSettings":[{"type":"ym","trackingId":"56240926"}],"branding":{"imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fbranding\u002F184\u002F9f9\u002F5c7\u002F1849f95c7dcc56ce846da652b0c2506f.png","linkUrl":null,"pixelUrl":null},"status":"active","isStartup":false},"metadata":{"titleHtml":"Lamoda, Москва - Code the lifestyle с 5 марта 2011 г.","title":"Lamoda, Москва - Code the lifestyle с 5 марта 2011 г.","keywords":["Управление разработкой","Java","Управление проектами","Big Data","Карьера в IT-индустрии","lamoda","php","go","latech","java","data science","python","android","управление командой","golang","e-commerce","обучение","склад","techlamoda","kafka","микросервисы","kotlin","машинное обучение","dynamics 365","онбординг"],"descriptionHtml":"79 статей от авторов компании Lamoda","description":"79 статей от авторов компании Lamoda"},"aDeskSettings":null,"careerAlias":"latech"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

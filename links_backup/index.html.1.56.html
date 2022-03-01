@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    <title>A Visual Explanation of SQL Joins</title>
+    <meta name="description" content="a blog by Jeff Atwood on programming and human factors" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="sl0m9SU_4V0JcvjWlOX4dUFBR6VS2P4tlxjJMo0gphU" />
+   
+    <link rel="stylesheet" type="text/css" href="https://blog.codinghorror.com/assets/css/screen.css?v=59aa1cf94a" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700" />
+    <link rel="alternate" type="application/rss+xml" title="Coding Horror" href="https://blog.codinghorror.com/rss/">
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js" async></script>
+    <script src="https://blog.codinghorror.com/assets/js/video-resize.js?v=59aa1cf94a" async></script>
+    <link rel="icon" href="https://blog.codinghorror.com/favicon.png" type="image/png" />
+    <link rel="canonical" href="index.html.1.56.html" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <link rel="amphtml" href="https://blog.codinghorror.com/a-visual-explanation-of-sql-joins/amp/" />
+    
+    <meta property="og:site_name" content="Coding Horror" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="A Visual Explanation of SQL Joins" />
+    <meta property="og:description" content="I thought Ligaya Turmelle&#x27;s post on SQL joins was a great primer for novice developers. Since SQL joins appear to be set-based, the use of Venn diagrams to explain them seems, at first blush, to be a natural fit. However, like the commenters to her post, I found that the" />
+    <meta property="og:url" content="https://blog.codinghorror.com/a-visual-explanation-of-sql-joins/" />
+    <meta property="article:published_time" content="2007-10-11T12:00:00.000Z" />
+    <meta property="article:modified_time" content="2014-05-31T06:55:03.000Z" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="A Visual Explanation of SQL Joins" />
+    <meta name="twitter:description" content="I thought Ligaya Turmelle&#x27;s post on SQL joins was a great primer for novice developers. Since SQL joins appear to be set-based, the use of Venn diagrams to explain them seems, at first blush, to be a natural fit. However, like the commenters to her post, I found that the" />
+    <meta name="twitter:url" content="https://blog.codinghorror.com/a-visual-explanation-of-sql-joins/" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="Jeff Atwood" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Coding Horror",
+        "url": "https://blog.codinghorror.com/",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "https://blog.codinghorror.com/content/images/2014/Feb/coding_horror_official_logo_small.png"
+        }
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Jeff Atwood",
+        "url": "https://blog.codinghorror.com/author/jeff-atwood/",
+        "sameAs": [
+            "http://twitter.com/codinghorror"
+        ]
+    },
+    "headline": "A Visual Explanation of SQL Joins",
+    "url": "https://blog.codinghorror.com/a-visual-explanation-of-sql-joins/",
+    "datePublished": "2007-10-11T12:00:00.000Z",
+    "dateModified": "2014-05-31T06:55:03.000Z",
+    "description": "I thought Ligaya Turmelle&#x27;s post on SQL joins\n[http://www.khankennels.com/blog/index.php/archives/2007/04/20/getting-joins] \nwas a great primer for novice developers. Since SQL joins appear to be\nset-based, the use of Venn diagrams [http://en.wikipedia.org/wiki/Venn_diagram] \nto explain them seems, at first blush, to be a natural fit. However, like the\ncommenters to her post, I found that the Venn diagrams didn&#x27;t quite match the \nSQL join syntax [http://en.wikipedia.org/wiki/Join_(SQL)] reality ",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://blog.codinghorror.com/"
+    }
+}
+    </script>
+
+    <meta name="generator" content="Ghost 4.37" />
+    <link rel="alternate" type="application/rss+xml" title="Coding Horror" href="https://blog.codinghorror.com/rss/" />
+    <script defer src="https://unpkg.com/@tryghost/portal@~1.14.0/umd/portal.min.js" data-ghost="https://blog.codinghorror.com/" crossorigin="anonymous"></script><style id="gh-members-styles">.gh-post-upgrade-cta-content,
+.gh-post-upgrade-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    text-align: center;
+    width: 100%;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.gh-post-upgrade-cta-content {
+    border-radius: 8px;
+    padding: 40px 4vw;
+}
+
+.gh-post-upgrade-cta h2 {
+    color: #ffffff;
+    font-size: 28px;
+    letter-spacing: -0.2px;
+    margin: 0;
+    padding: 0;
+}
+
+.gh-post-upgrade-cta p {
+    margin: 20px 0 0;
+    padding: 0;
+}
+
+.gh-post-upgrade-cta small {
+    font-size: 16px;
+    letter-spacing: -0.2px;
+}
+
+.gh-post-upgrade-cta a {
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 500;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.gh-post-upgrade-cta a:hover {
+    color: #ffffff;
+    opacity: 0.8;
+    box-shadow: none;
+    text-decoration: underline;
+}
+
+.gh-post-upgrade-cta a.gh-btn {
+    display: block;
+    background: #ffffff;
+    text-decoration: none;
+    margin: 28px 0 0;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.gh-post-upgrade-cta a.gh-btn:hover {
+    opacity: 0.92;
+}</style>
+    <script defer src="https://blog.codinghorror.com/public/cards.min.js?v=59aa1cf94a"></script><style>:root {--ghost-accent-color: #15171A;}</style>
+    <link rel="stylesheet" type="text/css" href="https://blog.codinghorror.com/public/cards.min.css?v=59aa1cf94a">
+</head>
+
+<body class="post-template">
+
+    <header class="site-head">
+        <div class="site-head-content">
+            <a class="blog-logo" href="https://blog.codinghorror.com"><img src="https://blog.codinghorror.com/assets/images/codinghorror-app-icon.png?v=59aa1cf94a" alt="Coding Horror Logo" width="158" height="158" /></a>
+            <h1 class="blog-title"><a href="https://blog.codinghorror.com">Coding Horror</a></h1>
+            <h2 class="blog-description">programming and human factors</h2>
+            <div class="site-search">
+                <script>
+                  (function() {
+                    var gcse = document.createElement('script');
+                    gcse.type = 'text/javascript';
+                    gcse.async = true;
+                    gcse.src = 'https://www.google.com/cse/cse.js?cx=016956275695630057531:lqveu9tah7y';
+                    var s = document.getElementsByTagName('script')[0];
+                    s.parentNode.insertBefore(gcse, s);
+                  })();
+                </script>
+                <gcse:search></gcse:search>
+            </div>
+        </div>
+    </header>
+
+    <div class="wrap clearfix">
+        <div class="clearfix"></div>
+        
+<main class="content" role="main">
+
+    <article class="post no-image">
+
+
+            <span class="post-meta"><time datetime="2007-10-11">11 Oct 2007</time> </span>
+
+            <h1 class="post-title">A Visual Explanation of SQL Joins</h1>
+
+            <section class="post-content">
+                <!--kg-card-begin: markdown--><p>I thought Ligaya Turmelle's <a href="http://www.khankennels.com/blog/index.php/archives/2007/04/20/getting-joins">post on SQL joins</a> was a great primer for novice developers. Since SQL joins <i>appear</i> to be set-based, the use of <a href="http://en.wikipedia.org/wiki/Venn_diagram">Venn diagrams</a> to explain them seems, at first blush, to be a natural fit. However, like the commenters to her post, I found that the Venn diagrams didn't quite match the <a href="http://en.wikipedia.org/wiki/Join_(SQL)">SQL join syntax</a> reality in my testing.</p>
+<p>I love the concept, though, so let's see if we can make it work. Assume we have the following two tables. <strong>Table A</strong> is on the left, and <strong>Table B</strong> is on the right. We'll populate them with four records each.</p>
+<pre>id name       id  name
+-- ----       --  ----
+1  <span style="color:red">Pirate</span>     1   Rutabaga
+2  Monkey     2   <span style="color:red">Pirate</span>
+3  <span style="color:red">Ninja</span>      3   Darth Vader
+4  Spaghetti  4   <span style="color:red">Ninja</span></pre>
+<p>Let's join these tables by the name field in a few different ways and see if we can get a conceptual match to those nifty Venn diagrams.</p>
+<table cellpadding="6" cellspacing="4" width="900">
+<thead></thead>
+<tbody>
+<tr>
+<td valign="top">
+<pre>SELECT * FROM TableA
+<b>INNER JOIN</b> TableB
+ON TableA.name = TableB.name
+<p>id  name       id   name</p>
+<hr>
+<p>1   Pirate     2    Pirate<br>
+3   Ninja      4    Ninja<br>
+</pre><br>
+<strong>Inner join</strong> produces only the set of records that match in both Table A and Table B.</p>
+</td>
+<td valign="top">
+<img alt="Venn diagram of SQL inner join" height="329" src="https://blog.codinghorror.com/content/images/uploads/2007/10/6a0120a85dcdae970b012877702708970c-pi.png" width="502" />
+</td>
+</tr>
+<tr>
+<td valign="top">
+<pre>SELECT * FROM TableA
+<b>FULL OUTER JOIN</b> TableB
+ON TableA.name = TableB.name
+<p>id    name       id    name</p>
+<hr>
+<p>1     Pirate     2     Pirate<br>
+2     Monkey     <span style="color:#ccc">null</span>  <span style="color:#ccc">null</span><br>
+3     Ninja      4     Ninja<br>
+4     Spaghetti  <span style="color:#ccc">null</span>  <span style="color:#ccc">null</span><br>
+<span style="color:#ccc">null</span>  <span style="color:#ccc">null</span>       1     Rutabaga<br>
+<span style="color:#ccc">null</span>  <span style="color:#ccc">null</span>       3     Darth Vader<br>
+</pre></p>
+<p><strong>Full outer join</strong> produces the set of all records in Table A and Table B, with matching records from both sides where available. If there is no match, the missing side will contain null.</p>
+</td>
+<td valign="top">
+<img alt="Venn diagram of SQL cartesian join"  height="329" src="https://blog.codinghorror.com/content/images/uploads/2007/10/6a0120a85dcdae970b012877702725970c-pi.png" width="502" /></td>
+</tr>
+<tr>
+<td valign="top">
+<pre>SELECT * FROM TableA
+<b>LEFT OUTER JOIN</b> TableB
+ON TableA.name = TableB.name
+
+id  name       id    name
+--  ----       --    ----
+1   Pirate     2     Pirate
+2   Monkey     <span style="color:#ccc">null</span>  <span style="color:#ccc">null</span>
+3   Ninja      4     Ninja
+4   Spaghetti  <span style="color:#ccc">null</span>  <span style="color:#ccc">null</span>
+</pre>
+<p><strong>Left outer join</strong> produces a complete set of records from Table A, with the matching records (where available) in Table B. If there is no match, the right side will contain null.</p>
+</td>
+<td valign="top">
+<img alt="Venn diagram of SQL left join"  height="329" src="https://blog.codinghorror.com/content/images/uploads/2007/10/6a0120a85dcdae970b01287770273e970c-pi.png" width="502" />
+</td>
+</tr>
+<tr>
+<td valign="top">
+<pre>SELECT * FROM TableA
+LEFT OUTER JOIN TableB
+ON TableA.name = TableB.name
+<b>WHERE TableB.id IS null</b>
+<p>id  name       id     name</p>
+<hr>
+<p>2   Monkey     <span style="color:#ccc">null</span>   <span style="color:#ccc">null</span><br>
+4   Spaghetti  <span style="color:#ccc">null</span>   <span style="color:#ccc">null</span><br>
+</pre></p>
+<p>To produce the set of records only in Table A, but not in Table B, we perform the same left outer join, then <strong>exclude the records we don't want from the right side via a where clause</strong>.</p>
+</td>
+<td valign="top">
+<img alt="join-left-outer.png" height="329" src="https://blog.codinghorror.com/content/images/uploads/2007/10/6a0120a85dcdae970b012877702754970c-pi.png" width="502" /></td>
+</tr>
+<tr>
+<td valign="top">
+<pre>
+SELECT * FROM TableA
+FULL OUTER JOIN TableB
+ON TableA.name = TableB.name
+<b>WHERE TableA.id IS null
+OR TableB.id IS null</b>
+<p>id    name       id    name</p>
+<hr>
+<p>2     Monkey     <span style="color:#ccc">null</span>  <span style="color:#ccc">null</span><br>
+4     Spaghetti  <span style="color:#ccc">null</span>  <span style="color:#ccc">null</span><br>
+<span style="color:#ccc">null</span>  <span style="color:#ccc">null</span>       1     Rutabaga<br>
+<span style="color:#ccc">null</span>  <span style="color:#ccc">null</span>       3     Darth Vader<br>
+</pre><br>
+To produce the set of records unique to Table A and Table B, we perform the same full outer join, then <strong>exclude the records we don't want from both sides via a where clause</strong>.</p>
+</td>
+<td valign="top">
+<img alt="join-outer.png" height="329" src="https://blog.codinghorror.com/content/images/uploads/2007/10/6a0120a85dcdae970b012877702769970c-pi.png" width="502" /></td>
+</tr>
+</tbody>
+</table>
+<p>There's also a cartesian product or <strong>cross join</strong>, which as far as I can tell, can't be expressed as a Venn diagram:</p>
+<pre>SELECT * FROM TableA
+<b>CROSS JOIN</b> TableB
+</pre>
+<p>This joins &quot;everything to everything&quot;, resulting in 4 x 4 = 16 rows, far more than we had in the original sets. If you do the math, you can see why this is a <em>very</em> dangerous join to run against large tables.</p>
+<!--kg-card-end: markdown-->
+            </section>
+
+            <aside class="read-next">
+                    <div class="left">
+                      <div class="read-next-label">Next</div>                    
+                      <h3 class="read-next-title"><a href="https://blog.codinghorror.com/mouse-ballistics/">Mouse Ballistics</a></h3>
+                    </div>
+                    <div class="right">
+                      <div class="read-next-label">Previous</div>                                            
+                      <h3 class="read-next-title"><a href="https://blog.codinghorror.com/a-lesson-in-control-simplicity/">A Lesson in Control Simplicity</a></h3>
+                    </div>
+            </aside>
+
+            <footer class="post-footer">
+
+                <section class="author">
+                    <h4>Written by Jeff Atwood</h4>
+                    <p>Indoor enthusiast. Co-founder of Stack Overflow and Discourse. Disclaimer: I have no idea what I&#x27;m talking about. Find me here:  <a href="http://twitter.com/codinghorror">http://twitter.com/codinghorror</a></p>
+                </section>
+
+            </footer>
+
+
+    </article>
+
+    <div id="discourse-comments"></div>
+
+    <script type="text/javascript">
+      var discourseUrl = "https://discourse.codinghorror.com/",
+          discourseEmbedUrl = 'https://blog.codinghorror.com/a-visual-explanation-of-sql-joins/';
+
+      (function() {
+        var d = document.createElement('script'); d.type = 'text/javascript'; d.async = true;
+          d.src = discourseUrl + 'javascripts/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(d);
+      })();
+    </script>
+
+</main>
+
+<aside class="sidebar">
+    <!-- <h3>&larr; Older</h3> <a href="https://blog.codinghorror.com">Read more posts</a> -->
+    <!-- 
+<div id="welovecodinghorror-block">
+    <span> 
+        <span class="block-wrap">
+            <a href="https://buddy.works/?utm_source=blog&utm_campaign=coding_hororr_bz" class="block-img" target="_blank"><img src="/content/images/2019/06/buddyworks-189x133px.png" width="189" height="133" alt="" border="0"></a> 
+            <a href="https://buddy.works/?utm_source=blog&utm_campaign=coding_hororr_bz" class="block-text" target="_blank">Get the fastest deployments in UI/UX that blows developers away</a>
+        </span>
+    </span>
+</div>
+-->
+
+<script async type="text/javascript" src="https://cdn.carbonads.com/carbon.js?serve=CKYIK23L&amp;placement=blogcodinghorrorcom" id="_carbonads_js"></script>
+
+<div id="hireme" class="hireme codinghorror" style="min-height: 220px; margin-bottom: 15px;"></div>
+<script>
+    setTimeout(function () {
+        var a = document.createElement("script");
+        var b = document.getElementsByTagName('script')[0];
+        a.src = "//clc.stackoverflow.com/j/p?d=hireme";
+        a.async = true; 
+        a.type = "text/javascript"; 
+        b.parentNode.insertBefore(a, b);
+    }, 5);
+</script>
+
+<!--
+<div class="welovecodinghorror" style="margin-bottom:15px"> 
+[ad] Enjoy the blog? Read <b><a href="https://www.amazon.com/dp/B008HUMTO0/?tag=codihorr-20">Effective Programming: More than Writing Code</a></b> and <b><a href="https://www.amazon.com/dp/B00BU3KPQU/?tag=codihorr-20">How to Stop Sucking and Be Awesome Instead</a></b>  on your Kindle, iPad, Nook, or as a PDF.
+</div>
+-->
+
+<h3>Resources</h3>
+
+<ul>
+    <li><a href="https://blog.codinghorror.com/about-me/">About Me</a></li>    
+    <li><a href="https://www.discourse.org/">discourse.org</a></li>
+    <li><a href="https://stackexchange.com/">stackexchange.com</a></li>
+    <li><a href="https://commonmark.org/help/">Learn Markdown</a></li>    
+    <li><a href="https://blog.codinghorror.com/recommended-reading-for-developers/">Recommended Reading</a></li>
+</ul>
+
+<ul>
+    <li><a href="https://blog.codinghorror.com/rss/" class="icon-feed">&nbsp;Subscribe in a reader</a></li>
+    <li><a href="https://follow.it/codinghorror?action=followPub" class="icon-email">&nbsp;Subscribe via email</a></li>
+</ul>
+
+<p>Coding Horror has been continuously published since 2004</p>
+
+<footer class="site-footer">
+    <section class="copyright">Copyright <a rel="author" href="https://en.wikipedia.org/wiki/Jeff_Atwood">Jeff Atwood</a> &copy; 2022<br />
+        Logo image &copy; 1993 Steven C. McConnell <br />
+    As an Amazon Associate I earn from qualifying purchases. <br />
+    Proudly published with <a class="icon-ghost" href="https://ghost.org">Ghost</a></section>
+</footer></aside>
+
+    </div>
+
+    
+       
+    <!-- Begin comScore Tag -->
+    <script>
+        document.write(unescape("%3Cscript src='https://sb.scorecardresearch.com/beacon.js'%3E%3C/script%3E"));
+    </script>
+    <script>
+        COMSCORE.beacon({
+        c1: 2,
+        c2: "6035669",
+        c3: "",
+        c4: "http://www.codinghorror.com/blog/",
+        c5: "",
+        c6: "",
+        c15: ""
+        });
+    </script>
+    <noscript>
+      <img src="https://b.scorecardresearch.com/b?c1=2&amp;c2=6035669&amp;c3=&amp;c4=http%3A%2F%2Fwww.codinghorror.com%2Fblog%2F&amp;c5=&amp;c6=&amp;c15=&amp;cv=1.3&amp;cj=1" style="display:none" width="0" height="0" alt="" />
+    </noscript>
+    <!-- end comScore Tag -->
+</body>
+</html>

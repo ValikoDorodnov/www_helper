@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9650849142271502" crossorigin="anonymous"></script>
+<link rel="icon" href="https://largescalejs.ru/favicon.png">
+<link rel="stylesheet" href="https://largescalejs.ru/assets/css/main.css">
+<link rel="stylesheet" href="https://largescalejs.ru/assets/css/pygments.css">
+<title>Глава 6. Паттерн «Модуль»&nbsp;— «Паттерны для масштабируемых JavaScript-приложений»</title>
+</head>
+<body>
+<div class="wrapper">
+<header class="page-header">
+<h4><small><a href="https://largescalejs.ru/" class="ignore-visited">«Паттерны для масштабируемых JavaScript-приложений»</a> от Эдди Османи</small></h4>
+<h1 class="page-header__title"><a class="page-header__title-link" href="index.html.1.205.html">Глава 6. Паттерн «Модуль»</a></h1>
+</header>
+<div style="margin:35px 0 30px">
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9650849142271502" data-ad-slot="6294295879" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script> (adsbygoogle=window.adsbygoogle||[]).push({}); </script>
+</div>
+
+<div class="content">
+<p>«Модуль»&nbsp;— это популярная реализация паттерна, инкапсулирующего приватную
+информацию, состояние и структуру, используя замыкания. Это позволяет оборачивать
+публичные и приватные методы и переменные в модули, и предотвращать их
+попадание в глобальный контекст, где они могут конфликтовать с интерфейсами
+других разработчиков. Паттерн «модуль» возвращает только публичную часть API,
+оставляя всё остальное доступным только внутри замыканий.</p>
+<p>Это хорошее решение для того, чтобы скрыть внутреннюю логику от посторонних глаз и
+производить всю тяжелую работу исключительно через интерфейс, который вы определите
+для использования в других частях вашего приложения. Этот паттерн очень похож на
+немедленно-вызываемые функции (<a href="http://benalman.com/news/2010/11/immediately-invoked-function-expression/">IIFE</a>), за тем исключением, что модуль вместо
+функции, возвращает объект.</p>
+<p>Важно заметить, что в JavaScript нет настоящей приватности. В отличии от некоторых
+традиционных языков, он не имеет модификаторов доступа. Переменные технически
+не могут быть объявлены как публичные или приватные, и нам приходится использовать
+область видимости для того, чтобы эмулировать эту концепцию. Благодаря замыканию,
+объявленные внутри модуля переменные и методы доступны только изнутри этого модуля.
+Переменные и методы, объявленные внутри объекта, возвращаемого модулем, будут
+доступны всем.</p>
+
+<p>Ниже вы можете увидеть корзину покупок, реализованную с помощью паттерна «модуль».
+Получившийся компонент находится в глобальном объекте <code>basketModule</code>, и содержит
+всё, что ему необходимо. Находящийся внутри него, массив <code>basket</code> приватный,
+и другие части вашего приложения не могут напрямую взаимодействовать с ним.
+Массив <code>basket</code> существует внутри замыкания, созданного модулем, и
+взаимодействовать с ним могут только методы, находящиеся в том же контексте
+(например, <code>addItem()</code>, <code>getItem()</code>).</p>
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">basketModule</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="kd">var</span> <span class="nx">basket</span> <span class="o">=</span> <span class="p">[];</span> <span class="c1">// приватная переменная</span>
+<span class="k">return</span> <span class="p">{</span> <span class="c1">// методы доступные извне</span>
+<span class="nx">addItem</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">values</span><span class="p">)</span> <span class="p">{</span>
+<span class="nx">basket</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">values</span><span class="p">);</span>
+<span class="p">},</span>
+<span class="nx">getItemCount</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="k">return</span> <span class="nx">basket</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="p">},</span>
+<span class="nx">getTotal</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="kd">var</span> <span class="nx">q</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getItemCount</span><span class="p">(),</span><span class="nx">p</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="k">while</span><span class="p">(</span><span class="nx">q</span><span class="o">--</span><span class="p">){</span>
+<span class="nx">p</span><span class="o">+=</span> <span class="nx">basket</span><span class="p">[</span><span class="nx">q</span><span class="p">].</span><span class="nx">price</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">return</span> <span class="nx">p</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="p">}</span>
+<span class="p">}());</span>
+</code></pre></div>
+<p>Внутри модуля, как вы заметили, мы возвращаем объект. Этот объект автоматически
+присваивается переменной <code>basketModule</code>, так что с ним можно взаимодействовать
+следующим образом:</p>
+<div class="highlight"><pre><code class="javascript"><span class="c1">// basketModule - это объект со свойствами, которые могут также быть и методами:</span>
+<span class="nx">basketModule</span><span class="p">.</span><span class="nx">addItem</span><span class="p">({</span><span class="nx">item</span><span class="o">:</span><span class="s1">&apos;bread&apos;</span><span class="p">,</span> <span class="nx">price</span><span class="o">:</span><span class="mf">0.5</span><span class="p">});</span>
+<span class="nx">basketModule</span><span class="p">.</span><span class="nx">addItem</span><span class="p">({</span><span class="nx">item</span><span class="o">:</span><span class="s1">&apos;butter&apos;</span><span class="p">,</span> <span class="nx">price</span><span class="o">:</span><span class="mf">0.3</span><span class="p">});</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">basketModule</span><span class="p">.</span><span class="nx">getItemCount</span><span class="p">());</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">basketModule</span><span class="p">.</span><span class="nx">getTotal</span><span class="p">());</span>
+<span class="c1">// А следующий ниже код работать не будет:</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">basketModule</span><span class="p">.</span><span class="nx">basket</span><span class="p">);</span> <span class="c1">// undefined потому что не входит в возвращаемый объект</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">basket</span><span class="p">);</span> <span class="c1">// массив доступен только из замыкания</span>
+</code></pre></div>
+<p>Методы выше фактически помещены в неймспейс <code>basketModule</code>.</p>
+
+<p>Исторически, паттерн «модуль» был разработан в 2003 году группой людей, в число
+которых входил <a href="http://groups.google.com/group/comp.lang.javascript/msg/9f58bd11bd67d937">Ричард Корнфорд</a>. Позднее этот паттерн был популяризован
+Дугласом Крокфордом в его лекциях, и открыт заново в блоге YUI благодаря Эрику
+Мирагилиа.</p>
+<p>Давайте посмотрим на реализацию «модуля» в различных библиотеках и фреймворках.</p>
+<p><strong>Dojo</strong></p>
+
+<p>Dojo старается обеспечивать поведение похожее на классы с помощью <code>dojo.declare</code>,
+который, кроме создания «модулей», также используется и для других вещей.
+Давайте попробуем, для примера, определить <code>basket</code> как модуль внутри неймспейса
+<code>store</code>:</p>
+<div class="highlight"><pre><code class="javascript"><span class="c1">// традиционный способ</span>
+<span class="kd">var</span> <span class="nx">store</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">store</span> <span class="o">||</span> <span class="p">{};</span>
+<span class="nx">store</span><span class="p">.</span><span class="nx">basket</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">basket</span> <span class="o">||</span> <span class="p">{};</span>
+<span class="c1">// с помощью dojo.setObject</span>
+<span class="nx">dojo</span><span class="p">.</span><span class="nx">setObject</span><span class="p">(</span><span class="s2">&quot;store.basket.object&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="kd">var</span> <span class="nx">basket</span> <span class="o">=</span> <span class="p">[];</span>
+<span class="kd">function</span> <span class="nx">privateMethod</span><span class="p">()</span> <span class="p">{</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">basket</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">return</span> <span class="p">{</span>
+<span class="nx">publicMethod</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="nx">privateMethod</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="p">};</span>
+<span class="p">}()));</span>
+</code></pre></div>
+<p>Лучшего результата можно добиться, используя <code>dojo.provide</code> и миксины.</p>
+
+<p><strong>YUI</strong></p>
+<p>Следующий код, по большей части, основан на примере реализации паттерна
+«модуль» в фреймворке YUI, разработанным Эриком Миргалиа, но более
+самодокументирован.</p>
+<div class="highlight"><pre><code class="javascript"><span class="nx">YAHOO</span><span class="p">.</span><span class="nx">store</span><span class="p">.</span><span class="nx">basket</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+<span class="c1">// приватная переменная:</span>
+<span class="kd">var</span> <span class="nx">myPrivateVar</span> <span class="o">=</span> <span class="s2">&quot;Ко мне можно получить доступ только из YAHOO.store.basket.&quot;</span><span class="p">;</span>
+<span class="c1">// приватный метод:</span>
+<span class="kd">var</span> <span class="nx">myPrivateMethod</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="nx">YAHOO</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Я доступен только при вызове из YAHOO.store.basket&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">return</span> <span class="p">{</span>
+<span class="nx">myPublicProperty</span><span class="o">:</span> <span class="s2">&quot;Я - публичное свойство&quot;</span><span class="p">,</span>
+<span class="nx">myPublicMethod</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="nx">YAHOO</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Я - публичный метод&quot;</span><span class="p">);</span>
+<span class="c1">// Будучи внутри корзины я могу получить доступ к приватным переменный и методам:</span>
+<span class="nx">YAHOO</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myPrivateVar</span><span class="p">);</span>
+<span class="nx">YAHOO</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myPrivateMethod</span><span class="p">());</span>
+<span class="c1">// Родной контекст метода myPublicMethod сохранён</span>
+<span class="c1">// поэтому мы имеет доступ к this</span>
+<span class="nx">YAHOO</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">myPublicProperty</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="p">};</span>
+<span class="p">}();</span>
+</code></pre></div>
+<p><strong>jQuery</strong></p>
+
+<p>Существует множество способов, чтобы представить jQuery-код в виде паттерна «модуль»,
+даже если этот код не напоминает привычные jQuery-плагины. Бен Черри ранее
+предлагал способ, при котором, если у модулей есть общие черты, то они объявляются
+через функцию-обертку.</p>
+<p>В следующем примере функция <code>library</code> используется для объявления новой
+библиотеки и автоматически при создании библиотеки (т.е. модуля),
+связывает вызов метода <code>init</code> с <code>document.ready</code>.</p>
+<div class="highlight"><pre><code class="javascript"><span class="kd">function</span> <span class="nx">library</span><span class="p">(</span><span class="nx">module</span><span class="p">)</span> <span class="p">{</span>
+<span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="k">if</span> <span class="p">(</span><span class="nx">module</span><span class="p">.</span><span class="nx">init</span><span class="p">)</span> <span class="p">{</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">init</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="p">});</span>
+<span class="k">return</span> <span class="nx">module</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">myLibrary</span> <span class="o">=</span> <span class="nx">library</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="k">return</span> <span class="p">{</span>
+<span class="nx">init</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="cm">/* код модуля */</span>
+<span class="p">}</span>
+<span class="p">};</span>
+<span class="p">}());</span>
+</code></pre></div>
+<p class="message"><strong>Ссылки по теме:</strong><br>
+<a href="http://www.adequatelygood.com/2010/3/JavaScript-Module-Pattern-In-Depth">Бен Черри&nbsp;— Погружение в паттерн «Модуль»</a><br>
+<a href="http://lanyrd.com/2011/jsconf/sfgdk/">Джон Ханн&nbsp;— Будущее&nbsp;— это модули, а не фреймворки</a><br>
+<a href="https://gist.github.com/274388">Натан Смит&nbsp;— Ссылки на window и document в модулях (gist)</a></p>
+
+<div style="margin:40px 0">
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9650849142271502" data-ad-slot="6294295879" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script> (adsbygoogle=window.adsbygoogle||[]).push({}); </script>
+</div>
+<p class="message"><strong>Рекомендуем почитать:</strong><br>
+<a href="https://largescalejs.ru/go/labirint">Книги по JavaScript на ЛАБИРИНТ</a><br><br>
+<strong>Рекомендуем курс:</strong><br>
+<a href="https://largescalejs.ru/go/udemy-fundamental-js">Фундаментальный JavaScript. С практикой и проектами</a><br>
+</p>
+<div class="prevnext">
+<div class="prevnext__previous">
+<small><span class="prevnext__previous-arrow">←</span><a rel="prev" href="https://largescalejs.ru/module-theory/">Глава 5. Теория модулей</a></small>
+</div>
+<div class="prevnext__next">
+<small><span class="prevnext__next-arrow">→</span><a rel="next" href="https://largescalejs.ru/object-literal-notation/">Глава 7. Литеральная нотация объектов</a></small>
+</div>
+</div>
+</div>
+<div class="footer">
+<p>Перевод: <a class="ignore-visited" href="http://shuvalov.info" target="_blank">Антон Шувалов</a>.
+Помощь в переводе: <a class="ignore-visited" href="https://twitter.com/iamstarkov" target="_blank">Владимир Старков</a>, Рахим Давлеткалиев.
+<a class="ignore-visited" href="https://github.com/shuvalov-anton/largescaleJS_ru/graphs/contributors" target="_blank">Все участники</a>.</p>
+<p class="license">Содержимое доступно по лицензии <a class="ignore-visited" rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.en_US" target="_blank">CC BY 4.0</a></p>
+</div>
+</div>
+<script>
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
+ym(85598698,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/85598698" style="position:absolute;left:-9999px" alt=""></div></noscript>
+</body>
+</html>
