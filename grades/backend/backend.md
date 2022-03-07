@@ -1148,7 +1148,7 @@ Misc
 
 Theory  
 Принципы разработки: GRASP  
-[GRASP - General Responsibility Assignment Software Patterns](http://phpforum.su/index.php?showtopic=87687)
+[GRASP - General Responsibility Assignment Software Patterns](http://phpforum.su/index.php?showtopic=87687)  
 [ООП для ООП: GRASP](https://habr.com/ru/post/38323/)  
 
 Domain Driven Design
@@ -1156,7 +1156,7 @@ Domain Driven Design
 
 DDD Inversion of Control  
 
-***f
+***
 
 Language  
 Реализация GRASP
