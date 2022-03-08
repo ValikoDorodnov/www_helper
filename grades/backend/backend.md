@@ -25,7 +25,7 @@
         * [Грейд 11](#Грейд-11) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade11.md)  
         * [Грейд 12](#Грейд-12) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade12.md) [Практика](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/overview.md)
         * [Грейд 13](#Грейд-13) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade13.md)
-        * [Грейд 14](#Грейд-14) :arrows_counterclockwise: 7/12
+        * [Грейд 14](#Грейд-14) :arrows_counterclockwise: 7/12 [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade14.md)
         * [Грейд 15](#Грейд-15) :arrows_counterclockwise: 8/10
         * [Грейд 16](#Грейд-16) :arrows_counterclockwise: 6/9
  
@@ -1162,8 +1162,8 @@ Language
 Реализация GRASP
 
 Value Object DTO POCO
-[DTO vs POCO vs Value Object](https://habr.com/ru/post/268371/)
-[Наглядный пример различия DTO, POCO POJO и Value Object](https://ru.stackoverflow.com/questions/456623/%D0%9D%D0%B0%D0%B3%D0%BB%D1%8F%D0%B4%D0%BD%D1%8B%D0%B9-%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80-%D1%80%D0%B0%D0%B7%D0%BB%D0%B8%D1%87%D0%B8%D1%8F-dto-poco-pojo-%D0%B8-value-object)
+[DTO vs POCO vs Value Object](https://habr.com/ru/post/268371/)  
+[Наглядный пример различия DTO, POCO POJO и Value Object](https://ru.stackoverflow.com/questions/456623/%D0%9D%D0%B0%D0%B3%D0%BB%D1%8F%D0%B4%D0%BD%D1%8B%D0%B9-%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80-%D1%80%D0%B0%D0%B7%D0%BB%D0%B8%D1%87%D0%B8%D1%8F-dto-poco-pojo-%D0%B8-value-object)  
 DDD: DI  
 
 ***
