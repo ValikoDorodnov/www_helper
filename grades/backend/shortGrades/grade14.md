@@ -124,7 +124,7 @@ IoC-контейнер — это какая-то библиотека, фрей
 
 ### Framework
 
-### Yii2 Реализация DI
+#### Yii2 Реализация DI
 
 Yii обеспечивает функционал контейнера внедрения зависимостей через класс yii\di\Container. Он поддерживает следующие виды внедрения зависимостей:
 - Внедрение зависимости через конструктор;
@@ -157,3 +157,89 @@ $tester->test();
 $tester = Yii::$app->get('tester'); // Должен быть указан в config['components']
 $tester->test();
 ```
+
+
+### Storage
+
+#### Хранимые процедуры
+Объект базы данных, представляющий собой набор SQL-инструкций, который компилируется один раз и хранится на  
+сервере. Хранимые процедуры очень похожи на обыкновенные процедуры языков высокого уровня, у них могут быть  
+входные и выходные параметры и локальные переменные, в них могут производиться числовые вычисления и операции над  
+символьными данными, результаты которых могут присваиваться переменным и параметрам.  
+
+Команда CREATE FUNCTION определяет новую функцию. CREATE OR REPLACE FUNCTION создаёт новую функцию, либо  
+заменяет определение уже существующей. Чтобы определить функцию, необходимо иметь право USAGE для соответствующего  
+языка.  
+
+Имя новой функции должно отличаться от имён существующих функций с такими же типами аргументов в этой схеме.  
+Однако функции с аргументами разных типов могут иметь одно имя (это называется перегрузкой).  
+
+```sql
+Create or replace function generate_random_string(length integer) returns text as
+            $$
+            declare
+                chars text[] := '{0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z}';
+                result text := '';
+                i integer := 0;
+            begin
+                if length < 0 then
+                    raise exception 'Given length cannot be less than 0';
+                end if;
+                for i in 1..length loop
+                        result := result || chars[1+random()*(array_length(chars, 1)-1)];
+                    end loop;
+                return result;
+            end;
+            $$ language plpgsql;
+
+INSERT INTO promotion_promocode_storage (promotion_id, promotion_type_id, promocode)
+select 189, 1, upper(generate_random_string(10))
+from generate_series(1, 100000);
+```
+
+
+### DB
+
+#### PostgreSQL CTE
+WITH предоставляет способ записывать дополнительные операторы для применения в больших запросах. Эти операторы,  
+которые также называют общими табличными выражениями (Common Table Expressions, CTE), можно представить как  
+определения временных таблиц, существующих только для одного запроса. Дополнительным оператором в предложении WITH  
+может быть SELECT, INSERT, UPDATE или DELETE, а само предложение WITH присоединяется к основному оператору, которым  
+также может быть SELECT, INSERT, UPDATE или DELETE.  
+
+```sql
+WITH regional_sales AS (
+    SELECT region, SUM(amount) AS total_sales
+    FROM orders
+    GROUP BY region
+   ), top_regions AS (
+    SELECT region
+    FROM regional_sales
+    WHERE total_sales > (SELECT SUM(total_sales)/10 FROM regional_sales)
+   )
+SELECT region,
+   product,
+   SUM(quantity) AS product_units,
+   SUM(amount) AS product_sales
+FROM orders
+WHERE region IN (SELECT region FROM top_regions)
+GROUP BY region, product;
+```
+
+Необязательное указание RECURSIVE превращает WITH из просто удобной синтаксической конструкции в средство реализации  
+того, что невозможно в стандартном SQL. Используя RECURSIVE, запрос WITH может обращаться к собственному результату.  
+Очень простой пример, суммирующий числа от 1 до 100:  
+
+```sql
+WITH RECURSIVE t(n) AS (
+    VALUES (1)
+  UNION ALL
+    SELECT n+1 FROM t WHERE n < 100
+)
+SELECT sum(n) FROM t;
+```
+
+Отличие CTE от Sub-Query
+ - к результату CTE можно обращаться несколько раз
+ - CTE может иметь рекурсивный вызов
+ - В некоторых случаях более удобное визуальньное воприятие
