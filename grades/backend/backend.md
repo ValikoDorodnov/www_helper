@@ -25,17 +25,17 @@
         * [Грейд 11](#Грейд-11) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade11.md)  
         * [Грейд 12](#Грейд-12) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade12.md) [Практика](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/overview.md)
         * [Грейд 13](#Грейд-13) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade13.md)
-        * [Грейд 14](#Грейд-14) :arrows_counterclockwise: 7/12 [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade14.md)
+        * [Грейд 14](#Грейд-14) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade14.md)
         * [Грейд 15](#Грейд-15) :arrows_counterclockwise: 8/10
         * [Грейд 16](#Грейд-16) :arrows_counterclockwise: 6/9
  
  
 ## Грейды
 
-### Грейды 1-5 
-**[⬆ вернуться к началу](#Разделы)**
+### Грейды 1-5
 
 #### Грейд 1
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory  
 [Понятие о логике](https://ru.wikipedia.org/wiki/%D0%9B%D0%BE%D0%B3%D0%B8%D0%BA%D0%B0)  
@@ -107,6 +107,7 @@ Misc
 - Составить регулярные выражения
 
 #### Грейд 2
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory  
 [Цикл разработки web‑приложений](https://m.habr.com/ru/post/458336/)  
@@ -185,6 +186,7 @@ DNS URI URL URN
 - git: Работать с удалёнными репозиториями
 
 #### Грейд 3
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory  
 [Теория множеств](https://ru.wikipedia.org/wiki/%D0%A2%D0%B5%D0%BE%D1%80%D0%B8%D1%8F_%D0%BC%D0%BD%D0%BE%D0%B6%D0%B5%D1%81%D1%82%D0%B2)  
@@ -271,6 +273,7 @@ Misc
 - git: Произвести операции отмены изменений
 
 #### Грейд 4
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory   
 [Основы информационной безопасности](https://m.habr.com/ru/company/vps_house/blog/343110/)  
@@ -352,6 +355,7 @@ Misc
 - Отладить код разными способами
 
 #### Грейд 5
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory  
 [Чистые функции](https://ru.hexlet.io/courses/introduction_to_programming/lessons/pure/theory_unit)  
@@ -445,10 +449,10 @@ Misc
 - git: Использовать возможности "прятать" изменения
 - git: Использовать возможности просматривать разницу
 
-### Грейды 6-10 
-**[⬆ вернуться к началу](#Разделы)**
+### Грейды 6-10
 
 #### Грейд 6
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory  
 [Минификация и обфускация кода](https://drupal.ru/node/19060)  
@@ -547,6 +551,7 @@ Misc
 - git: Использовать перебазирование и cherry-pick
 
 #### Грейд 7
+**[⬆ вернуться к началу](#Разделы)**
 
 ***
 Theory  
@@ -646,6 +651,7 @@ Misc
 - Postman: Выполнять запросы выборки и изменения данных
 
 #### Грейд 8
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory  
 Понятие о паттерне MVC  
@@ -737,6 +743,7 @@ Misc
 - git: Выполнить отмену слияний разными способами
 
 #### Грейд 9
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory  
 [Паттерны проектирования: структурные](https://refactoring.guru/ru/design-patterns/structural-patterns)  
@@ -828,6 +835,7 @@ Docker
 - Развернуть и настроить локальное рабочее окружение на базе образов Docker
 
 #### Грейд 10
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory  
 [Паттерны проектирования: поведенческие](https://refactoring.guru/ru/design-patterns/behavioral-patterns)  
@@ -911,10 +919,10 @@ Code-review
 - Redis: Управлять хранением данных
 - Выполнить code-review
 
-### Грейды 11-16 
-**[⬆ вернуться к началу](#Разделы)**
+### Грейды 11-16
 
 #### Грейд 11
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory  
 JWT  
@@ -1003,6 +1011,7 @@ Docker: оптимизация сборки
 - iptables: Управлять видимостью портов компонентов web-сервера
 
 #### Грейд 12
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory  
 [Двухфакторная аутентификация](https://www.kaspersky.ru/blog/what_is_two_factor_authenticatio/4272/)  
@@ -1077,6 +1086,7 @@ Misc
 ***
 
 #### Грейд 13
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory  
 [Микросервисная архитектура](https://habr.com/ru/post/249183/)  
@@ -1145,6 +1155,7 @@ Misc
 - JS: Использовать Fetch API для получения данных
 
 #### Грейд 14
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory  
 Принципы разработки: GRASP  
@@ -1192,6 +1203,7 @@ Frontend
 node.js  
 [Всё что вам нужно знать о Node.js](https://habr.com/ru/post/460661/)  
 [Что такое Node JS. Начало работы](https://metanit.com/web/nodejs/1.1.php)  
+[Всегда ли Node.js будет медленнее, чем Golang?](https://habr.com/ru/company/ruvds/blog/439976/)  
 
 ***
 
@@ -1214,6 +1226,7 @@ Misc
 - node.js: Написать скрипт вывода содержимого папки со всеми вложениями
 
 #### Грейд 15
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory  
 Функциональное программирование  
@@ -1280,6 +1293,7 @@ Misc
 - Очереди: Организовать взаимодействие между проектами
 
 #### Грейд 16
+**[⬆ вернуться к началу](#Разделы)**
 
 Theory  
 Многопоточность  
