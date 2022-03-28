@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Микросервисные паттерны проектирования / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/piter\/blog\/275633\/"},"headline":"Микросервисные паттерны проектирования","datePublished":"2016-01-21T16:44:10+03:00","dateModified":"2018-09-17T19:31:08+03:00","author":{"@type":"Person","name":"ph_piter"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Здравствуйте, Хабр!  В ближайшее время читайте пост о русском переводе долгожданной книги &quot;Создание Микросервисов&quot; Сэма Ньюмена, которая уже отправилась в магази...","url":"https:\/\/habr.com\/ru\/company\/piter\/blog\/275633\/#post-content-body","about":["c_piter","h_programming","h_refactoring","h_microservices","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/275633\/c0a5be9f93797692312623297e13a4e6\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Микросервисные паттерны проектирования" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Микросервисные паттерны проектирования" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Микросервисные паттерны проектирования" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Здравствуйте, Хабр!
+
+В ближайшее время читайте пост о русском переводе долгожданной книги &amp;quot;Создание Микросервисов&amp;quot; Сэма Ньюмена, которая уже отправилась в магазины. Пока же мы предлагаем почитать..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Здравствуйте, Хабр!
+
+В ближайшее время читайте пост о русском переводе долгожданной книги &amp;quot;Создание Микросервисов&amp;quot; Сэма Ньюмена, которая уже отправилась в магазины. Пока же мы предлагаем почитать..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Здравствуйте, Хабр!
+
+В ближайшее время читайте пост о русском переводе долгожданной книги &amp;quot;Создание Микросервисов&amp;quot; Сэма Ньюмена, которая уже отправилась в магазины. Пока же мы предлагаем почитать..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Здравствуйте, Хабр!
+
+В ближайшее время читайте пост о русском переводе долгожданной книги &amp;quot;Создание Микросервисов&amp;quot; Сэма Ньюмена, которая уже отправилась в магазины. Пока же мы предлагаем почитать..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Здравствуйте, Хабр!
+
+В ближайшее время читайте пост о русском переводе долгожданной книги &amp;quot;Создание Микросервисов&amp;quot; Сэма Ньюмена, которая уже отправилась в магазины. Пока же мы предлагаем почитать..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/275633/c0a5be9f93797692312623297e13a4e6/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/275633/c0a5be9f93797692312623297e13a4e6/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/275633/c0a5be9f93797692312623297e13a4e6/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/275633/c0a5be9f93797692312623297e13a4e6/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/275633/c0a5be9f93797692312623297e13a4e6/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="275633" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2016-01-21T13:44:10.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/piter/blog/275633/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="микросервисы, паттерны проектирования, rest, messaging, scalability, книги">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/275633/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.122.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/275633/c0a5be9f93797692312623297e13a4e6/" data-vmid="image:href"><link data-vue-meta="ssr" rel="amphtml" href="https://habr.com/ru/amp/post/275633/">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="piter" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><!----></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/piter/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/e4d/50a/630/e4d50a630923dbf6e6b786d26b9da6d7.png" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">164.6</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/piter/profile/" class="tm-company-card__name">
+      Издательский дом «Питер»
+    </a> <div class="tm-company-card__description"></div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/ph_piter/" title="ph_piter" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/3be/b11/2b0/3beb112b076924a916b27c845d88dcfa.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/ph_piter/" class="tm-user-info__username">
+      ph_piter
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2016-01-21T13:44:10.000Z" title="2016-01-21, 16:44">21  января  2016 в 16:44</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Микросервисные паттерны проектирования</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/piter/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании Издательский дом «Питер»</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/programming/" class="tm-article-snippet__hubs-item-link"><span>Программирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/refactoring/" class="tm-article-snippet__hubs-item-link"><span>Проектирование и рефакторинг</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/microservices/" class="tm-article-snippet__hubs-item-link"><span>Микросервисы</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-translation"><span>
+        Перевод
+      </span></div></div> <!----> <!----></div></div> <div class="tm-article-presenter__origin"><a href="http://blog.arungupta.me/microservice-design-patterns/" target="_blank" class="tm-article-presenter__origin-link">
+                Автор оригинала:
+                <span>
+                  Arun Gupta
+                </span></a></div> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">Здравствуйте, Хабр!<br/>
+<br/>
+В ближайшее время читайте пост о русском переводе долгожданной книги "<a href="http://www.piter.com/product_by_id/51778339">Создание Микросервисов</a>" Сэма Ньюмена, которая уже отправилась в магазины. Пока же мы предлагаем почитать перевод статьи Аруна Гупты, автор которой описывает самые интересные паттерны проектирования, применимые в микросервисной архитектуре<br/>
+<a name="habracut"></a><br/>
+<br/>
+Основные характеристики микросервисных приложений описаны в статье "<a href="http://blog.arungupta.me/microservices-monoliths-noops/">Microservices, Monoliths and NoOps</a>". Эти характеристики – функциональная декомпозиция или предметно-ориентированное проектирование, четко определенные интерфейсы, явно публикуемый интерфейс, принцип единственной обязанности и потенциальная многоязычность. Каждый сервис полностью автономный и полностековый. Соответственно, изменение реализации одного сервиса никак не сказывается на остальных, а обмен информацией происходит через четко определенные интерфейсы. У такого приложения есть ряд преимуществ, но они <a href="http://highscalability.com/blog/2014/4/8/microservices-not-a-free-lunch.html">даром не даются</a>, а требуют серьезной работы, связанной с NoOps.<br/>
+<br/>
+Но предположим, что вы представляете себе масштаб этой работы, хотя бы частично, что вы действительно хотите создать такое приложение и посмотреть, что получится. Что же делать? Какова будет архитектура такого приложения? <br/>
+Существуют ли паттерны проектирования, оптимизирующие взаимодействие микросервисов? <br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/files/710/547/32a/71054732a3c34fce82a1baafb7986ca8.png" data-src="https://habrastorage.org/files/710/547/32a/71054732a3c34fce82a1baafb7986ca8.png"/><br/>
+<br/>
+Для создания качественной микросервисной архитектуры необходимо четко разделить функции в вашем приложении и команде. Так можно достичь слабого связывания (REST-интерфейсы) и сильного сцепления (множество сервисов могут компоноваться вместе, определяя более высокоуровневые сервисы или приложение).<br/>
+<br/>
+Создание «глаголов» (напр. Checkout) или «существительных» (Product) в составе приложения — один из эффективных способов декомпозиции имеющегося кода. Например, product, catalog и checkout могут быть реализованы как три отдельных микросервиса, а затем взаимодействовать друг с другом, обеспечивая полный функционал корзины заказов. <br/>
+<br/>
+Функциональная декомпозиция обеспечивает гибкость, масштабируемость и прочие -ости, но наша задача – создать приложение. Итак, если отдельные микросервисы идентичны, как же скомпоновать их для реализации функционала приложения? <br/>
+<br/>
+Об этом и пойдет речь в статье<br/>
+<br/>
+<b>Паттерн Агрегатор (Aggregator)</b><br/>
+<br/>
+Первый и, пожалуй, наиболее распространенный паттерн проектирования при работе с микросервисами — «агрегатор». <br/>
+<br/>
+В простейшей форме агрегатор представляет собой обычную веб-страницу, вызывающую множество сервисов для реализации функционала, требуемого в приложении. Поскольку все сервисы (Service A, Service B и Service C) предоставляются при помощи легковесного REST-механизма, веб-страница может извлечь данные и обработать/отобразить их как нужно. Если требуется какая-либо обработка, например, применить бизнес-логику к данным, полученным от отдельных сервисов, то для этого у вас может быть CDI-компонент, преобразующий данные таким образом, чтобы их можно было вывести на веб-странице. <br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/files/094/0e1/d15/0940e1d1593b4254baed594640a051b9.png" data-src="https://habrastorage.org/files/094/0e1/d15/0940e1d1593b4254baed594640a051b9.png"/> <br/>
+<br/>
+Агрегатор может использоваться и в тех случаях, когда не требуется ничего отображать, а нужен лишь более высокоуровневый составной микросервис, который могут потреблять другие сервисы. В данном случае агрегатор просто соберет данные от всех отдельных микросервисов, применит к ним бизнес-логику, а далее опубликует микросервис как конечную точку REST. В таком случае, при необходимости, его смогут потреблять другие нуждающиеся в нем сервисы. <br/>
+<br/>
+Этот паттерн следует принципу DRY. Если существует множество сервисов, которые должны обращаться к сервисам A, B и C, то рекомендуется абстрагировать эту логику в составной микросервис и агрегировать ее в виде отдельного сервиса. Преимущество абстрагирования на этом уровне заключается в том, что отдельные сервисы, скажем, A, B и C, могут развиваться независимо, а бизнес-логику будет по-прежнему выполнять составной микросервис. <br/>
+<br/>
+Обратите внимание: каждый отдельный микросервис (опционально) имеет собственные уровни кэширования и базы данных. Если агрегатор – это составной микросервис, то и у него могут быть такие уровни. <br/>
+<br/>
+Агрегатор также может независимо масштабироваться как по горизонтали, так и по вертикали. То есть, если речь идет о веб-странице, то к ней можно прикрутить дополнительные веб-серверы, а если это составной микросервис, использующий Java EE, то к нему прикручиваются дополнительные экземпляры WildFly, позволяющие удовлетворить растущие потребности.<br/>
+<br/>
+<b>Паттерн Посредник (Proxy)</b><br/>
+<br/>
+Паттерн «посредник» при работе с микросервисами – это вариант агрегатора. В таком случае агрегация должна происходить на клиенте, но в зависимости от бизнес-требований при этом может вызываться дополнительный микросервис.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/files/a5e/699/6d1/a5e6996d11e544ea8ebf48f6cddfe906.png" data-src="https://habrastorage.org/files/a5e/699/6d1/a5e6996d11e544ea8ebf48f6cddfe906.png"/> <br/>
+ <br/>
+Как и агрегатор, посредник может независимо масштабироваться по горизонтали и по вертикали. Это может понадобиться в ситуации, когда каждый отдельный сервис нужно не предоставлять потребителю, а запускать через интерфейс.<br/>
+<br/>
+Посредник может быть <i>формальным</i> (dumb), в таком случае он просто делегирует запрос одному из сервисов. Он может быть и <i>интеллектуальным</i> (smart), в таком случае данные перед отправкой клиенту подвергаются тем или иным преобразованиям. Например, уровень представления для различных устройств может быть инкапсулирован в интеллектуальный посредник.<br/>
+<br/>
+<b>Паттерн проектирования «Цепочка» (Chained)</b><br/>
+<br/>
+Микросервисный паттерн проектирования «Цепочка» выдает единый консолидированный ответ на запрос. В данном случае сервис A получает запрос от клиента, связывается с сервисом B, который, в свою очередь, может связаться с сервисом C. Все эти сервисы, скорее всего, будут обмениваться синхронными сообщениями «запрос/отклик» по протоколу HTTP.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/files/876/605/0f5/8766050f52f84c328a48201c495b94e3.png" data-src="https://habrastorage.org/files/876/605/0f5/8766050f52f84c328a48201c495b94e3.png"/><br/>
+ <br/>
+Здесь важнее всего запомнить, что клиент блокируется до тех пор, пока не выполнится вся коммуникационная цепочка запросов и откликов, т.е. Service &lt;-> Service B и Service B &lt;-> Service C. Запрос от Service B к Service C может выглядеть совершенно иначе, нежели от Service A к Service B. Аналогично, отклик от Service B к Service A может принципиально отличаться от отклика Service C к Service B. Это наиболее важно во всех случаях, когда бизнес-ценность нескольких сервисов суммируется. <br/>
+<br/>
+Здесь также важно понять, что нельзя делать цепочку слишком длинной. Это критично, поскольку цепочка синхронна по своей природе, и чем она длиннее, тем дольше придется ожидать клиенту, особенно если отклик заключается в выводе веб-страницы на экран. Существуют способы обойти такой блокирующий механизм запросов и откликов, и они рассматриваются в следующем паттерне.<br/>
+<br/>
+Цепочка, состоящая из единственного микросервиса, называется «цепочка-одиночка». Впоследствии ее можно расширить.<br/>
+<br/>
+<b>Паттерн проектирования «Ветка» (Branch)</b><br/>
+<br/>
+Микросервисный паттерн проектирования «Ветка» расширяет паттерн «Агрегатор» и обеспечивает одновременную обработку откликов от двух цепочек микросервисов, которые могут быть взаимоисключающими. Этот паттерн также может применяться для вызова различных цепочек, либо одной и той же цепочки – в зависимости от ваших потребностей. <br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/files/173/257/bca/173257bcaed04d97831a0691ec0c37ca.png" data-src="https://habrastorage.org/files/173/257/bca/173257bcaed04d97831a0691ec0c37ca.png"/> <br/>
+<br/>
+Сервис A, будь то веб-страница или составной микросервис, может конкурентно вызывать две различные цепочки – и в этом случае будет напоминать агрегатор. В другом случае сервис А может вызывать лишь одну цепочку в зависимости от того, какой запрос получит от клиента. <br/>
+<br/>
+Такой механизм можно сконфигурировать, реализовав маршрутизацию конечных точек JAX-RS, в таком случае конфигурация должна быть динамической. <br/>
+<br/>
+<b>Паттерн «Разделяемые данные» (Shared Data)</b><br/>
+<br/>
+Один из принципов проектирования микросервисов – автономность. Это означает, что сервис полностековый и контролирует все компоненты – пользовательский интерфейс, промежуточное ПО, сохраняемость, транзакции. В таком случае сервис может быть многоязычным и решать каждую задачу при помощи наиболее подходящих инструментов. Например, если при необходимости можно применить хранилище данных NoSQL, то лучше сделать именно так, а не забивать эту информацию в базу данных SQL.<br/>
+<br/>
+Однако, типичная проблема, особенно при рефакторинге имеющегося монолитного приложения, связана с нормализацией базы данных — так, чтобы у каждого микросервиса был строго определенный объем информации, ни больше, ни меньше. Даже если в монолитном приложении используется только база данных SQL, ее денормализация приводит к дублированию данных, а возможно – и к несогласованности. На переходном этапе в некоторых приложениях бывает очень полезно применить паттерн «Разделяемые данные». <br/>
+<br/>
+При этом паттерне несколько микросервисов могут работать о цепочке и совместно использовать хранилища кэша и базы данных. Это целесообразно лишь в случае, если между двумя сервисами существует сильная связь. Некоторые могут усматривать в этом антипаттерн, но в некоторых бизнес-ситуациях такой шаблон действительно уместен. Он определенно был бы антипаттерном в приложении, которое изначально создается как микросервисное. <br/>
+ <br/>
+<img src="https://habrastorage.org/r/w1560/files/3b0/6e8/f29/3b06e8f29f9f4a78a09e8afff9c79935.png" data-src="https://habrastorage.org/files/3b0/6e8/f29/3b06e8f29f9f4a78a09e8afff9c79935.png"/><br/>
+<br/>
+Кроме того, его можно рассматривать как промежуточный этап, который нужно преодолеть, пока микросервисы не станут полностью автономными. <br/>
+<br/>
+<b>Паттерн «Асинхронные сообщения» (Asynchronous Messaging)</b><br/>
+<br/>
+При всей распространенности и понятности паттерна REST, у него есть важное ограничение, а именно: он синхронный и, следовательно, блокирующий. Обеспечить асинхронность можно, но это делается по-своему в каждом приложении. Поэтому в некоторых микросервисных архитектурах могут использоваться очереди сообщений, а не модель REST запрос/отклик. <br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/files/bec/4a4/2ec/bec4a42ec9d7476f90c7f8047957c87c.png" data-src="https://habrastorage.org/files/bec/4a4/2ec/bec4a42ec9d7476f90c7f8047957c87c.png"/><br/>
+ <br/>
+В этом паттерне сервис А может синхронно вызывать сервис C, который затем будет асинхронно связываться с сервисами B и В при помощи разделяемой очереди сообщений. Коммуникация Service A -> Service C может быть асинхронной, скажем, с использованием веб-сокетов; так достигается желаемая масштабируемость.<br/>
+Комбинация модели REST запрос/отклик и обмена сообщениями публикатор/подписчик также могут использоваться для достижения поставленных целей.<br/>
+<br/>
+Рекомендую также прочитать статью <a href="https://www.voxxed.com/blog/2015/04/coupling-versus-autonomy-in-microservices/">Coupling vs Autonomy in Microservices</a>, в которой описано, какие паттерны коммуникации удобно применять с микросервисами.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BC%D0%B8%D0%BA%D1%80%D0%BE%D1%81%D0%B5%D1%80%D0%B2%D0%B8%D1%81%D1%8B%5D" class="tm-tags-list__link">микросервисы</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BF%D0%B0%D1%82%D1%82%D0%B5%D1%80%D0%BD%D1%8B%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%5D" class="tm-tags-list__link">паттерны проектирования</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Brest%5D" class="tm-tags-list__link">rest</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bmessaging%5D" class="tm-tags-list__link">messaging</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bscalability%5D" class="tm-tags-list__link">scalability</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BA%D0%BD%D0%B8%D0%B3%D0%B8%5D" class="tm-tags-list__link">книги</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/piter/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании Издательский дом «Питер»
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/programming/" class="tm-hubs-list__link">
+    Программирование
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/refactoring/" class="tm-hubs-list__link">
+    Проектирование и рефакторинг
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/microservices/" class="tm-hubs-list__link">
+    Микросервисы
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 20: ↑19 и ↓1</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 20: ↑19 и ↓1" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+18</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">64K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    432
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/piter/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/e4d/50a/630/e4d50a630923dbf6e6b786d26b9da6d7.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/piter/profile/" class="tm-company-snippet__title">Издательский дом «Питер»</a> <div class="tm-company-snippet__description">Компания</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="http://piter.com" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Сайт
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/ph_piter/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/3be/b11/2b0/3beb112b076924a916b27c845d88dcfa.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 555 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    263
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">70.4</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><!----> <a href="https://habr.com/ru/users/ph_piter/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @ph_piter
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/piter/blog/275633/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 7 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="1991-09-04T21:00:00.000Z" title="1991-09-05, 00:00">5  сентября  1991</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="http://piter.com/" target="_blank" class="tm-company-basic-info__link">
+      piter.com
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    201–500 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2012-08-15T08:08:48.000Z" title="2012-08-15, 12:08">15  августа  2012</time></dd></dl> <!----></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/piter/blog/275633/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/piter/blog/275633/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"275633":{"id":"275633","timePublished":"2016-01-21T13:44:10+00:00","isCorporative":true,"lang":"ru","titleHtml":"Микросервисные паттерны проектирования","leadData":{"textHtml":"Здравствуйте, Хабр!\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nВ ближайшее время читайте пост о русском переводе долгожданной книги \"\u003Ca href=\"http:\u002F\u002Fwww.piter.com\u002Fproduct_by_id\u002F51778339\"\u003EСоздание Микросервисов\u003C\u002Fa\u003E\" Сэма Ньюмена, которая уже отправилась в магазины. Пока же мы предлагаем почитать перевод статьи Аруна Гупты, автор которой описывает самые интересные паттерны проектирования, применимые в микросервисной архитектуре\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"translation","data":{"originalAuthorName":"Arun Gupta","originalUrl":"http:\u002F\u002Fblog.arungupta.me\u002Fmicroservice-design-patterns\u002F"}}],"author":{"scoreStats":{"score":263,"votesCount":555},"rating":70.4,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"224938","alias":"ph_piter","fullname":null,"avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F3be\u002Fb11\u002F2b0\u002F3beb112b076924a916b27c845d88dcfa.jpg","speciality":null},"statistics":{"commentsCount":7,"favoritesCount":432,"readingCount":64499,"score":18,"votesCount":20},"hubs":[{"relatedData":null,"id":"17823","alias":"piter","type":"corporative","title":"Блог компании Издательский дом «Питер»","titleHtml":"Блог компании Издательский дом «Питер»","isProfiled":false},{"relatedData":null,"id":"359","alias":"programming","type":"collective","title":"Программирование","titleHtml":"Программирование","isProfiled":true},{"relatedData":null,"id":"7504","alias":"refactoring","type":"collective","title":"Проектирование и рефакторинг","titleHtml":"Проектирование и рефакторинг","isProfiled":true},{"relatedData":null,"id":"22115","alias":"microservices","type":"collective","title":"Микросервисы","titleHtml":"Микросервисы","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EЗдравствуйте, Хабр!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ ближайшее время читайте пост о русском переводе долгожданной книги \"\u003Ca href=\"http:\u002F\u002Fwww.piter.com\u002Fproduct_by_id\u002F51778339\"\u003EСоздание Микросервисов\u003C\u002Fa\u003E\" Сэма Ньюмена, которая уже отправилась в магазины. Пока же мы предлагаем почитать перевод статьи Аруна Гупты, автор которой описывает самые интересные паттерны проектирования, применимые в микросервисной архитектуре\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОсновные характеристики микросервисных приложений описаны в статье \"\u003Ca href=\"http:\u002F\u002Fblog.arungupta.me\u002Fmicroservices-monoliths-noops\u002F\"\u003EMicroservices, Monoliths and NoOps\u003C\u002Fa\u003E\". Эти характеристики – функциональная декомпозиция или предметно-ориентированное проектирование, четко определенные интерфейсы, явно публикуемый интерфейс, принцип единственной обязанности и потенциальная многоязычность. Каждый сервис полностью автономный и полностековый. Соответственно, изменение реализации одного сервиса никак не сказывается на остальных, а обмен информацией происходит через четко определенные интерфейсы. У такого приложения есть ряд преимуществ, но они \u003Ca href=\"http:\u002F\u002Fhighscalability.com\u002Fblog\u002F2014\u002F4\u002F8\u002Fmicroservices-not-a-free-lunch.html\"\u003Eдаром не даются\u003C\u002Fa\u003E, а требуют серьезной работы, связанной с NoOps.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо предположим, что вы представляете себе масштаб этой работы, хотя бы частично, что вы действительно хотите создать такое приложение и посмотреть, что получится. Что же делать? Какова будет архитектура такого приложения? \u003Cbr\u002F\u003E\r\nСуществуют ли паттерны проектирования, оптимизирующие взаимодействие микросервисов? \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F710\u002F547\u002F32a\u002F71054732a3c34fce82a1baafb7986ca8.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F710\u002F547\u002F32a\u002F71054732a3c34fce82a1baafb7986ca8.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля создания качественной микросервисной архитектуры необходимо четко разделить функции в вашем приложении и команде. Так можно достичь слабого связывания (REST-интерфейсы) и сильного сцепления (множество сервисов могут компоноваться вместе, определяя более высокоуровневые сервисы или приложение).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСоздание «глаголов» (напр. Checkout) или «существительных» (Product) в составе приложения — один из эффективных способов декомпозиции имеющегося кода. Например, product, catalog и checkout могут быть реализованы как три отдельных микросервиса, а затем взаимодействовать друг с другом, обеспечивая полный функционал корзины заказов. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nФункциональная декомпозиция обеспечивает гибкость, масштабируемость и прочие -ости, но наша задача – создать приложение. Итак, если отдельные микросервисы идентичны, как же скомпоновать их для реализации функционала приложения? \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОб этом и пойдет речь в статье\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EПаттерн Агрегатор (Aggregator)\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПервый и, пожалуй, наиболее распространенный паттерн проектирования при работе с микросервисами — «агрегатор». \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ простейшей форме агрегатор представляет собой обычную веб-страницу, вызывающую множество сервисов для реализации функционала, требуемого в приложении. Поскольку все сервисы (Service A, Service B и Service C) предоставляются при помощи легковесного REST-механизма, веб-страница может извлечь данные и обработать\u002Fотобразить их как нужно. Если требуется какая-либо обработка, например, применить бизнес-логику к данным, полученным от отдельных сервисов, то для этого у вас может быть CDI-компонент, преобразующий данные таким образом, чтобы их можно было вывести на веб-странице. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F094\u002F0e1\u002Fd15\u002F0940e1d1593b4254baed594640a051b9.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F094\u002F0e1\u002Fd15\u002F0940e1d1593b4254baed594640a051b9.png\"\u002F\u003E \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nАгрегатор может использоваться и в тех случаях, когда не требуется ничего отображать, а нужен лишь более высокоуровневый составной микросервис, который могут потреблять другие сервисы. В данном случае агрегатор просто соберет данные от всех отдельных микросервисов, применит к ним бизнес-логику, а далее опубликует микросервис как конечную точку REST. В таком случае, при необходимости, его смогут потреблять другие нуждающиеся в нем сервисы. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭтот паттерн следует принципу DRY. Если существует множество сервисов, которые должны обращаться к сервисам A, B и C, то рекомендуется абстрагировать эту логику в составной микросервис и агрегировать ее в виде отдельного сервиса. Преимущество абстрагирования на этом уровне заключается в том, что отдельные сервисы, скажем, A, B и C, могут развиваться независимо, а бизнес-логику будет по-прежнему выполнять составной микросервис. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОбратите внимание: каждый отдельный микросервис (опционально) имеет собственные уровни кэширования и базы данных. Если агрегатор – это составной микросервис, то и у него могут быть такие уровни. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nАгрегатор также может независимо масштабироваться как по горизонтали, так и по вертикали. То есть, если речь идет о веб-странице, то к ней можно прикрутить дополнительные веб-серверы, а если это составной микросервис, использующий Java EE, то к нему прикручиваются дополнительные экземпляры WildFly, позволяющие удовлетворить растущие потребности.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EПаттерн Посредник (Proxy)\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПаттерн «посредник» при работе с микросервисами – это вариант агрегатора. В таком случае агрегация должна происходить на клиенте, но в зависимости от бизнес-требований при этом может вызываться дополнительный микросервис.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002Fa5e\u002F699\u002F6d1\u002Fa5e6996d11e544ea8ebf48f6cddfe906.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002Fa5e\u002F699\u002F6d1\u002Fa5e6996d11e544ea8ebf48f6cddfe906.png\"\u002F\u003E \u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\nКак и агрегатор, посредник может независимо масштабироваться по горизонтали и по вертикали. Это может понадобиться в ситуации, когда каждый отдельный сервис нужно не предоставлять потребителю, а запускать через интерфейс.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПосредник может быть \u003Ci\u003Eформальным\u003C\u002Fi\u003E (dumb), в таком случае он просто делегирует запрос одному из сервисов. Он может быть и \u003Ci\u003Eинтеллектуальным\u003C\u002Fi\u003E (smart), в таком случае данные перед отправкой клиенту подвергаются тем или иным преобразованиям. Например, уровень представления для различных устройств может быть инкапсулирован в интеллектуальный посредник.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EПаттерн проектирования «Цепочка» (Chained)\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМикросервисный паттерн проектирования «Цепочка» выдает единый консолидированный ответ на запрос. В данном случае сервис A получает запрос от клиента, связывается с сервисом B, который, в свою очередь, может связаться с сервисом C. Все эти сервисы, скорее всего, будут обмениваться синхронными сообщениями «запрос\u002Fотклик» по протоколу HTTP.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F876\u002F605\u002F0f5\u002F8766050f52f84c328a48201c495b94e3.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F876\u002F605\u002F0f5\u002F8766050f52f84c328a48201c495b94e3.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\nЗдесь важнее всего запомнить, что клиент блокируется до тех пор, пока не выполнится вся коммуникационная цепочка запросов и откликов, т.е. Service &lt;-\u003E Service B и Service B &lt;-\u003E Service C. Запрос от Service B к Service C может выглядеть совершенно иначе, нежели от Service A к Service B. Аналогично, отклик от Service B к Service A может принципиально отличаться от отклика Service C к Service B. Это наиболее важно во всех случаях, когда бизнес-ценность нескольких сервисов суммируется. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗдесь также важно понять, что нельзя делать цепочку слишком длинной. Это критично, поскольку цепочка синхронна по своей природе, и чем она длиннее, тем дольше придется ожидать клиенту, особенно если отклик заключается в выводе веб-страницы на экран. Существуют способы обойти такой блокирующий механизм запросов и откликов, и они рассматриваются в следующем паттерне.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЦепочка, состоящая из единственного микросервиса, называется «цепочка-одиночка». Впоследствии ее можно расширить.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EПаттерн проектирования «Ветка» (Branch)\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМикросервисный паттерн проектирования «Ветка» расширяет паттерн «Агрегатор» и обеспечивает одновременную обработку откликов от двух цепочек микросервисов, которые могут быть взаимоисключающими. Этот паттерн также может применяться для вызова различных цепочек, либо одной и той же цепочки – в зависимости от ваших потребностей. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F173\u002F257\u002Fbca\u002F173257bcaed04d97831a0691ec0c37ca.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F173\u002F257\u002Fbca\u002F173257bcaed04d97831a0691ec0c37ca.png\"\u002F\u003E \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСервис A, будь то веб-страница или составной микросервис, может конкурентно вызывать две различные цепочки – и в этом случае будет напоминать агрегатор. В другом случае сервис А может вызывать лишь одну цепочку в зависимости от того, какой запрос получит от клиента. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТакой механизм можно сконфигурировать, реализовав маршрутизацию конечных точек JAX-RS, в таком случае конфигурация должна быть динамической. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EПаттерн «Разделяемые данные» (Shared Data)\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОдин из принципов проектирования микросервисов – автономность. Это означает, что сервис полностековый и контролирует все компоненты – пользовательский интерфейс, промежуточное ПО, сохраняемость, транзакции. В таком случае сервис может быть многоязычным и решать каждую задачу при помощи наиболее подходящих инструментов. Например, если при необходимости можно применить хранилище данных NoSQL, то лучше сделать именно так, а не забивать эту информацию в базу данных SQL.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОднако, типичная проблема, особенно при рефакторинге имеющегося монолитного приложения, связана с нормализацией базы данных — так, чтобы у каждого микросервиса был строго определенный объем информации, ни больше, ни меньше. Даже если в монолитном приложении используется только база данных SQL, ее денормализация приводит к дублированию данных, а возможно – и к несогласованности. На переходном этапе в некоторых приложениях бывает очень полезно применить паттерн «Разделяемые данные». \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПри этом паттерне несколько микросервисов могут работать о цепочке и совместно использовать хранилища кэша и базы данных. Это целесообразно лишь в случае, если между двумя сервисами существует сильная связь. Некоторые могут усматривать в этом антипаттерн, но в некоторых бизнес-ситуациях такой шаблон действительно уместен. Он определенно был бы антипаттерном в приложении, которое изначально создается как микросервисное. \u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F3b0\u002F6e8\u002Ff29\u002F3b06e8f29f9f4a78a09e8afff9c79935.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F3b0\u002F6e8\u002Ff29\u002F3b06e8f29f9f4a78a09e8afff9c79935.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКроме того, его можно рассматривать как промежуточный этап, который нужно преодолеть, пока микросервисы не станут полностью автономными. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EПаттерн «Асинхронные сообщения» (Asynchronous Messaging)\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПри всей распространенности и понятности паттерна REST, у него есть важное ограничение, а именно: он синхронный и, следовательно, блокирующий. Обеспечить асинхронность можно, но это делается по-своему в каждом приложении. Поэтому в некоторых микросервисных архитектурах могут использоваться очереди сообщений, а не модель REST запрос\u002Fотклик. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002Fbec\u002F4a4\u002F2ec\u002Fbec4a42ec9d7476f90c7f8047957c87c.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002Fbec\u002F4a4\u002F2ec\u002Fbec4a42ec9d7476f90c7f8047957c87c.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\nВ этом паттерне сервис А может синхронно вызывать сервис C, который затем будет асинхронно связываться с сервисами B и В при помощи разделяемой очереди сообщений. Коммуникация Service A -\u003E Service C может быть асинхронной, скажем, с использованием веб-сокетов; так достигается желаемая масштабируемость.\u003Cbr\u002F\u003E\r\nКомбинация модели REST запрос\u002Fотклик и обмена сообщениями публикатор\u002Fподписчик также могут использоваться для достижения поставленных целей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРекомендую также прочитать статью \u003Ca href=\"https:\u002F\u002Fwww.voxxed.com\u002Fblog\u002F2015\u002F04\u002Fcoupling-versus-autonomy-in-microservices\u002F\"\u003ECoupling vs Autonomy in Microservices\u003C\u002Fa\u003E, в которой описано, какие паттерны коммуникации удобно применять с микросервисами.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"микросервисы"},{"titleHtml":"паттерны проектирования"},{"titleHtml":"rest"},{"titleHtml":"messaging"},{"titleHtml":"scalability"},{"titleHtml":"книги"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F275633\u002Fc0a5be9f93797692312623297e13a4e6\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F275633\u002Fc0a5be9f93797692312623297e13a4e6\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fpiter\\\u002Fblog\\\u002F275633\\\u002F\"},\"headline\":\"Микросервисные паттерны проектирования\",\"datePublished\":\"2016-01-21T16:44:10+03:00\",\"dateModified\":\"2018-09-17T19:31:08+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"ph_piter\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Здравствуйте, Хабр!  В ближайшее время читайте пост о русском переводе долгожданной книги &quot;Создание Микросервисов&quot; Сэма Ньюмена, которая уже отправилась в магази...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fpiter\\\u002Fblog\\\u002F275633\\\u002F#post-content-body\",\"about\":[\"c_piter\",\"h_programming\",\"h_refactoring\",\"h_microservices\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F275633\\\u002Fc0a5be9f93797692312623297e13a4e6\\\u002F\"]}","metaDescription":"Здравствуйте, Хабр!\r\n\r\nВ ближайшее время читайте пост о русском переводе долгожданной книги &quot;Создание Микросервисов&quot; Сэма Ньюмена, которая уже отправилась в магазины. Пока же мы предлагаем почитать...","mainImageUrl":null,"amp":true,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"piter":{"alias":"piter","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002Fe4d\u002F50a\u002F630\u002Fe4d50a630923dbf6e6b786d26b9da6d7.png","titleHtml":"Издательский дом «Питер»","descriptionHtml":null,"relatedData":null,"statistics":{"postsCount":860,"newsCount":1,"vacanciesCount":0,"employeesCount":5,"careerRating":null,"subscribersCount":13428,"rating":164.6,"invest":null},"foundationDate":{"year":"1991","month":"09","day":"05"},"location":{"city":{"id":"447733","title":"Санкт-Петербург"},"region":{"id":"1948","title":"Санкт-Петербург и область"},"country":{"id":"168","title":"Россия"}},"siteUrl":"http:\u002F\u002Fpiter.com\u002F","staffNumber":"201–500 человек","registrationDate":"2012-08-15T08:08:48+00:00","representativeUser":null,"contacts":[{"title":"Сайт","url":"http:\u002F\u002Fpiter.com"}],"settings":{"analyticsSettings":[],"branding":null,"status":"active","isStartup":false},"metadata":{"titleHtml":"Издательский дом «Питер», Санкт-Петербург -  с 5 сентября 1991 г.","title":"Издательский дом «Питер», Санкт-Петербург -  с 5 сентября 1991 г.","keywords":["Профессиональная литература","Программирование","Python","JavaScript","Java","книги","книга","программирование","java","python","javascript","высокая производительность","web-разработка","издательство питер","ооп","алгоритмы","c#","linux","чистый код","архитектура","издательский дом","c++","микросервисы","машинное обучение","издательство"],"descriptionHtml":"860 статей от авторов компании Издательский дом «Питер»","description":"860 статей от авторов компании Издательский дом «Питер»"},"aDeskSettings":null,"careerAlias":"piter"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

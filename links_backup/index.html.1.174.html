@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Руководство по Node.js, часть 4: npm, файлы package.json и package-lock.json / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/ruvds\/blog\/423703\/"},"headline":"Руководство по Node.js, часть 4: npm, файлы package.json и package-lock.json","datePublished":"2018-09-20T12:00:01+03:00","dateModified":"2019-03-07T12:08:28+03:00","author":{"@type":"Person","name":"ru_vds"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Сегодня мы публикуем четвёртую часть перевода руководства по Node.js. В этом материале мы начнём разговор об npm а также рассмотрим особенности файлов package.js...","url":"https:\/\/habr.com\/ru\/company\/ruvds\/blog\/423703\/#post-content-body","about":["c_ruvds","h_webdev","h_javascript","h_nodejs","f_develop"],"image":["https:\/\/habrastorage.org\/webt\/he\/di\/2j\/hedi2j_qyfbnwfo_jqnnqd3ub6o.png","https:\/\/habrastorage.org\/files\/1ba\/550\/d25\/1ba550d25e8846ce8805de564da6aa63.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Руководство по Node.js, часть 4: npm, файлы package.json и package-lock.json" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Руководство по Node.js, часть 4: npm, файлы package.json и package-lock.json" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Руководство по Node.js, часть 4: npm, файлы package.json и package-lock.json" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Сегодня мы публикуем четвёртую часть перевода руководства по Node.js. В этом материале мы начнём разговор об npm а также рассмотрим особенности файлов package.json и..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Сегодня мы публикуем четвёртую часть перевода руководства по Node.js. В этом материале мы начнём разговор об npm а также рассмотрим особенности файлов package.json и..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Сегодня мы публикуем четвёртую часть перевода руководства по Node.js. В этом материале мы начнём разговор об npm а также рассмотрим особенности файлов package.json и..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Сегодня мы публикуем четвёртую часть перевода руководства по Node.js. В этом материале мы начнём разговор об npm а также рассмотрим особенности файлов package.json и..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Сегодня мы публикуем четвёртую часть перевода руководства по Node.js. В этом материале мы начнём разговор об npm а также рассмотрим особенности файлов package.json и..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/423703/020f6235214b1ac9ed557750b1d73ff4/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/423703/020f6235214b1ac9ed557750b1d73ff4/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/423703/020f6235214b1ac9ed557750b1d73ff4/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/423703/020f6235214b1ac9ed557750b1d73ff4/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/423703/020f6235214b1ac9ed557750b1d73ff4/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="423703" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2018-09-20T09:00:01.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/ruvds/blog/423703/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="JavaScript, Node.js, обучение, разработка">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/423703/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.174.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/423703/020f6235214b1ac9ed557750b1d73ff4/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="ruvds" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><div class="tm-company-card__branding tm-company-article__branding tm-company-card__branding_loading"><div class="tm-company-card__branding-placeholder"><!----></div> <a href="https://ruvds.com/ru-rub"><img src="https://habrastorage.org/getpro/habr/branding/b77/8d5/a41/b778d5a41f83016379c6630262c3294c.png" width="100%" class="tm-company-card__branding-image"></a></div></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/ruvds/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/f27/ea8/5bd/f27ea85bd62fbd985c308110885af7e0.png" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">2738.1</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/ruvds/profile/" class="tm-company-card__name">
+      RUVDS.com
+    </a> <div class="tm-company-card__description">VDS/VPS-хостинг. Скидка 10% по коду <b>HABR10</b></div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/ru_vds/" title="ru_vds" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/e36/812/d3d/e36812d3de38eb3d479d7a13228717ef.png" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/ru_vds/" class="tm-user-info__username">
+      ru_vds
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2018-09-20T09:00:01.000Z" title="2018-09-20, 12:00">20  сентября  2018 в 12:00</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Руководство по Node.js, часть 4: npm, файлы package.json и package-lock.json</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/ruvds/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании RUVDS.com</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/javascript/" class="tm-article-snippet__hubs-item-link"><span>JavaScript</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/nodejs/" class="tm-article-snippet__hubs-item-link"><span>Node.JS</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-translation"><span>
+        Перевод
+      </span></div><div class="tm-article-snippet__label tm-article-snippet__label_variant-tutorial"><span>
+        Tutorial
+      </span></div></div> <!----> <!----></div></div> <div class="tm-article-presenter__origin"><a href="https://medium.freecodecamp.org/the-definitive-node-js-handbook-6912378afc6e" target="_blank" class="tm-article-presenter__origin-link">
+                Автор оригинала:
+                <span>
+                  Flavio Copes
+                </span></a></div> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">Сегодня мы публикуем четвёртую часть перевода руководства по Node.js. В этом материале мы начнём разговор об npm а также рассмотрим особенности файлов <code>package.json</code> и <code>package-lock.json</code>.<br/>
+<br/>
+<a href="https://habr.com/company/ruvds/blog/423703/"><img src="https://habrastorage.org/r/w1560/webt/he/di/2j/hedi2j_qyfbnwfo_jqnnqd3ub6o.png" data-src="https://habrastorage.org/webt/he/di/2j/hedi2j_qyfbnwfo_jqnnqd3ub6o.png"/></a><br/>
+<br/>
+<div class="spoiler"><b class="spoiler_title">[Советуем почитать] Другие части цикла</b><div class="spoiler_text">Часть 1: <a href="https://habr.com/company/ruvds/blog/422893/">Общие сведения и начало работы</a><br/>
+Часть 2: <a href="https://habr.com/company/ruvds/blog/423153/">JavaScript, V8, некоторые приёмы разработки</a><br/>
+Часть 3: <a href="https://habr.com/company/ruvds/blog/423701/">Хостинг, REPL, работа с консолью, модули</a><br/>
+Часть 4: <a href="https://habr.com/company/ruvds/blog/423703/">npm, файлы package.json и package-lock.json</a><br/>
+Часть 5: <a href="https://habr.com/company/ruvds/blog/423705/">npm и npx</a><br/>
+Часть 6: <a href="https://habr.com/company/ruvds/blog/424553/">цикл событий, стек вызовов, таймеры</a><br/>
+Часть 7: <a href="https://habr.com/company/ruvds/blog/424555/">асинхронное программирование</a><br/>
+Часть 8: <a href="https://habr.com/company/ruvds/blog/424557/">Руководство по Node.js, часть 8: протоколы HTTP и WebSocket</a><br/>
+Часть 9: <a href="https://habr.com/company/ruvds/blog/424969/">Руководство по Node.js, часть 9: работа с файловой системой</a><br/>
+Часть 10: <a href="https://habr.com/company/ruvds/blog/425667/">Руководство по Node.js, часть 10: стандартные модули, потоки, базы данных, NODE_ENV</a><br/>
+<a href="https://habr.com/company/ruvds/blog/428576/">Полная PDF-версия руководства по Node.js</a><br/>
+</div></div><a name="habracut"></a><br/>
+<h2><font color="#3AC1EF">Основы npm</font></h2><br/>
+Npm (node package manager) — это менеджер пакетов Node.js. В первой части этого материала мы уже упоминали о том, что сейчас в npm имеется более полумиллиона пакетов, что делает его самым большим в мире репозиторием кода, написанного на одном языке. Это позволяет говорить о том, что в npm можно найти пакеты, предназначенные для решения практически любых задач.<br/>
+<br/>
+Изначально npm создавался как система управления пакетами для Node.js, но в наши дни он используется и при разработке фронтенд-проектов на JavaScript. Для взаимодействия с реестром npm используется одноимённая команда, которая даёт разработчику огромное количество возможностей.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Загрузка пакетов</font></h3><br/>
+С помощью команды <code>npm</code> можно загружать пакеты из реестра. Ниже мы рассмотрим примеры её использования.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Установка всех зависимостей проекта</font></h3><br/>
+Если в проекте имеется файл <code>package.json</code>, то установить все зависимости этого проекта можно такой командой:<br/>
+<br/>
+<pre><code class="plaintext">npm install</code></pre><br/>
+Эта команда загрузит всё, что нужно проекту, и поместит эти материалы в папку <code>node_modules</code>, создав её в том случае, если она не существует в директории проекта.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Установка отдельного пакета</font></h3><br/>
+Отдельный можно установить следующей командой:<br/>
+<br/>
+<pre><code class="plaintext">npm install &lt;package-name></code></pre><br/>
+Часто можно видеть, как эту команду используют не в таком вот простом виде, а с некоторыми флагами. Рассмотрим их:<br/>
+<br/>
+<ul>
+<li>Флаг <code>--save</code> позволяет установить пакет и добавить запись о нём в раздел <code>dependencies</code> файла <code>package.json</code>, который описывает зависимости проекта. Эти зависимости используются проектом для реализации его основного функционала, они устанавливаются в ходе его развёртывания на сервере (после выхода npm 5 записи об устанавливаемых пакетах в разделе зависимостей делаются автоматически, и без использования этого флага).</li>
+<li>Флаг <code>--save-dev</code> позволяет установить пакет и добавить запись о нём в раздел, содержащий перечень зависимостей разработки (то есть — пакетов, которые нужны в ходе разработки проекта, вроде библиотек для тестирования, но не требуются для его работы) файла <code>package.json</code>, который называется <code>devDependencies</code>.</li>
+</ul><br/>
+<h3><font color="#3AC1EF">▍Обновление пакетов</font></h3><br/>
+Для обновления пакетов служит следующая команда:<br/>
+<br/>
+<pre><code class="plaintext">npm update</code></pre><br/>
+Получив эту команду, npm проверит все пакеты на наличие их новых версий, и, если найдёт их новые версии, соответствующие ограничениям на версии пакетов, заданным в <code>package.json</code>, установит их.<br/>
+<br/>
+Обновить можно и отдельный пакет:<br/>
+<br/>
+<pre><code class="plaintext">npm update &lt;package-name></code></pre><br/>
+<h3><font color="#3AC1EF">▍Загрузка пакетов определённых версий</font></h3><br/>
+В дополнение к стандартной загрузке пакетов, npm поддерживает и загрузку их определённых версий. В частности, можно заметить, что некоторые библиотеки совместимы лишь с некими крупными релизами других библиотек, то есть, если бы зависимости таких библиотек устанавливались бы без учёта версий, это могло бы нарушить их работу. Возможность установить определённую версию некоего пакета полезна и в ситуациях, когда, например, вам вполне подходит самый свежий релиз этого пакета, но оказывается, что в нём имеется ошибка. Ожидая выхода исправленной версии пакета, можно воспользоваться и его более старым но стабильным релизом.<br/>
+<br/>
+Возможность задавать конкретные версии необходимых проекту библиотек полезна в командной разработке, когда все члены команды пользуются в точности одними и теми же библиотеками. Переход на их новые версии так же осуществляется централизованно, путём внесения изменений в файл проекта <code>package.json</code>.<br/>
+<br/>
+Во всех этих случаях возможность указания версий пакетов, необходимых проекту, чрезвычайно полезна. Npm следует стандарту семантического версионирования (semver).<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Запуск скриптов</font></h3><br/>
+Файл <code>package.json</code> поддерживает возможность описания команд (скриптов), запускать которые можно с помощью такой конструкции:<br/>
+<br/>
+<pre><code class="plaintext">npm &lt;task-name></code></pre><br/>
+Например, вот как выглядят перечень скриптов, имеющийся в соответствующем разделе файла:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "scripts": {
+    "start-dev": "node lib/server-development",
+    "start": "node lib/server-production"
+  }
+}</code></pre><br/>
+Весьма распространено использование этой возможности для запуска Webpack:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "scripts": {
+    "watch": "webpack --watch --progress --colors --config webpack.conf.js",
+    "dev": "webpack --progress --colors --config webpack.conf.js",
+    "prod": "NODE_ENV=production webpack -p --config webpack.conf.js",
+  }
+}</code></pre><br/>
+Такой подход даёт возможность заменить ввод длинных команд, чреватый ошибками, следующими простыми конструкциями:<br/>
+<br/>
+<pre><code class="plaintext">$ npm watch
+$ npm dev
+$ npm prod</code></pre><br/>
+<h3><font color="#3AC1EF">▍Куда npm устанавливает пакеты?</font></h3><br/>
+При установке пакетов с использованием npm (или <a href="https://flaviocopes.com/yarn/">yarn</a>) доступны два варианта установки: локальная и глобальная.<br/>
+<br/>
+По умолчанию, когда для установки пакета используют команду наподобие <code>npm install lodash</code>, пакет оказывается в папке <code>node_modules</code>, расположенной в папке проекта. Кроме того, если была выполнена вышеописанная команда, npm также добавит запись о библиотеке <code>lodash</code> в раздел <code>dependencies</code> файла <code>package.json</code>, который имеется в текущей директории.<br/>
+<br/>
+Глобальная установка пакетов выполняется с использованием флага <code>-g</code>:<br/>
+<br/>
+<pre><code class="plaintext">npm install -g lodash</code></pre><br/>
+Выполняя такую команду, npm не устанавливает пакет в локальную папку проекта. Вместо этого он копирует файлы пакета в некое глобальное расположение. Куда именно попадают эти файлы?<br/>
+<br/>
+Для того чтобы это узнать, воспользуйтесь следующей командой:<br/>
+<br/>
+<pre><code class="plaintext">npm root -g</code></pre><br/>
+В macOS или Linux файлы пакетов могут оказаться в директории <code>/usr/local/lib/node_modules</code>. В Windows это может быть нечто вроде <code>C:\Users\YOU\AppData\Roaming\npm\node_modules</code>.<br/>
+<br/>
+Однако если вы используете для управления версиями Node.js nvm, путь к папке с глобальными пакетами может измениться.<br/>
+<br/>
+Я, например, использую nvm, и вышеописанная команда сообщает мне о том, что глобальные пакеты устанавливаются по такому адресу: <code>/Users/flavio/.nvm/versions/node/v8.9.0/lib/node_modules</code>.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Использование и выполнение пакетов, установленных с помощью npm</font></h3><br/>
+Как использовать модули, установленные с помощью npm, локально или глобально, попадающие в папки <code>node_modules</code>? Предположим, вы установили популярную библиотеку <code>lodash</code>, содержащую множество вспомогательных функций, используемых в JavaScript-разработке:<br/>
+<br/>
+<pre><code class="plaintext">npm install lodash</code></pre><br/>
+Такая команда установит библиотеку в локальную папку проекта <code>node_modules</code>.<br/>
+<br/>
+Для того чтобы использовать её в своём коде, достаточно импортировать её с применением команды <code>require</code>:<br/>
+<br/>
+<pre><code class="plaintext">const _ = require('lodash')</code></pre><br/>
+Как быть, если пакет представляет собой исполняемый файл?<br/>
+<br/>
+В таком случае исполняемый файл попадёт в папку <code>node_modules/.bin/ folder</code>.<br/>
+<br/>
+Посмотреть на то, как выглядит работа этого механизма можно, установив пакет <a href="https://www.npmjs.com/package/cowsay">cowsay</a>. Он представляет собой шуточную программу, написанную для командной строки. Если передать этому пакету какой-нибудь текст, в консоли, в стиле ASCII-арта, будет выведено изображение коровы, которая «произносит» соответствующий текст. «Озвучивать» текст могут и другие существа.<br/>
+<br/>
+Итак, после установки пакета с использованием команды <code>npm install cowsay</code>, он, вместе со своими зависимостями, попадёт в <code>node_modules</code>. А в скрытую папку <code>.bin</code> будут записаны символические ссылки на бинарные файлы cowsay.<br/>
+<br/>
+Как их выполнять?<br/>
+<br/>
+Конечно, можно, для вызова программы, ввести в терминале нечто вроде <code>./node_modules/.bin/cowsay</code>, это рабочий подход, но гораздо лучше воспользоваться <a href="https://flaviocopes.com/npx/">npx</a>, средством для запуска исполняемых файлов npm-пакетов, включаемым в npm начиная с версии 5.2. А именно, в нашем случае понадобится такая команда:<br/>
+<br/>
+<pre><code class="plaintext">npx cowsay</code></pre><br/>
+Путь к пакету npx найдёт автоматически.<br/>
+<br/>
+<h2><font color="#3AC1EF">Файл package.json</font></h2><br/>
+Файл <code>package.json</code> является важнейшим элементов множества проектов, основанных на экосистеме Node.js. Если вы программировали на JavaScript, была ли это серверная или клиентская разработка, то вы, наверняка, уже встречались с этим файлом. Зачем он нужен? Что вам следует о нём знать и какие возможности он вам даёт?<br/>
+<br/>
+<code>Package.json</code> представляет собой нечто вроде файла-манифеста для проекта. Он даёт в распоряжение разработчика множество разноплановых возможностей. Например, он представляет собой центральный репозиторий настроек для инструментальных средств, используемых в проекте. Кроме того, он является тем местом, куда <a href="https://flaviocopes.com/npm/">npm</a> и <a href="https://flaviocopes.com/yarn/">yarn</a> записывают сведения об именах и версиях установленных пакетов.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Структура файла</font></h3><br/>
+Вот пример простейшего файла <code>package.json</code>:<br/>
+<br/>
+<pre><code class="plaintext">{
+}</code></pre><br/>
+Как видите, он пуст. Нет жёстких требований, касающихся того, что должно присутствовать в подобном файле для некоего приложения. Единственное требование к структуре файла заключается в том, что она должна следовать правилам формата JSON. В противном случае этот файл не сможет быть прочитан программами, которые попытаются получить доступ к его содержимому.<br/>
+<br/>
+Если вы создаёте Node.js-пакет, который собираетесь распространять через npm, то всё радикальным образом меняется, и в вашем <code>package.json</code> должен быть набор свойств, которые помогут другим людям пользоваться пакетом. Подробнее мы поговорим об этом позже.<br/>
+<br/>
+Вот ещё один пример <code>package.json</code>:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "name": "test-project"
+}</code></pre><br/>
+В нём задано свойство <code>name</code>, значением которого является имя приложения или пакета, материалы которого содержатся в той же папке, где находится этот файл.<br/>
+<br/>
+Вот пример посложнее, который я взял из приложения-примера, написанного с использованием Vue.js:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "name": "test-project",
+  "version": "1.0.0",
+  "description": "A Vue.js project",
+  "main": "src/main.js",
+  "private": true,
+  "scripts": {
+    "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+    "start": "npm run dev",
+    "unit": "jest --config test/unit/jest.conf.js --coverage",
+    "test": "npm run unit",
+    "lint": "eslint --ext .js,.vue src test/unit",
+    "build": "node build/build.js"
+  },
+  "dependencies": {
+    "vue": "^2.5.2"
+  },
+  "devDependencies": {
+    "autoprefixer": "^7.1.2",
+    "babel-core": "^6.22.1",
+    "babel-eslint": "^8.2.1",
+    "babel-helper-vue-jsx-merge-props": "^2.0.3",
+    "babel-jest": "^21.0.2",
+    "babel-loader": "^7.1.1",
+    "babel-plugin-dynamic-import-node": "^1.2.0",
+    "babel-plugin-syntax-jsx": "^6.18.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.22.0",
+    "babel-plugin-transform-vue-jsx": "^3.5.0",
+    "babel-preset-env": "^1.3.2",
+    "babel-preset-stage-2": "^6.22.0",
+    "chalk": "^2.0.1",
+    "copy-webpack-plugin": "^4.0.1",
+    "css-loader": "^0.28.0",
+    "eslint": "^4.15.0",
+    "eslint-config-airbnb-base": "^11.3.0",
+    "eslint-friendly-formatter": "^3.0.0",
+    "eslint-import-resolver-webpack": "^0.8.3",
+    "eslint-loader": "^1.7.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-vue": "^4.0.0",
+    "extract-text-webpack-plugin": "^3.0.0",
+    "file-loader": "^1.1.4",
+    "friendly-errors-webpack-plugin": "^1.6.1",
+    "html-webpack-plugin": "^2.30.1",
+    "jest": "^22.0.4",
+    "jest-serializer-vue": "^0.3.0",
+    "node-notifier": "^5.1.2",
+    "optimize-css-assets-webpack-plugin": "^3.2.0",
+    "ora": "^1.2.0",
+    "portfinder": "^1.0.13",
+    "postcss-import": "^11.0.0",
+    "postcss-loader": "^2.0.8",
+    "postcss-url": "^7.2.1",
+    "rimraf": "^2.6.0",
+    "semver": "^5.3.0",
+    "shelljs": "^0.7.6",
+    "uglifyjs-webpack-plugin": "^1.1.1",
+    "url-loader": "^0.5.8",
+    "vue-jest": "^1.0.2",
+    "vue-loader": "^13.3.0",
+    "vue-style-loader": "^3.0.1",
+    "vue-template-compiler": "^2.5.2",
+    "webpack": "^3.6.0",
+    "webpack-bundle-analyzer": "^2.9.0",
+    "webpack-dev-server": "^2.9.1",
+    "webpack-merge": "^4.1.0"
+  },
+  "engines": {
+    "node": ">= 6.0.0",
+    "npm": ">= 3.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie &lt;= 8"
+  ]
+}</code></pre><br/>
+Как видите, тут прямо-таки немеряно всего интересного. А именно, здесь можно выделить следующие свойства:<br/>
+<br/>
+<ul>
+<li><code>name</code> — задаёт имя приложения (пакета).</li>
+<li><code>version</code> — содержит сведения о текущей версии приложения.</li>
+<li><code>description</code> — краткое описание приложения.</li>
+<li><code>main</code> — задаёт точку входа в приложение.</li>
+<li><code>private</code> — если данное свойство установлено в <code>true</code>, это позволяет предотвратить случайную публикацию пакета в npm.</li>
+<li><code>scripts</code> — задаёт набор Node.js-скриптов, которые можно запускать.</li>
+<li><code>dependencies</code> — содержит список npm-пакетов, от которых зависит приложение.</li>
+<li><code>devDependencies</code> — содержит список npm-пакетов, используемых при разработке проекта, но не при его реальной работе.</li>
+<li><code>engines</code> — задаёт список версий Node.js, на которых работает приложение.</li>
+<li><code>browserlist</code> — используется для хранения списка браузеров (и их версий), которые должно поддерживать приложение.</li>
+</ul><br/>
+Все эти свойства используются либо npm либо другими инструментальными средствами, применяемыми в течение жизненного цикла приложения.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Свойства, используемые в package.json</font></h3><br/>
+Поговорим о свойствах, которые можно использовать в <code>package.json</code>. Здесь мы будем использовать термин «пакет», но всё, что сказано о пакетах, справедливо и для локальных приложений, которые не планируется использовать в роли пакетов.<br/>
+<br/>
+Большинство свойств, которые мы опишем, используются лишь для нужд <a href="https://www.npmjs.com/">репозитория</a> npm, некоторые используются программами, которые взаимодействуют с кодом, вроде того же npm.<br/>
+<br/>
+<h4>Свойство name</h4><br/>
+Свойство <code>name</code> задаёт имя пакета:<br/>
+<br/>
+<pre><code class="plaintext">"name": "test-project"</code></pre><br/>
+Имя должно быть короче 214 символов, не должно включать в себя пробелы, должно состоять только из прописных букв, дефисов (<code>-</code>) и символов подчёркивания (<code>_</code>).<br/>
+<br/>
+Подобные ограничения существуют из-за того, что когда пакет публикуется в npm, его имя используется для формирования URL страницы пакета.<br/>
+<br/>
+Если вы публиковали код пакета на GitHub, в общем доступе, то хорошим вариантом имени пакета является имя соответствующего GitHub-репозитория.<br/>
+<br/>
+<h4>Свойство author</h4><br/>
+Свойство <code>author</code> содержит сведения об авторе пакета:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "author": "Flavio Copes &lt;flavio@flaviocopes.com> (https://flaviocopes.com)"
+}</code></pre><br/>
+Оно может быть представлено и в таком формате:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "author": {
+    "name": "Flavio Copes",
+    "email": "flavio@flaviocopes.com",
+    "url": "https://flaviocopes.com"
+  }
+}</code></pre><br/>
+<h4>Свойство contributors</h4><br/>
+Свойство <code>contributors</code> содержит массив со сведениями о людях, внёсших вклад в проект:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "contributors": [
+    "Flavio Copes &lt;flavio@flaviocopes.com> (https://flaviocopes.com)"
+  ]
+}</code></pre><br/>
+Это свойство может выглядеть и так:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "contributors": [
+    {
+      "name": "Flavio Copes",
+      "email": "flavio@flaviocopes.com",
+      "url": "https://flaviocopes.com"
+    }
+  ]
+}</code></pre><br/>
+<h4>Свойство bugs</h4><br/>
+В свойстве <code>bugs</code> содержится ссылка на баг-трекер проекта, весьма вероятно то, что такая ссылка будет вести на страницу системы отслеживания ошибок GitHub:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "bugs": "https://github.com/flaviocopes/package/issues"
+}</code></pre><br/>
+<h4>Свойство homepage</h4><br/>
+Свойство <code>homepage</code> позволяет задать домашнюю страницу пакета:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "homepage": "https://flaviocopes.com/package"
+}</code></pre><br/>
+<h4>Свойство version</h4><br/>
+Свойство <code>version</code> содержит сведения о текущей версии пакета:<br/>
+<br/>
+<pre><code class="plaintext">"version": "1.0.0"</code></pre><br/>
+При формировании значения этого свойства нужно следовать правилам <a href="https://semver.org/lang/ru/">семантического версионирования</a>. Это означает, в частности, что номер версии всегда представлен тремя цифрами: x.x.x.<br/>
+<br/>
+Первое число — это мажорная версия пакета, второе — минорная версия, третье — патч-версия.<br/>
+<br/>
+Изменение этих чисел несёт в себе определённый смысл. Так, релиз пакета, в котором лишь исправляются ошибки, приводит к увеличению значения патч-версии. Если выходит релиз пакета, изменения, внесённые в который, отличаются обратной совместимостью с предыдущим релизом — то меняется минорная версия. В мажорных версиях пакетов могут присутствовать изменения, которые делают эти пакеты несовместимыми с пакетами предыдущих мажорных версий.<br/>
+<br/>
+<h4>Свойство license</h4><br/>
+Свойство <code>license</code> содержит сведения о лицензии пакета:<br/>
+<br/>
+<pre><code class="plaintext">"license": "MIT"</code></pre><br/>
+<h4>Свойство keywords</h4><br/>
+Свойство <code>keywords</code> содержит массив ключевых слов, имеющих отношение к функционалу пакета:<br/>
+<br/>
+<pre><code class="plaintext">"keywords": [
+  "email",
+  "machine learning",
+  "ai"
+]</code></pre><br/>
+Правильный подбор ключевых слов помогает людям находить то, что им нужно, при поиске пакетов для решения неких задач, позволяет группировать пакеты и быстро оценивать их возможный функционал при просмотре сайта npm.<br/>
+<br/>
+<h4>Свойство description</h4><br/>
+Свойство <code>description</code> содержит краткое описание пакета:<br/>
+<br/>
+<pre><code class="plaintext">"description": "A package to work with strings"</code></pre><br/>
+Это свойство особенно важно в том случае, если вы планируете публиковать пакет в npm, так как оно позволяет пользователям сайта npm понять предназначение пакета.<br/>
+<br/>
+<h4>Свойство repository</h4><br/>
+Свойство <code>repository</code> указывает на то, где находится репозиторий пакета:<br/>
+<br/>
+<pre><code class="plaintext">"repository": "github:flaviocopes/testing",</code></pre><br/>
+Обратите внимание, что у значения этого свойства имеется префикс <code>github</code>. Npm поддерживает префиксы и для некоторых других популярных сервисов подобного рода:<br/>
+<br/>
+<pre><code class="plaintext">"repository": "gitlab:flaviocopes/testing",
+"repository": "bitbucket:flaviocopes/testing",</code></pre><br/>
+Используемую при разработке пакета систему контроля версий можно задать и в явном виде:<br/>
+<br/>
+<pre><code class="plaintext">"repository": {
+  "type": "git",
+  "url": "https://github.com/flaviocopes/testing.git"
+}</code></pre><br/>
+Один и тот же пакет может использовать разные системы контроля версий:<br/>
+<br/>
+<pre><code class="plaintext">"repository": {
+  "type": "svn",
+  "url": "..."
+}</code></pre><br/>
+<h4>Свойство main</h4><br/>
+Свойство <code>main</code> задаёт точку входа в пакет:<br/>
+<br/>
+<pre><code class="plaintext">"main": "src/main.js"</code></pre><br/>
+Когда пакет импортируют в приложение, именно здесь будет осуществляться поиск того, что экспортирует соответствующий модуль.<br/>
+<br/>
+<h4>Свойство private</h4><br/>
+Свойство <code>private</code>, установленное в <code>true</code>, позволяет предотвратить случайную публикацию пакета в npm:<br/>
+<br/>
+<pre><code class="plaintext">"private": true</code></pre><br/>
+<h4>Свойство scripts</h4><br/>
+Свойство <code>scripts</code> задаёт список скриптов или утилит, которые можно запускать средствами npm:<br/>
+<br/>
+<pre><code class="plaintext">"scripts": {
+  "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+  "start": "npm run dev",
+  "unit": "jest --config test/unit/jest.conf.js --coverage",
+  "test": "npm run unit",
+  "lint": "eslint --ext .js,.vue src test/unit",
+  "build": "node build/build.js"
+}</code></pre><br/>
+Эти скрипты являются приложениями командной строки. Запускать их можно с помощью npm или yarn, выполняя, соответственно, команды вида <code>npm run XXXX</code> или <code>yarn XXXX</code>, где <code>XXXX</code> — имя скрипта. Например, выглядеть это может так:<br/>
+<br/>
+<pre><code class="plaintext">npm run dev</code></pre><br/>
+Скрипты можно называть так, как вам хочется, делать они могут практически всё, чего может пожелать разработчик.<br/>
+<br/>
+<h4>Свойство dependencies</h4><br/>
+Свойство <code>dependencies</code> содержит список npm-пакетов, установленных в виде зависимостей пакета:<br/>
+<br/>
+<pre><code class="plaintext">"dependencies": {
+  "vue": "^2.5.2"
+}</code></pre><br/>
+При установке пакета с использованиеме npm или yarn используются команды такого вида:<br/>
+<br/>
+<pre><code class="plaintext">npm install &lt;PACKAGENAME>
+yarn add &lt;PACKAGENAME></code></pre><br/>
+Эти пакеты автоматически добавляются в список зависимостей разрабатываемого пакета.<br/>
+<br/>
+<h4>Свойство devDependencies</h4><br/>
+Свойство <code>devDependencies</code> содержит список npm-пакетов, установленных как зависимости разработки:<br/>
+<br/>
+<pre><code class="plaintext">"devDependencies": {
+  "autoprefixer": "^7.1.2",
+  "babel-core": "^6.22.1"
+}</code></pre><br/>
+Этот список отличается от того, который хранится в свойстве <code>dependencies</code>, так как имеющиеся в нём пакеты устанавливаются лишь в системе разработчика пакета, при практическом использовании пакета они не применяются.<br/>
+<br/>
+Пакеты попадают в этот список при их установке с помощью npm или yarn, выполняемой следующим образом:<br/>
+<br/>
+<pre><code class="plaintext">npm install --dev &lt;PACKAGENAME>
+yarn add --dev &lt;PACKAGENAME></code></pre><br/>
+<h4>Свойство engines</h4><br/>
+Свойство <code>engines</code> указывает, какие версии Node.js и других программных продуктов используются для обеспечения работы пакета:<br/>
+<br/>
+<pre><code class="plaintext">"engines": {
+  "node": ">= 6.0.0",
+  "npm": ">= 3.0.0",
+  "yarn": "^0.13.0"
+}</code></pre><br/>
+<h4>Свойство browserlist</h4><br/>
+Свойство <code>browserlist</code> позволяет сообщить о том, какие браузеры (и их версии) собирается поддерживать разработчик пакета:<br/>
+<br/>
+<pre><code class="plaintext">"browserslist": [
+  "> 1%",
+  "last 2 versions",
+  "not ie &lt;= 8"
+]</code></pre><br/>
+Этим свойством пользуются Babel, Autoprefixer и другие инструменты. Анализ этого списка позволяет им добавлять в пакет только те полифиллы и вспомогательные механизмы, которые нужны для перечисленных браузеров.<br/>
+<br/>
+Показанное здесь в качестве примера значение свойства <code>browserlist</code> означает, что вы хотите поддерживать как минимум 2 мажорные версии всех браузеров с как минимум 1% использования (эти данные берутся с ресурса <a href="https://caniuse.com/">CanIUse.com</a>), за исключением IE 8 и более старых версий этого браузера (подробнее об этом можно узнать на странице пакета <a href="https://www.npmjs.com/package/browserslist">browserlists</a>).<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Хранение в package.json настроек для различных программных инструментов</font></h3><br/>
+В <code>package.json</code> можно хранить настройки для различных вспомогательных инструментов вроде Babel или ESLint.<br/>
+<br/>
+Каждому из таких инструментов соответствует особое свойство, наподобие <code>eslintConfig</code> или <code>babel</code>. Подробности об использовании подобных свойств можно найти в документации соответствующих проектов.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍О версиях пакетов и семантическом версионировании</font></h3><br/>
+В вышеприведённых примерах вы могли видеть, что номера версий пакетов задаются не только в виде обычных чисел, разделённых точками, но и с использованием неких специальных символов. Например, в виде <code>~3.0.0</code> или <code>^0.13.0</code>. Здесь использованы так называемые спецификаторы версий, которые определяют диапазон версий пакетов, подходящих для использования в нашем пакете.<br/>
+<br/>
+Учитывая то, что при использовании семантического версионирования все номера версий пакетов состоят из последовательностей, представляющих собой три числа, о смысле которых мы говорили выше, опишем следующие правила использования спецификаторов версий:<br/>
+<br/>
+<ul>
+<li><code>~</code>: если вы задаёте версию в виде <code>~0.13.0</code> это означает, что вас интересуют лишь патч-релизы пакета. То есть, пакет <code>0.13.1</code> вам подойдёт, а <code>0.14.0</code> — нет.</li>
+<li><code>^</code>: если номер версии задан в виде <code>^0.13.0</code>, это означает, что вам подходят новые патч-версии и минорные версии пакета. То есть, вас устроят версии пакета <code>0.13.1</code>, <code>0.14.0</code>, и так далее.</li>
+<li><code>*</code>: воспользовавшись этим символом, вы сообщаете системе, что вас устроят любые свежие версии пакета, в том числе — его новые мажорные релизы.</li>
+<li><code>></code>: подходят любые версии пакета, которые больше заданной.</li>
+<li><code>>=</code>: подходят любые версии пакета, которые равны или больше заданной.</li>
+<li><code>&lt;=</code>: вас устроят пакеты, версии которых равны заданной или меньше её.</li>
+<li><code>&lt;</code>: вас интересуют пакеты, версии которых меньше заданной.</li>
+<li><code>=</code>: вам нужна только заданная версия пакета.</li>
+<li><code>-</code>: используется для указания диапазона подходящих версий, например — <code>2.1.0 - 2.6.2</code>.</li>
+<li><code>||</code>: позволяет комбинировать наборы условий, касающихся пакетов. Например это может выглядеть как <code>&lt; 2.1 || > 2.6</code>.</li>
+</ul><br/>
+Есть и ещё некоторые правила:<br/>
+<br/>
+<ul>
+<li>отсутствие дополнительных символов: если используется номер версии пакета без дополнительных символов, это значит, что вашему пакету нужна только заданная версия пакета-зависимости и никакая другая.</li>
+<li><code>latest</code>: указывает на то, что вам требуется самая свежая версия некоего пакета.</li>
+</ul><br/>
+Большинство вышеописанных спецификаторов можно комбинировать, например, задавая диапазоны подходящих версий пакетов-зависимостей. Скажем, конструкция вида <code>1.0.0 || >=1.1.0 &lt;1.2.0</code> указывает на то, что планируется использовать либо версию пакета <code>1.0.0</code>, либо версию, номер которой больше или равен <code>1.1.0</code>, но меньше <code>1.2.0</code>.<br/>
+<br/>
+<h2><font color="#3AC1EF">Файл package-lock.json</font></h2><br/>
+Файл <code>package-lock.json</code> используется с момента появления npm версии 5. Он создаётся автоматически при установке Node.js-пакетов. Что это за файл? Возможно, вы не знакомы с ним даже если знали о <code>package.json</code>, который существует гораздо дольше него.<br/>
+<br/>
+Цель этого файла заключается в отслеживании точных версий установленных пакетов, что позволяет сделать разрабатываемый продукт стопроцентно воспроизводимым в его исходном виде даже в случае, если те, кто занимается поддержкой пакетов, их обновили.<br/>
+<br/>
+Этот файл решает весьма специфическую проблему, которая не решается средствами <code>package.json</code>. В <code>package.json</code> можно указать, какие обновления некоего пакета вам подходят (патч-версии или минорные версии) с использованием вышеописанных спецификаторов версий. <br/>
+<br/>
+В Git не коммитят папку <code>node_modules</code>, так как обычно она имеет огромные размеры. Когда вы пытаетесь воссоздать проект на другом компьютере, то использование команды <code>npm install</code> приведёт к тому, что, если, при использовании спецификатора <code>~</code> в применении к версии некоего пакета, вышел его патч-релиз, установлен будет не тот пакет, который использовался при разработке, а именно этот патч-релиз.<br/>
+<br/>
+То же самое касается и спецификатора <code>^</code>. Если же при указании версии пакета спецификаторы не использовались, то будет установлена именно его указанная версия и проблема, о которой идёт речь, окажется в такой ситуации неактуальной.<br/>
+<br/>
+Итак, кто-то пытается инициализировать проект, пользуясь командой <code>npm install</code>. При выходе новых версий пакетов окажется, что этот проект отличается от исходного. Даже если, следуя правилам семантического версионирования, минорные релизы и патч-релизы не должны содержать в себе изменений, препятствующих обратной совместимости, все мы знаем, что ошибки способны проникать (и проникают) куда угодно.<br/>
+<br/>
+Файл <code>package-lock.json</code> хранит в неизменном виде сведения о версии каждого установленного пакета и npm будет использовать именно эти версии пакетов при выполнении команды <code>npm install</code>.<br/>
+<br/>
+Эта концепция не нова, менеджеры пакетов, применяемые в других языках программирования (вроде менеджера Composer в PHP) используют похожую систему многие годы.<br/>
+<br/>
+Файл <code>package-lock.json</code> нужно отправить в Git-репозиторий, что позволит другим людям скачать его в том случае, если проект является общедоступным, или тогда, когда его разработкой занимается команда программистов, или если вы используете Git для развёртывания проекта.<br/>
+<br/>
+Версии зависимостей будут обновлены в <code>package-lock.json</code> после выполнения команды <code>npm update</code>.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Пример файла package-lock.json</font></h3><br/>
+В этом примере продемонстрирована структура файла <code>package-lock.json</code>, который входит в состав пакет cowsay, устанавливаемого в пустой папке командой npm <code>install cowsay</code>:<br/>
+<br/>
+<pre><code class="plaintext">{
+  "requires": true,
+  "lockfileVersion": 1,
+  "dependencies": {
+    "ansi-regex": {
+      "version": "3.0.0",
+      "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-3.
+0.0.tgz",
+      "integrity": "sha1-7QMXwyIGT3lGbAKWa922Bas32Zg="
+    },
+    "cowsay": {
+      "version": "1.3.1",
+      "resolved": "https://registry.npmjs.org/cowsay/-/cowsay-1.3.1.tgz"
+,
+      "integrity": "sha512-3PVFe6FePVtPj1HTeLin9v8WyLl+VmM1l1H/5P+BTTDkM
+Ajufp+0F9eLjzRnOHzVAYeIYFF5po5NjRrgefnRMQ==",
+      "requires": {
+        "get-stdin": "^5.0.1",
+        "optimist": "~0.6.1",
+        "string-width": "~2.1.1",
+        "strip-eof": "^1.0.0"
+      }
+    },
+    "get-stdin": {
+      "version": "5.0.1",
+      "resolved": "https://registry.npmjs.org/get-stdin/-/get-stdin-5.0.
+1.tgz",
+      "integrity": "sha1-Ei4WFZHiH/TFJTAwVpPyDmOTo5g="
+    },
+    "is-fullwidth-code-point": {
+      "version": "2.0.0",
+      "resolved": "https://registry.npmjs.org/is-fullwidth-code-point/-/
+is-fullwidth-code-point-2.0.0.tgz",
+      "integrity": "sha1-o7MKXE8ZkYMWeqq5O+764937ZU8="
+    },
+    "minimist": {
+      "version": "0.0.10",
+      "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.10
+.tgz",
+      "integrity": "sha1-3j+YVD2/lggr5IrRoMfNqDYwHc8="
+    },
+    "optimist": {
+      "version": "0.6.1",
+      "resolved": "https://registry.npmjs.org/optimist/-/optimist-0.6.1.tgz",
+      "integrity": "sha1-2j6nRob6IaGaERwybpDrFaAZZoY=",
+      "requires": {
+        "minimist": "~0.0.1",
+        "wordwrap": "~0.0.2"
+      }
+    },
+    "string-width": {
+      "version": "2.1.1",
+      "resolved": "https://registry.npmjs.org/string-width/-/string-width-2.1.1.tgz",
+      "integrity": "sha512-nOqH59deCq9SRHlxq1Aw85Jnt4w6KvLKqWVik6oA9ZklXLNIOlqg4F2yrT1MVaTjAqvVwdfeZ7w7aCvJD7ugkw==",
+      "requires": {
+        "is-fullwidth-code-point": "^2.0.0",
+        "strip-ansi": "^4.0.0"
+      }
+    },
+    "strip-ansi": {
+      "version": "4.0.0",
+      "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-4.0.0.tgz",
+      "integrity": "sha1-qEeQIusaw2iocTibY1JixQXuNo8=",
+      "requires": {
+        "ansi-regex": "^3.0.0"
+      }
+    },
+    "strip-eof": {
+      "version": "1.0.0",
+      "resolved": "https://registry.npmjs.org/strip-eof/-/strip-eof-1.0.0.tgz",
+      "integrity": "sha1-u0P/VZim6wXYm1n80SnJgzE2Br8="
+    },
+    "wordwrap": {
+      "version": "0.0.3",
+      "resolved": "https://registry.npmjs.org/wordwrap/-/wordwrap-0.0.3.tgz",
+      "integrity": "sha1-o9XabNXAvAAI03I0u68b7WMFkQc="
+    }
+  }
+}</code></pre><br/>
+Разберём этот файл. Мы устанавливаем пакет cowsay, который зависит от следующих пакетов:<br/>
+<br/>
+<ul>
+<li>get-stdin</li>
+<li>optimist</li>
+<li>string-width</li>
+<li>strip-eof</li>
+</ul><br/>
+Эти пакеты, в свою очередь, зависят от других пакетов, сведения о которых мы можем почерпнуть из свойств <code>requires</code>, которые имеются у некоторых из них:<br/>
+<br/>
+<ul>
+<li>ansi-regex</li>
+<li>is-fullwidth-code-point</li>
+<li>minimist</li>
+<li>wordwrap</li>
+<li>strip-eof</li>
+</ul><br/>
+Они добавляются в файл в алфавитном порядке, у каждого есть поле <code>version</code>, есть поле <code>resolved</code>, указывающее на расположение пакета, и строковое свойство <code>integrity</code>, которое можно использовать для проверки целостности пакета.<br/>
+<br/>
+<h2><font color="#3AC1EF">Итоги</font></h2><br/>
+Сегодня мы начали разговор об npm и разобрались со структурой и назначением файлов <code>package.json</code> и <code>package-lock.json</code>. В следующий раз продолжим разбирать возможности npm и коснёмся использования npx.<br/>
+<br/>
+<b>Уважаемые читатели!</b> Какой менеджер пакетов вы предпочитаете — npm или yarn?<br/>
+<br/>
+<a href="https://ruvds.com/ru-rub/#order"><img src="https://habrastorage.org/r/w1560/files/1ba/550/d25/1ba550d25e8846ce8805de564da6aa63.png" data-src="https://habrastorage.org/files/1ba/550/d25/1ba550d25e8846ce8805de564da6aa63.png"/></a></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BJavaScript%5D" class="tm-tags-list__link">JavaScript</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BNode.js%5D" class="tm-tags-list__link">Node.js</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BE%D0%B1%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5%5D" class="tm-tags-list__link">обучение</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0%5D" class="tm-tags-list__link">разработка</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/ruvds/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании RUVDS.com
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/javascript/" class="tm-hubs-list__link">
+    JavaScript
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/nodejs/" class="tm-hubs-list__link">
+    Node.JS
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 28: ↑28 и ↓0</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 28: ↑28 и ↓0" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+28</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">106K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    227
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/ruvds/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/f27/ea8/5bd/f27ea85bd62fbd985c308110885af7e0.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/ruvds/profile/" class="tm-company-snippet__title">RUVDS.com</a> <div class="tm-company-snippet__description">VDS/VPS-хостинг. Скидка 10% по коду <b>HABR10</b></div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="https://facebook.com/ruvds" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Facebook
+    </a><a href="https://twitter.com/ru_vds" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Twitter
+    </a><a href="https://vk.com/ru_vds" rel="noopener" target="_blank" class="tm-article-author__contact">
+      ВКонтакте
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/ru_vds/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/e36/812/d3d/e36812d3de38eb3d479d7a13228717ef.png" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 1009 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    247
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">131.5</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><!----> <a href="https://habr.com/ru/users/ru_vds/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @ru_vds
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/ruvds/blog/423703/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 8 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2015-07-26T21:00:00.000Z" title="2015-07-27, 00:00">27  июля  2015</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://ruvds.com" target="_blank" class="tm-company-basic-info__link">
+      ruvds.com
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    11–30 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2016-03-18T05:43:01.000Z" title="2016-03-18, 08:43">18  марта  2016</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Представитель</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://habr.com/ru/users/ruvds/" class="tm-company-basic-info__link">
+      ruvds
+    </a></dd></dl></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/ruvds/blog/423703/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/ruvds/blog/423703/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"423703":{"id":"423703","timePublished":"2018-09-20T09:00:01+00:00","isCorporative":true,"lang":"ru","titleHtml":"Руководство по Node.js, часть 4: npm, файлы package.json и package-lock.json","leadData":{"textHtml":"Сегодня мы публикуем четвёртую часть перевода руководства по Node.js. В этом материале мы начнём разговор об npm а также рассмотрим особенности файлов \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E и \u003Ccode\u003Epackage-lock.json\u003C\u002Fcode\u003E.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423703\u002F\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fhe\u002Fdi\u002F2j\u002Fhedi2j_qyfbnwfo_jqnnqd3ub6o.png\"\u003E\u003C\u002Fa\u003E\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003E[Советуем почитать] Другие части цикла\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EЧасть 1: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F422893\u002F\"\u003EОбщие сведения и начало работы\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 2: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423153\u002F\"\u003EJavaScript, V8, некоторые приёмы разработки\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 3: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423701\u002F\"\u003EХостинг, REPL, работа с консолью, модули\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 4: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423703\u002F\"\u003Enpm, файлы package.json и package-lock.json\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 5: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423705\u002F\"\u003Enpm и npx\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 6: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424553\u002F\"\u003Eцикл событий, стек вызовов, таймеры\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 7: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424555\u002F\"\u003Eасинхронное программирование\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 8: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424557\u002F\"\u003EРуководство по Node.js, часть 8: протоколы HTTP и WebSocket\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 9: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424969\u002F\"\u003EРуководство по Node.js, часть 9: работа с файловой системой\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 10: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F425667\u002F\"\u003EРуководство по Node.js, часть 10: стандартные модули, потоки, базы данных, NODE_ENV\u003C\u002Fa\u003E\u003Cbr\u003E\r\n\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F428576\u002F\"\u003EПолная PDF-версия руководства по Node.js\u003C\u002Fa\u003E\u003Cbr\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"translation","data":{"originalAuthorName":"Flavio Copes","originalUrl":"https:\u002F\u002Fmedium.freecodecamp.org\u002Fthe-definitive-node-js-handbook-6912378afc6e"}},{"type":"tutorial","data":null}],"author":{"scoreStats":{"score":247,"votesCount":1009},"rating":131.5,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1220775","alias":"ru_vds","fullname":null,"avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002Fe36\u002F812\u002Fd3d\u002Fe36812d3de38eb3d479d7a13228717ef.png","speciality":"Пользователь"},"statistics":{"commentsCount":8,"favoritesCount":227,"readingCount":105958,"score":28,"votesCount":28},"hubs":[{"relatedData":null,"id":"19791","alias":"ruvds","type":"corporative","title":"Блог компании RUVDS.com","titleHtml":"Блог компании RUVDS.com","isProfiled":false},{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"357","alias":"javascript","type":"collective","title":"JavaScript","titleHtml":"JavaScript","isProfiled":true},{"relatedData":null,"id":"17110","alias":"nodejs","type":"collective","title":"Node.JS","titleHtml":"Node.JS","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EСегодня мы публикуем четвёртую часть перевода руководства по Node.js. В этом материале мы начнём разговор об npm а также рассмотрим особенности файлов \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E и \u003Ccode\u003Epackage-lock.json\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423703\u002F\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fhe\u002Fdi\u002F2j\u002Fhedi2j_qyfbnwfo_jqnnqd3ub6o.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fhe\u002Fdi\u002F2j\u002Fhedi2j_qyfbnwfo_jqnnqd3ub6o.png\"\u002F\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003E[Советуем почитать] Другие части цикла\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EЧасть 1: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F422893\u002F\"\u003EОбщие сведения и начало работы\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 2: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423153\u002F\"\u003EJavaScript, V8, некоторые приёмы разработки\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 3: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423701\u002F\"\u003EХостинг, REPL, работа с консолью, модули\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 4: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423703\u002F\"\u003Enpm, файлы package.json и package-lock.json\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 5: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423705\u002F\"\u003Enpm и npx\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 6: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424553\u002F\"\u003Eцикл событий, стек вызовов, таймеры\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 7: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424555\u002F\"\u003Eасинхронное программирование\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 8: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424557\u002F\"\u003EРуководство по Node.js, часть 8: протоколы HTTP и WebSocket\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 9: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424969\u002F\"\u003EРуководство по Node.js, часть 9: работа с файловой системой\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 10: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F425667\u002F\"\u003EРуководство по Node.js, часть 10: стандартные модули, потоки, базы данных, NODE_ENV\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F428576\u002F\"\u003EПолная PDF-версия руководства по Node.js\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EОсновы npm\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nNpm (node package manager) — это менеджер пакетов Node.js. В первой части этого материала мы уже упоминали о том, что сейчас в npm имеется более полумиллиона пакетов, что делает его самым большим в мире репозиторием кода, написанного на одном языке. Это позволяет говорить о том, что в npm можно найти пакеты, предназначенные для решения практически любых задач.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИзначально npm создавался как система управления пакетами для Node.js, но в наши дни он используется и при разработке фронтенд-проектов на JavaScript. Для взаимодействия с реестром npm используется одноимённая команда, которая даёт разработчику огромное количество возможностей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Загрузка пакетов\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nС помощью команды \u003Ccode\u003Enpm\u003C\u002Fcode\u003E можно загружать пакеты из реестра. Ниже мы рассмотрим примеры её использования.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Установка всех зависимостей проекта\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЕсли в проекте имеется файл \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E, то установить все зависимости этого проекта можно такой командой:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Enpm install\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭта команда загрузит всё, что нужно проекту, и поместит эти материалы в папку \u003Ccode\u003Enode_modules\u003C\u002Fcode\u003E, создав её в том случае, если она не существует в директории проекта.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Установка отдельного пакета\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nОтдельный можно установить следующей командой:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Enpm install &lt;package-name\u003E\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЧасто можно видеть, как эту команду используют не в таком вот простом виде, а с некоторыми флагами. Рассмотрим их:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EФлаг \u003Ccode\u003E--save\u003C\u002Fcode\u003E позволяет установить пакет и добавить запись о нём в раздел \u003Ccode\u003Edependencies\u003C\u002Fcode\u003E файла \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E, который описывает зависимости проекта. Эти зависимости используются проектом для реализации его основного функционала, они устанавливаются в ходе его развёртывания на сервере (после выхода npm 5 записи об устанавливаемых пакетах в разделе зависимостей делаются автоматически, и без использования этого флага).\u003C\u002Fli\u003E\r\n\u003Cli\u003EФлаг \u003Ccode\u003E--save-dev\u003C\u002Fcode\u003E позволяет установить пакет и добавить запись о нём в раздел, содержащий перечень зависимостей разработки (то есть — пакетов, которые нужны в ходе разработки проекта, вроде библиотек для тестирования, но не требуются для его работы) файла \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E, который называется \u003Ccode\u003EdevDependencies\u003C\u002Fcode\u003E.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Обновление пакетов\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nДля обновления пакетов служит следующая команда:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Enpm update\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПолучив эту команду, npm проверит все пакеты на наличие их новых версий, и, если найдёт их новые версии, соответствующие ограничениям на версии пакетов, заданным в \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E, установит их.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОбновить можно и отдельный пакет:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Enpm update &lt;package-name\u003E\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Загрузка пакетов определённых версий\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВ дополнение к стандартной загрузке пакетов, npm поддерживает и загрузку их определённых версий. В частности, можно заметить, что некоторые библиотеки совместимы лишь с некими крупными релизами других библиотек, то есть, если бы зависимости таких библиотек устанавливались бы без учёта версий, это могло бы нарушить их работу. Возможность установить определённую версию некоего пакета полезна и в ситуациях, когда, например, вам вполне подходит самый свежий релиз этого пакета, но оказывается, что в нём имеется ошибка. Ожидая выхода исправленной версии пакета, можно воспользоваться и его более старым но стабильным релизом.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВозможность задавать конкретные версии необходимых проекту библиотек полезна в командной разработке, когда все члены команды пользуются в точности одними и теми же библиотеками. Переход на их новые версии так же осуществляется централизованно, путём внесения изменений в файл проекта \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВо всех этих случаях возможность указания версий пакетов, необходимых проекту, чрезвычайно полезна. Npm следует стандарту семантического версионирования (semver).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Запуск скриптов\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nФайл \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E поддерживает возможность описания команд (скриптов), запускать которые можно с помощью такой конструкции:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Enpm &lt;task-name\u003E\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nНапример, вот как выглядят перечень скриптов, имеющийся в соответствующем разделе файла:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"scripts\": {\n    \"start-dev\": \"node lib\u002Fserver-development\",\n    \"start\": \"node lib\u002Fserver-production\"\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВесьма распространено использование этой возможности для запуска Webpack:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"scripts\": {\n    \"watch\": \"webpack --watch --progress --colors --config webpack.conf.js\",\n    \"dev\": \"webpack --progress --colors --config webpack.conf.js\",\n    \"prod\": \"NODE_ENV=production webpack -p --config webpack.conf.js\",\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТакой подход даёт возможность заменить ввод длинных команд, чреватый ошибками, следующими простыми конструкциями:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E$ npm watch\n$ npm dev\n$ npm prod\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Куда npm устанавливает пакеты?\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nПри установке пакетов с использованием npm (или \u003Ca href=\"https:\u002F\u002Fflaviocopes.com\u002Fyarn\u002F\"\u003Eyarn\u003C\u002Fa\u003E) доступны два варианта установки: локальная и глобальная.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПо умолчанию, когда для установки пакета используют команду наподобие \u003Ccode\u003Enpm install lodash\u003C\u002Fcode\u003E, пакет оказывается в папке \u003Ccode\u003Enode_modules\u003C\u002Fcode\u003E, расположенной в папке проекта. Кроме того, если была выполнена вышеописанная команда, npm также добавит запись о библиотеке \u003Ccode\u003Elodash\u003C\u002Fcode\u003E в раздел \u003Ccode\u003Edependencies\u003C\u002Fcode\u003E файла \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E, который имеется в текущей директории.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nГлобальная установка пакетов выполняется с использованием флага \u003Ccode\u003E-g\u003C\u002Fcode\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Enpm install -g lodash\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВыполняя такую команду, npm не устанавливает пакет в локальную папку проекта. Вместо этого он копирует файлы пакета в некое глобальное расположение. Куда именно попадают эти файлы?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля того чтобы это узнать, воспользуйтесь следующей командой:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Enpm root -g\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ macOS или Linux файлы пакетов могут оказаться в директории \u003Ccode\u003E\u002Fusr\u002Flocal\u002Flib\u002Fnode_modules\u003C\u002Fcode\u003E. В Windows это может быть нечто вроде \u003Ccode\u003EC:\\Users\\YOU\\AppData\\Roaming\\npm\\node_modules\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОднако если вы используете для управления версиями Node.js nvm, путь к папке с глобальными пакетами может измениться.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯ, например, использую nvm, и вышеописанная команда сообщает мне о том, что глобальные пакеты устанавливаются по такому адресу: \u003Ccode\u003E\u002FUsers\u002Fflavio\u002F.nvm\u002Fversions\u002Fnode\u002Fv8.9.0\u002Flib\u002Fnode_modules\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Использование и выполнение пакетов, установленных с помощью npm\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nКак использовать модули, установленные с помощью npm, локально или глобально, попадающие в папки \u003Ccode\u003Enode_modules\u003C\u002Fcode\u003E? Предположим, вы установили популярную библиотеку \u003Ccode\u003Elodash\u003C\u002Fcode\u003E, содержащую множество вспомогательных функций, используемых в JavaScript-разработке:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Enpm install lodash\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТакая команда установит библиотеку в локальную папку проекта \u003Ccode\u003Enode_modules\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля того чтобы использовать её в своём коде, достаточно импортировать её с применением команды \u003Ccode\u003Erequire\u003C\u002Fcode\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Econst _ = require('lodash')\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКак быть, если пакет представляет собой исполняемый файл?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ таком случае исполняемый файл попадёт в папку \u003Ccode\u003Enode_modules\u002F.bin\u002F folder\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПосмотреть на то, как выглядит работа этого механизма можно, установив пакет \u003Ca href=\"https:\u002F\u002Fwww.npmjs.com\u002Fpackage\u002Fcowsay\"\u003Ecowsay\u003C\u002Fa\u003E. Он представляет собой шуточную программу, написанную для командной строки. Если передать этому пакету какой-нибудь текст, в консоли, в стиле ASCII-арта, будет выведено изображение коровы, которая «произносит» соответствующий текст. «Озвучивать» текст могут и другие существа.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИтак, после установки пакета с использованием команды \u003Ccode\u003Enpm install cowsay\u003C\u002Fcode\u003E, он, вместе со своими зависимостями, попадёт в \u003Ccode\u003Enode_modules\u003C\u002Fcode\u003E. А в скрытую папку \u003Ccode\u003E.bin\u003C\u002Fcode\u003E будут записаны символические ссылки на бинарные файлы cowsay.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКак их выполнять?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКонечно, можно, для вызова программы, ввести в терминале нечто вроде \u003Ccode\u003E.\u002Fnode_modules\u002F.bin\u002Fcowsay\u003C\u002Fcode\u003E, это рабочий подход, но гораздо лучше воспользоваться \u003Ca href=\"https:\u002F\u002Fflaviocopes.com\u002Fnpx\u002F\"\u003Enpx\u003C\u002Fa\u003E, средством для запуска исполняемых файлов npm-пакетов, включаемым в npm начиная с версии 5.2. А именно, в нашем случае понадобится такая команда:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Enpx cowsay\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПуть к пакету npx найдёт автоматически.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EФайл package.json\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nФайл \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E является важнейшим элементов множества проектов, основанных на экосистеме Node.js. Если вы программировали на JavaScript, была ли это серверная или клиентская разработка, то вы, наверняка, уже встречались с этим файлом. Зачем он нужен? Что вам следует о нём знать и какие возможности он вам даёт?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EPackage.json\u003C\u002Fcode\u003E представляет собой нечто вроде файла-манифеста для проекта. Он даёт в распоряжение разработчика множество разноплановых возможностей. Например, он представляет собой центральный репозиторий настроек для инструментальных средств, используемых в проекте. Кроме того, он является тем местом, куда \u003Ca href=\"https:\u002F\u002Fflaviocopes.com\u002Fnpm\u002F\"\u003Enpm\u003C\u002Fa\u003E и \u003Ca href=\"https:\u002F\u002Fflaviocopes.com\u002Fyarn\u002F\"\u003Eyarn\u003C\u002Fa\u003E записывают сведения об именах и версиях установленных пакетов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Структура файла\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВот пример простейшего файла \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКак видите, он пуст. Нет жёстких требований, касающихся того, что должно присутствовать в подобном файле для некоего приложения. Единственное требование к структуре файла заключается в том, что она должна следовать правилам формата JSON. В противном случае этот файл не сможет быть прочитан программами, которые попытаются получить доступ к его содержимому.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли вы создаёте Node.js-пакет, который собираетесь распространять через npm, то всё радикальным образом меняется, и в вашем \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E должен быть набор свойств, которые помогут другим людям пользоваться пакетом. Подробнее мы поговорим об этом позже.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВот ещё один пример \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"name\": \"test-project\"\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ нём задано свойство \u003Ccode\u003Ename\u003C\u002Fcode\u003E, значением которого является имя приложения или пакета, материалы которого содержатся в той же папке, где находится этот файл.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВот пример посложнее, который я взял из приложения-примера, написанного с использованием Vue.js:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"name\": \"test-project\",\n  \"version\": \"1.0.0\",\n  \"description\": \"A Vue.js project\",\n  \"main\": \"src\u002Fmain.js\",\n  \"private\": true,\n  \"scripts\": {\n    \"dev\": \"webpack-dev-server --inline --progress --config build\u002Fwebpack.dev.conf.js\",\n    \"start\": \"npm run dev\",\n    \"unit\": \"jest --config test\u002Funit\u002Fjest.conf.js --coverage\",\n    \"test\": \"npm run unit\",\n    \"lint\": \"eslint --ext .js,.vue src test\u002Funit\",\n    \"build\": \"node build\u002Fbuild.js\"\n  },\n  \"dependencies\": {\n    \"vue\": \"^2.5.2\"\n  },\n  \"devDependencies\": {\n    \"autoprefixer\": \"^7.1.2\",\n    \"babel-core\": \"^6.22.1\",\n    \"babel-eslint\": \"^8.2.1\",\n    \"babel-helper-vue-jsx-merge-props\": \"^2.0.3\",\n    \"babel-jest\": \"^21.0.2\",\n    \"babel-loader\": \"^7.1.1\",\n    \"babel-plugin-dynamic-import-node\": \"^1.2.0\",\n    \"babel-plugin-syntax-jsx\": \"^6.18.0\",\n    \"babel-plugin-transform-es2015-modules-commonjs\": \"^6.26.0\",\n    \"babel-plugin-transform-runtime\": \"^6.22.0\",\n    \"babel-plugin-transform-vue-jsx\": \"^3.5.0\",\n    \"babel-preset-env\": \"^1.3.2\",\n    \"babel-preset-stage-2\": \"^6.22.0\",\n    \"chalk\": \"^2.0.1\",\n    \"copy-webpack-plugin\": \"^4.0.1\",\n    \"css-loader\": \"^0.28.0\",\n    \"eslint\": \"^4.15.0\",\n    \"eslint-config-airbnb-base\": \"^11.3.0\",\n    \"eslint-friendly-formatter\": \"^3.0.0\",\n    \"eslint-import-resolver-webpack\": \"^0.8.3\",\n    \"eslint-loader\": \"^1.7.1\",\n    \"eslint-plugin-import\": \"^2.7.0\",\n    \"eslint-plugin-vue\": \"^4.0.0\",\n    \"extract-text-webpack-plugin\": \"^3.0.0\",\n    \"file-loader\": \"^1.1.4\",\n    \"friendly-errors-webpack-plugin\": \"^1.6.1\",\n    \"html-webpack-plugin\": \"^2.30.1\",\n    \"jest\": \"^22.0.4\",\n    \"jest-serializer-vue\": \"^0.3.0\",\n    \"node-notifier\": \"^5.1.2\",\n    \"optimize-css-assets-webpack-plugin\": \"^3.2.0\",\n    \"ora\": \"^1.2.0\",\n    \"portfinder\": \"^1.0.13\",\n    \"postcss-import\": \"^11.0.0\",\n    \"postcss-loader\": \"^2.0.8\",\n    \"postcss-url\": \"^7.2.1\",\n    \"rimraf\": \"^2.6.0\",\n    \"semver\": \"^5.3.0\",\n    \"shelljs\": \"^0.7.6\",\n    \"uglifyjs-webpack-plugin\": \"^1.1.1\",\n    \"url-loader\": \"^0.5.8\",\n    \"vue-jest\": \"^1.0.2\",\n    \"vue-loader\": \"^13.3.0\",\n    \"vue-style-loader\": \"^3.0.1\",\n    \"vue-template-compiler\": \"^2.5.2\",\n    \"webpack\": \"^3.6.0\",\n    \"webpack-bundle-analyzer\": \"^2.9.0\",\n    \"webpack-dev-server\": \"^2.9.1\",\n    \"webpack-merge\": \"^4.1.0\"\n  },\n  \"engines\": {\n    \"node\": \"\u003E= 6.0.0\",\n    \"npm\": \"\u003E= 3.0.0\"\n  },\n  \"browserslist\": [\n    \"\u003E 1%\",\n    \"last 2 versions\",\n    \"not ie &lt;= 8\"\n  ]\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКак видите, тут прямо-таки немеряно всего интересного. А именно, здесь можно выделить следующие свойства:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ccode\u003Ename\u003C\u002Fcode\u003E — задаёт имя приложения (пакета).\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Eversion\u003C\u002Fcode\u003E — содержит сведения о текущей версии приложения.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Edescription\u003C\u002Fcode\u003E — краткое описание приложения.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Emain\u003C\u002Fcode\u003E — задаёт точку входа в приложение.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Eprivate\u003C\u002Fcode\u003E — если данное свойство установлено в \u003Ccode\u003Etrue\u003C\u002Fcode\u003E, это позволяет предотвратить случайную публикацию пакета в npm.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Escripts\u003C\u002Fcode\u003E — задаёт набор Node.js-скриптов, которые можно запускать.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Edependencies\u003C\u002Fcode\u003E — содержит список npm-пакетов, от которых зависит приложение.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003EdevDependencies\u003C\u002Fcode\u003E — содержит список npm-пакетов, используемых при разработке проекта, но не при его реальной работе.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Eengines\u003C\u002Fcode\u003E — задаёт список версий Node.js, на которых работает приложение.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Ebrowserlist\u003C\u002Fcode\u003E — используется для хранения списка браузеров (и их версий), которые должно поддерживать приложение.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nВсе эти свойства используются либо npm либо другими инструментальными средствами, применяемыми в течение жизненного цикла приложения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Свойства, используемые в package.json\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nПоговорим о свойствах, которые можно использовать в \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E. Здесь мы будем использовать термин «пакет», но всё, что сказано о пакетах, справедливо и для локальных приложений, которые не планируется использовать в роли пакетов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nБольшинство свойств, которые мы опишем, используются лишь для нужд \u003Ca href=\"https:\u002F\u002Fwww.npmjs.com\u002F\"\u003Eрепозитория\u003C\u002Fa\u003E npm, некоторые используются программами, которые взаимодействуют с кодом, вроде того же npm.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство name\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Ename\u003C\u002Fcode\u003E задаёт имя пакета:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"name\": \"test-project\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nИмя должно быть короче 214 символов, не должно включать в себя пробелы, должно состоять только из прописных букв, дефисов (\u003Ccode\u003E-\u003C\u002Fcode\u003E) и символов подчёркивания (\u003Ccode\u003E_\u003C\u002Fcode\u003E).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПодобные ограничения существуют из-за того, что когда пакет публикуется в npm, его имя используется для формирования URL страницы пакета.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли вы публиковали код пакета на GitHub, в общем доступе, то хорошим вариантом имени пакета является имя соответствующего GitHub-репозитория.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство author\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Eauthor\u003C\u002Fcode\u003E содержит сведения об авторе пакета:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"author\": \"Flavio Copes &lt;flavio@flaviocopes.com\u003E (https:\u002F\u002Fflaviocopes.com)\"\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nОно может быть представлено и в таком формате:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"author\": {\n    \"name\": \"Flavio Copes\",\n    \"email\": \"flavio@flaviocopes.com\",\n    \"url\": \"https:\u002F\u002Fflaviocopes.com\"\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство contributors\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Econtributors\u003C\u002Fcode\u003E содержит массив со сведениями о людях, внёсших вклад в проект:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"contributors\": [\n    \"Flavio Copes &lt;flavio@flaviocopes.com\u003E (https:\u002F\u002Fflaviocopes.com)\"\n  ]\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭто свойство может выглядеть и так:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"contributors\": [\n    {\n      \"name\": \"Flavio Copes\",\n      \"email\": \"flavio@flaviocopes.com\",\n      \"url\": \"https:\u002F\u002Fflaviocopes.com\"\n    }\n  ]\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство bugs\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВ свойстве \u003Ccode\u003Ebugs\u003C\u002Fcode\u003E содержится ссылка на баг-трекер проекта, весьма вероятно то, что такая ссылка будет вести на страницу системы отслеживания ошибок GitHub:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"bugs\": \"https:\u002F\u002Fgithub.com\u002Fflaviocopes\u002Fpackage\u002Fissues\"\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство homepage\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Ehomepage\u003C\u002Fcode\u003E позволяет задать домашнюю страницу пакета:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"homepage\": \"https:\u002F\u002Fflaviocopes.com\u002Fpackage\"\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство version\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Eversion\u003C\u002Fcode\u003E содержит сведения о текущей версии пакета:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"version\": \"1.0.0\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПри формировании значения этого свойства нужно следовать правилам \u003Ca href=\"https:\u002F\u002Fsemver.org\u002Flang\u002Fru\u002F\"\u003Eсемантического версионирования\u003C\u002Fa\u003E. Это означает, в частности, что номер версии всегда представлен тремя цифрами: x.x.x.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПервое число — это мажорная версия пакета, второе — минорная версия, третье — патч-версия.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИзменение этих чисел несёт в себе определённый смысл. Так, релиз пакета, в котором лишь исправляются ошибки, приводит к увеличению значения патч-версии. Если выходит релиз пакета, изменения, внесённые в который, отличаются обратной совместимостью с предыдущим релизом — то меняется минорная версия. В мажорных версиях пакетов могут присутствовать изменения, которые делают эти пакеты несовместимыми с пакетами предыдущих мажорных версий.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство license\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Elicense\u003C\u002Fcode\u003E содержит сведения о лицензии пакета:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"license\": \"MIT\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство keywords\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Ekeywords\u003C\u002Fcode\u003E содержит массив ключевых слов, имеющих отношение к функционалу пакета:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"keywords\": [\n  \"email\",\n  \"machine learning\",\n  \"ai\"\n]\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПравильный подбор ключевых слов помогает людям находить то, что им нужно, при поиске пакетов для решения неких задач, позволяет группировать пакеты и быстро оценивать их возможный функционал при просмотре сайта npm.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство description\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Edescription\u003C\u002Fcode\u003E содержит краткое описание пакета:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"description\": \"A package to work with strings\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭто свойство особенно важно в том случае, если вы планируете публиковать пакет в npm, так как оно позволяет пользователям сайта npm понять предназначение пакета.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство repository\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Erepository\u003C\u002Fcode\u003E указывает на то, где находится репозиторий пакета:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"repository\": \"github:flaviocopes\u002Ftesting\",\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nОбратите внимание, что у значения этого свойства имеется префикс \u003Ccode\u003Egithub\u003C\u002Fcode\u003E. Npm поддерживает префиксы и для некоторых других популярных сервисов подобного рода:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"repository\": \"gitlab:flaviocopes\u002Ftesting\",\n\"repository\": \"bitbucket:flaviocopes\u002Ftesting\",\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nИспользуемую при разработке пакета систему контроля версий можно задать и в явном виде:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"repository\": {\n  \"type\": \"git\",\n  \"url\": \"https:\u002F\u002Fgithub.com\u002Fflaviocopes\u002Ftesting.git\"\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nОдин и тот же пакет может использовать разные системы контроля версий:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"repository\": {\n  \"type\": \"svn\",\n  \"url\": \"...\"\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство main\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Emain\u003C\u002Fcode\u003E задаёт точку входа в пакет:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"main\": \"src\u002Fmain.js\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКогда пакет импортируют в приложение, именно здесь будет осуществляться поиск того, что экспортирует соответствующий модуль.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство private\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Eprivate\u003C\u002Fcode\u003E, установленное в \u003Ccode\u003Etrue\u003C\u002Fcode\u003E, позволяет предотвратить случайную публикацию пакета в npm:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"private\": true\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство scripts\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Escripts\u003C\u002Fcode\u003E задаёт список скриптов или утилит, которые можно запускать средствами npm:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"scripts\": {\n  \"dev\": \"webpack-dev-server --inline --progress --config build\u002Fwebpack.dev.conf.js\",\n  \"start\": \"npm run dev\",\n  \"unit\": \"jest --config test\u002Funit\u002Fjest.conf.js --coverage\",\n  \"test\": \"npm run unit\",\n  \"lint\": \"eslint --ext .js,.vue src test\u002Funit\",\n  \"build\": \"node build\u002Fbuild.js\"\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭти скрипты являются приложениями командной строки. Запускать их можно с помощью npm или yarn, выполняя, соответственно, команды вида \u003Ccode\u003Enpm run XXXX\u003C\u002Fcode\u003E или \u003Ccode\u003Eyarn XXXX\u003C\u002Fcode\u003E, где \u003Ccode\u003EXXXX\u003C\u002Fcode\u003E — имя скрипта. Например, выглядеть это может так:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Enpm run dev\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nСкрипты можно называть так, как вам хочется, делать они могут практически всё, чего может пожелать разработчик.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство dependencies\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Edependencies\u003C\u002Fcode\u003E содержит список npm-пакетов, установленных в виде зависимостей пакета:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"dependencies\": {\n  \"vue\": \"^2.5.2\"\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПри установке пакета с использованиеме npm или yarn используются команды такого вида:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Enpm install &lt;PACKAGENAME\u003E\nyarn add &lt;PACKAGENAME\u003E\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭти пакеты автоматически добавляются в список зависимостей разрабатываемого пакета.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство devDependencies\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003EdevDependencies\u003C\u002Fcode\u003E содержит список npm-пакетов, установленных как зависимости разработки:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"devDependencies\": {\n  \"autoprefixer\": \"^7.1.2\",\n  \"babel-core\": \"^6.22.1\"\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭтот список отличается от того, который хранится в свойстве \u003Ccode\u003Edependencies\u003C\u002Fcode\u003E, так как имеющиеся в нём пакеты устанавливаются лишь в системе разработчика пакета, при практическом использовании пакета они не применяются.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПакеты попадают в этот список при их установке с помощью npm или yarn, выполняемой следующим образом:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Enpm install --dev &lt;PACKAGENAME\u003E\nyarn add --dev &lt;PACKAGENAME\u003E\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство engines\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Eengines\u003C\u002Fcode\u003E указывает, какие версии Node.js и других программных продуктов используются для обеспечения работы пакета:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"engines\": {\n  \"node\": \"\u003E= 6.0.0\",\n  \"npm\": \"\u003E= 3.0.0\",\n  \"yarn\": \"^0.13.0\"\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСвойство browserlist\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nСвойство \u003Ccode\u003Ebrowserlist\u003C\u002Fcode\u003E позволяет сообщить о том, какие браузеры (и их версии) собирается поддерживать разработчик пакета:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E\"browserslist\": [\n  \"\u003E 1%\",\n  \"last 2 versions\",\n  \"not ie &lt;= 8\"\n]\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭтим свойством пользуются Babel, Autoprefixer и другие инструменты. Анализ этого списка позволяет им добавлять в пакет только те полифиллы и вспомогательные механизмы, которые нужны для перечисленных браузеров.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоказанное здесь в качестве примера значение свойства \u003Ccode\u003Ebrowserlist\u003C\u002Fcode\u003E означает, что вы хотите поддерживать как минимум 2 мажорные версии всех браузеров с как минимум 1% использования (эти данные берутся с ресурса \u003Ca href=\"https:\u002F\u002Fcaniuse.com\u002F\"\u003ECanIUse.com\u003C\u002Fa\u003E), за исключением IE 8 и более старых версий этого браузера (подробнее об этом можно узнать на странице пакета \u003Ca href=\"https:\u002F\u002Fwww.npmjs.com\u002Fpackage\u002Fbrowserslist\"\u003Ebrowserlists\u003C\u002Fa\u003E).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Хранение в package.json настроек для различных программных инструментов\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВ \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E можно хранить настройки для различных вспомогательных инструментов вроде Babel или ESLint.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКаждому из таких инструментов соответствует особое свойство, наподобие \u003Ccode\u003EeslintConfig\u003C\u002Fcode\u003E или \u003Ccode\u003Ebabel\u003C\u002Fcode\u003E. Подробности об использовании подобных свойств можно найти в документации соответствующих проектов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍О версиях пакетов и семантическом версионировании\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВ вышеприведённых примерах вы могли видеть, что номера версий пакетов задаются не только в виде обычных чисел, разделённых точками, но и с использованием неких специальных символов. Например, в виде \u003Ccode\u003E~3.0.0\u003C\u002Fcode\u003E или \u003Ccode\u003E^0.13.0\u003C\u002Fcode\u003E. Здесь использованы так называемые спецификаторы версий, которые определяют диапазон версий пакетов, подходящих для использования в нашем пакете.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУчитывая то, что при использовании семантического версионирования все номера версий пакетов состоят из последовательностей, представляющих собой три числа, о смысле которых мы говорили выше, опишем следующие правила использования спецификаторов версий:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ccode\u003E~\u003C\u002Fcode\u003E: если вы задаёте версию в виде \u003Ccode\u003E~0.13.0\u003C\u002Fcode\u003E это означает, что вас интересуют лишь патч-релизы пакета. То есть, пакет \u003Ccode\u003E0.13.1\u003C\u002Fcode\u003E вам подойдёт, а \u003Ccode\u003E0.14.0\u003C\u002Fcode\u003E — нет.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E^\u003C\u002Fcode\u003E: если номер версии задан в виде \u003Ccode\u003E^0.13.0\u003C\u002Fcode\u003E, это означает, что вам подходят новые патч-версии и минорные версии пакета. То есть, вас устроят версии пакета \u003Ccode\u003E0.13.1\u003C\u002Fcode\u003E, \u003Ccode\u003E0.14.0\u003C\u002Fcode\u003E, и так далее.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E*\u003C\u002Fcode\u003E: воспользовавшись этим символом, вы сообщаете системе, что вас устроят любые свежие версии пакета, в том числе — его новые мажорные релизы.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E\u003E\u003C\u002Fcode\u003E: подходят любые версии пакета, которые больше заданной.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E\u003E=\u003C\u002Fcode\u003E: подходят любые версии пакета, которые равны или больше заданной.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E&lt;=\u003C\u002Fcode\u003E: вас устроят пакеты, версии которых равны заданной или меньше её.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E&lt;\u003C\u002Fcode\u003E: вас интересуют пакеты, версии которых меньше заданной.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E=\u003C\u002Fcode\u003E: вам нужна только заданная версия пакета.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E-\u003C\u002Fcode\u003E: используется для указания диапазона подходящих версий, например — \u003Ccode\u003E2.1.0 - 2.6.2\u003C\u002Fcode\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E||\u003C\u002Fcode\u003E: позволяет комбинировать наборы условий, касающихся пакетов. Например это может выглядеть как \u003Ccode\u003E&lt; 2.1 || \u003E 2.6\u003C\u002Fcode\u003E.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nЕсть и ещё некоторые правила:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eотсутствие дополнительных символов: если используется номер версии пакета без дополнительных символов, это значит, что вашему пакету нужна только заданная версия пакета-зависимости и никакая другая.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Elatest\u003C\u002Fcode\u003E: указывает на то, что вам требуется самая свежая версия некоего пакета.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nБольшинство вышеописанных спецификаторов можно комбинировать, например, задавая диапазоны подходящих версий пакетов-зависимостей. Скажем, конструкция вида \u003Ccode\u003E1.0.0 || \u003E=1.1.0 &lt;1.2.0\u003C\u002Fcode\u003E указывает на то, что планируется использовать либо версию пакета \u003Ccode\u003E1.0.0\u003C\u002Fcode\u003E, либо версию, номер которой больше или равен \u003Ccode\u003E1.1.0\u003C\u002Fcode\u003E, но меньше \u003Ccode\u003E1.2.0\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EФайл package-lock.json\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nФайл \u003Ccode\u003Epackage-lock.json\u003C\u002Fcode\u003E используется с момента появления npm версии 5. Он создаётся автоматически при установке Node.js-пакетов. Что это за файл? Возможно, вы не знакомы с ним даже если знали о \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E, который существует гораздо дольше него.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЦель этого файла заключается в отслеживании точных версий установленных пакетов, что позволяет сделать разрабатываемый продукт стопроцентно воспроизводимым в его исходном виде даже в случае, если те, кто занимается поддержкой пакетов, их обновили.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭтот файл решает весьма специфическую проблему, которая не решается средствами \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E. В \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E можно указать, какие обновления некоего пакета вам подходят (патч-версии или минорные версии) с использованием вышеописанных спецификаторов версий. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ Git не коммитят папку \u003Ccode\u003Enode_modules\u003C\u002Fcode\u003E, так как обычно она имеет огромные размеры. Когда вы пытаетесь воссоздать проект на другом компьютере, то использование команды \u003Ccode\u003Enpm install\u003C\u002Fcode\u003E приведёт к тому, что, если, при использовании спецификатора \u003Ccode\u003E~\u003C\u002Fcode\u003E в применении к версии некоего пакета, вышел его патч-релиз, установлен будет не тот пакет, который использовался при разработке, а именно этот патч-релиз.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТо же самое касается и спецификатора \u003Ccode\u003E^\u003C\u002Fcode\u003E. Если же при указании версии пакета спецификаторы не использовались, то будет установлена именно его указанная версия и проблема, о которой идёт речь, окажется в такой ситуации неактуальной.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИтак, кто-то пытается инициализировать проект, пользуясь командой \u003Ccode\u003Enpm install\u003C\u002Fcode\u003E. При выходе новых версий пакетов окажется, что этот проект отличается от исходного. Даже если, следуя правилам семантического версионирования, минорные релизы и патч-релизы не должны содержать в себе изменений, препятствующих обратной совместимости, все мы знаем, что ошибки способны проникать (и проникают) куда угодно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nФайл \u003Ccode\u003Epackage-lock.json\u003C\u002Fcode\u003E хранит в неизменном виде сведения о версии каждого установленного пакета и npm будет использовать именно эти версии пакетов при выполнении команды \u003Ccode\u003Enpm install\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭта концепция не нова, менеджеры пакетов, применяемые в других языках программирования (вроде менеджера Composer в PHP) используют похожую систему многие годы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nФайл \u003Ccode\u003Epackage-lock.json\u003C\u002Fcode\u003E нужно отправить в Git-репозиторий, что позволит другим людям скачать его в том случае, если проект является общедоступным, или тогда, когда его разработкой занимается команда программистов, или если вы используете Git для развёртывания проекта.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВерсии зависимостей будут обновлены в \u003Ccode\u003Epackage-lock.json\u003C\u002Fcode\u003E после выполнения команды \u003Ccode\u003Enpm update\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Пример файла package-lock.json\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВ этом примере продемонстрирована структура файла \u003Ccode\u003Epackage-lock.json\u003C\u002Fcode\u003E, который входит в состав пакет cowsay, устанавливаемого в пустой папке командой npm \u003Ccode\u003Einstall cowsay\u003C\u002Fcode\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E{\n  \"requires\": true,\n  \"lockfileVersion\": 1,\n  \"dependencies\": {\n    \"ansi-regex\": {\n      \"version\": \"3.0.0\",\n      \"resolved\": \"https:\u002F\u002Fregistry.npmjs.org\u002Fansi-regex\u002F-\u002Fansi-regex-3.\n0.0.tgz\",\n      \"integrity\": \"sha1-7QMXwyIGT3lGbAKWa922Bas32Zg=\"\n    },\n    \"cowsay\": {\n      \"version\": \"1.3.1\",\n      \"resolved\": \"https:\u002F\u002Fregistry.npmjs.org\u002Fcowsay\u002F-\u002Fcowsay-1.3.1.tgz\"\n,\n      \"integrity\": \"sha512-3PVFe6FePVtPj1HTeLin9v8WyLl+VmM1l1H\u002F5P+BTTDkM\nAjufp+0F9eLjzRnOHzVAYeIYFF5po5NjRrgefnRMQ==\",\n      \"requires\": {\n        \"get-stdin\": \"^5.0.1\",\n        \"optimist\": \"~0.6.1\",\n        \"string-width\": \"~2.1.1\",\n        \"strip-eof\": \"^1.0.0\"\n      }\n    },\n    \"get-stdin\": {\n      \"version\": \"5.0.1\",\n      \"resolved\": \"https:\u002F\u002Fregistry.npmjs.org\u002Fget-stdin\u002F-\u002Fget-stdin-5.0.\n1.tgz\",\n      \"integrity\": \"sha1-Ei4WFZHiH\u002FTFJTAwVpPyDmOTo5g=\"\n    },\n    \"is-fullwidth-code-point\": {\n      \"version\": \"2.0.0\",\n      \"resolved\": \"https:\u002F\u002Fregistry.npmjs.org\u002Fis-fullwidth-code-point\u002F-\u002F\nis-fullwidth-code-point-2.0.0.tgz\",\n      \"integrity\": \"sha1-o7MKXE8ZkYMWeqq5O+764937ZU8=\"\n    },\n    \"minimist\": {\n      \"version\": \"0.0.10\",\n      \"resolved\": \"https:\u002F\u002Fregistry.npmjs.org\u002Fminimist\u002F-\u002Fminimist-0.0.10\n.tgz\",\n      \"integrity\": \"sha1-3j+YVD2\u002Flggr5IrRoMfNqDYwHc8=\"\n    },\n    \"optimist\": {\n      \"version\": \"0.6.1\",\n      \"resolved\": \"https:\u002F\u002Fregistry.npmjs.org\u002Foptimist\u002F-\u002Foptimist-0.6.1.tgz\",\n      \"integrity\": \"sha1-2j6nRob6IaGaERwybpDrFaAZZoY=\",\n      \"requires\": {\n        \"minimist\": \"~0.0.1\",\n        \"wordwrap\": \"~0.0.2\"\n      }\n    },\n    \"string-width\": {\n      \"version\": \"2.1.1\",\n      \"resolved\": \"https:\u002F\u002Fregistry.npmjs.org\u002Fstring-width\u002F-\u002Fstring-width-2.1.1.tgz\",\n      \"integrity\": \"sha512-nOqH59deCq9SRHlxq1Aw85Jnt4w6KvLKqWVik6oA9ZklXLNIOlqg4F2yrT1MVaTjAqvVwdfeZ7w7aCvJD7ugkw==\",\n      \"requires\": {\n        \"is-fullwidth-code-point\": \"^2.0.0\",\n        \"strip-ansi\": \"^4.0.0\"\n      }\n    },\n    \"strip-ansi\": {\n      \"version\": \"4.0.0\",\n      \"resolved\": \"https:\u002F\u002Fregistry.npmjs.org\u002Fstrip-ansi\u002F-\u002Fstrip-ansi-4.0.0.tgz\",\n      \"integrity\": \"sha1-qEeQIusaw2iocTibY1JixQXuNo8=\",\n      \"requires\": {\n        \"ansi-regex\": \"^3.0.0\"\n      }\n    },\n    \"strip-eof\": {\n      \"version\": \"1.0.0\",\n      \"resolved\": \"https:\u002F\u002Fregistry.npmjs.org\u002Fstrip-eof\u002F-\u002Fstrip-eof-1.0.0.tgz\",\n      \"integrity\": \"sha1-u0P\u002FVZim6wXYm1n80SnJgzE2Br8=\"\n    },\n    \"wordwrap\": {\n      \"version\": \"0.0.3\",\n      \"resolved\": \"https:\u002F\u002Fregistry.npmjs.org\u002Fwordwrap\u002F-\u002Fwordwrap-0.0.3.tgz\",\n      \"integrity\": \"sha1-o9XabNXAvAAI03I0u68b7WMFkQc=\"\n    }\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nРазберём этот файл. Мы устанавливаем пакет cowsay, который зависит от следующих пакетов:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eget-stdin\u003C\u002Fli\u003E\r\n\u003Cli\u003Eoptimist\u003C\u002Fli\u003E\r\n\u003Cli\u003Estring-width\u003C\u002Fli\u003E\r\n\u003Cli\u003Estrip-eof\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nЭти пакеты, в свою очередь, зависят от других пакетов, сведения о которых мы можем почерпнуть из свойств \u003Ccode\u003Erequires\u003C\u002Fcode\u003E, которые имеются у некоторых из них:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eansi-regex\u003C\u002Fli\u003E\r\n\u003Cli\u003Eis-fullwidth-code-point\u003C\u002Fli\u003E\r\n\u003Cli\u003Eminimist\u003C\u002Fli\u003E\r\n\u003Cli\u003Ewordwrap\u003C\u002Fli\u003E\r\n\u003Cli\u003Estrip-eof\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nОни добавляются в файл в алфавитном порядке, у каждого есть поле \u003Ccode\u003Eversion\u003C\u002Fcode\u003E, есть поле \u003Ccode\u003Eresolved\u003C\u002Fcode\u003E, указывающее на расположение пакета, и строковое свойство \u003Ccode\u003Eintegrity\u003C\u002Fcode\u003E, которое можно использовать для проверки целостности пакета.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EИтоги\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nСегодня мы начали разговор об npm и разобрались со структурой и назначением файлов \u003Ccode\u003Epackage.json\u003C\u002Fcode\u003E и \u003Ccode\u003Epackage-lock.json\u003C\u002Fcode\u003E. В следующий раз продолжим разбирать возможности npm и коснёмся использования npx.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EУважаемые читатели!\u003C\u002Fb\u003E Какой менеджер пакетов вы предпочитаете — npm или yarn?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fruvds.com\u002Fru-rub\u002F#order\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F1ba\u002F550\u002Fd25\u002F1ba550d25e8846ce8805de564da6aa63.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F1ba\u002F550\u002Fd25\u002F1ba550d25e8846ce8805de564da6aa63.png\"\u002F\u003E\u003C\u002Fa\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"JavaScript"},{"titleHtml":"Node.js"},{"titleHtml":"обучение"},{"titleHtml":"разработка"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F423703\u002F020f6235214b1ac9ed557750b1d73ff4\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F423703\u002F020f6235214b1ac9ed557750b1d73ff4\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fruvds\\\u002Fblog\\\u002F423703\\\u002F\"},\"headline\":\"Руководство по Node.js, часть 4: npm, файлы package.json и package-lock.json\",\"datePublished\":\"2018-09-20T12:00:01+03:00\",\"dateModified\":\"2019-03-07T12:08:28+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"ru_vds\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Сегодня мы публикуем четвёртую часть перевода руководства по Node.js. В этом материале мы начнём разговор об npm а также рассмотрим особенности файлов package.js...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fruvds\\\u002Fblog\\\u002F423703\\\u002F#post-content-body\",\"about\":[\"c_ruvds\",\"h_webdev\",\"h_javascript\",\"h_nodejs\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fhe\\\u002Fdi\\\u002F2j\\\u002Fhedi2j_qyfbnwfo_jqnnqd3ub6o.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Ffiles\\\u002F1ba\\\u002F550\\\u002Fd25\\\u002F1ba550d25e8846ce8805de564da6aa63.png\"]}","metaDescription":"Сегодня мы публикуем четвёртую часть перевода руководства по Node.js. В этом материале мы начнём разговор об npm а также рассмотрим особенности файлов package.json и...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"ruvds":{"alias":"ruvds","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002Ff27\u002Fea8\u002F5bd\u002Ff27ea85bd62fbd985c308110885af7e0.png","titleHtml":"RUVDS.com","descriptionHtml":"VDS\u002FVPS-хостинг. Скидка 10% по коду \u003Cb\u003EHABR10\u003C\u002Fb\u003E","relatedData":null,"statistics":{"postsCount":2242,"newsCount":95,"vacanciesCount":0,"employeesCount":75,"careerRating":null,"subscribersCount":45766,"rating":2738.1,"invest":null},"foundationDate":{"year":"2015","month":"07","day":"27"},"location":{"city":{"id":"447159","title":"Москва"},"region":{"id":"1885","title":"Москва и Московская обл."},"country":{"id":"168","title":"Россия"}},"siteUrl":"https:\u002F\u002Fruvds.com","staffNumber":"11–30 человек","registrationDate":"2016-03-18T05:43:01+00:00","representativeUser":{"alias":"ruvds","fullname":null},"contacts":[{"title":"Facebook","url":"https:\u002F\u002Ffacebook.com\u002Fruvds"},{"title":"Twitter","url":"https:\u002F\u002Ftwitter.com\u002Fru_vds"},{"title":"ВКонтакте","url":"https:\u002F\u002Fvk.com\u002Fru_vds"}],"settings":{"analyticsSettings":[{"type":"ym","trackingId":"33905479"}],"branding":{"imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fbranding\u002Fb77\u002F8d5\u002Fa41\u002Fb778d5a41f83016379c6630262c3294c.png","linkUrl":"https:\u002F\u002Fruvds.com\u002Fru-rub","pixelUrl":null},"status":"active","isStartup":false},"metadata":{"titleHtml":"RUVDS.com, Москва - VDS\u002FVPS-хостинг. Скидка 10% по коду \u003Cb\u003EHABR10\u003C\u002Fb\u003E с 27 июля 2015 г.","title":"RUVDS.com, Москва - VDS\u002FVPS-хостинг. Скидка 10% по коду HABR10 с 27 июля 2015 г.","keywords":["Научно-популярное","Читальный зал","DIY или Сделай сам","Информационная безопасность","Системное администрирование","разработка","ruvds_статьи","javascript","ruvds_перевод","ruvds","linux","react","python","ruvds_новости","обучение","системное администрирование","css","node.js","ruvds_статьи_выходного_дня","diy","игры","программирование","информационная безопасность","хостинг","arduino"],"descriptionHtml":"2 242 статьи от авторов компании RUVDS.com","description":"2 242 статьи от авторов компании RUVDS.com"},"aDeskSettings":null,"careerAlias":"ruvds"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

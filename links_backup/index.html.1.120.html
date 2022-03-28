@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Уровни изолированности транзакций для самых маленьких / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/469415\/"},"headline":"Уровни изолированности транзакций для самых маленьких","datePublished":"2019-11-12T11:04:32+03:00","dateModified":"2020-07-06T11:51:17+03:00","author":{"@type":"Person","name":"slava-a"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Сегодня хотел бы довести крайне интересный, но часто покрытый тайнами для обычных смертных программистов раздел базы данных (БД) &mdash; уровни изолированности транз...","url":"https:\/\/habr.com\/ru\/post\/469415\/#post-content-body","about":["h_mysql","h_postgresql","h_programming","h_sql","h_db_admins","f_develop","f_admin"],"image":["https:\/\/habrastorage.org\/webt\/v3\/-j\/65\/v3-j65ut9hywvpnw1wmt5q6c2sg.jpeg","https:\/\/habrastorage.org\/webt\/df\/8n\/xl\/df8nxlfhhcshcjodtparllhouba.png","https:\/\/habrastorage.org\/webt\/hd\/38\/qz\/hd38qzflrzu-nnx7hs91yx7zyhm.png","https:\/\/habrastorage.org\/webt\/ey\/k2\/sd\/eyk2sdewgeir6kmpjchumikl8t4.png","https:\/\/habrastorage.org\/webt\/7v\/oq\/tr\/7voqtrzl7ihmkswvkx0tsxao7n8.png","https:\/\/habrastorage.org\/webt\/zp\/4r\/ja\/zp4rjad7h4w67oozlqjhyo7fp1u.png","https:\/\/habrastorage.org\/webt\/5q\/v6\/oe\/5qv6oevjrhcoe2ubmwxvmu5wapy.png","https:\/\/habrastorage.org\/webt\/mx\/8f\/i0\/mx8fi0low9lqjenhnl2gx0sg6aq.png","https:\/\/habrastorage.org\/webt\/ja\/w5\/oj\/jaw5ojjrb1m7bi-9lhbifndcvye.png","https:\/\/habrastorage.org\/webt\/75\/xu\/jj\/75xujjftplz_b3r8mhjsqcla7zc.png","https:\/\/habrastorage.org\/webt\/ll\/kv\/yw\/llkvywaijh7l7uyfsnqwy1a6ivm.png","https:\/\/habrastorage.org\/webt\/ia\/kh\/lj\/iakhljpnwnxyame2qgxmqrhcyyu.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Уровни изолированности транзакций для самых маленьких" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Уровни изолированности транзакций для самых маленьких" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Уровни изолированности транзакций для самых маленьких" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Сегодня хотел бы довести крайне интересный, но часто покрытый тайнами для обычных смертных программистов раздел базы данных (БД) — уровни изолированности транзакций. Как показывает практика,..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Сегодня хотел бы довести крайне интересный, но часто покрытый тайнами для обычных смертных программистов раздел базы данных (БД) — уровни изолированности транзакций. Как показывает практика,..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Сегодня хотел бы довести крайне интересный, но часто покрытый тайнами для обычных смертных программистов раздел базы данных (БД) — уровни изолированности транзакций. Как показывает практика,..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Сегодня хотел бы довести крайне интересный, но часто покрытый тайнами для обычных смертных программистов раздел базы данных (БД) — уровни изолированности транзакций. Как показывает практика,..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Сегодня хотел бы довести крайне интересный, но часто покрытый тайнами для обычных смертных программистов раздел базы данных (БД) — уровни изолированности транзакций. Как показывает практика,..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/469415/49886479089689ba69ae383598600cb2/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/469415/49886479089689ba69ae383598600cb2/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/469415/49886479089689ba69ae383598600cb2/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/469415/49886479089689ba69ae383598600cb2/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/469415/49886479089689ba69ae383598600cb2/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="469415" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2019-11-12T08:04:32.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/469415/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="mysql, isolation levels, transactions, postgresql">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/469415/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.120.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/469415/49886479089689ba69ae383598600cb2/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/slava-a/" title="slava-a" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_pink"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/slava-a/" class="tm-user-info__username">
+      slava-a
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2019-11-12T08:04:32.000Z" title="2019-11-12, 11:04">12  ноября  2019 в 11:04</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Уровни изолированности транзакций для самых маленьких</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/mysql/" class="tm-article-snippet__hubs-item-link"><span>MySQL</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/postgresql/" class="tm-article-snippet__hubs-item-link"><span>PostgreSQL</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/programming/" class="tm-article-snippet__hubs-item-link"><span>Программирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/sql/" class="tm-article-snippet__hubs-item-link"><span>SQL</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/db_admins/" class="tm-article-snippet__hubs-item-link"><span>Администрирование баз данных</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><img src="https://habrastorage.org/r/w780q1/webt/v3/-j/65/v3-j65ut9hywvpnw1wmt5q6c2sg.jpeg" data-src="https://habrastorage.org/webt/v3/-j/65/v3-j65ut9hywvpnw1wmt5q6c2sg.jpeg" data-blurred="true"/><br/>
+<br/>
+Сегодня хотел бы довести крайне интересный, но часто покрытый тайнами для обычных смертных программистов раздел базы данных (БД) — уровни изолированности транзакций. Как показывает практика, многие люди, связанные с IT, в частности с работой с БД, слабо понимают зачем нужны эти уровни и как их можно использовать себе во благо.<br/>
+<br/>
+<h3>Немного теории</h3><br/>
+Сами транзакции особых объяснений не требуют, транзакция — это N (N≥1) запросов к БД, которые выполнятся успешно все вместе или не выполнятся вовсе. Изолированность же транзакции показывает то, насколько сильно влияют друг на друга параллельно выполняющиеся транзакции.<br/>
+Выбирая уровень транзакции, мы пытаемся прийти к консенсусу в выборе между высокой согласованностью данных между транзакциями и скоростью выполнения этих самых транзакций.<br/>
+Стоит отметить, что самую высокую скорость выполнения и самую низкую согласованность имеет уровень <b>read uncommitted</b>. Самую низкую скорость выполнения и самую высокую согласованность — <b>serializable</b>.<br/>
+<a name="habracut"></a><br/>
+<h3>Подготовка окружения</h3><br/>
+Для примеров была выбрана СУБД MySQL. PostgreSQL мог бы тоже использоваться, но он не поддерживает уровень изоляции <b>read uncommitted</b>, и <a href="https://www.postgresql.org/docs/9.5/transaction-iso.html" rel="nofollow">использует вместо него</a> уровень <b>read committed</b>. Да и как оказалось, разные СУБД по-разному воспринимают уровни изолированности. Могут иметь разнообразные нюансы в обеспечении изоляции, иметь дополнительные уровни или не иметь общеизвестных.<br/>
+<br/>
+Создадим окружение с помощью готового образа MySQL с Docker Hub. И заполним базу данными.<br/>
+<br/>
+<div class="spoiler" role="button" tabindex="0">
+                        <b class="spoiler_title">docker-compose.yaml</b>
+                        <div class="spoiler_text"><pre><code class="xml">version: '3.4'
+services:
+  db:
+    image: mysql:8
+    environment:
+        - MYSQL_ROOT_PASSWORD=12345
+    command: --init-file /init.sql
+    volumes:
+        - data:/var/lib/mysql
+        - ./init.sql:/init.sql
+    expose:
+        - "3306"
+    ports:
+        - "3309:3306"
+
+volumes:
+  data:
+</code></pre><br/>
+</div>
+                    </div><br/>
+<div class="spoiler" role="button" tabindex="0">
+                        <b class="spoiler_title">Заполнение базы данных</b>
+                        <div class="spoiler_text"><pre><code class="sql">create database if not exists bank;
+
+use bank;
+
+create table if not exists accounts
+(
+	id int unsigned auto_increment
+		primary key,
+	login varchar(255) not null,
+	balance bigint default 0 not null,
+	created_at timestamp default now()
+) collate=utf8mb4_unicode_ci;
+
+insert into accounts (login, balance) values ('petya', 1000);
+insert into accounts (login, balance) values ('vasya', 2000);
+insert into accounts (login, balance) values ('mark', 500);
+</code></pre><br/>
+</div>
+                    </div><br/>
+Рассмотрим как работают уровни и их особенности. <br/>
+Примеры будем выполнять на 2 параллельно исполняющихся транзакциях. Условно транзакцию в левом окне будем называть <i>транзакция 1</i> (Т1), в правом окне — <i>транзакция 2</i> (Т2).<br/>
+<br/>
+<h3>Read uncommitted</h3><br/>
+Уровень, имеющий самую плохую согласованность данных, но самую высокую скорость выполнения транзакций. Название уровня говорит само за себя — каждая транзакция видит незафиксированные изменения другой транзакции (феномен <b>грязного чтения</b>). Посмотрим какое влияние оказывают друг на друга такие транзакции. <br/>
+<br/>
+<b>Шаг 1.</b> Начинаем 2 параллельные транзакции.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/df/8n/xl/df8nxlfhhcshcjodtparllhouba.png" data-src="https://habrastorage.org/webt/df/8n/xl/df8nxlfhhcshcjodtparllhouba.png"/><br/>
+<br/>
+<b>Шаг 2.</b> Смотрим какая информация имеется у нас в начале.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/hd/38/qz/hd38qzflrzu-nnx7hs91yx7zyhm.png" data-src="https://habrastorage.org/webt/hd/38/qz/hd38qzflrzu-nnx7hs91yx7zyhm.png"/><br/>
+<br/>
+<b>Шаг 3.</b> Теперь выполняем операции INSERT, DELETE, UPDATE в Т1, и посмотрим, что теперь видит другая транзакция.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/ey/k2/sd/eyk2sdewgeir6kmpjchumikl8t4.png" data-src="https://habrastorage.org/webt/ey/k2/sd/eyk2sdewgeir6kmpjchumikl8t4.png"/><br/>
+<br/>
+Т2 видит данные другой транзакции, которые еще не были зафиксированы.<br/>
+<br/>
+<b>Шаг 4.</b> И Т2 может получить какие-то данные.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/7v/oq/tr/7voqtrzl7ihmkswvkx0tsxao7n8.png" data-src="https://habrastorage.org/webt/7v/oq/tr/7voqtrzl7ihmkswvkx0tsxao7n8.png"/><br/>
+<br/>
+<b>Шаг 5.</b> При откате изменений Т1, данные полученные Т2 окажутся ошибочными. <br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/zp/4r/ja/zp4rjad7h4w67oozlqjhyo7fp1u.png" data-src="https://habrastorage.org/webt/zp/4r/ja/zp4rjad7h4w67oozlqjhyo7fp1u.png"/><br/>
+<br/>
+На данном уровне нельзя использовать данные, на основе которых делаются важные для приложения выводы и критические решения т.к выводы эти могут быть далеки от реальности.<br/>
+Данный уровень можно использовать, например, для примерных расчетов чего-либо. Результат <i>COUNT(*)</i> или <i>MAX(*)</i> можно использовать в каких-нибудь нестрогих отчетах. <br/>
+Другой пример это режим отладки. Когда во время транзакции, вы хотите видеть, что происходит с базой.<br/>
+<br/>
+<h3>Read committed</h3><br/>
+Для этого уровня параллельно исполняющиеся транзакции видят только зафиксированные изменения из других транзакций. Таким образом, данный уровень обеспечивает защиту от <b>грязного чтения</b>.<br/>
+<br/>
+Шаг 1 и Шаг 2 аналогичны предыдущему примеру.<br/>
+<br/>
+Шаг 3. Также выполним 3 простейшие операции с таблицей accounts (Т1) и сделаем полную выборку из этих таблиц в обеих транзакциях.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/5q/v6/oe/5qv6oevjrhcoe2ubmwxvmu5wapy.png" data-src="https://habrastorage.org/webt/5q/v6/oe/5qv6oevjrhcoe2ubmwxvmu5wapy.png"/><br/>
+<br/>
+И увидим, что феномен <b>грязного чтения</b> в Т2 отсутствует.<br/>
+<br/>
+Шаг 4. Зафиксируем изменения Т1 и проверим, что теперь видит Т2.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/mx/8f/i0/mx8fi0low9lqjenhnl2gx0sg6aq.png" data-src="https://habrastorage.org/webt/mx/8f/i0/mx8fi0low9lqjenhnl2gx0sg6aq.png"/><br/>
+<br/>
+Теперь Т2 видит все, что сделала Т1. Это так называемые феномен <b>неповторяющегося чтения</b>, когда мы видим обновленные и удаленные строки (UPDATE, DELETE), и феномен <b>чтения фантомов</b>, когда мы видим добавленные записи (INSERT).<br/>
+<br/>
+<h3>Repeatable read</h3><br/>
+Уровень, позволяющий предотвратить феномен <b>неповторяющегося чтения</b>. Т.е. мы не видим в исполняющейся транзакции измененные и удаленные записи другой транзакцией. Но все еще видим вставленные записи из другой транзакции. <b>Чтение фантомов</b> никуда не уходит.<br/>
+<br/>
+Снова повторяем Шаг 1 и Шаг 2.<br/>
+<br/>
+Шаг 3. В Т1 выполняем запросы INSERT, UPDATE и DELETE. После, в Т2 пытаемся обновить ту же самую строку, которую обновили в Т1.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/ja/w5/oj/jaw5ojjrb1m7bi-9lhbifndcvye.png" data-src="https://habrastorage.org/webt/ja/w5/oj/jaw5ojjrb1m7bi-9lhbifndcvye.png"/><br/>
+<br/>
+И получаем lock: T2 будет ждать, пока T1 не зафиксирует изменения или не откатится.<br/>
+<br/>
+Шаг 4. Зафиксируем изменения, которые сделала Т1. И прочитаем снова данные из таблицы accounts в Т2.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/75/xu/jj/75xujjftplz_b3r8mhjsqcla7zc.png" data-src="https://habrastorage.org/webt/75/xu/jj/75xujjftplz_b3r8mhjsqcla7zc.png"/><br/>
+<br/>
+Как видно, феноменов <b>неповторяющегося чтения</b> и <b>чтения фантомов</b> не наблюдается. Как же так, ведь по умолчанию, <b>repeatable read</b> позволяет нам предотвратить только феномен <b>неповторяющегося чтения</b>? <br/>
+<br/>
+На самом деле в MySQL отсутствует эффект <b>чтения фантомов</b> для уровня <b>repeatable read</b>. И в PostgreSQL от него тоже избавились для этого уровня. Хотя в классическом представлении этого уровня, мы должны наблюдать этот эффект.<br/>
+<br/>
+Небольшой абстрактный пример — сервис генерации подарочных сертификатов (кодов) и их использования. Например, злоумышленник сгенерировал себе код сертификата и пытается его активировать, пытаясь послать несколько запросов подряд на активацию купона. В таком случае у нас запустится несколько параллельно исполняемых транзакций, работающих с одним и тем же купоном. И в некоторых ситуациях может возникнуть двойная или даже тройная активация купона (пользователь получит 2x/3x бонусов). При <b>repeatable read</b> в данном случае возникнет lock и активация пройдет единожды, а в предыдущих 2 уровнях возможна многократная активация. Подобную проблему можно также решить с помощью запроса <i>SELECT FOR UPDATE</i>, который также заблокирует обновляемую запись (купон).<br/>
+<br/>
+<h3>Serializable</h3><br/>
+Уровень, при котором транзакции ведут себя как будто ничего более не существует, никакого влияния друг на друга нет. В классическом представлении этот уровень избавляет от эффекта <b>чтения фантомов</b>.<br/>
+<br/>
+<b>Шаг 1.</b> Начинаем транзакции.<br/>
+<br/>
+<b>Шаг 2.</b> Т2 читаем таблицу accounts, затем Т1 пытаемся обновить данные прочитанные Т2.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/ll/kv/yw/llkvywaijh7l7uyfsnqwy1a6ivm.png" data-src="https://habrastorage.org/webt/ll/kv/yw/llkvywaijh7l7uyfsnqwy1a6ivm.png"/><br/>
+<br/>
+Получаем lock: мы не можем изменить данные в одной транзакции, прочитанные в другой.<br/>
+<br/>
+<b>Шаг 3.</b> И INSERT и DELETE ведет нас к lock'у в Т1.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/ia/kh/lj/iakhljpnwnxyame2qgxmqrhcyyu.png" data-src="https://habrastorage.org/webt/ia/kh/lj/iakhljpnwnxyame2qgxmqrhcyyu.png"/><br/>
+<br/>
+Пока Т2 не завершит свою работу, мы не сможем работать с данными, которые она прочитала. Мы получаем максимальную согласованность данных, никакие лишние данные не зафиксируются. Цена за это медленная скорость транзакций из-за частых lock'ов поэтому при плохой архитектуре приложения это может сыграть с Вами злую шутку.<br/>
+<br/>
+<h3>Выводы</h3><br/>
+В большинстве приложений уровень изолированности редко меняется и используется значение по умолчанию (например, в MySQL это <b>repeatable read</b>, в PostgreSQL — <b>read committed</b>).<br/>
+<br/>
+Но периодически возникают, задачи, в которых поиск лучшего баланса между высокой согласованностью данных или скоростью выполнения транзакций может помочь решить некоторую прикладную задачу.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bmysql%5D" class="tm-tags-list__link">mysql</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bisolation%20levels%5D" class="tm-tags-list__link">isolation levels</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Btransactions%5D" class="tm-tags-list__link">transactions</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bpostgresql%5D" class="tm-tags-list__link">postgresql</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/mysql/" class="tm-hubs-list__link">
+    MySQL
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/postgresql/" class="tm-hubs-list__link">
+    PostgreSQL
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/programming/" class="tm-hubs-list__link">
+    Программирование
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/sql/" class="tm-hubs-list__link">
+    SQL
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/db_admins/" class="tm-hubs-list__link">
+    Администрирование баз данных
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 42: ↑36 и ↓6</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 42: ↑36 и ↓6" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+30</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">101K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    279
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/slava-a/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_pink"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 22 голоса " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    14
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><!----> <a href="https://habr.com/ru/users/slava-a/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @slava-a
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/469415/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 16 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner4995" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner4996" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/administrator_baz_dannykh" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Администратор баз данных
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        191
+    вакансия
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/469415/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/469415/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"469415":{"id":"469415","timePublished":"2019-11-12T08:04:32+00:00","isCorporative":false,"lang":"ru","titleHtml":"Уровни изолированности транзакций для самых маленьких","leadData":{"textHtml":"\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fv3\u002F-j\u002F65\u002Fv3-j65ut9hywvpnw1wmt5q6c2sg.jpeg\"\u003E\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nСегодня хотел бы довести крайне интересный, но часто покрытый тайнами для обычных смертных программистов раздел базы данных (БД) — уровни изолированности транзакций. Как показывает практика, многие люди, связанные с IT, в частности с работой с БД, слабо понимают зачем нужны эти уровни и как их можно использовать себе во благо.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Ch3\u003EНемного теории\u003C\u002Fh3\u003E\u003Cbr\u003E\r\nСами транзакции особых объяснений не требуют, транзакция — это N (N≥1) запросов к БД, которые выполнятся успешно все вместе или не выполнятся вовсе. Изолированность же транзакции показывает то, насколько сильно влияют друг на друга параллельно выполняющиеся транзакции.\u003Cbr\u003E\r\nВыбирая уровень транзакции, мы пытаемся прийти к консенсусу в выборе между высокой согласованностью данных между транзакциями и скоростью выполнения этих самых транзакций.\u003Cbr\u003E\r\nСтоит отметить, что самую высокую скорость выполнения и самую низкую согласованность имеет уровень \u003Cb\u003Eread uncommitted\u003C\u002Fb\u003E. Самую низкую скорость выполнения и самую высокую согласованность — \u003Cb\u003Eserializable\u003C\u002Fb\u003E.\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":14,"votesCount":22},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"2005167","alias":"slava-a","fullname":null,"avatarUrl":null,"speciality":null},"statistics":{"commentsCount":16,"favoritesCount":279,"readingCount":100535,"score":30,"votesCount":42},"hubs":[{"relatedData":null,"id":"306","alias":"mysql","type":"collective","title":"MySQL","titleHtml":"MySQL","isProfiled":true},{"relatedData":null,"id":"358","alias":"postgresql","type":"collective","title":"PostgreSQL","titleHtml":"PostgreSQL","isProfiled":true},{"relatedData":null,"id":"359","alias":"programming","type":"collective","title":"Программирование","titleHtml":"Программирование","isProfiled":true},{"relatedData":null,"id":"594","alias":"sql","type":"collective","title":"SQL","titleHtml":"SQL","isProfiled":true},{"relatedData":null,"id":"17681","alias":"db_admins","type":"collective","title":"Администрирование баз данных","titleHtml":"Администрирование баз данных","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"},{"id":"6","alias":"admin","title":"Администрирование"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fv3\u002F-j\u002F65\u002Fv3-j65ut9hywvpnw1wmt5q6c2sg.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fv3\u002F-j\u002F65\u002Fv3-j65ut9hywvpnw1wmt5q6c2sg.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСегодня хотел бы довести крайне интересный, но часто покрытый тайнами для обычных смертных программистов раздел базы данных (БД) — уровни изолированности транзакций. Как показывает практика, многие люди, связанные с IT, в частности с работой с БД, слабо понимают зачем нужны эти уровни и как их можно использовать себе во благо.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EНемного теории\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nСами транзакции особых объяснений не требуют, транзакция — это N (N≥1) запросов к БД, которые выполнятся успешно все вместе или не выполнятся вовсе. Изолированность же транзакции показывает то, насколько сильно влияют друг на друга параллельно выполняющиеся транзакции.\u003Cbr\u002F\u003E\r\nВыбирая уровень транзакции, мы пытаемся прийти к консенсусу в выборе между высокой согласованностью данных между транзакциями и скоростью выполнения этих самых транзакций.\u003Cbr\u002F\u003E\r\nСтоит отметить, что самую высокую скорость выполнения и самую низкую согласованность имеет уровень \u003Cb\u003Eread uncommitted\u003C\u002Fb\u003E. Самую низкую скорость выполнения и самую высокую согласованность — \u003Cb\u003Eserializable\u003C\u002Fb\u003E.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EПодготовка окружения\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nДля примеров была выбрана СУБД MySQL. PostgreSQL мог бы тоже использоваться, но он не поддерживает уровень изоляции \u003Cb\u003Eread uncommitted\u003C\u002Fb\u003E, и \u003Ca href=\"https:\u002F\u002Fwww.postgresql.org\u002Fdocs\u002F9.5\u002Ftransaction-iso.html\" rel=\"nofollow\"\u003Eиспользует вместо него\u003C\u002Fa\u003E уровень \u003Cb\u003Eread committed\u003C\u002Fb\u003E. Да и как оказалось, разные СУБД по-разному воспринимают уровни изолированности. Могут иметь разнообразные нюансы в обеспечении изоляции, иметь дополнительные уровни или не иметь общеизвестных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСоздадим окружение с помощью готового образа MySQL с Docker Hub. И заполним базу данными.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\" role=\"button\" tabindex=\"0\"\u003E\n                        \u003Cb class=\"spoiler_title\"\u003Edocker-compose.yaml\u003C\u002Fb\u003E\n                        \u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"xml\"\u003Eversion: '3.4'\nservices:\n  db:\n    image: mysql:8\n    environment:\n        - MYSQL_ROOT_PASSWORD=12345\n    command: --init-file \u002Finit.sql\n    volumes:\n        - data:\u002Fvar\u002Flib\u002Fmysql\n        - .\u002Finit.sql:\u002Finit.sql\n    expose:\n        - \"3306\"\n    ports:\n        - \"3309:3306\"\n\nvolumes:\n  data:\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\n                    \u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\" role=\"button\" tabindex=\"0\"\u003E\n                        \u003Cb class=\"spoiler_title\"\u003EЗаполнение базы данных\u003C\u002Fb\u003E\n                        \u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"sql\"\u003Ecreate database if not exists bank;\n\nuse bank;\n\ncreate table if not exists accounts\n(\n\tid int unsigned auto_increment\n\t\tprimary key,\n\tlogin varchar(255) not null,\n\tbalance bigint default 0 not null,\n\tcreated_at timestamp default now()\n) collate=utf8mb4_unicode_ci;\n\ninsert into accounts (login, balance) values ('petya', 1000);\ninsert into accounts (login, balance) values ('vasya', 2000);\ninsert into accounts (login, balance) values ('mark', 500);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\n                    \u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nРассмотрим как работают уровни и их особенности. \u003Cbr\u002F\u003E\r\nПримеры будем выполнять на 2 параллельно исполняющихся транзакциях. Условно транзакцию в левом окне будем называть \u003Ci\u003Eтранзакция 1\u003C\u002Fi\u003E (Т1), в правом окне — \u003Ci\u003Eтранзакция 2\u003C\u002Fi\u003E (Т2).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003ERead uncommitted\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nУровень, имеющий самую плохую согласованность данных, но самую высокую скорость выполнения транзакций. Название уровня говорит само за себя — каждая транзакция видит незафиксированные изменения другой транзакции (феномен \u003Cb\u003Eгрязного чтения\u003C\u002Fb\u003E). Посмотрим какое влияние оказывают друг на друга такие транзакции. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EШаг 1.\u003C\u002Fb\u003E Начинаем 2 параллельные транзакции.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fdf\u002F8n\u002Fxl\u002Fdf8nxlfhhcshcjodtparllhouba.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fdf\u002F8n\u002Fxl\u002Fdf8nxlfhhcshcjodtparllhouba.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EШаг 2.\u003C\u002Fb\u003E Смотрим какая информация имеется у нас в начале.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fhd\u002F38\u002Fqz\u002Fhd38qzflrzu-nnx7hs91yx7zyhm.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fhd\u002F38\u002Fqz\u002Fhd38qzflrzu-nnx7hs91yx7zyhm.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EШаг 3.\u003C\u002Fb\u003E Теперь выполняем операции INSERT, DELETE, UPDATE в Т1, и посмотрим, что теперь видит другая транзакция.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fey\u002Fk2\u002Fsd\u002Feyk2sdewgeir6kmpjchumikl8t4.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fey\u002Fk2\u002Fsd\u002Feyk2sdewgeir6kmpjchumikl8t4.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТ2 видит данные другой транзакции, которые еще не были зафиксированы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EШаг 4.\u003C\u002Fb\u003E И Т2 может получить какие-то данные.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002F7v\u002Foq\u002Ftr\u002F7voqtrzl7ihmkswvkx0tsxao7n8.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F7v\u002Foq\u002Ftr\u002F7voqtrzl7ihmkswvkx0tsxao7n8.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EШаг 5.\u003C\u002Fb\u003E При откате изменений Т1, данные полученные Т2 окажутся ошибочными. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fzp\u002F4r\u002Fja\u002Fzp4rjad7h4w67oozlqjhyo7fp1u.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fzp\u002F4r\u002Fja\u002Fzp4rjad7h4w67oozlqjhyo7fp1u.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа данном уровне нельзя использовать данные, на основе которых делаются важные для приложения выводы и критические решения т.к выводы эти могут быть далеки от реальности.\u003Cbr\u002F\u003E\r\nДанный уровень можно использовать, например, для примерных расчетов чего-либо. Результат \u003Ci\u003ECOUNT(*)\u003C\u002Fi\u003E или \u003Ci\u003EMAX(*)\u003C\u002Fi\u003E можно использовать в каких-нибудь нестрогих отчетах. \u003Cbr\u002F\u003E\r\nДругой пример это режим отладки. Когда во время транзакции, вы хотите видеть, что происходит с базой.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003ERead committed\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nДля этого уровня параллельно исполняющиеся транзакции видят только зафиксированные изменения из других транзакций. Таким образом, данный уровень обеспечивает защиту от \u003Cb\u003Eгрязного чтения\u003C\u002Fb\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nШаг 1 и Шаг 2 аналогичны предыдущему примеру.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nШаг 3. Также выполним 3 простейшие операции с таблицей accounts (Т1) и сделаем полную выборку из этих таблиц в обеих транзакциях.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002F5q\u002Fv6\u002Foe\u002F5qv6oevjrhcoe2ubmwxvmu5wapy.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F5q\u002Fv6\u002Foe\u002F5qv6oevjrhcoe2ubmwxvmu5wapy.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИ увидим, что феномен \u003Cb\u003Eгрязного чтения\u003C\u002Fb\u003E в Т2 отсутствует.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nШаг 4. Зафиксируем изменения Т1 и проверим, что теперь видит Т2.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fmx\u002F8f\u002Fi0\u002Fmx8fi0low9lqjenhnl2gx0sg6aq.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fmx\u002F8f\u002Fi0\u002Fmx8fi0low9lqjenhnl2gx0sg6aq.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТеперь Т2 видит все, что сделала Т1. Это так называемые феномен \u003Cb\u003Eнеповторяющегося чтения\u003C\u002Fb\u003E, когда мы видим обновленные и удаленные строки (UPDATE, DELETE), и феномен \u003Cb\u003Eчтения фантомов\u003C\u002Fb\u003E, когда мы видим добавленные записи (INSERT).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003ERepeatable read\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nУровень, позволяющий предотвратить феномен \u003Cb\u003Eнеповторяющегося чтения\u003C\u002Fb\u003E. Т.е. мы не видим в исполняющейся транзакции измененные и удаленные записи другой транзакцией. Но все еще видим вставленные записи из другой транзакции. \u003Cb\u003EЧтение фантомов\u003C\u002Fb\u003E никуда не уходит.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСнова повторяем Шаг 1 и Шаг 2.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nШаг 3. В Т1 выполняем запросы INSERT, UPDATE и DELETE. После, в Т2 пытаемся обновить ту же самую строку, которую обновили в Т1.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fja\u002Fw5\u002Foj\u002Fjaw5ojjrb1m7bi-9lhbifndcvye.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fja\u002Fw5\u002Foj\u002Fjaw5ojjrb1m7bi-9lhbifndcvye.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИ получаем lock: T2 будет ждать, пока T1 не зафиксирует изменения или не откатится.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nШаг 4. Зафиксируем изменения, которые сделала Т1. И прочитаем снова данные из таблицы accounts в Т2.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002F75\u002Fxu\u002Fjj\u002F75xujjftplz_b3r8mhjsqcla7zc.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F75\u002Fxu\u002Fjj\u002F75xujjftplz_b3r8mhjsqcla7zc.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКак видно, феноменов \u003Cb\u003Eнеповторяющегося чтения\u003C\u002Fb\u003E и \u003Cb\u003Eчтения фантомов\u003C\u002Fb\u003E не наблюдается. Как же так, ведь по умолчанию, \u003Cb\u003Erepeatable read\u003C\u002Fb\u003E позволяет нам предотвратить только феномен \u003Cb\u003Eнеповторяющегося чтения\u003C\u002Fb\u003E? \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа самом деле в MySQL отсутствует эффект \u003Cb\u003Eчтения фантомов\u003C\u002Fb\u003E для уровня \u003Cb\u003Erepeatable read\u003C\u002Fb\u003E. И в PostgreSQL от него тоже избавились для этого уровня. Хотя в классическом представлении этого уровня, мы должны наблюдать этот эффект.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНебольшой абстрактный пример — сервис генерации подарочных сертификатов (кодов) и их использования. Например, злоумышленник сгенерировал себе код сертификата и пытается его активировать, пытаясь послать несколько запросов подряд на активацию купона. В таком случае у нас запустится несколько параллельно исполняемых транзакций, работающих с одним и тем же купоном. И в некоторых ситуациях может возникнуть двойная или даже тройная активация купона (пользователь получит 2x\u002F3x бонусов). При \u003Cb\u003Erepeatable read\u003C\u002Fb\u003E в данном случае возникнет lock и активация пройдет единожды, а в предыдущих 2 уровнях возможна многократная активация. Подобную проблему можно также решить с помощью запроса \u003Ci\u003ESELECT FOR UPDATE\u003C\u002Fi\u003E, который также заблокирует обновляемую запись (купон).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003ESerializable\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nУровень, при котором транзакции ведут себя как будто ничего более не существует, никакого влияния друг на друга нет. В классическом представлении этот уровень избавляет от эффекта \u003Cb\u003Eчтения фантомов\u003C\u002Fb\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EШаг 1.\u003C\u002Fb\u003E Начинаем транзакции.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EШаг 2.\u003C\u002Fb\u003E Т2 читаем таблицу accounts, затем Т1 пытаемся обновить данные прочитанные Т2.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fll\u002Fkv\u002Fyw\u002Fllkvywaijh7l7uyfsnqwy1a6ivm.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fll\u002Fkv\u002Fyw\u002Fllkvywaijh7l7uyfsnqwy1a6ivm.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПолучаем lock: мы не можем изменить данные в одной транзакции, прочитанные в другой.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EШаг 3.\u003C\u002Fb\u003E И INSERT и DELETE ведет нас к lock'у в Т1.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fia\u002Fkh\u002Flj\u002Fiakhljpnwnxyame2qgxmqrhcyyu.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fia\u002Fkh\u002Flj\u002Fiakhljpnwnxyame2qgxmqrhcyyu.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПока Т2 не завершит свою работу, мы не сможем работать с данными, которые она прочитала. Мы получаем максимальную согласованность данных, никакие лишние данные не зафиксируются. Цена за это медленная скорость транзакций из-за частых lock'ов поэтому при плохой архитектуре приложения это может сыграть с Вами злую шутку.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EВыводы\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВ большинстве приложений уровень изолированности редко меняется и используется значение по умолчанию (например, в MySQL это \u003Cb\u003Erepeatable read\u003C\u002Fb\u003E, в PostgreSQL — \u003Cb\u003Eread committed\u003C\u002Fb\u003E).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо периодически возникают, задачи, в которых поиск лучшего баланса между высокой согласованностью данных или скоростью выполнения транзакций может помочь решить некоторую прикладную задачу.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"mysql"},{"titleHtml":"isolation levels"},{"titleHtml":"transactions"},{"titleHtml":"postgresql"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F469415\u002F49886479089689ba69ae383598600cb2\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F469415\u002F49886479089689ba69ae383598600cb2\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F469415\\\u002F\"},\"headline\":\"Уровни изолированности транзакций для самых маленьких\",\"datePublished\":\"2019-11-12T11:04:32+03:00\",\"dateModified\":\"2020-07-06T11:51:17+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"slava-a\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Сегодня хотел бы довести крайне интересный, но часто покрытый тайнами для обычных смертных программистов раздел базы данных (БД) &mdash; уровни изолированности транз...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F469415\\\u002F#post-content-body\",\"about\":[\"h_mysql\",\"h_postgresql\",\"h_programming\",\"h_sql\",\"h_db_admins\",\"f_develop\",\"f_admin\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fv3\\\u002F-j\\\u002F65\\\u002Fv3-j65ut9hywvpnw1wmt5q6c2sg.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fdf\\\u002F8n\\\u002Fxl\\\u002Fdf8nxlfhhcshcjodtparllhouba.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fhd\\\u002F38\\\u002Fqz\\\u002Fhd38qzflrzu-nnx7hs91yx7zyhm.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fey\\\u002Fk2\\\u002Fsd\\\u002Feyk2sdewgeir6kmpjchumikl8t4.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F7v\\\u002Foq\\\u002Ftr\\\u002F7voqtrzl7ihmkswvkx0tsxao7n8.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fzp\\\u002F4r\\\u002Fja\\\u002Fzp4rjad7h4w67oozlqjhyo7fp1u.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F5q\\\u002Fv6\\\u002Foe\\\u002F5qv6oevjrhcoe2ubmwxvmu5wapy.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fmx\\\u002F8f\\\u002Fi0\\\u002Fmx8fi0low9lqjenhnl2gx0sg6aq.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fja\\\u002Fw5\\\u002Foj\\\u002Fjaw5ojjrb1m7bi-9lhbifndcvye.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F75\\\u002Fxu\\\u002Fjj\\\u002F75xujjftplz_b3r8mhjsqcla7zc.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fll\\\u002Fkv\\\u002Fyw\\\u002Fllkvywaijh7l7uyfsnqwy1a6ivm.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fia\\\u002Fkh\\\u002Flj\\\u002Fiakhljpnwnxyame2qgxmqrhcyyu.png\"]}","metaDescription":"Сегодня хотел бы довести крайне интересный, но часто покрытый тайнами для обычных смертных программистов раздел базы данных (БД) — уровни изолированности транзакций. Как показывает практика,...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"Администратор баз данных","vacanciesCount":191,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fadministrator_baz_dannykh","itemHubs":["db_admins"]}],"hubs":"mysql,postgresql,programming,sql,db_admins"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

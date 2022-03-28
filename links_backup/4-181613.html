@@ -1,0 +1,381 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta name=viewport content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<meta property="og:title" content="Механизм транзакций" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Studopedia.org" />
+    <meta property="og:url" content="/4-181613.html" />
+<title>Механизм транзакций</title>
+<link href="https://studopedia.org/s.css" rel="stylesheet" type="text/css">
+<link rel="icon" href="https://studopedia.org/logo.ico" type="image/x-icon">
+<link rel="shortcut icon" href="https://studopedia.org/logo.ico" type="image/x-icon">
+
+  <!-- Yandex.RTB -->
+<script>window.yaContextCb=window.yaContextCb||[]</script>
+
+
+
+<style>
+
+
+div{margin:0px;}
+h1 {
+font-family: arial, verdana, sans-serif; 
+font-size: 18px;
+color:#0077FF;
+margin-left:10px;
+}
+h2{
+font-family: arial, verdana, sans-serif;
+font-size: 16px;
+color:#0077FF;
+margin:5px;
+}
+h3{
+font-family: arial, verdana, sans-serif;
+font-size: 14px;
+color: red;
+}
+img {
+    max-width: 100%;
+    height: auto;      
+}
+   
+p{ font-family: arial, verdana, sans-serif; font-size: 16px; color: #333; margin-left:15px;}
+a{ font-family: arial, verdana, sans-serif; font-size: 16px; color: #003366; }
+a:hover,
+a:active,
+a:focus { color: #000; text-decoration: none;}
+.curled {
+    position:relative;
+    width:97%;
+    padding:1em;
+    margin:1em 1px 4em;
+    background:#fff;
+    -webkit-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 30px rgba(0, 0, 0, 0.1) inset;
+       -moz-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 30px rgba(0, 0, 0, 0.1) inset;
+            box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 30px rgba(0, 0, 0, 0.1) inset;
+    border:1px solid #efefef;
+    -moz-border-radius:0 0 120px 120px / 0 0 6px 6px;
+         border-radius:0 0 120px 120px / 0 0 6px 6px;
+}
+ 
+.curled:before,
+.curled:after {
+    content:"";
+    position:absolute;
+    z-index:-1;
+    bottom:12px;
+    left:10px;
+    width:50%;
+    height:55%;
+    max-width:200px;
+    -webkit-box-shadow:0 2px 12px rgba(0, 0, 0, 0.5);
+       -moz-box-shadow:0 2px 12px rgba(0, 0, 0, 0.5);
+            box-shadow:0 2px 12px rgba(0, 0, 0, 0.5);
+     -webkit-transform:skew(-8deg) rotate(-3deg);
+        -moz-transform:skew(-8deg) rotate(-3deg);
+         -ms-transform:skew(-8deg) rotate(-3deg);
+          -o-transform:skew(-8deg) rotate(-3deg);
+             transform:skew(-8deg) rotate(-3deg);
+} 
+ 
+.gensec{font: 11px Verdana, Arial, Helvetica, sans-serif;}
+.nizpravo{font: 11px Verdana, Arial, Helvetica, sans-serif;}
+.navl{ font-family: arial, verdana, sans-serif; font-size: 13px; color: #003366; margin-left:10px;}
+a.navl:hover,
+a.navl:active,
+a.navl:focus {color: #CC3300;  text-decoration: none;}
+.navspan{ margin-left:10px; }
+.share{ margin-left:10px; }
+.red{ color: #C00000; font: 14px ; }
+a.ared{ color: #C00000; font: 12px ;}
+.page{text-align:center;}
+.viewinfo{font-size:12px; color:#999999; }
+.red{color:#FF0000; font-weight: bold;}
+.green{color:#007F00; font-weight: bold;}
+
+
+.class {
+    min-height: 2000px;
+    width: 400px;
+    margin: 0 auto;
+}
+#back-top {
+    position: fixed;
+    bottom: 30px;
+    right: 5%;
+}
+#back-top a {
+    width: 48px;
+    display: block;
+    text-align: center;
+    font: bold 8px Arial;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #fff;
+    -webkit-transition: 1s;
+    -moz-transition: 1s;
+    transition: 1s;
+}
+#back-top a:hover {
+    text-decoration: underline;
+}
+#back-top span {
+    width: 48px;
+    height: 48px;
+    display: block;
+    margin-bottom: -14px;
+    background: #0077FF;
+    -webkit-transition: 1s;
+    -moz-transition: 1s;
+    transition: 1s;
+}
+
+.imghight{ margin-top:-5px;}
+
+
+.pagelink {  margin-left: 20px; font-size:9.5pt; }        
+.pagelink a {
+    text-decoration: none;
+	background:#fff;
+	border: solid 1px #AAE;
+	color: #15B;
+	text-align:center;
+}
+
+.pagelink a, .pagelink span {
+    display: block;
+    float: left;
+    padding: 0.3em 0.5em;
+    margin-right: 5px;
+	margin-bottom: 5px;
+	min-width:1em;
+	text-align:center;
+}
+
+.pagelink .current {
+    color: #F00;
+	font-weight:bold;
+}
+
+.pagelink .current.prev, .pagelink .current.next{
+	color:#999;
+	border-color:#999;
+	border: solid 1px #AAE;
+	background:#fff;
+}
+
+.float-block {
+    width: 100%;
+    background-color: #212121;
+    padding: 8px 20px;
+    color: #fff;
+}
+
+.adBanner {
+    background-color: transparent;
+    height: 1px;
+    width: 1px;
+}
+
+
+</style>
+
+</head>
+
+<body>
+
+<div class="curled">
+ <a name="toppp"><table width="100%"; border="0">
+<tbody>
+<tr>
+<td rowspan="2" width="280px" ><a href="https://studopedia.org/"><img src="https://studopedia.org/kartinki/logotype.jpg" align="top" alt="Студопедия.Орг"></a></td>
+<td><a href="https://studopedia.org/" class='navl'>Главная</a> <span class="navspan"> |</span> <a href="https://studopedia.org/random.php" class='navl'>Случайная страница</a> <span class="navspan">|</span>  <a href="https://studopedia.org/call.php" class='navl'>Контакты</a>
+|  <a href='https://studopedia.org/gos.php?id=4' rel='nofollow' target='_blank' class='navl'>Мы поможем в написании вашей работы!</a></div>
+
+</td>
+<td width="370px" >
+&nbsp;
+</td>
+
+</tr>
+<tr>
+<td>
+
+</td><td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+<hr>
+
+
+  
+	
+ 
+<table width="300" border="0" align="left" cellpadding="10" cellspacing="10"><tr><td>
+</td><td valign = "top">
+<noindex>
+<center>
+
+<!-- Yandex.RTB R-A-208762-2 -->
+<div id="yandex_rtb_R-A-208762-2"></div>
+<script type="text/javascript">
+    (function(w, d, n, s, t) {
+        w[n] = w[n] || [];
+        w[n].push(function() {
+            Ya.Context.AdvManager.render({
+                blockId: "R-A-208762-2",
+                renderTo: "yandex_rtb_R-A-208762-2",
+                async: true
+            });
+        });
+        t = d.getElementsByTagName("script")[0];
+        s = d.createElement("script");
+        s.type = "text/javascript";
+        s.src = "//an.yandex.ru/system/context.js";
+        s.async = true;
+        t.parentNode.insertBefore(s, t);
+    })(this, this.document, "yandexContextAsyncCallbacks");
+</script>
+
+</center>
+</noindex>
+
+</td></tr></table>
+</td><td valign="top"><h1>Механизм транзакций</h1><div class="pagelink" ><a href="https://studopedia.org/4-181612.html" class="back_link">&lArr; Предыдущая</a><a href="https://studopedia.org/4-181608.html">61</a><a href="https://studopedia.org/4-181609.html">62</a><a href="https://studopedia.org/4-181610.html">63</a><a href="https://studopedia.org/4-181611.html">64</a><a href="https://studopedia.org/4-181612.html">65</a><span class="current">66</span><a href="https://studopedia.org/4-181614.html">67</a><a href="https://studopedia.org/4-181615.html">68</a><a href="https://studopedia.org/4-181616.html">69</a><a href="https://studopedia.org/4-181618.html">70</a><a href="https://studopedia.org/4-181614.html" class="next_link">Следующая &rArr;</a></div><br><br><div id="divtext"  class="divtext"><table > <tr> <td> Транзакция – это упорядоченная последовательность операторов обработки данных, которая переводит базу данных из одного согласованного состояния в другое.
+ </td> </tr> </table> 
+ <p>Все команды работы с данными выполняются в рамках транзакций. Для каждого сеанса связи с БД в каждый момент времени может существовать единственная транзакция или не быть ни одной транзакции.</p>
+ <p>Транзакция обладает следующими свойствами:</p>
+ <ol> <li>Логическая неделимость (<strong>атомарность</strong>, Atomicity) означает, что выполня-ются либо все операции (команды), входящие в транзакцию, либо ни одной. Система гарантирует невозможность запоминания <u>части</u> изменений, произведённых транзакцией. До тех пор, пока транзакция не завершена, её можно &quot;откатить&quot;, т.е. отменить все сделанные командами транзакции изменения. Успешное выполнение транзакции (фиксация) означает, что все команды транзакции проанализированы, интерпретированы как правильные и безошибочно исполнены. </li> <li><strong>Согласованность</strong> (Consistency): транзакция начинается на согласованном множестве данных и после её завершения множество данных согласовано. Состояние БД является согласованным, если данные удовлетворяют всем установленным ограничениям целостности и относятся к одному моменту в состоянии предметной области. </li> <li><strong>Изолированность</strong> (Isolation), т.е. отсутствие влияния транзакций друг на друга. (На самом деле это влияние существует и регламентируется стандартом: см. раздел 5.3. &quot;Уровни изоляции транзакций&quot;).</li> <li><strong>Устойчивость</strong> (Durability): результаты завершённой транзакции не могут быть потеряны. Возврат БД в предыдущее состояние может быть дос-тигнут только путём запуска компенсирующей транзакции.</li> </ol> <p>Транзакции, удовлетворяющие этим свойствам, называют ACID-транзакциями (по первым буквам названий свойств).</p>
+ <p>Для управления транзакциями в системах, поддерживающих механизм транзакций и язык SQL, используются следующие операторы:</p>
+ <ul> <li><strong>фиксация</strong> транзакции (запоминание изменений): COMMIT [WORK];</li> <li><strong>откат</strong> транзакции (отмена изменений): ROLLBACK [WORK];</li> <li>создание точки сохранения: SAVEPOINT &lt;имя_точки_сохранения&gt;;</li> </ul> <p>(Ключевое слово WORK необязательно). Для фиксации или отката транзакции система создаёт неявные точки фиксации и отката (рис. 5.1).</p>
+ <p><img src="https://konspekta.net/studopediaorg/baza4/241493340393.files/image029.gif" /></p>
+ <p>Рис.5.1. Неявные точки фиксации и отката транзакции</p>	<!-- Yandex.RTB R-A-208762-3 -->
+<div id="yandex_rtb_R-A-208762-3"></div>
+<script>window.yaContextCb.push(()=>{
+  Ya.Context.AdvManager.render({
+    renderTo: 'yandex_rtb_R-A-208762-3',
+    blockId: 'R-A-208762-3'
+  })
+})</script>
+ <p>По команде rollback система откатит транзакцию на начало (на неявную точку отката), а по команде commit – зафиксирует всё до неявной точки фиксации, которая соответствует последней <u>завершённой</u> команде в транзак-ции. Если в транзакции из нескольких команд во время выполнения очередной команды возникнет ошибка, то система откатит только эту ошибочную команду, т.е. отменит её результаты и сохранит прежнюю неявную точку фиксации.</p>
+ <p>Для обеспечения целостности транзакции СУБД может откладывать за-пись изменений в БД до момента успешного выполнения всех операций, вхо-дящих в транзакцию, и получения команды подтверждения транзакции (commit). Но чаще используется другой подход: система записывает изменения в БД, не дожидаясь завершения транзакции, а старые значения данных сохраняет на время выполнения транзакции в сегментах отката.</p>
+ <p><strong>Сегмент отката</strong> (rollback segment, RBS) – это специальная область памяти на диске, в которую записывается информация обо всех текущих (незавершённых) изменениях. Обычно записывается &quot;старое&quot; и &quot;новое&quot; содержимое изменённых записей, чтобы можно было восстановить прежнее состояние БД при откате транзакции (по команде rollback) или при откате текущей операции (в случае возникновения ошибки). Данные в RBS хранятся до тех пор, пока транзакция, изменяющая эти данные, не будет завершена. Потом они могут быть перезаписаны данными более поздних транзакций.</p>
+ <p>Команда savepoint запоминает промежуточную &quot;текущую копию&quot; состояния базы данных для того, чтобы при необходимости можно было вернуться к состоянию БД в точке сохранения: откатить работу от текущего момента до точки сохранения (rollback to &lt;имя_точки&gt;) или зафиксировать работу от начала транзакции до точки сохранения (commit to &lt;имя_точки&gt;). На одну транзакцию может быть несколько точек сохранения (ограничение на их количество зависит от СУБД).</p>
+ <p>Для сохранения сведений о транзакциях СУБД ведёт журнал транзакций. <strong>Журнал транзакций</strong> – это часть БД, в которую поступают данные обо всех изменениях всех объектов БД. Журнал недоступен пользователям СУБД и поддерживается особо тщательно (иногда ведутся две копии журнала, хранимые на разных физических носителях). Форма записи в журнал изменений зависит от СУБД. Но обычно там фиксируется следующее:</p>	<!-- Yandex.RTB R-A-208762-4 -->
+<div id="yandex_rtb_R-A-208762-4"></div>
+<script>window.yaContextCb.push(()=>{
+  Ya.Context.AdvManager.render({
+    renderTo: 'yandex_rtb_R-A-208762-4',
+    blockId: 'R-A-208762-4'
+  })
+})</script>
+ <ul> <li>номер транзакции (номера присваиваются автоматически по возраста-нию);</li> <li>состояние транзакции (завершена фиксацией или откатом, не завершена, находится в состоянии ожидания);</li> <li>точки сохранения (явные и неявные);</li> <li>команды, составляющие транзакцию, и проч.</li> </ul> <p>Начало транзакции соответствует появлению первого исполняемого SQL-оператора. При этом в журнале появляется запись об этой транзакции.</p>
+ <p>По стандарту ANSI/ISO транзакция завершается при наступлении одного из следующих событий:</p>
+ <ul> <li>Поступила команда commit (результаты транзакции фиксируются).</li> <li>Поступила команда rollback (результаты транзакции откатываются).</li> <li>Успешно завершена программа (exit, quit), в рамках которой выполнялась транзакция. В этом случае транзакция фиксируется автоматически.</li> <li>Программа, выполняющая транзакцию, завершена аварийно (abort). При этом транзакция автоматически откатывается.</li> </ul> <p><strong>Примечания:</strong></p>
+ <ol> <li>Возможна работа в режиме AUTOCOMMIT, когда каждая команда воспринимается системой как транзакция. В этом режиме пользователи меньше задерживают друг друга, требуется меньше памяти для сегмента отката, зато результаты ошибочно вы-полненной операции нельзя отменить командой rollback.</li> <li>2. В некоторых СУБД реализованы расширенные модели транзакций, в которых суще-ствуют дополнительные ситуации фиксации транзакций. Например, в СУБД Oracle команды DDL выполняются в режиме AUTOCOMMIT, т.е. не могут быть откачены.</li> </ol> <p>Все изменения данных выполняются в оперативной памяти в буфере данных, затем фиксируются в журнале транзакций и в сегменте отката, и периодически (при выполнении контрольной точки) переписываются на диск. Процесс формирования <strong>контрольной точки</strong> (КТ) заключается в синхронизации данных, находящихся на диске (т.е. во вторичной памяти) с теми данными, которые находятся в ОП: все модифицированные данные из ОП переписываются во вторичную память. В разных системах процесс формирования контрольной точки запускается по-разному. Например, в СУБД Oracle КТ формируется:</p>
+ <ul> <li>при поступлении команды commit,</li> <li>при переполнении буфера данных,</li> <li>в момент заполнения очередного файла журнала транзакций,</li> <li>через три секунды со времени последней записи на диск.</li> </ul> <p>Внесение изменений в журнал транзакций всегда носит опережающий характер по отношению к записи изменений в основную часть БД (протокол WAL – Write Ahead Log). Эта стратегия заключается в том, что запись об изменении любого объекта БД должна попасть во внешнюю память журнала транзакций раньше, чем изменённый объект попадёт во внешнюю память основной части БД. Если СУБД корректно соблюдает протокол WAL, то с помощью журнала транзакций можно решить все проблемы восстановления БД после сбоя, если сбой препятствуют дальнейшему функционированию системы (например, после сбоя приложения или фонового процесса СУБД).</p>
+ <p>Таким образом, при использовании протокола WAL измененные данные почти сразу попадают в базу данных, ещё по поступления команды commit. Поэтому фиксация транзакции чаще всего заключается в следующем:</p>
+ <ol> <li>Изменения, внесённые транзакцией, помечаются как постоянные.</li> <li>Уничтожаются все точки сохранения для данной транзакции.</li> <li>Если выполнение транзакций осуществляется с помощью блокировок, то освобождаются объекты, заблокированные транзакцией (см. раздел 5.5).</li> <li>В журнале транзакций транзакция помечается как завершенная, уничтожаются системные записи о транзакции в оперативной памяти.</li> </ol> <p>А при откате транзакции вместо п.1 обычно выполняется считывание из сег-мента отката прежних значений данных и переписывание их обратно в БД (остальные пункты сохранятся без изменений). Поэтому откат транзакции практически всегда занимает больше времени, чем фиксация.</p> </div><table width="300" border="0" align="left" cellpadding="10" cellspacing="10"><tr><td>
+</td><td valign = "top">
+<noindex>
+<center>
+
+<!-- Yandex.RTB R-A-208762-2 -->
+<div id="yandex_rtb_R-A-208762-2"></div>
+<script type="text/javascript">
+    (function(w, d, n, s, t) {
+        w[n] = w[n] || [];
+        w[n].push(function() {
+            Ya.Context.AdvManager.render({
+                blockId: "R-A-208762-2",
+                renderTo: "yandex_rtb_R-A-208762-2",
+                async: true
+            });
+        });
+        t = d.getElementsByTagName("script")[0];
+        s = d.createElement("script");
+        s.type = "text/javascript";
+        s.src = "//an.yandex.ru/system/context.js";
+        s.async = true;
+        t.parentNode.insertBefore(s, t);
+    })(this, this.document, "yandexContextAsyncCallbacks");
+</script>
+
+</center>
+</noindex>
+
+</td></tr></table>
+<hr><div class="pagelink" ><a href="https://studopedia.org/4-181612.html" class="back_link">&lArr; Предыдущая</a><a href="https://studopedia.org/4-181608.html">61</a><a href="https://studopedia.org/4-181609.html">62</a><a href="https://studopedia.org/4-181610.html">63</a><a href="https://studopedia.org/4-181611.html">64</a><a href="https://studopedia.org/4-181612.html">65</a><span class="current">66</span><a href="https://studopedia.org/4-181614.html">67</a><a href="https://studopedia.org/4-181615.html">68</a><a href="https://studopedia.org/4-181616.html">69</a><a href="https://studopedia.org/4-181618.html">70</a><a href="https://studopedia.org/4-181614.html" class="next_link">Следующая &rArr;</a></div><br><br><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+		<ins class="adsbygoogle"
+		     style="display:block"
+		     data-ad-format="autorelaxed"
+		     data-ad-client="ca-pub-7892686117861611"
+		     data-ad-slot="3505107650"></ins>
+		<script>
+		     (adsbygoogle = window.adsbygoogle || []).push({});
+		</script><hr><p class='viewinfo'>Дата публикования: <span class='viewinfo'>2014-11-26</span>; Прочитано: <span class='viewinfo'>3724</span> | <a href='https://studopedia.org/call.php'>Нарушение авторского права страницы</a> |  <a href='https://studopedia.org/gos.php?id=4' rel='nofollow' target='_blank'>Мы поможем в написании вашей работы!</a> </p><hr>
+
+
+<center>
+<!-- Yandex.RTB R-A-208763-5 -->
+<div id="yandex_rtb_R-A-208763-5"></div>
+<script>window.yaContextCb.push(()=>{
+  Ya.Context.AdvManager.render({
+    renderTo: 'yandex_rtb_R-A-208763-5',
+    blockId: 'R-A-208763-5'
+  })
+})</script>
+</center>
+
+
+
+	<center><a href="https://studopedia.org/gos.php?id=4" rel="nofollow" target="_blank"><img src="https://studopedia.org/my/edugr4.jpg"></a></center>
+
+
+<hr>
+<center><span class="nizpravo">studopedia.org - Студопедия.Орг - 2014-2022 год. Студопедия не является автором материалов, которые размещены. Но предоставляет возможность бесплатного использования</span>
+
+<!--LiveInternet counter--><script type="text/javascript"><!--
+new Image().src = "//counter.yadro.ru/hit?r"+
+escape(document.referrer)+((typeof(screen)=="undefined")?"":
+";s"+screen.width+"*"+screen.height+"*"+(screen.colorDepth?
+screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+
+";"+Math.random();//--></script><!--/LiveInternet-->
+
+<span class="gensec">(0.002 с)</span>...</center>
+
+<br><br><br><br>
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-139117412-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-139117412-1');
+</script>
+
+
+
+
+	<script data-ad-client="ca-pub-7892686117861611" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+</div>
+ 
+
+<script src="https://yandex.ru/ads/system/context.js" async></script>
+
+</body>
+</html>

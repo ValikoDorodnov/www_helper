@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+
+	
+
+
+
+
+
+
+
+
+
+<html lang="ru">
+<head>
+    <title>PostgreSQL : Документация: 9.6: 28.2. Сборщик статистики : Компания Postgres Professional</title>
+	
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="msapplication-TileColor" content="#2d89ef">
+    <meta name="msapplication-TileImage" content="/img/mstile-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+	<meta name="p:domain_verify" content="26bcf8b79467031bea9a8631dd6f0b11"/>
+	<meta name="google-site-verification" content="Vy_P_vr-Jp6rfy_wQpPSplaU1p3wfEPSwtHOQBFZU7Q" />
+    <meta name="csrf-token" content="">
+
+	<meta property="og:url"             content="https://postgrespro.ru/docs/postgresql/9.6/monitoring-stats" >
+	<meta property="fb:app_id"          content="546521955527856" >
+	<meta property="og:type"            content="website" >
+	<meta property="og:title"       content="PostgreSQL : Документация: 9.6: 28.2. Сборщик статистики" >
+	<meta property="og:image"       content="https://postgrespro.ru/img/v3/logo2.png" >
+	
+	
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="https://postgrespro.ru/rss">
+	<link rel="apple-touch-icon" sizes="57x57" href="https://postgrespro.ru/img/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="https://postgrespro.ru/img/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="https://postgrespro.ru/img/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="https://postgrespro.ru/img/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="https://postgrespro.ru/img/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="https://postgrespro.ru/img/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="https://postgrespro.ru/img/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="https://postgrespro.ru/img/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://postgrespro.ru/img/apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" href="https://postgrespro.ru/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="https://postgrespro.ru/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://postgrespro.ru/img/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="https://postgrespro.ru/img/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="https://postgrespro.ru/img/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest"  href="https://postgrespro.ru/img/manifest.json">
+    <link rel="mask-icon" href="https://postgrespro.ru/img/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="https://postgrespro.ru/img/favicon.ico">
+
+
+	<link rel="stylesheet" href="https://postgrespro.ru/j/v3.css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://postgrespro.ru/j/v3.css/style_v3.css">
+	<link rel="stylesheet" href="https://postgrespro.ru/j/v3.css/hljs.css">
+	<link rel="stylesheet" href="https://postgrespro.ru/j/v3.css/docs.css">
+
+	<script src="https://postgrespro.ru/j/all.js?1"></script>
+	
+
+
+
+	
+<style>
+.main > section {
+	padding-top: 0;
+}
+
+.doc-list h3 {
+	margin-bottom: 25px;
+}
+
+.doc-nav-versions li > a.disabled { 
+	pointer-events: none;
+	color: #525f62;
+	text-decoration: none;
+}
+.doc-list { list-style: none; color: #343a3d; }
+.doc-list ul { margin: 2px 0 2px -26px }
+.doc-list li { display: inline; padding-right: 4px; }
+.doc-list li.separator { padding-right: 10px; }
+.doc-list a.disabled {
+	color: #343a3d;
+	pointer-events: none;
+}
+.doc-list a::before {
+	position:relative; 
+	left: -2px; 
+	top: 2px; 
+} 
+
+.menu-docs { 
+	font-weight: 500; 
+    margin: 0 auto 0 auto ;
+    
+    padding-top: 3em;
+    padding-bottom: 0;
+    width: 100%;
+}
+.menu-docs a.disabled {
+	pointer-events: none;
+}
+.menu-product-wrapper {
+	margin-bottom: 1em;
+	display: inline-block; text-align: left; padding-left:2em;vertical-align: top;
+}
+.menu-product-wrapper a.active{
+	font-weight: 700;
+}
+.menu-product-wrapper a.active.disabled{
+	color: black !important;
+}
+.menu-versions-wrapper {
+	margin-top: 0.5em;
+}
+
+#toggle-lang input[type="radio"] {
+	position: absolute;clip: 
+	rect(0, 0, 0, 0);
+	pointer-events: none;
+}
+
+
+.menu-doc-files-group {
+	position: absolute;
+	right: 0;
+	margin-right: 1em; 
+}
+
+.toggle-lang-group {
+	top: 96px; 
+	position:sticky;
+	display: block; 
+	float:right; 
+	margin-top: 42px;
+}
+
+nav.menu-docs .btn-group {
+	vertical-align: inherit;
+	
+}
+
+.autolink:before {
+	content: '\e80f'; 
+	font-family: "fontello";
+	font-size: 2em;
+	float: left;
+	margin-top: -0.4em;
+	margin-left: -1.5em;
+	color: black;
+	opacity: 0;
+	transition: opacity 1s ;
+}
+
+dt:hover > .autolink:before,
+div:hover > .autolink:before {
+	opacity: 0.4;
+	transition: opacity 0.5s ;
+}
+
+</style>
+
+	
+	
+	<script type="text/javascript">
+		var LANG = 'ru';
+	</script>
+	
+
+</head>
+<body>
+	
+<div class="modal fade" id="loginForm" style="display: none;">
+	<form onSubmit="return false;">
+	<div class="modal-dialog"><div class="modal-content"><div class="modal-header">
+		<h5 class="modal-title">Вход в личный кабинет</h5>
+	</div><div class="modal-body">
+			<input type="text"     required name="email"    class="primary" placeholder="введите e-mail"  >
+			<input type="password" required name="password" class="primary" placeholder="введите пароль">
+	</div>
+	<div class="modal-footer" >
+		<button type="submit" class="btn btn-primary ">Войти</button>
+		<div class="text-center" style="display: block;width: 100%; margin-left:0; margin-top:0.5em;">
+			<button type="button" class="btn btn-psevdo btn-restore float-left">Забыли пароль?</button>
+			<button type="button" class="btn btn-outline-primary btn-reg float-right">Регистрация</button><hr style="clear: both;margin-top:4em;">
+			<button type="button" class="btn btn-outline-success " onClick="document.location.href = '/';">Спасибо, потом</button>
+		</div>
+	</div>
+	</div></div>
+	</form>
+</div>
+
+<div class="modal fade" id="regForm" role="dialog" style="display: none;">
+	<form onSubmit="return false;">
+	<div class="modal-dialog" ><div class="modal-content"><div class="modal-header">
+		<h5 class="modal-title">Регистрация пользователя</h5>
+	</div>
+	<div class="modal-body">		
+		<input type="text"     required name="email"          placeholder="E-mail" >
+		<input type="password" required name="password"       placeholder="Пароль" >
+		<input type="password" required name="passw2"         placeholder="Пароль повторно"  >
+		<input type="text"     required name="last_name_ru"   placeholder="Фамилия">
+		<input type="text"     required name="first_name_ru"  placeholder="Имя"    >
+		<!-- input type="text"              name="middle_name_ru" placeholder="Отчество">
+		<input type="text"              name="phone"          placeholder="Телефон" -->
+		<label><input id="agree" name="agree" type="checkbox"/> Подтверждаю</label>
+	 		<span class="toggler" style="display:inline"  onClick="loadAgreement();">согласие с обработкой персональных данных</span>
+	</div>
+	<div class="modal-footer">
+		<button type="submit" class="btn btn-primary ">Зарегистрироваться</button>
+		<button class="btn btn-psevdo btn-back">назад</button>
+	</div></div></div>
+	</form>
+</div>
+
+<style>
+	.cabinet-modal .modal-dialog{
+		margin: 5em 2em auto auto;
+	}
+	.cabinet-modal .icon-cabinet {
+		display:block;
+		margin:auto;
+		font-size: 2em;
+	}
+</style>
+
+
+<div class="modal fade cabinet-modal" id="cabinet-modal-info" tabindex="-1" role="dialog" aria-labelledby="cabinet-modal-infoLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+         <span class="fa fa-sign-in fa-lg icon-cabinet cabinet-button btn btn-primary xs-none text-center invisible"></span>
+      </div>
+      <div class="modal-body">
+	      <p id="name" class="text-center text-muted"></p>
+	      <p id="e-mail" class="text-center font-weight-light"></p>
+	      <p class="text-center"><a href="https://postgrespro.ru/user">Личный кабинет</a></p>
+      </div>
+      <div class="modal-footer" style="width: 85%;margin: auto;">
+	      <button class="text-center btn btn-warning" id="cabinet-action-button" style="width: 100%;" onClick="logout();">Выйти</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div id="warp-agreement" style="z-index: 10000;">
+<div class="pop-up-agreement" style="display: none;z-index: 10000;"  onClick="$(this).slideToggle(150);" >
+<div class="agreement" >
+<div class="pop-up-close">&#10006;</div>
+<div id="agreement">
+</div>
+</div>
+</div>
+</div>
+
+
+
+<div class="modal fade" id="restoreForm" style="display: none;">
+	<form onSubmit="return false;">
+	<div class="modal-dialog" ><div class="modal-content"><div class="modal-header">
+		<h5 class="modal-title">Восстановление пароля</h5>
+	</div>
+	<div class="modal-body">
+		<p>Укажите e-mail, на который будет выслан код восстановления пароля.</p>
+		<input type="text" name="email" required placeholder="введите e-mail">
+	</div>
+	<div class="modal-footer">
+		<button type="submit" class="btn btn-primary ">Продолжить</button>
+		<button type="button" class="btn btn-psevdo btn-back">назад</button>
+	</div></div></div>
+	</form>
+</div>
+
+<div class="modal fade" id="confirmForm" style="display: none;">
+	<form onSubmit="return false;">
+	<div class="modal-dialog" ><div class="modal-content"><div class="modal-header">
+		<h4 class="modal-title">Подтверждение аккаунта</h4>
+	</div>
+	<div class="modal-body">
+		<p>На указанный вами адрес e-mail был выслан код подтверждения аккаунта. Введите полученный код для продолжения:</p>
+		<input type="text" name="key" required placeholder="введите код">
+	</div>
+	<div class="modal-footer">
+		<button type="submit" class="btn btn-primary ">Продолжить</button>
+		<button type="button" class="btn btn-psevdo btn-back">назад</button>
+	</div></div></div>
+	</form>
+</div>
+
+<div class="modal fade" id="newPasswordForm" style="display: none;">
+	<form onSubmit="return false;">
+	<div class="modal-dialog" ><div class="modal-content"><div class="modal-header">
+		<h4 class="modal-title">Изменение пароля</h4>
+	</div><div class="modal-body">
+		<p>Введите новый пароль два раза:</p>
+		<input required type="password" name="password"><br>
+		<input required type="password" name="pass2">
+	</div><div class="modal-footer">
+		<div class="row">
+			<div class="col-sm-12"><button type="submit" class="btn btn-success ">Продолжить</button></div>
+		</div>
+	</div></div></div>
+	</form>
+</div>
+
+	
+	
+		<div id="fb-root"></div>
+		<script>(function(d, s, id) {
+		  var js, fjs = d.getElementsByTagName(s)[0];
+		  if (d.getElementById(id)) return;
+		  js = d.createElement(s); js.id = id;
+		  js.src = "//connect.facebook.net/ru_RU/sdk.js#xfbml=1&version=v2.7";
+		  fjs.parentNode.insertBefore(js, fjs);
+		}(document, 'script', 'facebook-jssdk'));</script>
+		
+		<script>(function(d, s, id) {
+		  var js, fjs = d.getElementsByTagName(s)[0];
+		  if (d.getElementById(id)) return;
+		  js = d.createElement(s); js.id = id;
+		  js.src = "//connect.facebook.net/ru_RU/sdk.js#xfbml=1&version=v2.5&appId=860619283960577";
+		  fjs.parentNode.insertBefore(js, fjs);
+		}(document, 'script', 'facebook-jssdk'));
+		</script>
+		<script src="https://apis.google.com/js/platform.js" async defer>
+		  {lang: 'ru'}
+		</script>
+		
+
+	
+	
+
+	
+    <header>
+	<nav class="navbar navbar-expand-xl navbar-light bg-light justify-content-between">
+		<!-- div class="mr-2">
+			<span class=" d-none d-xl-inline">{XL}</span>
+			<span class=" d-none d-lg-inline d-xl-none">{LG}</span>
+			<span class=" d-none d-md-inline d-lg-none">{MD}</span>
+			<span class=" d-none d-sm-inline d-md-none">{SM}</span>
+			<span class=" d-block d-sm-none">{XS}</span>
+		</div -->
+		
+		<a class="navbar-brand" href="https://postgrespro.ru/">
+			<img src="https://postgrespro.ru/img/v3/PostgresPro_logo.svg" alt="Postgres Pro" title="Postgres Pro">			
+		</a>
+		
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		  
+		
+		<div class="collapse navbar-collapse" id="navbarNavDropdown">			
+			
+	<ul class="nav navbar-nav float-left">
+		
+			<li class="nav-item dropdown">
+				<a 
+					class="nav-link " 
+					href="monitoring-stats.html#" id="" data-toggle="" aria-haspopup="false" aria-expanded="true" > Компания</a>				
+				<a class="nav-link dropdown-toggle dropdown-toggle-split" href="monitoring-stats.html#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="false" aria-expanded="true" ></a>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+				
+					<a href="https://postgrespro.ru/about" class="dropdown-item
+						">О компании</a>
+				
+					<a href="https://postgrespro.ru/about/team" class="dropdown-item
+						">Руководство</a>
+				
+					<a href="https://postgrespro.ru/about/license" class="dropdown-item
+						">Документы</a>
+				
+					<a href="https://postgrespro.ru/partners" class="dropdown-item
+						">Партнёры</a>
+				
+					<a href="https://postgrespro.ru/vacancies" class="dropdown-item
+						">Вакансии</a>
+				
+					<a href="https://postgrespro.ru/contacts" class="dropdown-item
+						">Контакты</a>
+				
+				</div>
+			</li>
+		
+			<li class="nav-item dropdown">
+				<a 
+					class="nav-link " 
+					href="monitoring-stats.html#" id="" data-toggle="" aria-haspopup="false" aria-expanded="true" >Продукты</a>				
+				<a class="nav-link dropdown-toggle dropdown-toggle-split" href="monitoring-stats.html#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="false" aria-expanded="true" ></a>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+				
+					<a href="https://postgrespro.ru/products/postgrespro/enterprise" class="dropdown-item
+						">СУБД POSTGRES PRO ENTERPRISE</a>
+				
+					<a href="https://postgrespro.ru/products/postgrespro/enterprisecertified" class="dropdown-item
+						">СУБД POSTGRES PRO ENTERPRISE CERTIFIED</a>
+				
+					<a href="https://postgrespro.ru/products/postgrespro/certified" class="dropdown-item
+						">СУБД POSTGRES PRO CERTIFIED</a>
+				
+					<a href="https://postgrespro.ru/products/postgrespro/standard" class="dropdown-item
+						">СУБД POSTGRES PRO STANDARD</a>
+				
+					<a href="https://postgrespro.ru/windows" class="dropdown-item
+						">СУБД PostgreSQL для Windows</a>
+				
+					<a href="https://postgrespro.ru/roadmap" class="dropdown-item
+						">План разработок</a>
+				
+				</div>
+			</li>
+		
+			<li class="nav-item dropdown">
+				<a 
+					class="nav-link " 
+					href="monitoring-stats.html#" id="" data-toggle="" aria-haspopup="false" aria-expanded="true" >Услуги</a>				
+				<a class="nav-link dropdown-toggle dropdown-toggle-split" href="monitoring-stats.html#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="false" aria-expanded="true" ></a>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+				
+					<a href="https://postgrespro.ru/services/support" class="dropdown-item
+						">Техподдержка СУБД</a>
+				
+					<a href="https://postgrespro.ru/services/audit" class="dropdown-item
+						">Аудит СУБД</a>
+				
+					<a href="https://postgrespro.ru/services/migration" class="dropdown-item
+						">Миграция СУБД</a>
+				
+				</div>
+			</li>
+		
+			<li class="nav-item dropdown">
+				<a 
+					class="nav-link " 
+					href="monitoring-stats.html#" id="" data-toggle="" aria-haspopup="false" aria-expanded="true" > Клиенты</a>				
+				<a class="nav-link dropdown-toggle dropdown-toggle-split" href="monitoring-stats.html#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="false" aria-expanded="true" ></a>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+				
+					<a href="https://postgrespro.ru/trusted" class="dropdown-item
+						">Нам доверяют</a>
+				
+					<a href="https://postgrespro.ru/reviews" class="dropdown-item
+						">Отзывы</a>
+				
+				</div>
+			</li>
+		
+			<li class="nav-item dropdown">
+				<a 
+					class="nav-link " 
+					href="https://postgrespro.ru/education" id="" data-toggle="" aria-haspopup="false" aria-expanded="true" >Образование</a>				
+				<a class="nav-link dropdown-toggle dropdown-toggle-split" href="monitoring-stats.html#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="false" aria-expanded="true" ></a>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+				
+					<a href="https://postgrespro.ru/docs" class="dropdown-item
+						">Документация</a>
+				
+					<a href="https://postgrespro.ru/education/books" class="dropdown-item
+						">Книги</a>
+				
+					<a href="https://postgrespro.ru/education/courses" class="dropdown-item
+						">Учебные курсы</a>
+				
+					<a href="https://postgrespro.ru/education/cert" class="dropdown-item
+						">Сертификация</a>
+				
+					<a href="https://postgrespro.ru/education/university" class="dropdown-item
+						">Курсы для ВУЗов</a>
+				
+					<a href="https://postgrespro.ru/education/glossary" class="dropdown-item
+						">Глоссарий</a>
+				
+					<a href="https://postgrespro.ru/education/demodb" class="dropdown-item
+						">Демо-база</a>
+				
+					<a href="https://postgrespro.ru/list" class="dropdown-item
+						">Списки рассылки</a>
+				
+				</div>
+			</li>
+		
+			<li class="nav-item dropdown">
+				<a 
+					class="nav-link " 
+					href="monitoring-stats.html#" id="" data-toggle="" aria-haspopup="false" aria-expanded="true" >Новости</a>				
+				<a class="nav-link dropdown-toggle dropdown-toggle-split" href="monitoring-stats.html#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="false" aria-expanded="true" ></a>
+				<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+				
+					<a href="https://postgrespro.ru/blog" class="dropdown-item
+						">Блог</a>
+				
+					<a href="https://postgrespro.ru/blog/media" class="dropdown-item
+						">СМИ  о нас</a>
+				
+					<a href="https://postgrespro.ru/blog/postgresso" class="dropdown-item
+						">Дайджест Postgresso</a>
+				
+					<a href="https://postgrespro.ru/events" class="dropdown-item
+						">Мероприятия</a>
+				
+					<a href="https://postgrespro.ru/about/press" class="dropdown-item
+						">Контакты для СМИ</a>
+				
+				</div>
+			</li>
+		
+	</ul>
+	
+<script type="text/template" id="menu-tmpl">
+</script>
+		<ul class="navbar-nav d-xl-none" style="display: inline-block; float: right;">
+			<li class="nav-item " style="display: inline-block !important; padding-right: 1em;"><a href="https://postgrespro.ru/search" class="nav-item nav-link icon-search text-primary"></a></li>
+			
+			<li class="nav-item "       style="display: inline-block !important;"><a class="nav-item nav-link " href="monitoring-stats.html#">RU</a></li>
+			<li class="nav-item active" style="display: inline-block !important;"><a class="nav-item nav-link active" href="https://postgrespro.com/docs/postgresql/9.6/monitoring-stats">EN</a></li>
+			
+			<div style="display: inline-block;">
+				
+<style>
+	.account-menu { 
+		display: inline-block; 
+		white-space: nowrap;
+	}
+	.cabinet-button  {
+		margin: 0 0 0 1em;
+		padding: 0.5em 0.5em;
+		border-radius: 50%;		
+	}
+	.cabinet-info {
+		font-weight: 700;
+		cursor: pointer;		
+	}
+	.cabinet-info:hover {
+		color: green;		
+	}
+</style>
+	<li class="nav-item ">
+		<div class="account-menu" data-action="info" id="cabinet-buttons" >
+			<a class="fa fa-sign-in  fa-lg btn btn-primary cabinet-button invisible" onClick="showLoginLogout(this); return false;" href="https://postgrespro.ru/user" title="Личный кабинет"></a>
+			<span class="nav-item cabinet-info invisible" onClick="return showAccountInfo();"  title="Дополнительно…">⋮</span>
+		</div>
+	</li>
+
+			</div>
+		</ul>
+	
+
+
+		</div>
+
+		
+<script type="text/template" id="menu-tmpl">
+</script>
+	<div class=" d-none d-xl-flex">
+		<ul class="navbar-nav float-right">
+			<li id="li-search"><a class="nav-item nav-link icon-search text-primary" id="search-button" data-action="null" style="font-size: 1.6em;top: -6px;position: relative;" onClick="showSearch(this);"></a></li>
+			
+			<li class="nav-item "><a class="nav-item nav-link " href="monitoring-stats.html#">RU</a></li>
+			<li class="nav-item active"><a class="nav-item nav-link active" href="https://postgrespro.com/docs/postgresql/9.6/monitoring-stats">EN</a></li>
+			
+			
+<style>
+	.account-menu { 
+		display: inline-block; 
+		white-space: nowrap;
+	}
+	.cabinet-button  {
+		margin: 0 0 0 1em;
+		padding: 0.5em 0.5em;
+		border-radius: 50%;		
+	}
+	.cabinet-info {
+		font-weight: 700;
+		cursor: pointer;		
+	}
+	.cabinet-info:hover {
+		color: green;		
+	}
+</style>
+	<li class="nav-item ">
+		<div class="account-menu" data-action="info" id="cabinet-buttons" >
+			<a class="fa fa-sign-in  fa-lg btn btn-primary cabinet-button invisible" onClick="showLoginLogout(this); return false;" href="https://postgrespro.ru/user" title="Личный кабинет"></a>
+			<span class="nav-item cabinet-info invisible" onClick="return showAccountInfo();"  title="Дополнительно…">⋮</span>
+		</div>
+	</li>
+
+		</ul>
+	</div>
+	
+
+		
+	</nav>
+    </header>
+    
+    <main name="main">
+    <div class="main" name="main">
+		
+
+<script>
+$(function() {
+	if ("" != "")
+		toggleLang('', 'postgresql', '9.6', 'monitoring-stats');
+		
+$('div.sect2').each(function(i,r){
+	var _id = $(r).attr('id');
+	if (_id !== undefined) {
+		if ($(r).find('h3:first').length > 0) {
+			$(r).html('<a href="monitoring-stats.html#'+_id+'" class="autolink"></a>'+$(r).html());
+		}
+	} 
+});		
+
+$('dt').each(function(i,r){
+	var _id = $(r).attr('id');
+	if (_id !== undefined) {
+		$(r).html('<a href="monitoring-stats.html#'+_id+'" class="autolink"></a>'+$(r).html());
+	}
+});		
+	
+
+	
+})
+</script>
+
+
+<nav class="menu-docs text-center">
+	<div  class="--d-none --d-sm-inline" style="float: right;">
+		
+			<div id="menu-doc-files" class="menu-doc-files-group d-none d-xl-inline" >
+				
+					<a href="https://postgrespro.ru/media/docs/postgresql/9.6/ru/postgres-A4-fop.pdf" class="pdf btn btn-outline-primary" title="pdf"></a><br>
+				
+					<a href="https://postgrespro.ru/media/docs/postgresql/9.6/ru/postgres.epub" class="epub btn btn-outline-primary" title="epub"></a><br>
+				
+			</div>
+		
+	
+	</div>
+	
+	
+		
+	<div class="doc-menu-wrapper doc-menu-wrapper-ru  ">
+	
+		
+			<div class="menu-product-wrapper">
+				<a  href="https://postgrespro.ru/docs/postgrespro" >Postgres Pro Standard</a><br>
+		
+				<div class="menu-versions-wrapper btn-group" >
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/14/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							14										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/13/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							13										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/12/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							12										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/11/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							11										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/10/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							10										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/9.6/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							9.6										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/9.5/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							9.5										
+						</a>	
+					    	
+		    	
+				</div>
+			</div>
+		
+	
+		
+			<div class="menu-product-wrapper">
+				<a  href="https://postgrespro.ru/docs/enterprise" >Postgres Pro Enterprise</a><br>
+		
+				<div class="menu-versions-wrapper btn-group" >
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/13/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							13										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/12/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							12										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/11/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							11										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/10/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							10										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/9.6/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							9.6										
+						</a>	
+					    	
+		    	
+				</div>
+			</div>
+		
+	
+		
+			<div class="menu-product-wrapper">
+				<a  href="https://postgrespro.ru/docs/postgresql" class="active" style="font-weight: 700;">PostgreSQL</a><br>
+		
+				<div class="menu-versions-wrapper btn-group" >
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/14/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							14										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/13/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							13										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/12/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							12										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/11/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							11										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/10/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							10										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"monitoring-stats.html" 
+							 
+							class="disabled active btn btn-outline-primary">
+							9.6										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/9.5/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							9.5										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/9.4/monitoring-stats" 
+							 
+							class=" btn btn-outline-primary">
+							9.4										
+						</a>	
+					    	
+		    	
+				</div>
+			</div>
+		
+		
+	</div>
+
+		
+	<div class="doc-menu-wrapper doc-menu-wrapper-en  d-none">
+	
+		
+			<div class="menu-product-wrapper">
+				<a  href="https://postgrespro.ru/docs/postgrespro" >Postgres Pro Standard</a><br>
+		
+				<div class="menu-versions-wrapper btn-group" >
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/14/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							14										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/13/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							13										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/12/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							12										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/11/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							11										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/10/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							10										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/9.6/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							9.6										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/9.5/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							9.5										
+						</a>	
+					    	
+		    	
+				</div>
+			</div>
+		
+	
+		
+			<div class="menu-product-wrapper">
+				<a  href="https://postgrespro.ru/docs/enterprise" >Postgres Pro Enterprise</a><br>
+		
+				<div class="menu-versions-wrapper btn-group" >
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/13/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							13										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/12/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							12										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/11/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							11										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/10/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							10										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/9.6/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							9.6										
+						</a>	
+					    	
+		    	
+				</div>
+			</div>
+		
+	
+		
+			<div class="menu-product-wrapper">
+				<a  href="https://postgrespro.ru/docs/postgresql" class="active" style="font-weight: 700;">PostgreSQL</a><br>
+		
+				<div class="menu-versions-wrapper btn-group" >
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/14/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							14										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/13/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							13										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/12/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							12										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/11/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							11										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/10/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							10										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/9.6/monitoring-stats?lang=en"
+							 
+							class="disabled active btn btn-outline-primary">
+							9.6										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/9.5/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							9.5										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/9.4/monitoring-stats?lang=en"
+							 
+							class=" btn btn-outline-primary">
+							9.4										
+						</a>	
+					    	
+		    	
+				</div>
+			</div>
+		
+		
+	</div>
+
+		
+	<div class="doc-menu-wrapper doc-menu-wrapper-ru-en  d-none">
+	
+		
+			<div class="menu-product-wrapper">
+				<a  href="https://postgrespro.ru/docs/postgrespro" >Postgres Pro Standard</a><br>
+		
+				<div class="menu-versions-wrapper btn-group" >
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/14/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							14										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/13/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							13										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/12/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							12										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/11/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							11										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/10/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							10										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/9.6/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							9.6										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgrespro/9.5/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							9.5										
+						</a>	
+					    	
+		    	
+				</div>
+			</div>
+		
+	
+		
+			<div class="menu-product-wrapper">
+				<a  href="https://postgrespro.ru/docs/enterprise" >Postgres Pro Enterprise</a><br>
+		
+				<div class="menu-versions-wrapper btn-group" >
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/13/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							13										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/12/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							12										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/11/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							11										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/10/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							10										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/enterprise/9.6/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							9.6										
+						</a>	
+					    	
+		    	
+				</div>
+			</div>
+		
+	
+		
+			<div class="menu-product-wrapper">
+				<a  href="https://postgrespro.ru/docs/postgresql" class="active" style="font-weight: 700;">PostgreSQL</a><br>
+		
+				<div class="menu-versions-wrapper btn-group" >
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/14/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							14										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/13/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							13										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/12/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							12										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/11/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							11										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/10/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							10										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/9.6/monitoring-stats?lang=ru-en"
+							 
+							class="disabled active btn btn-outline-primary">
+							9.6										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/9.5/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							9.5										
+						</a>	
+					    	
+		    	
+					
+						<a href=
+							
+								"https://postgrespro.ru/docs/postgresql/9.4/monitoring-stats?lang=ru-en"
+							 
+							class=" btn btn-outline-primary">
+							9.4										
+						</a>	
+					    	
+		    	
+				</div>
+			</div>
+		
+		
+	</div>
+
+
+	
+
+</nav>
+
+				
+<section class="container-fluid">
+		<div id="toggle-lang" class="btn-group toggle-lang-group  " style="
+		">
+			<label class="btn btn-outline-success active" name="ru" style="cursor: pointer; margin: 0; width: 100%;">
+				<input type="radio" autocomplete="off" name="ru" value="ru" checked onChange="toggleLang(this.value, 'postgresql', '9.6', 'monitoring-stats'); return false;"> RU
+			</label><br>
+			<label class="btn btn-outline-success" name="en" style="cursor: pointer; margin: 0; width: 100%;">
+				<input type="radio" autocomplete="off" name="en" value="en"  onChange="toggleLang(this.value, 'postgresql', '9.6', 'monitoring-stats'); return false;"> EN
+			</label><br>
+			<label class="btn btn-outline-success" name="ru-en" style="cursor: pointer; margin: 0; width: 100%;">
+				<input type="radio" autocomplete="off" name="ru-en" value="ru-en" onChange="toggleLang(this.value, 'postgresql', '9.6', 'monitoring-stats'); return false;" > RU EN
+			</label>
+		</div>
+<div class="container">
+<div class="row docs content" id="docContent-wrapper-ppg">
+    <div class="col-md-12" id="divDocRu">
+    	
+			<div><div class="navheader" xmlns="http://www.w3.org/TR/xhtml1/transitional"><table summary="Navigation header" width="100%"><tr><th align="center" colspan="5">28.2. Сборщик статистики</th></tr><tr><td align="left" width="10%"><a accesskey="p" href="https://postgrespro.ru/docs/postgresql/9.6/monitoring-ps" title="28.1. Стандартные инструменты Unix">Пред.</a> </td><td align="left" width="10%"><a accesskey="u" href="https://postgrespro.ru/docs/postgresql/9.6/monitoring" title="Глава 28. Мониторинг работы СУБД">Наверх</a></td><th align="center" width="60%">Глава 28. Мониторинг работы СУБД</th><td align="right" width="10%"><a accesskey="h" href="https://postgrespro.ru/docs/postgresql/9.6/index" title="Документация к PostgreSQL 9.6.24">Начало</a></td><td align="right" width="10%"> <a accesskey="n" href="https://postgrespro.ru/docs/postgresql/9.6/monitoring-locks" title="28.3. Просмотр информации о блокировках">След.</a></td></tr></table><hr /></div><div class="sect1" id="monitoring-stats"><div class="titlepage"><div><div><h2 class="title" style="clear: both">28.2. Сборщик статистики</h2></div></div></div><div class="toc"><dl class="toc"><dt><span class="sect2"><a href="monitoring-stats.html#monitoring-stats-setup">28.2.1. Конфигурация системы сбора статистики</a></span><dt><span class="sect2"><a href="monitoring-stats.html#monitoring-stats-views">28.2.2. Просмотр статистики</a></span><dt><span class="sect2"><a href="monitoring-stats.html#monitoring-stats-functions">28.2.3. Статистические функции</a></span></dl></div><a class="indexterm" id="idp42550"></a><p><em class="firstterm">Сборщик статистики</em> в <span class="productname">PostgreSQL</span> представляет собой подсистему, которая собирает и отображает информацию о работе сервера. В настоящее время сборщик может подсчитывать количество обращений к таблицам и индексам — в виде количества прочитанных блоков или строк с диска. Кроме того, он отслеживает общее число строк в каждой таблице, информацию о выполнении очистки и сбора статистики для каждой таблицы. Он также может подсчитывать вызовы пользовательских функций и общее время, затраченное на выполнение каждой из них.<p>Кроме того, <span class="productname">PostgreSQL</span> может предоставить динамическую информацию о том, что происходит в системе прямо сейчас, в частности, сообщить, какие именно команды выполняются другими серверными процессами и какие другие соединения существуют в системе. Эта возможность не зависит от процесса сборщика.<div class="sect2" id="monitoring-stats-setup"><div class="titlepage"><div><div><h3 class="title">28.2.1. Конфигурация системы сбора статистики</h3></div></div></div><p>Поскольку сбор статистики несколько увеличивает накладные расходы при выполнении запроса, есть возможность настроить СУБД так, чтобы выполнять или не выполнять сбор статистической информации. Это контролируется конфигурационными параметрами, которые обычно устанавливаются в файле <code class="filename">postgresql.conf</code>. (Подробно установка конфигурационных параметров описывается в <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/runtime-config" title="Глава 19. Настройка сервера">Главе 19</a>.)<p>Параметр <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/runtime-config-statistics#guc-track-activities">track_activities</a> включает мониторинг текущих команд, выполняемой любым серверным процессом.<p>Параметр <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/runtime-config-statistics#guc-track-counts">track_counts</a> определяет необходимость сбора статистики по обращениям к таблицам и индексам.<p>Параметр <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/runtime-config-statistics#guc-track-functions">track_functions</a> включает отслеживание использования пользовательских функций.<p>Параметр <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/runtime-config-statistics#guc-track-io-timing">track_io_timing</a> включает мониторинг времени чтения и записи блоков.<p>Обычно эти параметры устанавливаются в <code class="filename">postgresql.conf</code>, поэтому они применяются ко всем серверным процессам, однако, используя команду <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/sql-set" title="SET"><span class="refentrytitle">SET</span></a>, их можно включать и выключать в отдельных сессиях. (Для того чтобы обычные пользователи не скрывали свою работу от администратора СУБД, изменять эти параметры с помощью команды <code class="command">SET</code> могут только суперпользователи.)<p>Сборщик статистики использует временные файлы для передачи собранной информации другим процессам <span class="productname">PostgreSQL</span>. Имя каталога, в котором хранятся эти файлы, задаётся параметром <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/runtime-config-statistics#guc-stats-temp-directory">stats_temp_directory</a>, по умолчанию он называется <code class="filename">pg_stat_tmp</code>. Для повышения производительности <code class="varname">stats_temp_directory</code> может указывать на каталог, расположенный в оперативной памяти, что сокращает время физического ввода/вывода. При остановке сервера постоянная копия статистической информации сохраняется в подкаталоге <code class="filename">pg_stat</code>, поэтому статистику можно хранить на протяжении нескольких перезапусков сервера. Когда восстановление выполняется при запуске сервера (например, после непосредственного завершения работы, катастрофического отказа сервера, и восстановлении на заданную точку во времени), все статистические данные счётчиков сбрасываются.</div><div class="sect2" id="monitoring-stats-views"><div class="titlepage"><div><div><h3 class="title">28.2.2. Просмотр статистики</h3></div></div></div><p>Для просмотра текущего состояния системы предназначены несколько предопределённых представлений, которые перечислены в <a class="xref" href="monitoring-stats.html#monitoring-stats-dynamic-views-table" title="Таблица 28.1. Динамические статистические представления">Таблице 28.1</a>. В дополнение к ним есть несколько других представлений, перечисленных в <a class="xref" href="monitoring-stats.html#monitoring-stats-views-table" title="Таблица 28.2. Представления собранной статистики">Таблице 28.2</a>, позволяющих просмотреть результаты сбора статистики. Кроме того, на базе нижележащих статистических функций можно создать собственные представления, как описано в <a class="xref" href="monitoring-stats.html#monitoring-stats-functions" title="28.2.3. Статистические функции">Подразделе 28.2.3</a>.<p>Наблюдая собранные данные в сборщике статистики, важно понимать, что эта информация обновляется не сразу. Каждый серверный процесс передаёт новые статистические данные сборщику статистики непосредственно перед переходом в режим ожидания; то есть запрос или транзакция в процессе выполнения не влияют на отображаемые данные статистики. К тому же, сам сборщик статистики формирует новый отчёт не чаще, чем раз в <code class="varname">PGSTAT_STAT_INTERVAL</code> миллисекунд (500 мс, если этот параметр не изменялся при компиляции сервера). Так что отображаемая информация отстаёт от того, что происходит в настоящий момент. Однако информация о текущем запросе, собираемая с параметром <code class="varname">track_activities</code>, всегда актуальна.<p>Ещё одним важным моментом является то, что когда в серверном процессе запрашивают какую-либо статистику, сначала он получает наиболее свежий моментальный снимок от сборщика статистики и затем до окончания текущей транзакции использует этот снимок для всех статистических представлений и функций. Так что на протяжении одной транзакции статистическая информация меняться не будет. Подобным же образом информация о текущих запросах во всех сессиях собирается в тот момент, когда она впервые запрашивается в рамках транзакции, и эта же самая информация будет отображаться на протяжении всей транзакции. Это не ошибка, а полезное свойство СУБД, поскольку оно позволяет выполнять запросы к статистическим данным и сравнивать результаты, не беспокоясь о том, что статистические данные изменяются. Но если для каждого запроса вам нужны новые результаты, то их следует выполнять вне любых транзакционных блоков. Или же можно вызывать функцию <code class="function">pg_stat_clear_snapshot</code>(), которая сбросит ранее полученный снимок статистики в текущей транзакции (если он был). При следующем обращении к статистической информации будет сформирован новый моментальный снимок.<p>Через представления <code class="structname">pg_stat_xact_all_tables</code>, <code class="structname">pg_stat_xact_sys_tables</code>, <code class="structname">pg_stat_xact_user_tables</code>, и <code class="structname">pg_stat_xact_user_functions</code> транзакции также доступна её собственная статистика (ещё не переданная сборщику статистики). Данные в этих представлениях ведут себя не так, как описано выше; наоборот, в течение транзакции они постоянно обновляются.<div class="table" id="monitoring-stats-dynamic-views-table"><p class="title"><strong>Таблица 28.1. Динамические статистические представления</strong><div class="table-contents"><table border="1" class="table" summary="Динамические статистические представления"><colgroup><col /><col /></colgroup><thead><tr><th>Имя представления</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structname">pg_stat_activity</code> <a class="indexterm" id="idp42607"></a></td><td>Одна строка для каждого серверного процесса c информацией по текущей активности процесса, такой как состояние и текущий запрос. За подробностями обратитесь к <a class="xref" href="monitoring-stats.html#pg-stat-activity-view" title="Таблица 28.3. Представление pg_stat_activity">pg_stat_activity</a>.</td></tr><tr><td><code class="structname">pg_stat_replication</code><a class="indexterm" id="idp42614"></a></td><td>По одной строке для каждого процесса-передатчика WAL со статистикой по репликации на ведомом сервере, к которому подключён этот процесс. За подробностями обратитесь к <a class="xref" href="monitoring-stats.html#pg-stat-replication-view" title="Таблица 28.5. Представление pg_stat_replication">pg_stat_replication</a>.</td></tr><tr><td><code class="structname">pg_stat_wal_receiver</code><a class="indexterm" id="idp42621"></a></td><td>Только одна строка со статистикой приёмника WAL, полученной с сервера, на котором работает приёмник. За подробностями обратитесь к <a class="xref" href="monitoring-stats.html#pg-stat-wal-receiver-view" title="Таблица 28.6. Представление pg_stat_wal_receiver">pg_stat_wal_receiver</a>.</td></tr><tr><td><code class="structname">pg_stat_ssl</code><a class="indexterm" id="idp42628"></a></td><td>Одна строка для каждого подключения (обычного и реплицирующего), в которой показывается информация об использовании SSL для данного подключения. За подробностями обратитесь к <a class="xref" href="monitoring-stats.html#pg-stat-ssl-view" title="Таблица 28.7. Представление pg_stat_ssl">pg_stat_ssl</a>.</td></tr><tr><td><code class="structname">pg_stat_progress_vacuum</code><a class="indexterm" id="idp42635"></a></td><td>По одной строке с текущим состоянием для каждого обслуживающего процесса (включая рабочие процессы автоочистки), в котором работает <code class="command">VACUUM</code>. См. <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/progress-reporting#vacuum-progress-reporting" title="28.4.1. Отслеживание выполнения VACUUM">Подраздел 28.4.1</a>.</td></tr></tbody></table></div></div><br class="table-break" /><div class="table" id="monitoring-stats-views-table"><p class="title"><strong>Таблица 28.2. Представления собранной статистики</strong><div class="table-contents"><table border="1" class="table" summary="Представления собранной статистики"><colgroup><col /><col /></colgroup><thead><tr><th>Имя представления</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structname">pg_stat_archiver</code><a class="indexterm" id="idp42651"></a></td><td>Только одна строка со статистикой о работе активности процесса архивации WAL. Более подробно смотрите <a class="xref" href="monitoring-stats.html#pg-stat-archiver-view" title="Таблица 28.8. Представление pg_stat_archiver">pg_stat_archiver</a>.</td></tr><tr><td><code class="structname">pg_stat_bgwriter</code><a class="indexterm" id="idp42658"></a></td><td>Только одна строка со статистикой о работе фонового процесса записи. Более подробно смотрите <a class="xref" href="monitoring-stats.html#pg-stat-bgwriter-view" title="Таблица 28.9. Представление pg_stat_bgwriter">pg_stat_bgwriter</a>.</td></tr><tr><td><code class="structname">pg_stat_database</code><a class="indexterm" id="idp42665"></a></td><td>Одна строка для каждой базы данных со статистикой на уровне базы. Более подробно смотрите <a class="xref" href="monitoring-stats.html#pg-stat-database-view" title="Таблица 28.10. Представление pg_stat_database">pg_stat_database</a>.</td></tr><tr><td><code class="structname">pg_stat_database_conflicts</code><a class="indexterm" id="idp42672"></a></td><td>По одной строке на каждую базу данных со статистикой по отменам запросов, выполненным вследствие конфликта с процессами восстановления на ведомых серверах. Более подробно смотрите <a class="xref" href="monitoring-stats.html#pg-stat-database-conflicts-view" title="Таблица 28.11. Представление pg_stat_database_conflicts">pg_stat_database_conflicts</a>.</td></tr><tr><td><code class="structname">pg_stat_all_tables</code><a class="indexterm" id="idp42679"></a></td><td>По одной строке на каждую таблицу в текущей базе данных со статистикой по обращениям к этой таблице. Более подробно смотрите <a class="xref" href="monitoring-stats.html#pg-stat-all-tables-view" title="Таблица 28.12. Представление pg_stat_all_tables">pg_stat_all_tables</a>.</td></tr><tr><td><code class="structname">pg_stat_sys_tables</code><a class="indexterm" id="idp42686"></a></td><td>Аналогично <code class="structname">pg_stat_all_tables</code>, за исключением того, что отображаются только системные таблицы.</td></tr><tr><td><code class="structname">pg_stat_user_tables</code><a class="indexterm" id="idp42693"></a></td><td>Аналогично <code class="structname">pg_stat_all_tables</code>, за исключением того, что отображаются только пользовательские таблицы.</td></tr><tr><td><code class="structname">pg_stat_xact_all_tables</code><a class="indexterm" id="idp42700"></a></td><td>Подобно <code class="structname">pg_stat_all_tables</code>, но подсчитывает действия, выполненные в текущей транзакции к настоящему моменту (которые ещё <span class="emphasis"><em>не</em></span> вошли в <code class="structname">pg_stat_all_tables</code> и связанные представления). Столбцы для числа живых и мёртвых строк, а также количества операций очистки и сбора статистики, в этом представлении отсутствуют.</td></tr><tr><td><code class="structname">pg_stat_xact_sys_tables</code><a class="indexterm" id="idp42709"></a></td><td>Аналогично <code class="structname">pg_stat_xact_all_tables</code>, за исключением того, что отображаются только системные таблицы.</td></tr><tr><td><code class="structname">pg_stat_xact_user_tables</code><a class="indexterm" id="idp42716"></a></td><td>Аналогично <code class="structname">pg_stat_xact_all_tables</code>, за исключением того, что отображаются только пользовательские таблицы.</td></tr><tr><td><code class="structname">pg_stat_all_indexes</code><a class="indexterm" id="idp42723"></a></td><td>По одной строке для каждого индекса в текущей базе данных со статистикой по обращениям к этому индексу. Более подробно смотрите <a class="xref" href="monitoring-stats.html#pg-stat-all-indexes-view" title="Таблица 28.13. Представление pg_stat_all_indexes">pg_stat_all_indexes</a>.</td></tr><tr><td><code class="structname">pg_stat_sys_indexes</code><a class="indexterm" id="idp42730"></a></td><td>Аналогично <code class="structname">pg_stat_all_indexes</code>, за исключением того, что показываются только индексы по системным таблицам.</td></tr><tr><td><code class="structname">pg_stat_user_indexes</code><a class="indexterm" id="idp42737"></a></td><td>Аналогично <code class="structname">pg_stat_all_indexes</code>, за исключением того, что показываются только индексы по пользовательским таблицам.</td></tr><tr><td><code class="structname">pg_statio_all_tables</code><a class="indexterm" id="idp42744"></a></td><td>По одной строке для каждой таблицы в текущей базе данных со статистикой по операциям ввода/вывода для этой таблицы. Более подробно смотрите <a class="xref" href="monitoring-stats.html#pg-statio-all-tables-view" title="Таблица 28.14. Представление pg_statio_all_tables">pg_statio_all_tables</a>.</td></tr><tr><td><code class="structname">pg_statio_sys_tables</code><a class="indexterm" id="idp42751"></a></td><td>Аналогично <code class="structname">pg_statio_all_tables</code>, за исключением того, что показываются только системные таблицы.</td></tr><tr><td><code class="structname">pg_statio_user_tables</code><a class="indexterm" id="idp42758"></a></td><td>Аналогично <code class="structname">pg_statio_all_tables</code>, за исключением того, что показываются только пользовательские таблицы.</td></tr><tr><td><code class="structname">pg_statio_all_indexes</code><a class="indexterm" id="idp42765"></a></td><td>По одной строке для каждого индекса в текущей базе данных со статистикой по операциям ввода/вывода для этого индекса. Более подробно смотрите <a class="xref" href="monitoring-stats.html#pg-statio-all-indexes-view" title="Таблица 28.15. Представление pg_statio_all_indexes">pg_statio_all_indexes</a>.</td></tr><tr><td><code class="structname">pg_statio_sys_indexes</code><a class="indexterm" id="idp42772"></a></td><td>Аналогично <code class="structname">pg_statio_all_indexes</code>, за исключением того, что показываются только индексы по системным таблицам.</td></tr><tr><td><code class="structname">pg_statio_user_indexes</code><a class="indexterm" id="idp42779"></a></td><td>Аналогично <code class="structname">pg_statio_all_indexes</code>, за исключением того, что показываются только индексы по пользовательским таблицам.</td></tr><tr><td><code class="structname">pg_statio_all_sequences</code><a class="indexterm" id="idp42786"></a></td><td>По одной строке для каждой последовательности в текущей базе данных со статистикой по операциям ввода/вывода для этой последовательности. Более подробно смотрите <a class="xref" href="monitoring-stats.html#pg-statio-all-sequences-view" title="Таблица 28.16. Представление pg_statio_all_sequences">pg_statio_all_sequences</a>.</td></tr><tr><td><code class="structname">pg_statio_sys_sequences</code><a class="indexterm" id="idp42793"></a></td><td>Аналогично <code class="structname">pg_statio_all_sequences</code>, за исключением того, что показываются только системные последовательности. (В настоящее время системных последовательностей нет, поэтому это представление всегда пусто.)</td></tr><tr><td><code class="structname">pg_statio_user_sequences</code><a class="indexterm" id="idp42800"></a></td><td>Аналогично <code class="structname">pg_statio_all_sequences</code>, за исключением того, что показываются только пользовательские последовательности.</td></tr><tr><td><code class="structname">pg_stat_user_functions</code><a class="indexterm" id="idp42807"></a></td><td>По одной строке для каждой отслеживаемой функции со статистикой по выполнениям этой функции. Более подробно смотрите <a class="xref" href="monitoring-stats.html#pg-stat-user-functions-view" title="Таблица 28.17. Представление pg_stat_user_functions">pg_stat_user_functions</a>.</td></tr><tr><td><code class="structname">pg_stat_xact_user_functions</code><a class="indexterm" id="idp42814"></a></td><td>Аналогично <code class="structname">pg_stat_user_functions</code>, однако подсчитываются только вызовы функций, выполненные в текущей транзакции (которые ещё <span class="emphasis"><em>не</em></span> были включены в <code class="structname">pg_stat_user_functions</code>).</td></tr></tbody></table></div></div><br class="table-break" /><p>Статистика по отдельным индексам особенно полезна для определения того, какие индексы используются и насколько они эффективны.<p>Представления <code class="structname">pg_statio_</code> полезны, прежде всего, для определения эффективности буферного кеша. Если количество фактических дисковых чтений существенно меньше количества чтений из буферного кеша, то это означает, что кеш справляется с большинством запросов на чтение без обращения к ядру. Однако эта статистика не даёт полной картины: <span class="productname">PostgreSQL</span> обрабатывает дисковый ввод/вывод так, что данные, не находящиеся в буферном кеше <span class="productname">PostgreSQL</span>, могут все ещё располагаться в кеше ввода/вывода ядра, и, следовательно, для их получения физическое чтение может не использоваться. Для получения более детальной информации о процессе ввода/вывода в <span class="productname">PostgreSQL</span> рекомендуется использовать сборщик статистики <span class="productname">PostgreSQL</span> в сочетании с утилитами операционной системы, которые дают более полное представление о том, как ядро осуществляет ввод/вывод.<div class="table" id="pg-stat-activity-view"><p class="title"><strong>Таблица 28.3. Представление <code class="structname">pg_stat_activity</code></strong><div class="table-contents"><table border="1" class="table" summary="Представление pg_stat_activity"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Столбец</th><th>Тип</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structfield">datid</code></td><td><code class="type">oid</code></td><td>OID базы данных, к которой подключён этот серверный процесс</td></tr><tr><td><code class="structfield">datname</code></td><td><code class="type">name</code></td><td>Имя базы данных, к которой подключён этот серверный процесс</td></tr><tr><td><code class="structfield">pid</code></td><td><code class="type">integer</code></td><td>Идентификатор процесса этого серверного процесса</td></tr><tr><td><code class="structfield">usesysid</code></td><td><code class="type">oid</code></td><td>OID пользователя, подключённого к этому серверному процессу</td></tr><tr><td><code class="structfield">usename</code></td><td><code class="type">name</code></td><td>Имя пользователя, подключённого к этому серверному процессу</td></tr><tr><td><code class="structfield">application_name</code></td><td><code class="type">text</code></td><td>Название приложения, подключённого к этому серверному процессу</td></tr><tr><td><code class="structfield">client_addr</code></td><td><code class="type">inet</code></td><td>IP-адрес клиента, подключённого к этому серверному процессу. Значение null в этом поле означает, что клиент подключён через сокет Unix на стороне сервера или что это внутренний процесс, например, автоочистка.</td></tr><tr><td><code class="structfield">client_hostname</code></td><td><code class="type">text</code></td><td>Имя компьютера для подключённого клиента, получаемое в результате обратного поиска в DNS по <code class="structfield">client_addr</code>. Это поле будет отлично от null только в случае соединений по IP и только при включённом режиме <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/runtime-config-logging#guc-log-hostname">log_hostname</a>.</td></tr><tr><td><code class="structfield">client_port</code></td><td><code class="type">integer</code></td><td>Номер TCP-порта, который используется клиентом для соединения с этим серверным процессом, или <code class="literal">-1</code>, если используется сокет Unix</td></tr><tr><td><code class="structfield">backend_start</code></td><td><code class="type">timestamp with time zone</code></td><td>Время запуска процесса, т. е. время, когда клиент подсоединился к серверу</td></tr><tr><td><code class="structfield">xact_start</code></td><td><code class="type">timestamp with time zone</code></td><td>Время начала текущей транзакции в этом процессе или null при отсутствии активной транзакции. Если текущий запрос был первым в своей транзакции, то значение в этом столбце совпадает со значением столбца <code class="structfield">query_start</code>.</td></tr><tr><td><code class="structfield">query_start</code></td><td><code class="type">timestamp with time zone</code></td><td>Время начала выполнения активного в данный момент запроса, или, если <code class="structfield">state</code> не <code class="literal">active</code>, то время начала выполнения последнего запроса</td></tr><tr><td><code class="structfield">state_change</code></td><td><code class="type">timestamp with time zone</code></td><td>Время последнего изменения состояния (поля <code class="structfield">state</code>)</td></tr><tr><td><code class="structfield">wait_event_type</code></td><td><code class="type">text</code></td><td>Тип события, которого ждёт обслуживающий процесс, если это имеет место; в противном случае — NULL. Возможные значения: <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p><code class="literal">LWLockNamed</code>: Обслуживающий процесс ожидает определённую именованную лёгкую блокировку. Такие блокировки защищают определённые структуры данных в разделяемой памяти. Имя блокировки будет показывается в <code class="literal">wait_event</code>.<li class="listitem"><p><code class="literal">LWLockTranche</code>: Обслуживающий процесс ожидает одну из группы связанных лёгких блокировок. Все блокировки в этой группе выполняют схожие функции; общее предназначение блокировок в этой группе показывается в <code class="literal">wait_event</code>.<li class="listitem"><p><code class="literal">Lock</code>: Обслуживающий процесс ожидает тяжёлую блокировку. Тяжёлые блокировки, также называемые блокировками менеджера блокировок или просто блокировками, в основном защищают объекты уровня SQL, такие как таблицы. Однако они также применяются для взаимоисключающего выполнения некоторых внутренних операций, например, для расширения отношений. Тип ожидаемой блокировки показывается в <code class="literal">wait_event</code>.<li class="listitem"><p><code class="literal">BufferPin</code>: Серверный процесс ожидает доступа к буферу данных, когда никакой другой процесс не обращается к этому буферу. Ожидание закрепления буфера может растягиваться, если другой процесс удерживает открытый курсор, который читал данные из нужного буфера.</ul></div></td></tr><tr><td><code class="structfield">wait_event</code></td><td><code class="type">text</code></td><td>Имя ожидаемого события, если обслуживающий процесс находится в состоянии ожидания, а в противном случае — NULL. За подробностями обратитесь к <a class="xref" href="monitoring-stats.html#wait-event-table" title="Таблица 28.4. Описание wait_event">Таблице 28.4</a>.</td></tr><tr><td><code class="structfield">state</code></td><td><code class="type">text</code></td><td>Общее текущее состояние этого серверного процесса. Возможные значения: <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p><code class="literal">active</code>: серверный процесс выполняет запрос.<li class="listitem"><p><code class="literal">idle</code>: серверный процесс ожидает новой команды от клиента.<li class="listitem"><p><code class="literal">idle in transaction</code>: серверный процесс находится внутри транзакции, но в настоящее время не выполняет никакой запрос.<li class="listitem"><p><code class="literal">idle in transaction (aborted)</code>: Это состояние подобно <code class="literal">idle in transaction</code>, за исключением того, что один из операторов в транзакции вызывал ошибку.<li class="listitem"><p><code class="literal">fastpath function call</code>: серверный процесс выполняет fast-path функцию.<li class="listitem"><p><code class="literal">disabled</code>: Это состояние отображается для серверных процессов, у которых параметр <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/runtime-config-statistics#guc-track-activities">track_activities</a> отключён.</ul></div></td></tr><tr><td><code class="structfield">backend_xid</code></td><td><code class="type">xid</code></td><td>Идентификатор верхнего уровня транзакции этого серверного процесса или любой другой.</td></tr><tr><td><code class="structfield">backend_xmin</code></td><td><code class="type">xid</code></td><td>текущая граница <code class="literal">xmin</code> для серверного процесса.</td></tr><tr><td><code class="structfield">query</code></td><td><code class="type">text</code></td><td>Текст последнего запроса этого серверного процесса. Если <code class="structfield">state</code> имеет значение <code class="literal">active</code>, то в этом поле отображается запрос, который выполняется в настоящий момент. Если процесс находится в любом другом состоянии, то в этом поле отображается последний выполненный запрос.</td></tr></tbody></table></div></div><br class="table-break" /><p>В представлении <code class="structname">pg_stat_activity</code> для каждого серверного процесса будет присутствовать по одной строке с информацией, относящейся к текущей деятельности этого процесса.<div class="note"><h3 class="title">Примечание</h3><p>Значения в столбцах <code class="structfield">wait_event</code> и <code class="structfield">state</code> не зависят друг от друга. Если обслуживающий процесс находится в состоянии <code class="literal">active</code> (активен), он может ожидать какое-то событие, или не ожидать никакое. Если состояние <code class="literal">active</code> и поле <code class="structfield">wait_event</code> содержит не NULL, это означает, что запрос выполняется, но заблокирован чем-то в системе.</div><div class="table" id="wait-event-table"><p class="title"><strong>Таблица 28.4. Описание <code class="structname">wait_event</code></strong><div class="table-contents"><table border="1" class="table" summary="Описание wait_event"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Тип события ожидания</th><th>Название события ожидания</th><th>Описание</th></tr></thead><tbody><tr><td rowspan="44"><code class="literal">LWLockNamed</code></td><td><code class="literal">ShmemIndexLock</code></td><td>Ожидание при поиске или выделении области в разделяемой памяти.</td></tr><tr><td><code class="literal">OidGenLock</code></td><td>Ожидание при выделении или назначении OID.</td></tr><tr><td><code class="literal">XidGenLock</code></td><td>Ожидание при выделении или назначении идентификатора транзакции.</td></tr><tr><td><code class="literal">ProcArrayLock</code></td><td>Ожидание при получении снимка или очистке идентификатора транзакции в конце транзакции.</td></tr><tr><td><code class="literal">SInvalReadLock</code></td><td>Ожидание при получении или удалении из общей очереди сообщений аннулирования.</td></tr><tr><td><code class="literal">SInvalWriteLock</code></td><td>Ожидание при добавлении в общую очередь сообщения аннулирования.</td></tr><tr><td><code class="literal">WALBufMappingLock</code></td><td>Ожидание при замене страницы в буферах WAL.</td></tr><tr><td><code class="literal">WALWriteLock</code></td><td>Ожидание при записи буферов WAL на диск.</td></tr><tr><td><code class="literal">ControlFileLock</code></td><td>Ожидание при чтении или изменении управляющего файла либо при создании нового файла WAL.</td></tr><tr><td><code class="literal">CheckpointLock</code></td><td>Ожидание при выполнении контрольной точки.</td></tr><tr><td><code class="literal">CLogControlLock</code></td><td>Ожидание при чтении или изменении состояния транзакции.</td></tr><tr><td><code class="literal">SubtransControlLock</code></td><td>Ожидание при чтении или изменении информации о подтранзакции.</td></tr><tr><td><code class="literal">MultiXactGenLock</code></td><td>Ожидание при чтении или изменении общего состояния мультитранзакций.</td></tr><tr><td><code class="literal">MultiXactOffsetControlLock</code></td><td>Ожидание при чтении или изменении смещений мультитранзакций.</td></tr><tr><td><code class="literal">MultiXactMemberControlLock</code></td><td>Ожидание при чтении или изменении членов мультитранзакций.</td></tr><tr><td><code class="literal">RelCacheInitLock</code></td><td>Ожидание при чтении или записи файла инициализации кеша отношения.</td></tr><tr><td><code class="literal">CheckpointerCommLock</code></td><td>Ожидание при управлении запросами fsync.</td></tr><tr><td><code class="literal">TwoPhaseStateLock</code></td><td>Ожидание при чтении или изменении состояния подготовленных транзакций.</td></tr><tr><td><code class="literal">TablespaceCreateLock</code></td><td>Ожидание при создании или удалении табличного пространства.</td></tr><tr><td><code class="literal">BtreeVacuumLock</code></td><td>Ожидание при чтении или изменении информации, связанной с очисткой, для индекса-B-дерева.</td></tr><tr><td><code class="literal">AddinShmemInitLock</code></td><td>Ожидание при управлении выделением блоков в общей памяти.</td></tr><tr><td><code class="literal">AutovacuumLock</code></td><td>Ожидание в рабочем процессе или процедуре запуска автоочистки при изменении или чтении текущего состояния рабочих процессов автоочистки.</td></tr><tr><td><code class="literal">AutovacuumScheduleLock</code></td><td>Ожидание при подтверждении, что таблица, выбранная для очистки, всё ещё нуждается в очистке.</td></tr><tr><td><code class="literal">SyncScanLock</code></td><td>Ожидание при получении начального положения сканирования таблицы для синхронизированного сканирования.</td></tr><tr><td><code class="literal">RelationMappingLock</code></td><td>Ожидание при изменении в файле сопоставления отношений, используемого для хранения связей файловых узлов с каталогом БД.</td></tr><tr><td><code class="literal">AsyncCtlLock</code></td><td>Ожидание при чтении или изменении общего состояния уведомлений.</td></tr><tr><td><code class="literal">AsyncQueueLock</code></td><td>Ожидание при чтении или изменении сообщений уведомлений.</td></tr><tr><td><code class="literal">SerializableXactHashLock</code></td><td>Ожидание при получении или сохранении информации о сериализуемых транзакциях.</td></tr><tr><td><code class="literal">SerializableFinishedListLock</code></td><td>Ожидание при обращении к списку завершённых сериализуемых транзакций.</td></tr><tr><td><code class="literal">SerializablePredicateLockListLock</code></td><td>Ожидание при выполнении операции со списком блокировок, удерживаемых сериализуемыми транзакциями.</td></tr><tr><td><code class="literal">OldSerXidLock</code></td><td>Ожидание при чтении или записи информации о конфликтующих сериализуемых транзакциях.</td></tr><tr><td><code class="literal">SyncRepLock</code></td><td>Ожидание при чтении или изменении сведений о синхронных репликах.</td></tr><tr><td><code class="literal">BackgroundWorkerLock</code></td><td>Ожидание при чтении или изменении состояния фонового рабочего процесса.</td></tr><tr><td><code class="literal">DynamicSharedMemoryControlLock</code></td><td>Ожидание при чтении или изменении состояния динамической общей памяти.</td></tr><tr><td><code class="literal">AutoFileLock</code></td><td>Ожидание при изменении файла <code class="filename">postgresql.auto.conf</code>.</td></tr><tr><td><code class="literal">ReplicationSlotAllocationLock</code></td><td>Ожидание при выделении или освобождении слота репликации.</td></tr><tr><td><code class="literal">ReplicationSlotControlLock</code></td><td>Ожидание при чтении или изменении состояния слота репликации.</td></tr><tr><td><code class="literal">CommitTsControlLock</code></td><td>Ожидание при чтении или изменении времени фиксирования транзакции.</td></tr><tr><td><code class="literal">CommitTsLock</code></td><td>Ожидание при чтении или изменении последнего значения, заданного в качестве времени транзакции.</td></tr><tr><td><code class="literal">ReplicationOriginLock</code></td><td>Ожидание при подготовке, удалении или использовании источника репликации.</td></tr><tr><td><code class="literal">MultiXactTruncationLock</code></td><td>Ожидание при чтении или очистке информации мультитранзакций.</td></tr><tr><td><code class="literal">OldSnapshotTimeMapLock</code></td><td>Ожидание при чтении или изменении информации о старом снимке.</td></tr><tr><td><code class="literal">WrapLimitsVacuumLock</code></td><td>Ожидание при изменении лимитов идентификаторов транзакций и мультитранзакций.</td></tr><tr><td><code class="literal">NotifyQueueTailLock</code></td><td>Ожидание при изменении границы массива с сообщениями уведомлений.</td></tr><tr><td rowspan="16"><code class="literal">LWLockTranche</code></td><td><code class="literal">clog</code></td><td>Ожидание при вводе/выводе с буфером clog (буфер состояния транзакций).</td></tr><tr><td><code class="literal">commit_timestamp</code></td><td>Ожидание при вводе/выводе с буфером времени фиксирования транзакций.</td></tr><tr><td><code class="literal">subtrans</code></td><td>Ожидание при вводе/выводе с буфером подтранзакций.</td></tr><tr><td><code class="literal">multixact_offset</code></td><td>Ожидание при вводе/выводе с буфером смещений мультитранзакций.</td></tr><tr><td><code class="literal">multixact_member</code></td><td>Ожидание при вводе/выводе с буфером multixact_member.</td></tr><tr><td><code class="literal">async</code></td><td>Ожидание при вводе/выводе с буфером асинхронных сообщений (уведомлений).</td></tr><tr><td><code class="literal">oldserxid</code></td><td>Ожидание при вводе/выводе с буфером oldserxid.</td></tr><tr><td><code class="literal">wal_insert</code></td><td>Ожидание при добавлении записей WAL в буфер в памяти.</td></tr><tr><td><code class="literal">buffer_content</code></td><td>Ожидание при чтении или записи страницы данных в памяти.</td></tr><tr><td><code class="literal">buffer_io</code></td><td>Ожидание при вводе/выводе, связанном со страницей данных.</td></tr><tr><td><code class="literal">replication_origin</code></td><td>Ожидание при чтении или изменении состояния репликации.</td></tr><tr><td><code class="literal">replication_slot_io</code></td><td>Ожидание при вводе/выводе со слотом репликации.</td></tr><tr><td><code class="literal">proc</code></td><td>Ожидание при чтении или изменении информации о блокировках по быстрому пути.</td></tr><tr><td><code class="literal">buffer_mapping</code></td><td>Ожидание при связывании блока данных с буфером в пуле буферов.</td></tr><tr><td><code class="literal">lock_manager</code></td><td>Ожидание при добавлении или обращении к блокировкам обслуживающих процессов либо ожидание входа или выхода из группы блокировок (используется в параллельных запросах).</td></tr><tr><td><code class="literal">predicate_lock_manager</code></td><td>Ожидание при добавлении или обращении к информации о предикатных блокировках.</td></tr><tr><td rowspan="11"><code class="literal">Lock</code></td><td><code class="literal">relation</code></td><td>Ожидание при запросе блокировки для отношения.</td></tr><tr><td><code class="literal">extend</code></td><td>Ожидание при расширении отношения.</td></tr><tr><td><code class="literal">frozenid</code></td><td>Ожидание изменения <code class="structname">pg_database</code>.<code class="structfield">datfrozenxid</code> и <code class="structname">pg_database</code>.<code class="structfield">datminmxid</code>.</td></tr><tr><td><code class="literal">page</code></td><td>Ожидание при запросе блокировки для страницы отношения.</td></tr><tr><td><code class="literal">tuple</code></td><td>Ожидание при запросе блокировки для кортежа.</td></tr><tr><td><code class="literal">transactionid</code></td><td>Ожидание завершения транзакции.</td></tr><tr><td><code class="literal">virtualxid</code></td><td>Ожидание при запросе блокировки виртуального xid.</td></tr><tr><td><code class="literal">speculative token</code></td><td>Ожидание при запросе блокировки спекулятивного добавления.</td></tr><tr><td><code class="literal">object</code></td><td>Ожидание при запросе блокировки для нереляционного объекта БД.</td></tr><tr><td><code class="literal">userlock</code></td><td>Ожидание при запросе пользовательской блокировки.</td></tr><tr><td><code class="literal">advisory</code></td><td>Ожидание при запросе рекомендательной пользовательской блокировки.</td></tr><tr><td><code class="literal">BufferPin</code></td><td><code class="literal">BufferPin</code></td><td>Ожидание при закреплении буфера.</td></tr></tbody></table></div></div><br class="table-break" /><div class="note"><h3 class="title">Примечание</h3><p>Для траншей, регистрируемых расширениями, в поле <code class="structfield">wait_event</code> выводится имя, указываемое расширением. Пользователь вполне может зарегистрировать транш и в обслуживающем процессе (воспользовавшись динамической общей памятью), в результате чего другие процессы не получат доступа к этой информации; в таких случаях в этом поле выводится <code class="literal">extension</code>.</div><p>Следующая команда показывает, как можно просмотреть события ожидания: <pre class="programlisting">SELECT pid, wait_event_type, wait_event FROM pg_stat_activity WHERE wait_event is NOT NULL;
+ pid  | wait_event_type |  wait_event
+------+-----------------+---------------
+ 2540 | Lock            | relation
+ 6644 | LWLockNamed     | ProcArrayLock
+(2 rows)</pre><div class="table" id="pg-stat-replication-view"><p class="title"><strong>Таблица 28.5. Представление <code class="structname">pg_stat_replication</code></strong><div class="table-contents"><table border="1" class="table" summary="Представление pg_stat_replication"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Столбец</th><th>Тип</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structfield">pid</code></td><td><code class="type">integer</code></td><td>Идентификатор процесса-передатчика WAL</td></tr><tr><td><code class="structfield">usesysid</code></td><td><code class="type">oid</code></td><td>OID пользователя, подключённого к этому процессу-передатчику WAL</td></tr><tr><td><code class="structfield">usename</code></td><td><code class="type">name</code></td><td>Имя пользователя, подключённого к этому процессу-передатчику WAL</td></tr><tr><td><code class="structfield">application_name</code></td><td><code class="type">text</code></td><td>Имя приложения, которое подключено к этому процессу-передатчику WAL</td></tr><tr><td><code class="structfield">client_addr</code></td><td><code class="type">inet</code></td><td>IP-адрес клиента, подключённого к этому процессу-передатчику WAL. Значение null в этом поле говорит о том, что клиент подсоединён через сокет Unix на сервере.</td></tr><tr><td><code class="structfield">client_hostname</code></td><td><code class="type">text</code></td><td>Имя компьютера для подключённого клиента, получаемое в результате обратного поиска в DNS по <code class="structfield">client_addr</code>. Это поле будет отлично от null только в случае соединений по IP и только при включённом режиме <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/runtime-config-logging#guc-log-hostname">log_hostname</a>.</td></tr><tr><td><code class="structfield">client_port</code></td><td><code class="type">integer</code></td><td>Номер TCP-порта, который используется клиентом для взаимодействия с процессом-передатчиком WAL, или <code class="literal">-1</code>, если используется сокет Unix</td></tr><tr><td><code class="structfield">backend_start</code></td><td><code class="type">timestamp with time zone</code></td><td>Время запуска процесса, т. е. время подключения клиента к этому процессу-передатчику WAL</td></tr><tr><td><code class="structfield">backend_xmin</code></td><td><code class="type">xid</code></td><td>Значение <code class="literal">xmin</code>, полученное от ведомого сервера при включённом <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/runtime-config-replication#guc-hot-standby-feedback">hot_standby_feedback</a>.</td></tr><tr><td><code class="structfield">state</code></td><td><code class="type">text</code></td><td>Текущее состояние процесса-передатчика WAL</td></tr><tr><td><code class="structfield">sent_location</code></td><td><code class="type">pg_lsn</code></td><td>Позиция последней транзакции в журнале транзакций, отправленной по этому соединению</td></tr><tr><td><code class="structfield">write_location</code></td><td><code class="type">pg_lsn</code></td><td>Позиция последней транзакции в журнале транзакций, записанной на диск ведомым сервером</td></tr><tr><td><code class="structfield">flush_location</code></td><td><code class="type">pg_lsn</code></td><td>Позиция последней транзакции в журнале транзакций, сброшенной на диск ведомым сервером</td></tr><tr><td><code class="structfield">replay_location</code></td><td><code class="type">pg_lsn</code></td><td>Позиция последней транзакции в журнале транзакций, выполненной в этой базе данных на ведомом сервере</td></tr><tr><td><code class="structfield">sync_priority</code></td><td><code class="type">integer</code></td><td>Приоритет этого ведомого сервера для выбора в качестве синхронного ведомого</td></tr><tr><td><code class="structfield">sync_state</code></td><td><code class="type">text</code></td><td>Состояние синхронизации для этого ведомого сервера</td></tr></tbody></table></div></div><br class="table-break" /><p>Представление <code class="structname">pg_stat_replication</code> для каждого процесса-передатчика WAL будет содержать по одной строке со статистикой о репликации на ведомый сервер, к которому подключён этот процесс. В представлении перечисляются только ведомые серверы, подключённые напрямую; информация о ведомых серверах, подключённых опосредованно, не представлена.<div class="table" id="pg-stat-wal-receiver-view"><p class="title"><strong>Таблица 28.6. Представление <code class="structname">pg_stat_wal_receiver</code></strong><div class="table-contents"><table border="1" class="table" summary="Представление pg_stat_wal_receiver"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Столбец</th><th>Тип</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structfield">pid</code></td><td><code class="type">integer</code></td><td>Идентификатор процесса WAL-приёмника</td></tr><tr><td><code class="structfield">status</code></td><td><code class="type">text</code></td><td>Состояние активности процесса WAL-приёмника</td></tr><tr><td><code class="structfield">receive_start_lsn</code></td><td><code class="type">pg_lsn</code></td><td>Первая позиция в журнале транзакции в момент запуска приёмника WAL</td></tr><tr><td><code class="structfield">receive_start_tli</code></td><td><code class="type">integer</code></td><td>Первый номер линии времени в момент запуска приёмника WAL</td></tr><tr><td><code class="structfield">received_lsn</code></td><td><code class="type">pg_lsn</code></td><td>Последняя позиция в журнале транзакций, уже полученная и сброшенная на диск; начальным значением этого поля будет первая позиция в журнале в момент запуска приёмника WAL</td></tr><tr><td><code class="structfield">received_tli</code></td><td><code class="type">integer</code></td><td>Номер линии времени последней позиции в журнале транзакции, уже полученной и сброшенной на диск; начальным значением этого поля будет линия времени первой позиции в момент запуска приёмника WAL</td></tr><tr><td><code class="structfield">last_msg_send_time</code></td><td><code class="type">timestamp with time zone</code></td><td>Время отправки последнего сообщения, полученного от изначального передатчика WAL</td></tr><tr><td><code class="structfield">last_msg_receipt_time</code></td><td><code class="type">timestamp with time zone</code></td><td>Время поступления последнего сообщения, полученного от изначального передатчика WAL</td></tr><tr><td><code class="structfield">latest_end_lsn</code></td><td><code class="type">pg_lsn</code></td><td>Последняя позиция в журнале транзакций, сообщённая изначальному передатчику WAL</td></tr><tr><td><code class="structfield">latest_end_time</code></td><td><code class="type">timestamp with time zone</code></td><td>Время, когда последняя позиция в журнале транзакций была сообщена изначальному передатчику WAL</td></tr><tr><td><code class="structfield">slot_name</code></td><td><code class="type">text</code></td><td>Имя слота репликации, используемого этим приёмником WAL</td></tr><tr><td><code class="structfield">conninfo</code></td><td><code class="type">text</code></td><td>Строка подключения, используемая этим приёмником WAL (секретные поля в ней скрыты).</td></tr></tbody></table></div></div><br class="table-break" /><p>Представление <code class="structname">pg_stat_wal_receiver</code> будет иметь только одну строку со статистикой приёмника WAL от сервера, на котором работает приёмник.<div class="table" id="pg-stat-ssl-view"><p class="title"><strong>Таблица 28.7. Представление <code class="structname">pg_stat_ssl</code></strong><div class="table-contents"><table border="1" class="table" summary="Представление pg_stat_ssl"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Столбец</th><th>Тип</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structfield">pid</code></td><td><code class="type">integer</code></td><td>Идентификатор обслуживающего процесса или процесса, передающего WAL</td></tr><tr><td><code class="structfield">ssl</code></td><td><code class="type">boolean</code></td><td>True, если для этого подключения используется SSL</td></tr><tr><td><code class="structfield">version</code></td><td><code class="type">text</code></td><td>Версия SSL либо NULL, если SSL для этого подключения не используется</td></tr><tr><td><code class="structfield">cipher</code></td><td><code class="type">text</code></td><td>Имя применяемого шифра SSL либо NULL, если SSL для этого подключения не используется</td></tr><tr><td><code class="structfield">bits</code></td><td><code class="type">integer</code></td><td>Число бит в применяемом алгоритме шифрования либо NULL, если SSL для этого подключения не используется</td></tr><tr><td><code class="structfield">compression</code></td><td><code class="type">boolean</code></td><td>True, если применяется сжатие SSL, false в противном случае, либо NULL, если SSL для этого подключения не используется</td></tr><tr><td><code class="structfield">clientdn</code></td><td><code class="type">text</code></td><td>Поле DN (Distinguished Name, Уникальное имя) из используемого клиентского сертификата либо NULL, если клиент не передал сертификат или SSL для этого подключения не используется. Это значение усекается, если поле DN оказывается длиннее <code class="symbol">NAMEDATALEN</code> символов (64 символа в стандартной сборке)</td></tr></tbody></table></div></div><br class="table-break" /><p>Представление <code class="structname">pg_stat_ssl</code> содержит по одной строке для каждого обслуживающего процесса и процесса, передающего WAL, и показывает статистику использования SSL для подключений. Его можно соединить с <code class="structname">pg_stat_activity</code> или <code class="structname">pg_stat_replication</code> по столбцу <code class="structfield">pid</code> и получить дополнительные сведения о подключении.<div class="table" id="pg-stat-archiver-view"><p class="title"><strong>Таблица 28.8. Представление <code class="structname">pg_stat_archiver</code></strong><div class="table-contents"><table border="1" class="table" summary="Представление pg_stat_archiver"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Столбец</th><th>Тип</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structfield">archived_count</code></td><td><code class="type">bigint</code></td><td>Число файлов WAL, которые были успешно архивированы</td></tr><tr><td><code class="structfield">last_archived_wal</code></td><td><code class="type">text</code></td><td>Имя последнего файла WAL успешно архивированного</td></tr><tr><td><code class="structfield">last_archived_time</code></td><td><code class="type">timestamp with time zone</code></td><td>Время последней успешной архивации</td></tr><tr><td><code class="structfield">failed_count</code></td><td><code class="type">bigint</code></td><td>Число неудачных попыток архивации файлов WAL</td></tr><tr><td><code class="structfield">last_failed_wal</code></td><td><code class="type">text</code></td><td>Имя файла WAL последней неудавшейся архивации</td></tr><tr><td><code class="structfield">last_failed_time</code></td><td><code class="type">timestamp with time zone</code></td><td>Время последней неудавшейся архивации</td></tr><tr><td><code class="structfield">stats_reset</code></td><td><code class="type">timestamp with time zone</code></td><td>Последнее время сброса этих статистических данных</td></tr></tbody></table></div></div><br class="table-break" /><p>В представлении <code class="structname">pg_stat_archiver</code> всегда будет одна строка, содержащая данные о текущем состоянии процесса архивации в кластере.<div class="table" id="pg-stat-bgwriter-view"><p class="title"><strong>Таблица 28.9. Представление <code class="structname">pg_stat_bgwriter</code></strong><div class="table-contents"><table border="1" class="table" summary="Представление pg_stat_bgwriter"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Столбец</th><th>Тип</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structfield">checkpoints_timed</code></td><td><code class="type">bigint</code></td><td>Количество запланированных контрольных точек, которые уже были выполнены</td></tr><tr><td><code class="structfield">checkpoints_req</code></td><td><code class="type">bigint</code></td><td>Количество запрошенных контрольных точек, которые уже были выполнены</td></tr><tr><td><code class="structfield">checkpoint_write_time</code></td><td><code class="type">double precision</code></td><td>Общее время, которое было затрачено на этап обработки контрольной точки, в котором файлы записываются на диск, в миллисекундах</td></tr><tr><td><code class="structfield">checkpoint_sync_time</code></td><td><code class="type">double precision</code></td><td>Общее время, которое было затрачено на этап обработки контрольной точки, в котором файлы синхронизируются с диском, в миллисекундах</td></tr><tr><td><code class="structfield">buffers_checkpoint</code></td><td><code class="type">bigint</code></td><td>Количество буферов, записанных при выполнении контрольных точек</td></tr><tr><td><code class="structfield">buffers_clean</code></td><td><code class="type">bigint</code></td><td>Количество буферов, записанных фоновым процессом записи</td></tr><tr><td><code class="structfield">maxwritten_clean</code></td><td><code class="type">bigint</code></td><td>Сколько раз фоновый процесс записи останавливал сброс грязных страниц на диск из-за того, что записал слишком много буферов</td></tr><tr><td><code class="structfield">buffers_backend</code></td><td><code class="type">bigint</code></td><td>Количество буферов, записанных самим серверным процессом</td></tr><tr><td><code class="structfield">buffers_backend_fsync</code></td><td><code class="type">bigint</code></td><td>Сколько раз серверному процессу пришлось выполнить <code class="function">fsync</code> самостоятельно (обычно фоновый процесс записи сам обрабатывает эти вызовы, даже когда серверный процесс выполняет запись самостоятельно)</td></tr><tr><td><code class="structfield">buffers_alloc</code></td><td><code class="type">bigint</code></td><td>Количество выделенных буферов</td></tr><tr><td><code class="structfield">stats_reset</code></td><td><code class="type">timestamp with time zone</code></td><td>Последнее время сброса этих статистических данных</td></tr></tbody></table></div></div><br class="table-break" /><p>В представлении <code class="structname">pg_stat_bgwriter</code> всегда будет только одна строка, в которой будут представлены общие данные по всему кластеру.<div class="table" id="pg-stat-database-view"><p class="title"><strong>Таблица 28.10. Представление <code class="structname">pg_stat_database</code></strong><div class="table-contents"><table border="1" class="table" summary="Представление pg_stat_database"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Столбец</th><th>Тип</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structfield">datid</code></td><td><code class="type">oid</code></td><td>OID базы данных</td></tr><tr><td><code class="structfield">datname</code></td><td><code class="type">name</code></td><td>Имя базы данных</td></tr><tr><td><code class="structfield">numbackends</code></td><td><code class="type">integer</code></td><td>Количество серверных процессов, в настоящее время подключённых к этой базе данных. Это единственный столбец в этом представлении, значение в котором отражает текущее состояние; все другие столбцы возвращают суммарные значения со времени последнего сброса статистики.</td></tr><tr><td><code class="structfield">xact_commit</code></td><td><code class="type">bigint</code></td><td>Количество зафиксированных транзакций в этой базе данных</td></tr><tr><td><code class="structfield">xact_rollback</code></td><td><code class="type">bigint</code></td><td>Количество транзакций в этой базе данных, для которых был выполнен откат транзакции</td></tr><tr><td><code class="structfield">blks_read</code></td><td><code class="type">bigint</code></td><td>Количество прочитанных дисковых блоков в этой базе данных</td></tr><tr><td><code class="structfield">blks_hit</code></td><td><code class="type">bigint</code></td><td>Сколько раз дисковые блоки обнаруживались в буферном кеше, так что чтение с диска не потребовалось (в значение входят только случаи обнаружения в буферном кеше PostgreSQL, а не в кеше файловой системы ОС)</td></tr><tr><td><code class="structfield">tup_returned</code></td><td><code class="type">bigint</code></td><td>Количество строк, возвращённое запросами в этой базе данных</td></tr><tr><td><code class="structfield">tup_fetched</code></td><td><code class="type">bigint</code></td><td>Количество строк, извлечённое запросами в этой базе данных</td></tr><tr><td><code class="structfield">tup_inserted</code></td><td><code class="type">bigint</code></td><td>Количество строк, вставленное запросами в этой базе данных</td></tr><tr><td><code class="structfield">tup_updated</code></td><td><code class="type">bigint</code></td><td>Количество строк, изменённое запросами в этой базе данных</td></tr><tr><td><code class="structfield">tup_deleted</code></td><td><code class="type">bigint</code></td><td>Количество строк, удалённое запросами в этой базе данных</td></tr><tr><td><code class="structfield">conflicts</code></td><td><code class="type">bigint</code></td><td>Количество запросов, отменённых из-за конфликта с восстановлением в этой базе данных. (Конфликты происходят только на ведомых серверах; более подробно смотрите <a class="xref" href="monitoring-stats.html#pg-stat-database-conflicts-view" title="Таблица 28.11. Представление pg_stat_database_conflicts">pg_stat_database_conflicts</a>.)</td></tr><tr><td><code class="structfield">temp_files</code></td><td><code class="type">bigint</code></td><td>Количество временных файлов, созданных запросами в этой базе данных. Подсчитываются все временные файлы независимо от причины их создания (например, для сортировки или для хеширования) и независимо от установленного значения <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/runtime-config-logging#guc-log-temp-files">log_temp_files</a></td></tr><tr><td><code class="structfield">temp_bytes</code></td><td><code class="type">bigint</code></td><td>Общий объём данных, записанных во временные файлы запросами в этой базе данных. Учитываются все временные файлы, вне зависимости от того, по какой причине они созданы и вне зависимости от значения <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/runtime-config-logging#guc-log-temp-files">log_temp_files</a>.</td></tr><tr><td><code class="structfield">deadlocks</code></td><td><code class="type">bigint</code></td><td>Количество взаимных блокировок, зафиксированное в этой базе данных</td></tr><tr><td><code class="structfield">blk_read_time</code></td><td><code class="type">double precision</code></td><td>Время, затраченное серверными процессами в этой базе данных, на чтение блоков из файлов данных, в миллисекундах</td></tr><tr><td><code class="structfield">blk_write_time</code></td><td><code class="type">double precision</code></td><td>Время, затраченное серверными процессами в этой базе данных, на запись блоков в файлы данных, в миллисекундах</td></tr><tr><td><code class="structfield">stats_reset</code></td><td><code class="type">timestamp with time zone</code></td><td>Последнее время сброса этих статистических данных</td></tr></tbody></table></div></div><br class="table-break" /><p>Представление <code class="structname">pg_stat_database</code> содержит одну строку со статистикой на каждую базу данных кластера.<div class="table" id="pg-stat-database-conflicts-view"><p class="title"><strong>Таблица 28.11. Представление <code class="structname">pg_stat_database_conflicts</code></strong><div class="table-contents"><table border="1" class="table" summary="Представление pg_stat_database_conflicts"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Столбец</th><th>Тип</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structfield">datid</code></td><td><code class="type">oid</code></td><td>OID базы данных</td></tr><tr><td><code class="structfield">datname</code></td><td><code class="type">name</code></td><td>Имя базы данных</td></tr><tr><td><code class="structfield">confl_tablespace</code></td><td><code class="type">bigint</code></td><td>Количество запросов в этой базе данных, отменённых из-за того, что табличные пространства были удалены</td></tr><tr><td><code class="structfield">confl_lock</code></td><td><code class="type">bigint</code></td><td>Количество запросов в этой базе данных, отменённых по истечении времени ожидания блокировки</td></tr><tr><td><code class="structfield">confl_snapshot</code></td><td><code class="type">bigint</code></td><td>Количество запросов в этой базе данных, отменённых из-за устаревших снимков данных</td></tr><tr><td><code class="structfield">confl_bufferpin</code></td><td><code class="type">bigint</code></td><td>Количество запросов в этой базе данных, отменённых из-за прикреплённых страниц буфера</td></tr><tr><td><code class="structfield">confl_deadlock</code></td><td><code class="type">bigint</code></td><td>Количество запросов в этой базе данных, отменённых из-за взаимных блокировок</td></tr></tbody></table></div></div><br class="table-break" /><p>Представление <code class="structname">pg_stat_database_conflicts</code> для каждой базы данных будет содержать по одной строке со статистикой на уровне базы по отменам запросов, произошедшим вследствие конфликтов с процессами восстановления на ведомых серверах. В этом представлении будет содержаться только информация по ведомым серверам, поскольку на главных серверах конфликты не возникают.<div class="table" id="pg-stat-all-tables-view"><p class="title"><strong>Таблица 28.12. Представление <code class="structname">pg_stat_all_tables</code></strong><div class="table-contents"><table border="1" class="table" summary="Представление pg_stat_all_tables"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Столбец</th><th>Тип</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structfield">relid</code></td><td><code class="type">oid</code></td><td>OID таблицы</td></tr><tr><td><code class="structfield">schemaname</code></td><td><code class="type">name</code></td><td>Имя схемы, в которой расположена эта таблица</td></tr><tr><td><code class="structfield">relname</code></td><td><code class="type">name</code></td><td>Имя таблицы</td></tr><tr><td><code class="structfield">seq_scan</code></td><td><code class="type">bigint</code></td><td>Количество последовательных чтений, произведённых в этой таблице</td></tr><tr><td><code class="structfield">seq_tup_read</code></td><td><code class="type">bigint</code></td><td>Количество «живых» строк, прочитанных при последовательных чтениях</td></tr><tr><td><code class="structfield">idx_scan</code></td><td><code class="type">bigint</code></td><td>Количество сканирований по индексу, произведённых в этой таблице</td></tr><tr><td><code class="structfield">idx_tup_fetch</code></td><td><code class="type">bigint</code></td><td>Количество «живых» строк, отобранных при сканированиях по индексу</td></tr><tr><td><code class="structfield">n_tup_ins</code></td><td><code class="type">bigint</code></td><td>Количество вставленных строк</td></tr><tr><td><code class="structfield">n_tup_upd</code></td><td><code class="type">bigint</code></td><td>Количество изменённых строк (включая изменения по схеме HOT)</td></tr><tr><td><code class="structfield">n_tup_del</code></td><td><code class="type">bigint</code></td><td>Количество удалённых строк</td></tr><tr><td><code class="structfield">n_tup_hot_upd</code></td><td><code class="type">bigint</code></td><td>Количество строк, обновлённых в режиме HOT (т. е. без отдельного изменения индекса)</td></tr><tr><td><code class="structfield">n_live_tup</code></td><td><code class="type">bigint</code></td><td>Оценочное количество «живых» строк</td></tr><tr><td><code class="structfield">n_dead_tup</code></td><td><code class="type">bigint</code></td><td>Оценочное количество «мёртвых» строк</td></tr><tr><td><code class="structfield">n_mod_since_analyze</code></td><td><code class="type">bigint</code></td><td>Оценочное число строк, изменённых в этой таблице с момента последнего сбора статистики</td></tr><tr><td><code class="structfield">last_vacuum</code></td><td><code class="type">timestamp with time zone</code></td><td>Время последней очистки этой таблицы вручную (<code class="command">VACUUM FULL</code> не учитывается)</td></tr><tr><td><code class="structfield">last_autovacuum</code></td><td><code class="type">timestamp with time zone</code></td><td>Время последней очистки таблицы фоновым процессом автоочистки</td></tr><tr><td><code class="structfield">last_analyze</code></td><td><code class="type">timestamp with time zone</code></td><td>Время последнего выполнения сбора статистики для этой таблицы вручную</td></tr><tr><td><code class="structfield">last_autoanalyze</code></td><td><code class="type">timestamp with time zone</code></td><td>Время последнего выполнения сбора статистики для этой таблицы фоновым процессом автоочистки</td></tr><tr><td><code class="structfield">vacuum_count</code></td><td><code class="type">bigint</code></td><td>Сколько раз очистка этой таблицы была выполнена вручную (<code class="command">VACUUM FULL</code> не учитывается)</td></tr><tr><td><code class="structfield">autovacuum_count</code></td><td><code class="type">bigint</code></td><td>Сколько раз очистка этой таблицы была выполнена фоновым процессом автоочистки</td></tr><tr><td><code class="structfield">analyze_count</code></td><td><code class="type">bigint</code></td><td>Сколько раз сбор статистики для этой таблицы был выполнен вручную</td></tr><tr><td><code class="structfield">autoanalyze_count</code></td><td><code class="type">bigint</code></td><td>Сколько раз сбор статистики для этой таблицы был выполнен фоновым процессом автоочистки</td></tr></tbody></table></div></div><br class="table-break" /><p>Представление <code class="structname">pg_stat_all_tables</code> будет содержать по одной строке на каждую таблицу в текущей базе данных (включая таблицы TOAST) со статистикой по обращениям к этой таблице. Представления <code class="structname">pg_stat_user_tables</code> и <code class="structname">pg_stat_sys_tables</code> содержат ту же самую информацию, но отфильтрованную так, чтобы показывать только пользовательские и системные таблицы соответственно.<div class="table" id="pg-stat-all-indexes-view"><p class="title"><strong>Таблица 28.13. Представление <code class="structname">pg_stat_all_indexes</code></strong><div class="table-contents"><table border="1" class="table" summary="Представление pg_stat_all_indexes"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Столбец</th><th>Тип</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structfield">relid</code></td><td><code class="type">oid</code></td><td>OID таблицы для индекса</td></tr><tr><td><code class="structfield">indexrelid</code></td><td><code class="type">oid</code></td><td>OID индекса</td></tr><tr><td><code class="structfield">schemaname</code></td><td><code class="type">name</code></td><td>Имя схемы, в которой расположен индекс</td></tr><tr><td><code class="structfield">relname</code></td><td><code class="type">name</code></td><td>Имя таблицы для индекса</td></tr><tr><td><code class="structfield">indexrelname</code></td><td><code class="type">name</code></td><td>Имя индекса</td></tr><tr><td><code class="structfield">idx_scan</code></td><td><code class="type">bigint</code></td><td>Количество произведённых сканирований по этому индексу</td></tr><tr><td><code class="structfield">idx_tup_read</code></td><td><code class="type">bigint</code></td><td>Количество элементов индекса, возвращённых при сканированиях по этому индексу</td></tr><tr><td><code class="structfield">idx_tup_fetch</code></td><td><code class="type">bigint</code></td><td>Количество живых строк таблицы, отобранных при простых сканированиях по этому индексу</td></tr></tbody></table></div></div><br class="table-break" /><p>Представление <code class="structname">pg_stat_all_indexes</code> для каждого индекса в текущей базе данных будет содержать по одной строке со статистикой по обращениям к этому индексу. Представления <code class="structname">pg_stat_user_indexes</code> и <code class="structname">pg_stat_sys_indexes</code> содержат ту же самую информацию, но отфильтрованную так, чтобы показывать только пользовательские и системные индексы соответственно.<p>Индексы могут использоваться при простом сканировании по индексу, при сканировании <span class="quote">«<span class="quote">битовой карты</span>»</span> индекса и в работе оптимизатора. Результаты сканирования битовых карт разных индексов могут объединяться логическим умножением или сложением, поэтому когда применяются битовые карты, сложно связать выборки отдельных строк с определёнными индексами. Поэтому при сканировании битовых карт увеличиваются счётчики <code class="structname">pg_stat_all_indexes</code>.<code class="structfield">idx_tup_read</code> для задействованных индексов и счётчик <code class="structname">pg_stat_all_tables</code>.<code class="structfield">idx_tup_fetch</code> для каждой таблицы, а <code class="structname">pg_stat_all_indexes</code>.<code class="structfield">idx_tup_fetch</code> не меняется. Оптимизатор тоже обращается к индексам для проверки переданных констант, значения которых оказываются вне диапазона, записанного в статистике оптимизатора, так как эта статистика может быть неактуальной.<div class="note"><h3 class="title">Примечание</h3><p>Значения счётчиков <code class="structfield">idx_tup_read</code> и <code class="structfield">idx_tup_fetch</code> могут различаться, даже если сканирование с использованием битовой карты не используется, поскольку <code class="structfield">idx_tup_read</code> подсчитывает полученные из индекса элементы, а <code class="structfield">idx_tup_fetch</code> — количество «живых» строк, выбранных из таблицы. Различие будет меньше, если «мёртвые» или ещё не зафиксированные строки будут извлекаться с использованием индекса или если для получения строк таблицы будет использоваться сканирование только по индексу.</div><div class="table" id="pg-statio-all-tables-view"><p class="title"><strong>Таблица 28.14. Представление <code class="structname">pg_statio_all_tables</code></strong><div class="table-contents"><table border="1" class="table" summary="Представление pg_statio_all_tables"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Столбец</th><th>Тип</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structfield">relid</code></td><td><code class="type">oid</code></td><td>OID таблицы</td></tr><tr><td><code class="structfield">schemaname</code></td><td><code class="type">name</code></td><td>Имя схемы, в которой расположена эта таблица</td></tr><tr><td><code class="structfield">relname</code></td><td><code class="type">name</code></td><td>Имя таблицы</td></tr><tr><td><code class="structfield">heap_blks_read</code></td><td><code class="type">bigint</code></td><td>Количество дисковых блоков, прочитанных из этой таблицы</td></tr><tr><td><code class="structfield">heap_blks_hit</code></td><td><code class="type">bigint</code></td><td>Число попаданий в буфер для этой таблицы</td></tr><tr><td><code class="structfield">idx_blks_read</code></td><td><code class="type">bigint</code></td><td>Количество дисковых блоков, прочитанных из всех индексов этой таблицы</td></tr><tr><td><code class="structfield">idx_blks_hit</code></td><td><code class="type">bigint</code></td><td>Число попаданий в буфер для всех индексов по этой таблице</td></tr><tr><td><code class="structfield">toast_blks_read</code></td><td><code class="type">bigint</code></td><td>Количество прочитанных дисковых блоков TOAST (если есть) для этой таблицы</td></tr><tr><td><code class="structfield">toast_blks_hit</code></td><td><code class="type">bigint</code></td><td>Число попаданий в буфер в таблице TOAST для этой таблицы (если такие есть)</td></tr><tr><td><code class="structfield">tidx_blks_read</code></td><td><code class="type">bigint</code></td><td>Количество прочитанных дисковых блоков из индекса по TOAST (если есть) для этой таблицы</td></tr><tr><td><code class="structfield">tidx_blks_hit</code></td><td><code class="type">bigint</code></td><td>Число попаданий в буфер для индекса по TOAST (если есть) для этой таблицы</td></tr></tbody></table></div></div><br class="table-break" /><p>Представление <code class="structname">pg_statio_all_tables</code> для каждой таблицы (включая таблицы TOAST) в текущей базе данных будет содержать по одной строке со статистикой по операциям ввода/вывода для этой таблицы. Представления <code class="structname">pg_statio_user_tables</code> и <code class="structname">pg_statio_sys_tables</code> содержат ту же самую информацию, но отфильтрованную так, чтобы показывать только пользовательские или системные таблицы соответственно.<div class="table" id="pg-statio-all-indexes-view"><p class="title"><strong>Таблица 28.15. Представление <code class="structname">pg_statio_all_indexes</code></strong><div class="table-contents"><table border="1" class="table" summary="Представление pg_statio_all_indexes"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Столбец</th><th>Тип</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structfield">relid</code></td><td><code class="type">oid</code></td><td>OID таблицы для индекса</td></tr><tr><td><code class="structfield">indexrelid</code></td><td><code class="type">oid</code></td><td>OID индекса</td></tr><tr><td><code class="structfield">schemaname</code></td><td><code class="type">name</code></td><td>Имя схемы, в которой расположен индекс</td></tr><tr><td><code class="structfield">relname</code></td><td><code class="type">name</code></td><td>Имя таблицы для индекса</td></tr><tr><td><code class="structfield">indexrelname</code></td><td><code class="type">name</code></td><td>Имя индекса</td></tr><tr><td><code class="structfield">idx_blks_read</code></td><td><code class="type">bigint</code></td><td>Количество дисковых блоков, прочитанных из этого индекса</td></tr><tr><td><code class="structfield">idx_blks_hit</code></td><td><code class="type">bigint</code></td><td>Число попаданий в буфер для этого индекса</td></tr></tbody></table></div></div><br class="table-break" /><p>Представление <code class="structname">pg_statio_all_indexes</code> для каждого индекса в текущей базе данных будет содержать по одной строке со статистикой по операциям ввода/вывода для этого индекса. Представления <code class="structname">pg_statio_user_indexes</code> и <code class="structname">pg_statio_sys_indexes</code> содержат ту же самую информацию, но отфильтрованную так, чтобы показывать только пользовательские или системные индексы соответственно.<div class="table" id="pg-statio-all-sequences-view"><p class="title"><strong>Таблица 28.16. Представление <code class="structname">pg_statio_all_sequences</code></strong><div class="table-contents"><table border="1" class="table" summary="Представление pg_statio_all_sequences"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Столбец</th><th>Тип</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structfield">relid</code></td><td><code class="type">oid</code></td><td>OID последовательности</td></tr><tr><td><code class="structfield">schemaname</code></td><td><code class="type">name</code></td><td>Имя схемы, в которой расположена эта последовательность</td></tr><tr><td><code class="structfield">relname</code></td><td><code class="type">name</code></td><td>Имя последовательности</td></tr><tr><td><code class="structfield">blks_read</code></td><td><code class="type">bigint</code></td><td>Количество дисковых блоков, прочитанных из этой последовательности</td></tr><tr><td><code class="structfield">blks_hit</code></td><td><code class="type">bigint</code></td><td>Число попаданий в буфер в этой последовательности</td></tr></tbody></table></div></div><br class="table-break" /><p>Представление <code class="structname">pg_statio_all_sequences</code> для каждой последовательности в текущей базе данных будет содержать по одной строке со статистикой по операциям ввода/вывода для этой последовательности.<div class="table" id="pg-stat-user-functions-view"><p class="title"><strong>Таблица 28.17. Представление <code class="structname">pg_stat_user_functions</code></strong><div class="table-contents"><table border="1" class="table" summary="Представление pg_stat_user_functions"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Столбец</th><th>Тип</th><th>Описание</th></tr></thead><tbody><tr><td><code class="structfield">funcid</code></td><td><code class="type">oid</code></td><td>OID функции</td></tr><tr><td><code class="structfield">schemaname</code></td><td><code class="type">name</code></td><td>Имя схемы, в которой расположена функция</td></tr><tr><td><code class="structfield">funcname</code></td><td><code class="type">name</code></td><td>Имя функции</td></tr><tr><td><code class="structfield">calls</code></td><td><code class="type">bigint</code></td><td>Сколько раз вызывалась функция</td></tr><tr><td><code class="structfield">total_time</code></td><td><code class="type">double precision</code></td><td>Общее время, потраченное на выполнение этой функции и всех других функций, вызванных ею, в миллисекундах</td></tr><tr><td><code class="structfield">self_time</code></td><td><code class="type">double precision</code></td><td>Общее время, потраченное на выполнение самой функции, без учёта других функций, которые были ею вызваны, в миллисекундах</td></tr></tbody></table></div></div><br class="table-break" /><p>Представление <code class="structname">pg_stat_user_functions</code> для каждой отслеживаемой функции будет содержать по одной строке со статистикой по выполнениям этой функции. Отслеживаемые функции определяются параметром <a class="xref" href="https://postgrespro.ru/docs/postgresql/9.6/runtime-config-statistics#guc-track-functions">track_functions</a>.</div><div class="sect2" id="monitoring-stats-functions"><div class="titlepage"><div><div><h3 class="title">28.2.3. Статистические функции</h3></div></div></div><p>Статистическую информацию можно просматривать и другими способами. Для этого можно написать запросы, использующие те же функции доступа к статистике, что лежат в основе описанных выше стандартных представлений. За более подробной информацией, например, об именах этих функций, обратитесь к определениям этих стандартных представлений. (Например, в <span class="application">psql</span> можно выполнить <code class="literal">\d+ pg_stat_activity</code>.) В качестве аргумента функции, предоставляющие доступ к статистике на уровне базы, принимают OID базы данных, по которой должна быть выдана информация. Функции, которые работают на уровне таблиц и индексов, принимают в качестве аргумента OID таблицы или индекса. Аргументом для функции, предоставляющей статистику на уровне функций, является OID функции. Обратите внимание, что с помощью этих функций можно получить информацию по таблицам, индексам и функциям исключительно в текущей базе данных.<p>Дополнительные функции, связанные со сбором статистики, перечислены в <a class="xref" href="monitoring-stats.html#monitoring-stats-funcs-table" title="Таблица 28.18. Дополнительные статистические функции">Таблице 28.18</a>.<div class="table" id="monitoring-stats-funcs-table"><p class="title"><strong>Таблица 28.18. Дополнительные статистические функции</strong><div class="table-contents"><table border="1" class="table" summary="Дополнительные статистические функции"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Функция</th><th>Тип результата</th><th>Описание</th></tr></thead><tbody><tr><td><code class="literal"><code class="function">pg_backend_pid()</code></code></td><td><code class="type">integer</code></td><td>Идентификатор серверного процесса, выполняющего текущую сессию</td></tr><tr><td><code class="literal"><code class="function">pg_stat_get_activity</code>(<code class="type">integer</code>)</code><a class="indexterm" id="idp44375"></a></td><td><code class="type">setof record</code></td><td>Возвращает запись с информацией о серверном процессе с заданным PID или по одной строке для каждого активного серверного процесса в системе, если был указан <code class="symbol">NULL</code>. Возвращаемые поля являются подмножеством столбцов представления <code class="structname">pg_stat_activity</code>.</td></tr><tr><td><code class="literal"><code class="function">pg_stat_get_snapshot_timestamp()</code></code><a class="indexterm" id="idp44386"></a></td><td><code class="type">timestamp with time zone</code></td><td>Возвращает время снимка текущей статистики</td></tr><tr><td><code class="literal"><code class="function">pg_stat_clear_snapshot()</code></code><a class="indexterm" id="idp44395"></a></td><td><code class="type">void</code></td><td>Сбросить текущий снимок статистики</td></tr><tr><td><code class="literal"><code class="function">pg_stat_reset()</code></code><a class="indexterm" id="idp44404"></a></td><td><code class="type">void</code></td><td>Сбросить в ноль все статистические счётчики в текущей базе данных (по умолчанию разрешено только суперпользователям, но право выполнения (EXECUTE) этой функции можно дать и другим)</td></tr><tr><td><code class="literal"><code class="function">pg_stat_reset_shared</code>(text)</code><a class="indexterm" id="idp44413"></a></td><td><code class="type">void</code></td><td>Сбросить в ноль некоторые статистические счётчики на уровне кластера, в зависимости от заданного аргумента (по умолчанию разрешено только суперпользователям, но право выполнения (EXECUTE) этой функции можно дать и другим). Вызов <code class="literal">pg_stat_reset_shared('bgwriter')</code> сбросит в ноль все счётчики, которые показываются в представлении <code class="structname">pg_stat_bgwriter</code>, а вызов <code class="literal">pg_stat_reset_shared('archiver')</code> — все счётчики в представлении <code class="structname">pg_stat_archiver</code>.</td></tr><tr><td><code class="literal"><code class="function">pg_stat_reset_single_table_counters</code>(oid)</code><a class="indexterm" id="idp44426"></a></td><td><code class="type">void</code></td><td>Сбросить в ноль статистику по отдельной таблице или индексу в текущей базе данных (по умолчанию разрешено только суперпользователям, но право выполнения (EXECUTE) этой функции можно дать и другим)</td></tr><tr><td><code class="literal"><code class="function">pg_stat_reset_single_function_counters</code>(oid)</code><a class="indexterm" id="idp44435"></a></td><td><code class="type">void</code></td><td>Сбросить в ноль статистику по отдельной функции в текущей базе данных (по умолчанию разрешено только суперпользователям, но право выполнения (EXECUTE) этой функции можно дать и другим)</td></tr></tbody></table></div></div><br class="table-break" /><p>Функция <code class="function">pg_stat_get_activity</code>, на которой основано представление <code class="structname">pg_stat_activity</code>, возвращает набор строк, содержащих всю доступную информацию о каждом серверном процессе. Иногда более удобным оказывается получение только части этой информации. В таких случаях можно использовать набор более старых функций, дающих доступ к статистике на уровне серверных процессов; эти функции описаны в <a class="xref" href="monitoring-stats.html#monitoring-stats-backend-funcs-table" title="Таблица 28.19. Статистические функции на уровне серверных процессов">Таблице 28.19</a>. Эти функции используют идентификатор серверного процесса, значение которого варьируется от единицы до числа активных в настоящий момент серверных процессов. Функция <code class="function">pg_stat_get_backend_idset</code> генерирует по одной строке для каждого активного серверного процесса, что необходимо для вызова этих функций. Например, для того, чтобы отобразить значения <acronym class="acronym">PID</acronym> и текущие запросы всех серверных процессов: <pre class="programlisting">SELECT pg_stat_get_backend_pid(s.backendid) AS pid,
+       pg_stat_get_backend_activity(s.backendid) AS query
+    FROM (SELECT pg_stat_get_backend_idset() AS backendid) AS s;</pre><div class="table" id="monitoring-stats-backend-funcs-table"><p class="title"><strong>Таблица 28.19. Статистические функции на уровне серверных процессов</strong><div class="table-contents"><table border="1" class="table" summary="Статистические функции на уровне серверных процессов"><colgroup><col /><col /><col /></colgroup><thead><tr><th>Функция</th><th>Тип результата</th><th>Описание</th></tr></thead><tbody><tr><td><code class="literal"><code class="function">pg_stat_get_backend_idset()</code></code></td><td><code class="type">setof integer</code></td><td>Набор значений идентификаторов активных в настоящий момент серверных процессов (от 1 до числа активных серверных процессов)</td></tr><tr><td><code class="literal"><code class="function">pg_stat_get_backend_activity(integer)</code></code></td><td><code class="type">text</code></td><td>Текст последнего запроса этого серверного процесса</td></tr><tr><td><code class="literal"><code class="function">pg_stat_get_backend_activity_start(integer)</code></code></td><td><code class="type">timestamp with time zone</code></td><td>Время запуска последнего запроса</td></tr><tr><td><code class="literal"><code class="function">pg_stat_get_backend_client_addr(integer)</code></code></td><td><code class="type">inet</code></td><td>IP-адрес клиента, подключённого к этому серверному процессу</td></tr><tr><td><code class="literal"><code class="function">pg_stat_get_backend_client_port(integer)</code></code></td><td><code class="type">integer</code></td><td>Номер TCP-порта, который клиент использует для взаимодействия</td></tr><tr><td><code class="literal"><code class="function">pg_stat_get_backend_dbid(integer)</code></code></td><td><code class="type">oid</code></td><td>OID базы данных, к которой подключён этот серверный процесс</td></tr><tr><td><code class="literal"><code class="function">pg_stat_get_backend_pid(integer)</code></code></td><td><code class="type">integer</code></td><td>Идентификатор процесса этого серверного процесса</td></tr><tr><td><code class="literal"><code class="function">pg_stat_get_backend_start(integer)</code></code></td><td><code class="type">timestamp with time zone</code></td><td>Время запуска этого процесса</td></tr><tr><td><code class="literal"><code class="function">pg_stat_get_backend_userid(integer)</code></code></td><td><code class="type">oid</code></td><td>OID пользователя, подключённого к этому серверному процессу</td></tr><tr><td><code class="literal"><code class="function">pg_stat_get_backend_wait_event_type(integer)</code></code></td><td><code class="type">text</code></td><td>Имя типа ожидаемого события, если обслуживающий процесс находится в состоянии ожидания, а в противном случае — NULL. За подробностями обратитесь к <a class="xref" href="monitoring-stats.html#wait-event-table" title="Таблица 28.4. Описание wait_event">Таблице 28.4</a>.</td></tr><tr><td><code class="literal"><code class="function">pg_stat_get_backend_wait_event(integer)</code></code></td><td><code class="type">text</code></td><td>Имя ожидаемого события, если обслуживающий процесс находится в состоянии ожидания, а в противном случае — NULL. За подробностями обратитесь к <a class="xref" href="monitoring-stats.html#wait-event-table" title="Таблица 28.4. Описание wait_event">Таблице 28.4</a>.</td></tr><tr><td><code class="literal"><code class="function">pg_stat_get_backend_xact_start(integer)</code></code></td><td><code class="type">timestamp with time zone</code></td><td>Время начала текущей транзакции</td></tr></tbody></table></div></div><br class="table-break" /></div></div><div class="navfooter"><hr /><table summary="Navigation footer" width="100%"><tr><td align="left" width="40%"><a accesskey="p" href="https://postgrespro.ru/docs/postgresql/9.6/monitoring-ps">Пред.</a> </td><td align="center" width="20%"><a accesskey="u" href="https://postgrespro.ru/docs/postgresql/9.6/monitoring">Наверх</a></td><td align="right" width="40%"> <a accesskey="n" href="https://postgrespro.ru/docs/postgresql/9.6/monitoring-locks">След.</a></td></tr><tr><td align="left" valign="top" width="40%">28.1. Стандартные инструменты Unix </td><td align="center" width="20%"><a accesskey="h" href="https://postgrespro.ru/docs/postgresql/9.6/index">Начало</a></td><td align="right" valign="top" width="40%"> 28.3. Просмотр информации о блокировках</td></tr></table></div></div>
+		
+    </div>
+    <div class="col-md-12 d-none" id="divDocEn"></div>
+</div>
+</div>
+</section>
+
+
+	</div>
+    </main>
+
+	
+<div class="modal fade" id="feedback" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" >Есть&nbsp;вопросы? Напишите&nbsp;нам!</h5>
+      </div>
+      <div class="modal-body">
+			<input type="text" id="feedback-email" name="email" placeholder='E-mail'
+				required        msg-empty="Введите e-mail"
+				min-length="3"  msg-short="Слишком короткий e-mail"
+				max-length="60" msg-long="Слишком длинный e-mail"
+				regexp="\w+([\-+.']\w+)*@\w+([\-.]\w+)*\.\w+([\-.]\w+)*" 
+				                msg-regexp="Некорректный адрес e-mail"
+			><div class="input-error"></div>
+			
+			<input type="text" id="feedback-name" name="name" placeholder="Имя" 
+				required        msg-empty="Введите имя"
+				min-length="3"  msg-short="Слишком короткое имя"
+				max-length="60" msg-long ="Слишком длинное имя"
+			><div class="input-error"></div>
+			 
+			<textarea id="feedback-message" name="message"  placeholder="Ваше сообщение" 
+                required          msg-empty="Введите сообщение"
+				max-length="6000" msg-long="Слишком длинное сообщение"
+				min-length="10"   msg-short="Слишком короткое сообщение"
+			></textarea>
+			<div id="feedback-message-length" class="input-error"></div> 
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" style="width: 100%;" onClick="sendFeedback('feedback', 'message', '', '', 'production')">Отправить</button>
+      </div>
+        <p class="text-center" style="font-size: 14px;font-weight: 300;"><span class="dotted" onClick="loadAgreement();">Соглашаюсь с условиями обработки персональных данных</span></p>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="popup-message" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"></h5>
+      </div>
+      <div class="modal-body lead  text-center" ></div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="popup-flash" tabindex="-1" role="dialog" aria-hidden="true"  style="cursor:wait;">
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"></h5>
+      </div>
+      <div class="modal-body text-center"></div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="popup-window" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+		<div class="pop-up-close" onClick="closePopupWindow();">&#10006;</div>
+      <div class="modal-header">
+        <h5 class="modal-title"></h5>
+      </div>
+      <div class="modal-body "></div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+
+	
+	<form action="https://postgrespro.ru/search/" method="get" role="form" name="search-window" id="search-window" onSubmit="document.body.style.cursor='progress';return true;">
+		<input id="qid" name="q">
+		
+			
+				<input type="hidden" id="area-version" name="area" value="version" checked >
+				<input type="hidden" id="area-product" name="product" value="postgresql" >
+				<input type="hidden" id="area-version" name="version" value="9.6" >
+			
+		
+	</form>
+
+
+<!-- FOOTER -->
+    <footer class="container-fluid">
+ 		<div class="container">
+ 		<div class="row">
+			<div  class="about col-lg-3 row" style="margin-bottom:2em;">
+				<div class="col-sm-6 col-lg-12"> 
+					<a href="https://postgrespro.ru/" ><img src="https://postgrespro.ru/img/PostgresPro_logo_white.svg" class="logo" alt="Postgres Pro"></a> 
+	
+					<div class="sociallinks" style="margin-bottom:0.6em;margin-top:2em;"> 
+						<div class="sociallinks-item"> 
+							<a href="https://www.facebook.com/PostgresProfessional" target="_blank"> 
+							<svg class="t-sociallinks__svg" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="25px" height="25px" viewBox="0 0 48 48" enable-background="new 0 0 48 48" xml:space="preserve"><desc>Facebook</desc><path style="fill:#ffffff;" d="M47.761,24c0,13.121-10.638,23.76-23.758,23.76C10.877,47.76,0.239,37.121,0.239,24c0-13.124,10.638-23.76,23.764-23.76C37.123,0.24,47.761,10.876,47.761,24 M20.033,38.85H26.2V24.01h4.163l0.539-5.242H26.2v-3.083c0-1.156,0.769-1.427,1.308-1.427h3.318V9.168L26.258,9.15c-5.072,0-6.225,3.796-6.225,6.224v3.394H17.1v5.242h2.933V38.85z"></path></svg> </a> </div> 
+						<div class="sociallinks-item"> 
+							<a href="https://twitter.com/PostgresPro" target="_blank"> 
+							<svg class="t-sociallinks__svg" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="25px" height="25px" viewBox="0 0 48 48" enable-background="new 0 0 48 48" xml:space="preserve"><desc>Twitter</desc><path style="fill:#ffffff;" d="M47.762,24c0,13.121-10.639,23.76-23.761,23.76S0.24,37.121,0.24,24c0-13.124,10.639-23.76,23.761-23.76 S47.762,10.876,47.762,24 M38.031,12.375c-1.177,0.7-2.481,1.208-3.87,1.481c-1.11-1.186-2.694-1.926-4.455-1.926 c-3.364,0-6.093,2.729-6.093,6.095c0,0.478,0.054,0.941,0.156,1.388c-5.063-0.255-9.554-2.68-12.559-6.367 c-0.524,0.898-0.825,1.947-0.825,3.064c0,2.113,1.076,3.978,2.711,5.07c-0.998-0.031-1.939-0.306-2.761-0.762v0.077 c0,2.951,2.1,5.414,4.889,5.975c-0.512,0.14-1.05,0.215-1.606,0.215c-0.393,0-0.775-0.039-1.146-0.109 c0.777,2.42,3.026,4.182,5.692,4.232c-2.086,1.634-4.712,2.607-7.567,2.607c-0.492,0-0.977-0.027-1.453-0.084 c2.696,1.729,5.899,2.736,9.34,2.736c11.209,0,17.337-9.283,17.337-17.337c0-0.263-0.004-0.527-0.017-0.789 c1.19-0.858,2.224-1.932,3.039-3.152c-1.091,0.485-2.266,0.811-3.498,0.958C36.609,14.994,37.576,13.8,38.031,12.375"></path></svg> </a> </div> 
+						<div class="sociallinks-item"> 
+							<a href="https://vk.com/public101507899" target="_blank"> 
+							<svg class="t-sociallinks__svg" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="25px" height="25px" viewBox="0 0 48 48" enable-background="new 0 0 48 48" xml:space="preserve"><desc>VK</desc><path style="fill:#ffffff;" d="M47.761,24c0,13.121-10.639,23.76-23.76,23.76C10.878,47.76,0.239,37.121,0.239,24c0-13.123,10.639-23.76,23.762-23.76C37.122,0.24,47.761,10.877,47.761,24 M35.259,28.999c-2.621-2.433-2.271-2.041,0.89-6.25c1.923-2.562,2.696-4.126,2.45-4.796c-0.227-0.639-1.64-0.469-1.64-0.469l-4.71,0.029c0,0-0.351-0.048-0.609,0.106c-0.249,0.151-0.414,0.505-0.414,0.505s-0.742,1.982-1.734,3.669c-2.094,3.559-2.935,3.747-3.277,3.524c-0.796-0.516-0.597-2.068-0.597-3.171c0-3.449,0.522-4.887-1.02-5.259c-0.511-0.124-0.887-0.205-2.195-0.219c-1.678-0.016-3.101,0.007-3.904,0.398c-0.536,0.263-0.949,0.847-0.697,0.88c0.31,0.041,1.016,0.192,1.388,0.699c0.484,0.656,0.464,2.131,0.464,2.131s0.282,4.056-0.646,4.561c-0.632,0.347-1.503-0.36-3.37-3.588c-0.958-1.652-1.68-3.481-1.68-3.481s-0.14-0.344-0.392-0.527c-0.299-0.222-0.722-0.298-0.722-0.298l-4.469,0.018c0,0-0.674-0.003-0.919,0.289c-0.219,0.259-0.018,0.752-0.018,0.752s3.499,8.104,7.573,12.23c3.638,3.784,7.764,3.36,7.764,3.36h1.867c0,0,0.566,0.113,0.854-0.189c0.265-0.288,0.256-0.646,0.256-0.646s-0.034-2.512,1.129-2.883c1.15-0.36,2.624,2.429,4.188,3.497c1.182,0.812,2.079,0.633,2.079,0.633l4.181-0.056c0,0,2.186-0.136,1.149-1.858C38.281,32.451,37.763,31.321,35.259,28.999"></path></svg> </a> </div> 
+						<div class="sociallinks-item"> 
+							<a href="https://www.youtube.com/channel/UCawnwMqZ6JeoSiEhrS6X69A/videos" target="_blank"> 
+							<svg class="t-sociallinks__svg" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="25px" height="25px" viewBox="0 0 48 48" enable-background="new 0 0 48 48" xml:space="preserve"><desc>Youtube</desc><path style="fill:#ffffff;" d="M24 0.0130005C37.248 0.0130005 47.987 10.753 47.987 24C47.987 37.247 37.247 47.987 24 47.987C10.753 47.987 0.0130005 37.247 0.0130005 24C0.0130005 10.753 10.752 0.0130005 24 0.0130005ZM35.815 18.093C35.565 16.756 34.452 15.758 33.173 15.635C30.119 15.439 27.054 15.28 23.995 15.278C20.936 15.276 17.882 15.432 14.828 15.625C13.544 15.749 12.431 16.742 12.182 18.084C11.898 20.017 11.756 21.969 11.756 23.92C11.756 25.871 11.898 27.823 12.182 29.756C12.431 31.098 13.544 32.21 14.828 32.333C17.883 32.526 20.935 32.723 23.995 32.723C27.053 32.723 30.121 32.551 33.173 32.353C34.452 32.229 35.565 31.084 35.815 29.747C36.101 27.817 36.244 25.868 36.244 23.919C36.244 21.971 36.101 20.023 35.815 18.093ZM21.224 27.435V20.32L27.851 23.878L21.224 27.435Z"></path></svg> </a> </div> 
+					</div>
+					<span class="copyright">©  Postgres Pro</span>
+				</div>
+				
+				<div  class="col-sm-6 col-lg-12" style="margin-top:2em;">
+					<a href="https://postgrespro.ru/privacy">Политика кофиденциальности</a><br>
+					<a href="https://postgrespro.ru/useragreement">Пользовательское соглашение</a><br>
+					<a href="https://postgrespro.ru/products/postgrespro/eula">Лицензионное соглашение</a><br>
+					<a href="https://postgrespro.ru/media/RUS_EULA_for_cloud_Postgres_Pro_Standard_Postgres_Pro_Enterprise.pdf" target="_blank">Лицензионное соглашение (при использовании в составе облачных сервисов)</a><br>
+					<a href="https://postgrespro.ru/CoC">Кодекс поведения сообщества PostgreSQL</a>
+				</div>
+			</div>
+
+			<nav class="col-lg-9 bottom-menu"> 
+				
+<nav>
+<ul class="row">
+<li class="col-sm-4">
+	<h6>
+	
+		Продукты
+	
+	</h6>
+
+	
+		<ul><li>
+					
+						<a href="https://postgrespro.ru/products/postgrespro/standard" >Postgres Pro Standard</a>
+					
+				</li><li>
+					
+						<a href="https://postgrespro.ru/products/postgrespro/certified" >Postgres Pro Certified</a>
+					
+				</li><li>
+					
+						<a href="https://postgrespro.ru/products/postgrespro/enterprise" >Postgres Pro Enterprise</a>
+					
+				</li><li>
+					
+						<a href="https://postgrespro.ru/products/postgrespro/enterprisecertified" >Postgres Pro Enterprise Certified</a>
+					
+				</li><li>
+					
+						<a href="https://postgrespro.ru/products/1c" >Postgres Pro для 1С</a>
+					
+				</li><li>
+					
+						<a href="https://postgrespro.ru/windows" >PostgreSQL для Windows</a>
+					
+				</li></ul>
+	
+</li><li class="col-sm-4">
+	<h6>
+	
+		Образование
+	
+	</h6>
+
+	
+		<ul><li>
+					
+						<a href="https://postgrespro.ru/docs" >Документация</a>
+					
+				</li><li>
+					
+						<a href="https://postgrespro.ru/education/courses" >Учебные курсы</a>
+					
+				</li><li>
+					
+						<a href="https://postgrespro.ru/education/books" >Книги</a>
+					
+				</li><li>
+					
+						<a href="https://postgrespro.ru/education/cert" >Сертификация специалистов</a>
+					
+				</li><li>
+					
+						<a href="https://postgrespro.ru/education/university" >Курсы для вузов</a>
+					
+				</li><li>
+					
+						<a href="https://postgrespro.ru/education" >Обучение PostgreSQL</a>
+					
+				</li><li>
+					
+						<a href="https://postgrespro.ru/education/glossary" >Глоссарий</a>
+					
+				</li></ul>
+	
+</li><li class="col-sm-4">
+	<h6>
+	
+		Услуги
+	
+	</h6>
+
+	
+		<ul><li>
+					
+						<a href="https://postgrespro.ru/services/support" >Техподдержка СУБД</a>
+					
+				</li><li>
+					
+						<a href="https://postgrespro.ru/services/migration" >Миграция СУБД</a>
+					
+				</li><li>
+					
+						<a href="https://postgrespro.ru/services/audit" >Аудит СУБД</a>
+					
+				</li></ul>
+	
+</li></ul>
+</nav>
+
+
+			</nav>
+		</div> 
+    	</div>
+
+		<div id="bottom-bar">
+			<div id="to-top-button" class="float-left" onClick="$('html, body').animate({scrollTop: 0});return false;">
+				<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="50px" height="50px" viewBox="0 0 48 48" enable-background="new 0 0 48 48" xml:space="preserve"> <path style="fill:#0aa7f5;" d="M43.006,47.529H4.964c-2.635,0-4.791-2.156-4.791-4.791V4.697c0-2.635,2.156-4.791,4.791-4.791h38.042 c2.635,0,4.791,2.156,4.791,4.791v38.042C47.797,45.373,45.641,47.529,43.006,47.529z M25.503,16.881l6.994,7.049 c0.583,0.588,1.532,0.592,2.121,0.008c0.588-0.583,0.592-1.533,0.008-2.122l-9.562-9.637c-0.281-0.283-0.664-0.443-1.063-0.443 c0,0,0,0-0.001,0c-0.399,0-0.782,0.159-1.063,0.442l-9.591,9.637c-0.584,0.587-0.583,1.537,0.005,2.121 c0.292,0.292,0.675,0.437,1.058,0.437c0.385,0,0.77-0.147,1.063-0.442L22.5,16.87v19.163c0,0.828,0.671,1.5,1.5,1.5 s1.5-0.672,1.5-1.5L25.503,16.881z"></path> </svg>
+			</div>
+	
+			<div class="pulsate float-right" id="bell">
+				<div class="pulsate-circle"  id="bell-run"  onClick="$('#feedback').modal('toggle'); return false;"></div>
+				<svg class="icon" width="28px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18.6 17.5" id="tip"    onClick="$('#feedback').modal('toggle'); return false;"><desc>Write</desc><path d="M3.7 17.5v-4.8H2c-1.1 0-2-.9-2-2V2C0 .9.9 0 2 0h14.6c1.1 0 2 .9 2 2v8.8c0 1.1-.9 2-2 2H9l-5.3 4.7zM2 1c-.6 0-1 .4-1 1v8.8c0 .5.4 1 1 1h2.8v3.5l3.8-3.5h8c.5 0 1-.4 1-1V2c0-.5-.4-1-1-1H2z"></path></svg> 
+				<svg class="icon" width="16px" height="16px" viewBox="0 0 23 23" version="1.1"            id="close"  onClick="$('#feedback').modal('toggle'); return false;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"> <desc>Close</desc> <g stroke="none" stroke-width="1" fill="#000" fill-rule="evenodd"> <rect transform="translate(11.313708, 11.313708) rotate(-45.000000) translate(-11.313708, -11.313708) " x="10.3137085" y="-3.6862915" width="2" height="30"></rect> <rect transform="translate(11.313708, 11.313708) rotate(-315.000000) translate(-11.313708, -11.313708) " x="10.3137085" y="-3.6862915" width="2" height="30"></rect> </g> </svg> 
+			</div>
+
+		</div>
+    </footer>
+	
+<script>
+checkJQuery();
+
+$(document).ready( function(){
+	window.lang = 'ru';
+	
+	$(".toggler").click(function(){
+	    $(this).next().slideToggle(150);
+	});
+
+	$("#feedback").on('hide.bs.modal', function (e) {triggerBell(e);});
+	$("#feedback").on('show.bs.modal', function (e) {triggerBell(e);});
+
+	
+
+	whoIam();
+
+	$('ul.nav li.dropdown').hover(function() {
+	  $(this).find('.dropdown-menu').stop(true, true).delay(100).fadeIn(300);
+	}, function() {
+	  $(this).find('.dropdown-menu').stop(true, true).delay(100).fadeOut(300);
+	});
+
+	var input = $('#search-window input')
+	input.focusout(function(e){
+		if (!$.trim($(this).val()).length) {
+			$('#search-window').fadeOut();
+		}
+	});
+	input.keydown(function(eventObject){
+		if( eventObject.which == 27 ){
+			if ($.trim($(this).val()).length) {
+				$(this).val('');
+			} else {
+				$('#search-window').fadeOut();
+			}
+		};
+	});
+	$(document).scroll(function () {
+		if (!$.trim(input.val()).length) {
+			$('#search-window').fadeOut();
+		}
+	});
+	
+	setTimeout(function(){
+		$("#to-top-button").addClass("animation-opacity");
+		$("#bell").addClass("animation-opacity");
+	} , 2000);
+});
+
+function triggerBell(e) {
+	var bell = $('#bell');
+	var bell2 = $('#bell-run');
+
+	bell.toggleClass('active pulsate');
+	bell2.toggleClass('active pulsate-circle');
+	bell.find('#close').toggle();
+}
+
+var formatDate_month=["января","февраля","марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+var formatDate_weekday=["воскресенье","понедельник","вторник","среда","четверг", "пятница","суббота"];
+
+function formatTime(i) {
+	if (i<10) {	i="0" + i; }
+	return i;
+}
+
+function formatDate(s, format) {
+	var d = qwx.iso2time(s);
+	
+	return d.getDate() + " " + formatDate_month[d.getMonth()] + " " + d.getFullYear() + 
+		(format == 'date' ? "" : ", " + formatDate_weekday[d.getDay()] + ", " + 
+		formatTime(d.getHours()) + ":" + formatTime(d.getMinutes()));
+}
+	
+
+
+</script>	
+
+	
+
+	<script type="text/javascript">
+		var m500 = 'Произошла ошибка на сервере';
+		var incorrectFormMessage = 'Форма заполнена неправильно';
+	</script>
+	
+	
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55152600-2', 'auto');
+
+
+  ga('send', 'pageview');
+</script>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function (d, w, c) {
+        (w[c] = w[c] || []).push(function() {
+            try {
+                w.yaCounter32485545 = new Ya.Metrika({
+                    id:32485545,
+                    clickmap:true,
+                    trackLinks:true,
+                    accurateTrackBounce:true
+                });
+            } catch(e) { }
+        });
+
+        var n = d.getElementsByTagName("script")[0],
+            s = d.createElement("script"),
+            f = function () { n.parentNode.insertBefore(s, n); };
+        s.type = "text/javascript";
+        s.async = true;
+        s.src = "https://mc.yandex.ru/metrika/watch.js";
+
+        if (w.opera == "[object Opera]") {
+            d.addEventListener("DOMContentLoaded", f, false);
+        } else { f(); }
+    })(document, window, "yandex_metrika_callbacks");
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/32485545" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+	
+
+	
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

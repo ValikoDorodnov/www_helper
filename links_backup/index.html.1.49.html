@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>REST API Best Practices / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/351890\/"},"headline":"REST API Best Practices","datePublished":"2018-03-23T14:21:36+03:00","dateModified":"2018-03-25T01:56:50+03:00","author":{"@type":"Person","name":"AntonShtabnoy"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Привет, Хабр! Представляю вашему вниманию перевод статьи &quot;REST API Best Practices&quot; автора Krishna Srinivasan.  REST становится общим подходом для представления с...","url":"https:\/\/habr.com\/ru\/post\/351890\/#post-content-body","about":["h_programming","h_java","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/351890\/ccee136ba99742980283d28764559dde\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="REST API Best Practices" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="REST API Best Practices" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="REST API Best Practices" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Привет, Хабр! Представляю вашему вниманию перевод статьи &amp;quot;REST API Best Practices&amp;quot; автора Krishna Srinivasan.
+
+REST становится общим подходом для представления сервисов окружающему миру. Причина его..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Привет, Хабр! Представляю вашему вниманию перевод статьи &amp;quot;REST API Best Practices&amp;quot; автора Krishna Srinivasan.
+
+REST становится общим подходом для представления сервисов окружающему миру. Причина его..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Привет, Хабр! Представляю вашему вниманию перевод статьи &amp;quot;REST API Best Practices&amp;quot; автора Krishna Srinivasan.
+
+REST становится общим подходом для представления сервисов окружающему миру. Причина его..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Привет, Хабр! Представляю вашему вниманию перевод статьи &amp;quot;REST API Best Practices&amp;quot; автора Krishna Srinivasan.
+
+REST становится общим подходом для представления сервисов окружающему миру. Причина его..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Привет, Хабр! Представляю вашему вниманию перевод статьи &amp;quot;REST API Best Practices&amp;quot; автора Krishna Srinivasan.
+
+REST становится общим подходом для представления сервисов окружающему миру. Причина его..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/351890/ccee136ba99742980283d28764559dde/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/351890/ccee136ba99742980283d28764559dde/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/351890/ccee136ba99742980283d28764559dde/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/351890/ccee136ba99742980283d28764559dde/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/351890/ccee136ba99742980283d28764559dde/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="351890" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2018-03-23T11:21:36.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/351890/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="java, spring, rest api, spring mvc, backend">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/351890/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.49.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/351890/ccee136ba99742980283d28764559dde/" data-vmid="image:href"><link data-vue-meta="ssr" rel="amphtml" href="https://habr.com/ru/amp/post/351890/">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/AntonShtabnoy/" title="AntonShtabnoy" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_blue"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/AntonShtabnoy/" class="tm-user-info__username">
+      AntonShtabnoy
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2018-03-23T11:21:36.000Z" title="2018-03-23, 14:21">23  марта  2018 в 14:21</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>REST API Best Practices</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/programming/" class="tm-article-snippet__hubs-item-link"><span>Программирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/java/" class="tm-article-snippet__hubs-item-link"><span>Java</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-sandbox"><span>
+        Из песочницы
+      </span></div></div> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">Привет, Хабр! Представляю вашему вниманию перевод статьи "<a href="https://javabeat.net/rest-api-best-practices/">REST API Best Practices</a>" автора Krishna Srinivasan.<br/>
+<br/>
+REST становится общим подходом для представления сервисов окружающему миру. Причина его популярности заключается в его простоте, легкости использования, доступе через HTTP и другие. Существует неправильное представление о том, что все данные, доступные через сеть, считаются REST, но это не так. В этой статье я собираюсь объяснить вам некоторые best practices, которые вы должны всегда помнить при реализации собственного REST приложения. Я бы хотел услышать ваш опыт в REST приложениях, поэтому если вы знаете best practies, которые не упомянуты в этой статье, пожалуйста, поделитесь с нами в комментариях.<br/>
+<br/>
+<i>Disclamer</i>: все best practies основаны на моем личном опыте. Если вы имеете другое мнение, не стесняйтесь отправлять его мне на email, и мы обсудим его.<br/>
+<br/>
+Здесь представлен список best practices, которые будут обсуждаться в этой статье:<br/>
+<br/>
+1. <b>Конечные точки в URL – имя существительное, не глагол</b><br/>
+2. <b>Множественное число</b><br/>
+3. <b>Документация</b><br/>
+4. <b>Версия вашего приложения</b><br/>
+5.<b> Пагинация</b><br/>
+6. <b>Использование SSL</b><br/>
+7. <b>HTTP методы</b><br/>
+8. <b>Эффективное использование кодов ответов HTTP</b><br/>
+<a name="habracut"></a><br/>
+<h3>1. Конечные точки в URL – имя существительное, не глагол</h3><br/>
+ Одна из самых распространённых ошибок, которую делают разработчики REST приложений, — использование глаголов при именовании конечных точек. Однако, это не лучшая практика. Вы должны всегда использовать существительные вместо глаголов.<br/>
+<br/>
+<u>Пример сценария:</u> <br/>
+<br/>
+Мы имеем заказ на разработку <a href="https://javabeat.net/introduction-to-spring-rest-services/">REST веб сервисов</a>, которые предоставляют информацию об Индийских фермерах. Сервис также должен реализовывать функционал, предоставляющий такую информацию как доход фермера, названия культур, адреса ферм и другую информацию, относящуюся к каждому фермеру. Каждый фермер имеет уникальный id. <br/>
+<br/>
+Таким же образом должны быть реализованы сервисы, предоставляющие информацию о культурах и какой фермер владеет ими.<br/>
+<br/>
+<u>Best Practice:</u><br/>
+<br/>
+Имеем единственную конечную точку, которая отвечает за все действия. В примере ниже представлена только одна конечная точка /farmers для всех операций таких как добавление, обновление, удаление. Базовые реализации имеют различные HTTP методы, которые правильно маршрутизируются для разных операций.<br/>
+<br/>
+• /farmers<br/>
+• /crops<br/>
+<br/>
+<u>Не рекомендуется:</u><br/>
+<br/>
+Постарайтесь избегать использования глаголов. Рекомендуется представлять операции внутри таких форматах как JSON, XML, RAML или использовать HTTP методы. Не используйте представленные ниже обозначения:<br/>
+<br/>
+• /getFarmers<br/>
+• /updateFarmers<br/>
+• /deleteFarmers<br/>
+• /getCrops<br/>
+• /updateCrops<br/>
+• /deleteCrops<br/>
+<br/>
+<h3>2. Множественное число</h3><br/>
+Используйте множественное число для названия своих REST сервисов. Это еще одна горячая тема для обсуждений среди REST дизайнеров – выбор между единственными или множественными формами существительных для обозначения сервисов.<br/>
+<br/>
+<u>Best Practice:</u><br/>
+<br/>
+• /farmers<br/>
+• /farmers/{farmer_id}<br/>
+• /crops<br/>
+• /crops/{crop_id}<br/>
+<br/>
+<u>Не рекомендуется:</u><br/>
+<br/>
+• /farmer<br/>
+• /farmer/{farmer_id}<br/>
+<br/>
+<u>Примечание:</u><br/>
+Хотя я упоминаю, что использование множественного числа является best practice, по какой-то причине, если вы придерживаетесь единственного числа, то придерживайтесь этого во всех своих сервисах. Не смешивайте использование множественного и единственного чисел. Поэтому я и не говорю здесь про bad practice, а просто говорю, что это не рекомендуется. Пожалуйста, решайте сами, что лучше подходит для вашего приложения.<br/>
+<br/>
+<h3>3. Документация</h3><br/>
+Документирование программного обеспечения является общей практикой для всех разработчиков. Этой практики стоит придерживаться и при реализации REST приложений. Если писать полезную документацию, то она поможет другим разработчикам понять ваш код.<br/>
+Наиболее распространенным способом документирования REST приложений – это документация с перечисленными в ней конечными точками, и описывающая список операций для каждой из них. Есть множество инструментов, которые позволяют сделать это автоматически.<br/>
+<br/>
+Ниже представлены приложения, которые помогают документировать REST сервисы:<br/>
+<br/>
+• <a href="https://www.drfdocs.com/">DRF Docs</a><br/>
+• <a href="https://swagger.io/">Swagger</a><br/>
+• <a href="https://apiary.io/">Apiary</a><br/>
+<br/>
+Пожалуйста, поделитесь своим опытом документирования ваших приложений в комментариях.<br/>
+<br/>
+<h3>4. Версия вашего приложения</h3><br/>
+ Любое программное обеспечение развивается с течением времени. Это может потребовать различных версий для всех существенных изменений в приложении. Когда дело доходит до версии REST приложения, то оно становится одной из самых обсуждаемых тем среди сообщества разработчиков REST.<br/>
+<br/>
+Существует два общих способа для управления версиями REST приложений:<br/>
+<br/>
+1. URI версии.<br/>
+2. Мультимедиа версии. <br/>
+<br/>
+<b>URI версии:</b><br/>
+<br/>
+Простой пример как выглядит URI версия:<br/>
+<a href="http://host/v2/farmers">host/v2/farmers</a><br/>
+<a href="http://host/v1/farmers">host/v1/farmers</a><br/>
+<br/>
+Ниже приведены основные недостатки способа создания версий с использованием URI:<br/>
+<br/>
+<ol>
+<li>Разбиваются существующие URIs, все клиенты должны обновить до нового URI.</li>
+<li>Увеличивается количество URI версий для управления, что в свою очередь увеличивает размер HTTP кэша для хранения нескольких версий URI. Добавление большого числа дубликатов URI может повлиять на количество обращений к кэшу и тем самым может снизить производительность вашего приложения.</li>
+<li>Он крайне негибкий, мы не можем просто изменить ресурс или небольшой их набор.</li>
+</ol><br/>
+<b>Мультимедийный способ управления версиями:</b><br/>
+Этот подход отправляет информацию о версии в заголовке каждого запроса. Когда мы изменим тип и язык мультимедиа URI, мы перейдем к рассмотрению контента на основе заголовка. Этот способ является наиболее предпочтительным вариантом для управления версиями REST приложений.<br/>
+<br/>
+Пример информации в заголовке:<br/>
+<br/>
+GET /account/5555 HTTP/1.1<br/>
+Accept: application/vnd.farmers.v1+json<br/>
+<br/>
+HTTP/1.1 200 OK<br/>
+Content-Type: application/vnd.farmers.v1+json<br/>
+<br/>
+В мультимедийном подходе управления версиями клиент имеет возможность выбрать, какую версию запрашивать с сервера. Этот способ выглядит предпочтительней, чем подход с URI, но сложность возникает при кэшировании запросов с различными версиями, которые передаются через заголовок. Говоря простыми словами, когда клиент кэширует на основе URI, это просто, но, кэширование с ключом в качестве мультимедийного типа добавляет сложности.<br/>
+<br/>
+<h3>5. Пагинация</h3><br/>
+Отправка большого объема данных через HTTP не очень хорошая идея. Безусловно, возникнут проблемы с производительностью, поскольку сериализация больших объектов JSON станет дорогостоящей. Best practice является разбиение результатов на части, а не отправка всех записей сразу. Предоставьте возможность разбивать результаты на странице с помощью предыдущих или следующих ссылок.<br/>
+<br/>
+Если вы используете пагинацию в вашем приложении, одним из хороших способов указать ссылку на пагинацию является использование опции Link HTTP заголовка.<br/>
+<a href="https://developer.github.com/v3/guides/traversing-with-pagination/">Следующая ссылка будет полезной для вас.</a><br/>
+<br/>
+<h3>6. Использование SSL</h3><br/>
+SSL должен быть! Вы всегда должны применять SSL для своего REST приложения. Доступ к вашему приложения будет осуществляется из любой точки мира, и нет никакой гарантии, что к нему будет обеспечен безопасный доступ. С ростом числа инцидентов с киберпреступностью мы обязательно должны обеспечить безопасность своему приложению. <br/>
+<br/>
+Стандартные протоколы проверки аутентификации облегчают работу по защите вашего приложения. Не используйте базовый механизм аутентификации. Используйте Oauth1.Oa или Oaurh2 для лучшей безопасности ваших сервисов. Я бы рекомендовал Oauth2 лично из-за его новейших функций.<br/>
+<br/>
+<h3>7. HTTP методы</h3><br/>
+Проектирование операций на HTTP методы становится легче, когда вы знаете характеристики всех методов HTTP. В одном из предыдущих разделов этой статьи я настаивал на использовании HTTP методов для операций вместо написания различных наименований сервисов для каждой операции. В этом разделе в основном рассматривается поведение каждого HTTP метода.<br/>
+<br/>
+Ниже представлены две характеристики, которые должны быть определены перед использованием HTTP метода:<br/>
+<br/>
+<ul>
+<li><u>Безопасность:</u> HTTP метод считается безопасным, когда вызов этого метода не изменяет состояние данных. Например, когда вы извлекаете данные с помощью метода GET, это безопасно, потому что этот метод не обновляет данные на стороне сервера.</li>
+<li><u>Идемпотентность:</u> когда вы получаете один и тот же ответ, сколько раз вы вызываете один и тот же ресурс, он известен как идемпотентный. Например, когда вы пытаетесь обновить одни и те же данные на сервере, ответ будет таким же для каждого запроса, сделанного с одинаковыми данными.</li>
+</ul><br/>
+Не все методы являются безопасными и идемпотентными. Ниже представлен список методов, которые используются в REST приложениях и показаны их свойства:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/getpro/habr/post_images/f3b/595/9d3/f3b5959d3b5a30dc441a062628cda9c1.jpg" alt="image" data-src="https://habrastorage.org/getpro/habr/post_images/f3b/595/9d3/f3b5959d3b5a30dc441a062628cda9c1.jpg" data-blurred="true"/><br/>
+ REST HTTP методы<br/>
+<br/>
+Ниже приведен краткий обзор каждого метода и рекомендации по их использованию:<br/>
+<br/>
+<ul>
+<li> <u>GET:</u> этот метод является безопасным и идемпотентным. Обычно используется для извлечения информации и не имеет побочных эффектов.</li>
+<li><u>POST:</u> этот метод не является ни безопасным, ни идемпотентным. Этот метод наиболее широко используется для создания ресурсов.</li>
+<li><u>PUT:</u> этот метод является идемпотентным. Вот почему лучше использовать этот метод вместо POST для обновления ресурсов. Избегайте использования POST для обновления ресурсов.</li>
+<li><u>DELETE:</u> как следует из названия, этот метод используется для удаления ресурсов. Но этот метод не является идемпотентным для всех запросов.</li>
+<li><u>OPTIONS:</u> этот метод не используется для каких-либо манипуляций с ресурсами. Но он полезен, когда клиент не знает других методов, поддерживаемых для ресурса, и используя этот метод, клиент может получить различное представление ресурса.</li>
+<li><u>HEAD:</u> этот метод используется для запроса ресурса c сервера. Он очень похож на метод GET, но HEAD должен отправлять запрос и получать ответ только в заголовке. Согласно спецификации HTTP, этот метод не должен использовать тело для запроса и ответа.</li>
+</ul><br/>
+ <h3> 8. Эффективное использование кодов ответов HTTP</h3><br/>
+HTTP определяет различные коды ответов для указания клиенту различной информации об операциях. Ваше REST приложение могло бы эффективно использовать все доступные HTTP-коды, чтобы помочь клиенту правильно настроить ответ. Далее представлен список кодов ответов HTTP:<br/>
+<br/>
+<ul>
+<li>200 OK — это ответ на успешные GET, PUT, PATCH или DELETE. Этот код также используется для POST, который не приводит к созданию.</li>
+<li>201 Created — этот код состояния является ответом на POST, который приводит к созданию.</li>
+<li>204 Нет содержимого. Это ответ на успешный запрос, который не будет возвращать тело (например, запрос DELETE)</li>
+<li>304 Not Modified — используйте этот код состояния, когда заголовки HTTP-кеширования находятся в работе</li>
+<li>400 Bad Request — этот код состояния указывает, что запрос искажен, например, если тело не может быть проанализировано</li>
+<li>401 Unauthorized — Если не указаны или недействительны данные аутентификации. Также полезно активировать всплывающее окно auth, если приложение используется из браузера</li>
+<li>403 Forbidden — когда аутентификация прошла успешно, но аутентифицированный пользователь не имеет доступа к ресурсу</li>
+<li>404 Not found — если запрашивается несуществующий ресурс</li>
+<li>405 Method Not Allowed — когда запрашивается HTTP-метод, который не разрешен для аутентифицированного пользователя</li>
+<li>410 Gone — этот код состояния указывает, что ресурс в этой конечной точке больше не доступен. Полезно в качестве защитного ответа для старых версий API</li>
+<li>415 Unsupported Media Type. Если в качестве части запроса был указан неправильный тип содержимого</li>
+<li>422 Unprocessable Entity — используется для проверки ошибок</li>
+<li>429 Too Many Requests — когда запрос отклоняется из-за ограничения скорости</li>
+</ul><br/>
+<h3>Резюме</h3><br/>
+Надеюсь, эта статья будет полезна для понимания того, как создать свой REST API. Здесь представлены best practices, собранные на основе моего опыта и обсуждения с друзьями, которые работали над приложениями веб-служб REST.<br/>
+<br/>
+Если вы много работали над дизайном REST API, и, если вы чувствуете, что эта статья не имеет для вас никакого смысла, я рад услышать ваши отзывы. Я хотел бы продолжить обновление этого обсуждения с помощью более проверенных методов разработки лучшего API для вашего приложения.<br/>
+<br/>
+Хорошего прочтения. Спасибо за посещение моего блога.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bjava%5D" class="tm-tags-list__link">java</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bspring%5D" class="tm-tags-list__link">spring</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Brest%20api%5D" class="tm-tags-list__link">rest api</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bspring%20mvc%5D" class="tm-tags-list__link">spring mvc</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bbackend%5D" class="tm-tags-list__link">backend</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/programming/" class="tm-hubs-list__link">
+    Программирование
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/java/" class="tm-hubs-list__link">
+    Java
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 55: ↑48 и ↓7</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 55: ↑48 и ↓7" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+41</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">303K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    752
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/AntonShtabnoy/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_blue"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 18 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    18
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><!----> <a href="https://habr.com/ru/users/AntonShtabnoy/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @AntonShtabnoy
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/351890/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 193 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner1598" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner1599" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/java_developer" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Java разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        589
+    вакансий
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/351890/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/351890/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"351890":{"id":"351890","timePublished":"2018-03-23T11:21:36+00:00","isCorporative":false,"lang":"ru","titleHtml":"REST API Best Practices","leadData":{"textHtml":"Привет, Хабр! Представляю вашему вниманию перевод статьи \"\u003Ca href=\"https:\u002F\u002Fjavabeat.net\u002Frest-api-best-practices\u002F\"\u003EREST API Best Practices\u003C\u002Fa\u003E\" автора Krishna Srinivasan.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nREST становится общим подходом для представления сервисов окружающему миру. Причина его популярности заключается в его простоте, легкости использования, доступе через HTTP и другие. Существует неправильное представление о том, что все данные, доступные через сеть, считаются REST, но это не так. В этой статье я собираюсь объяснить вам некоторые best practices, которые вы должны всегда помнить при реализации собственного REST приложения. Я бы хотел услышать ваш опыт в REST приложениях, поэтому если вы знаете best practies, которые не упомянуты в этой статье, пожалуйста, поделитесь с нами в комментариях.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Ci\u003EDisclamer\u003C\u002Fi\u003E: все best practies основаны на моем личном опыте. Если вы имеете другое мнение, не стесняйтесь отправлять его мне на email, и мы обсудим его.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nЗдесь представлен список best practices, которые будут обсуждаться в этой статье:\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n1. \u003Cb\u003EКонечные точки в URL – имя существительное, не глагол\u003C\u002Fb\u003E\u003Cbr\u003E\r\n2. \u003Cb\u003EМножественное число\u003C\u002Fb\u003E\u003Cbr\u003E\r\n3. \u003Cb\u003EДокументация\u003C\u002Fb\u003E\u003Cbr\u003E\r\n4. \u003Cb\u003EВерсия вашего приложения\u003C\u002Fb\u003E\u003Cbr\u003E\r\n5.\u003Cb\u003E Пагинация\u003C\u002Fb\u003E\u003Cbr\u003E\r\n6. \u003Cb\u003EИспользование SSL\u003C\u002Fb\u003E\u003Cbr\u003E\r\n7. \u003Cb\u003EHTTP методы\u003C\u002Fb\u003E\u003Cbr\u003E\r\n8. \u003Cb\u003EЭффективное использование кодов ответов HTTP\u003C\u002Fb\u003E\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать далее","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"sandbox","data":null}],"author":{"scoreStats":{"score":18,"votesCount":18},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1676871","alias":"AntonShtabnoy","fullname":null,"avatarUrl":null,"speciality":null},"statistics":{"commentsCount":193,"favoritesCount":752,"readingCount":303066,"score":41,"votesCount":55},"hubs":[{"relatedData":null,"id":"359","alias":"programming","type":"collective","title":"Программирование","titleHtml":"Программирование","isProfiled":true},{"relatedData":null,"id":"375","alias":"java","type":"collective","title":"Java","titleHtml":"Java","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EПривет, Хабр! Представляю вашему вниманию перевод статьи \"\u003Ca href=\"https:\u002F\u002Fjavabeat.net\u002Frest-api-best-practices\u002F\"\u003EREST API Best Practices\u003C\u002Fa\u003E\" автора Krishna Srinivasan.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nREST становится общим подходом для представления сервисов окружающему миру. Причина его популярности заключается в его простоте, легкости использования, доступе через HTTP и другие. Существует неправильное представление о том, что все данные, доступные через сеть, считаются REST, но это не так. В этой статье я собираюсь объяснить вам некоторые best practices, которые вы должны всегда помнить при реализации собственного REST приложения. Я бы хотел услышать ваш опыт в REST приложениях, поэтому если вы знаете best practies, которые не упомянуты в этой статье, пожалуйста, поделитесь с нами в комментариях.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ci\u003EDisclamer\u003C\u002Fi\u003E: все best practies основаны на моем личном опыте. Если вы имеете другое мнение, не стесняйтесь отправлять его мне на email, и мы обсудим его.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗдесь представлен список best practices, которые будут обсуждаться в этой статье:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n1. \u003Cb\u003EКонечные точки в URL – имя существительное, не глагол\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n2. \u003Cb\u003EМножественное число\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n3. \u003Cb\u003EДокументация\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n4. \u003Cb\u003EВерсия вашего приложения\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n5.\u003Cb\u003E Пагинация\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n6. \u003Cb\u003EИспользование SSL\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n7. \u003Cb\u003EHTTP методы\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n8. \u003Cb\u003EЭффективное использование кодов ответов HTTP\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E1. Конечные точки в URL – имя существительное, не глагол\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n Одна из самых распространённых ошибок, которую делают разработчики REST приложений, — использование глаголов при именовании конечных точек. Однако, это не лучшая практика. Вы должны всегда использовать существительные вместо глаголов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cu\u003EПример сценария:\u003C\u002Fu\u003E \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМы имеем заказ на разработку \u003Ca href=\"https:\u002F\u002Fjavabeat.net\u002Fintroduction-to-spring-rest-services\u002F\"\u003EREST веб сервисов\u003C\u002Fa\u003E, которые предоставляют информацию об Индийских фермерах. Сервис также должен реализовывать функционал, предоставляющий такую информацию как доход фермера, названия культур, адреса ферм и другую информацию, относящуюся к каждому фермеру. Каждый фермер имеет уникальный id. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТаким же образом должны быть реализованы сервисы, предоставляющие информацию о культурах и какой фермер владеет ими.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cu\u003EBest Practice:\u003C\u002Fu\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИмеем единственную конечную точку, которая отвечает за все действия. В примере ниже представлена только одна конечная точка \u002Ffarmers для всех операций таких как добавление, обновление, удаление. Базовые реализации имеют различные HTTP методы, которые правильно маршрутизируются для разных операций.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n• \u002Ffarmers\u003Cbr\u002F\u003E\r\n• \u002Fcrops\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cu\u003EНе рекомендуется:\u003C\u002Fu\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПостарайтесь избегать использования глаголов. Рекомендуется представлять операции внутри таких форматах как JSON, XML, RAML или использовать HTTP методы. Не используйте представленные ниже обозначения:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n• \u002FgetFarmers\u003Cbr\u002F\u003E\r\n• \u002FupdateFarmers\u003Cbr\u002F\u003E\r\n• \u002FdeleteFarmers\u003Cbr\u002F\u003E\r\n• \u002FgetCrops\u003Cbr\u002F\u003E\r\n• \u002FupdateCrops\u003Cbr\u002F\u003E\r\n• \u002FdeleteCrops\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E2. Множественное число\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nИспользуйте множественное число для названия своих REST сервисов. Это еще одна горячая тема для обсуждений среди REST дизайнеров – выбор между единственными или множественными формами существительных для обозначения сервисов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cu\u003EBest Practice:\u003C\u002Fu\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n• \u002Ffarmers\u003Cbr\u002F\u003E\r\n• \u002Ffarmers\u002F{farmer_id}\u003Cbr\u002F\u003E\r\n• \u002Fcrops\u003Cbr\u002F\u003E\r\n• \u002Fcrops\u002F{crop_id}\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cu\u003EНе рекомендуется:\u003C\u002Fu\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n• \u002Ffarmer\u003Cbr\u002F\u003E\r\n• \u002Ffarmer\u002F{farmer_id}\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cu\u003EПримечание:\u003C\u002Fu\u003E\u003Cbr\u002F\u003E\r\nХотя я упоминаю, что использование множественного числа является best practice, по какой-то причине, если вы придерживаетесь единственного числа, то придерживайтесь этого во всех своих сервисах. Не смешивайте использование множественного и единственного чисел. Поэтому я и не говорю здесь про bad practice, а просто говорю, что это не рекомендуется. Пожалуйста, решайте сами, что лучше подходит для вашего приложения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E3. Документация\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nДокументирование программного обеспечения является общей практикой для всех разработчиков. Этой практики стоит придерживаться и при реализации REST приложений. Если писать полезную документацию, то она поможет другим разработчикам понять ваш код.\u003Cbr\u002F\u003E\r\nНаиболее распространенным способом документирования REST приложений – это документация с перечисленными в ней конечными точками, и описывающая список операций для каждой из них. Есть множество инструментов, которые позволяют сделать это автоматически.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНиже представлены приложения, которые помогают документировать REST сервисы:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n• \u003Ca href=\"https:\u002F\u002Fwww.drfdocs.com\u002F\"\u003EDRF Docs\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n• \u003Ca href=\"https:\u002F\u002Fswagger.io\u002F\"\u003ESwagger\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n• \u003Ca href=\"https:\u002F\u002Fapiary.io\u002F\"\u003EApiary\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПожалуйста, поделитесь своим опытом документирования ваших приложений в комментариях.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E4. Версия вашего приложения\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n Любое программное обеспечение развивается с течением времени. Это может потребовать различных версий для всех существенных изменений в приложении. Когда дело доходит до версии REST приложения, то оно становится одной из самых обсуждаемых тем среди сообщества разработчиков REST.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСуществует два общих способа для управления версиями REST приложений:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n1. URI версии.\u003Cbr\u002F\u003E\r\n2. Мультимедиа версии. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EURI версии:\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПростой пример как выглядит URI версия:\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fhost\u002Fv2\u002Ffarmers\"\u003Ehost\u002Fv2\u002Ffarmers\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fhost\u002Fv1\u002Ffarmers\"\u003Ehost\u002Fv1\u002Ffarmers\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНиже приведены основные недостатки способа создания версий с использованием URI:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EРазбиваются существующие URIs, все клиенты должны обновить до нового URI.\u003C\u002Fli\u003E\r\n\u003Cli\u003EУвеличивается количество URI версий для управления, что в свою очередь увеличивает размер HTTP кэша для хранения нескольких версий URI. Добавление большого числа дубликатов URI может повлиять на количество обращений к кэшу и тем самым может снизить производительность вашего приложения.\u003C\u002Fli\u003E\r\n\u003Cli\u003EОн крайне негибкий, мы не можем просто изменить ресурс или небольшой их набор.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cb\u003EМультимедийный способ управления версиями:\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nЭтот подход отправляет информацию о версии в заголовке каждого запроса. Когда мы изменим тип и язык мультимедиа URI, мы перейдем к рассмотрению контента на основе заголовка. Этот способ является наиболее предпочтительным вариантом для управления версиями REST приложений.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПример информации в заголовке:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nGET \u002Faccount\u002F5555 HTTP\u002F1.1\u003Cbr\u002F\u003E\r\nAccept: application\u002Fvnd.farmers.v1+json\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nHTTP\u002F1.1 200 OK\u003Cbr\u002F\u003E\r\nContent-Type: application\u002Fvnd.farmers.v1+json\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ мультимедийном подходе управления версиями клиент имеет возможность выбрать, какую версию запрашивать с сервера. Этот способ выглядит предпочтительней, чем подход с URI, но сложность возникает при кэшировании запросов с различными версиями, которые передаются через заголовок. Говоря простыми словами, когда клиент кэширует на основе URI, это просто, но, кэширование с ключом в качестве мультимедийного типа добавляет сложности.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E5. Пагинация\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nОтправка большого объема данных через HTTP не очень хорошая идея. Безусловно, возникнут проблемы с производительностью, поскольку сериализация больших объектов JSON станет дорогостоящей. Best practice является разбиение результатов на части, а не отправка всех записей сразу. Предоставьте возможность разбивать результаты на странице с помощью предыдущих или следующих ссылок.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли вы используете пагинацию в вашем приложении, одним из хороших способов указать ссылку на пагинацию является использование опции Link HTTP заголовка.\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fdeveloper.github.com\u002Fv3\u002Fguides\u002Ftraversing-with-pagination\u002F\"\u003EСледующая ссылка будет полезной для вас.\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E6. Использование SSL\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nSSL должен быть! Вы всегда должны применять SSL для своего REST приложения. Доступ к вашему приложения будет осуществляется из любой точки мира, и нет никакой гарантии, что к нему будет обеспечен безопасный доступ. С ростом числа инцидентов с киберпреступностью мы обязательно должны обеспечить безопасность своему приложению. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСтандартные протоколы проверки аутентификации облегчают работу по защите вашего приложения. Не используйте базовый механизм аутентификации. Используйте Oauth1.Oa или Oaurh2 для лучшей безопасности ваших сервисов. Я бы рекомендовал Oauth2 лично из-за его новейших функций.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E7. HTTP методы\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nПроектирование операций на HTTP методы становится легче, когда вы знаете характеристики всех методов HTTP. В одном из предыдущих разделов этой статьи я настаивал на использовании HTTP методов для операций вместо написания различных наименований сервисов для каждой операции. В этом разделе в основном рассматривается поведение каждого HTTP метода.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНиже представлены две характеристики, которые должны быть определены перед использованием HTTP метода:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cu\u003EБезопасность:\u003C\u002Fu\u003E HTTP метод считается безопасным, когда вызов этого метода не изменяет состояние данных. Например, когда вы извлекаете данные с помощью метода GET, это безопасно, потому что этот метод не обновляет данные на стороне сервера.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cu\u003EИдемпотентность:\u003C\u002Fu\u003E когда вы получаете один и тот же ответ, сколько раз вы вызываете один и тот же ресурс, он известен как идемпотентный. Например, когда вы пытаетесь обновить одни и те же данные на сервере, ответ будет таким же для каждого запроса, сделанного с одинаковыми данными.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nНе все методы являются безопасными и идемпотентными. Ниже представлен список методов, которые используются в REST приложениях и показаны их свойства:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Ff3b\u002F595\u002F9d3\u002Ff3b5959d3b5a30dc441a062628cda9c1.jpg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Ff3b\u002F595\u002F9d3\u002Ff3b5959d3b5a30dc441a062628cda9c1.jpg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n REST HTTP методы\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНиже приведен краткий обзор каждого метода и рекомендации по их использованию:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E \u003Cu\u003EGET:\u003C\u002Fu\u003E этот метод является безопасным и идемпотентным. Обычно используется для извлечения информации и не имеет побочных эффектов.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cu\u003EPOST:\u003C\u002Fu\u003E этот метод не является ни безопасным, ни идемпотентным. Этот метод наиболее широко используется для создания ресурсов.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cu\u003EPUT:\u003C\u002Fu\u003E этот метод является идемпотентным. Вот почему лучше использовать этот метод вместо POST для обновления ресурсов. Избегайте использования POST для обновления ресурсов.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cu\u003EDELETE:\u003C\u002Fu\u003E как следует из названия, этот метод используется для удаления ресурсов. Но этот метод не является идемпотентным для всех запросов.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cu\u003EOPTIONS:\u003C\u002Fu\u003E этот метод не используется для каких-либо манипуляций с ресурсами. Но он полезен, когда клиент не знает других методов, поддерживаемых для ресурса, и используя этот метод, клиент может получить различное представление ресурса.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cu\u003EHEAD:\u003C\u002Fu\u003E этот метод используется для запроса ресурса c сервера. Он очень похож на метод GET, но HEAD должен отправлять запрос и получать ответ только в заголовке. Согласно спецификации HTTP, этот метод не должен использовать тело для запроса и ответа.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n \u003Ch3\u003E 8. Эффективное использование кодов ответов HTTP\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nHTTP определяет различные коды ответов для указания клиенту различной информации об операциях. Ваше REST приложение могло бы эффективно использовать все доступные HTTP-коды, чтобы помочь клиенту правильно настроить ответ. Далее представлен список кодов ответов HTTP:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E200 OK — это ответ на успешные GET, PUT, PATCH или DELETE. Этот код также используется для POST, который не приводит к созданию.\u003C\u002Fli\u003E\r\n\u003Cli\u003E201 Created — этот код состояния является ответом на POST, который приводит к созданию.\u003C\u002Fli\u003E\r\n\u003Cli\u003E204 Нет содержимого. Это ответ на успешный запрос, который не будет возвращать тело (например, запрос DELETE)\u003C\u002Fli\u003E\r\n\u003Cli\u003E304 Not Modified — используйте этот код состояния, когда заголовки HTTP-кеширования находятся в работе\u003C\u002Fli\u003E\r\n\u003Cli\u003E400 Bad Request — этот код состояния указывает, что запрос искажен, например, если тело не может быть проанализировано\u003C\u002Fli\u003E\r\n\u003Cli\u003E401 Unauthorized — Если не указаны или недействительны данные аутентификации. Также полезно активировать всплывающее окно auth, если приложение используется из браузера\u003C\u002Fli\u003E\r\n\u003Cli\u003E403 Forbidden — когда аутентификация прошла успешно, но аутентифицированный пользователь не имеет доступа к ресурсу\u003C\u002Fli\u003E\r\n\u003Cli\u003E404 Not found — если запрашивается несуществующий ресурс\u003C\u002Fli\u003E\r\n\u003Cli\u003E405 Method Not Allowed — когда запрашивается HTTP-метод, который не разрешен для аутентифицированного пользователя\u003C\u002Fli\u003E\r\n\u003Cli\u003E410 Gone — этот код состояния указывает, что ресурс в этой конечной точке больше не доступен. Полезно в качестве защитного ответа для старых версий API\u003C\u002Fli\u003E\r\n\u003Cli\u003E415 Unsupported Media Type. Если в качестве части запроса был указан неправильный тип содержимого\u003C\u002Fli\u003E\r\n\u003Cli\u003E422 Unprocessable Entity — используется для проверки ошибок\u003C\u002Fli\u003E\r\n\u003Cli\u003E429 Too Many Requests — когда запрос отклоняется из-за ограничения скорости\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EРезюме\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nНадеюсь, эта статья будет полезна для понимания того, как создать свой REST API. Здесь представлены best practices, собранные на основе моего опыта и обсуждения с друзьями, которые работали над приложениями веб-служб REST.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли вы много работали над дизайном REST API, и, если вы чувствуете, что эта статья не имеет для вас никакого смысла, я рад услышать ваши отзывы. Я хотел бы продолжить обновление этого обсуждения с помощью более проверенных методов разработки лучшего API для вашего приложения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nХорошего прочтения. Спасибо за посещение моего блога.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"java"},{"titleHtml":"spring"},{"titleHtml":"rest api"},{"titleHtml":"spring mvc"},{"titleHtml":"backend"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F351890\u002Fccee136ba99742980283d28764559dde\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F351890\u002Fccee136ba99742980283d28764559dde\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F351890\\\u002F\"},\"headline\":\"REST API Best Practices\",\"datePublished\":\"2018-03-23T14:21:36+03:00\",\"dateModified\":\"2018-03-25T01:56:50+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"AntonShtabnoy\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Привет, Хабр! Представляю вашему вниманию перевод статьи &quot;REST API Best Practices&quot; автора Krishna Srinivasan.  REST становится общим подходом для представления с...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F351890\\\u002F#post-content-body\",\"about\":[\"h_programming\",\"h_java\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F351890\\\u002Fccee136ba99742980283d28764559dde\\\u002F\"]}","metaDescription":"Привет, Хабр! Представляю вашему вниманию перевод статьи &quot;REST API Best Practices&quot; автора Krishna Srinivasan.\r\n\r\nREST становится общим подходом для представления сервисов окружающему миру. Причина его...","mainImageUrl":null,"amp":true,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"Java разработчик","vacanciesCount":589,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fjava_developer","itemHubs":["java","javame_dev","gradle"]}],"hubs":"programming,java"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Партиционирование в PostgreSQL – Что? Зачем? Как? / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/273933\/"},"headline":"Партиционирование в PostgreSQL – Что? Зачем? Как?","datePublished":"2015-12-25T10:30:57+03:00","dateModified":"2017-11-22T14:42:45+03:00","author":{"@type":"Person","name":"rdruzyagin"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Функцией партиционирования таблиц в PostgreSQL, к сожалению, активно пользуются пока не многие. На мой взгляд, очень достойно о ней рассказывает в своей работе H...","url":"https:\/\/habr.com\/ru\/post\/273933\/#post-content-body","about":["h_webdev","h_postgresql","h_sql","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/273933\/85985883cb41f431602a7be510c9954b\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Партиционирование в PostgreSQL – Что? Зачем? Как?" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Партиционирование в PostgreSQL – Что? Зачем? Как?" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Партиционирование в PostgreSQL – Что? Зачем? Как?" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Функцией партиционирования таблиц в PostgreSQL, к сожалению, активно пользуются пока не многие. На мой взгляд, очень достойно о ней рассказывает в своей работе Hubert Lubaczewski (depesz.com)...." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Функцией партиционирования таблиц в PostgreSQL, к сожалению, активно пользуются пока не многие. На мой взгляд, очень достойно о ней рассказывает в своей работе Hubert Lubaczewski (depesz.com)...." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Функцией партиционирования таблиц в PostgreSQL, к сожалению, активно пользуются пока не многие. На мой взгляд, очень достойно о ней рассказывает в своей работе Hubert Lubaczewski (depesz.com)...." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Функцией партиционирования таблиц в PostgreSQL, к сожалению, активно пользуются пока не многие. На мой взгляд, очень достойно о ней рассказывает в своей работе Hubert Lubaczewski (depesz.com)...." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Функцией партиционирования таблиц в PostgreSQL, к сожалению, активно пользуются пока не многие. На мой взгляд, очень достойно о ней рассказывает в своей работе Hubert Lubaczewski (depesz.com)...." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/273933/85985883cb41f431602a7be510c9954b/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/273933/85985883cb41f431602a7be510c9954b/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/273933/85985883cb41f431602a7be510c9954b/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/273933/85985883cb41f431602a7be510c9954b/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/273933/85985883cb41f431602a7be510c9954b/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="273933" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2015-12-25T07:30:57.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/273933/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="SQL, PostgreSQL, партиционирование, секционирование, партиция, СУБД, шардинг, partitioning, partition table">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/273933/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.100.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/273933/85985883cb41f431602a7be510c9954b/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/rdruzyagin/" title="rdruzyagin" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_green"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/rdruzyagin/" class="tm-user-info__username">
+      rdruzyagin
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2015-12-25T07:30:57.000Z" title="2015-12-25, 10:30">25  декабря  2015 в 10:30</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Партиционирование в PostgreSQL – Что? Зачем? Как?</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/postgresql/" class="tm-article-snippet__hubs-item-link"><span>PostgreSQL</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/sql/" class="tm-article-snippet__hubs-item-link"><span>SQL</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-translation"><span>
+        Перевод
+      </span></div></div> <!----> <!----></div></div> <div class="tm-article-presenter__origin"><a href="http://www.depesz.com/2015/06/07/partitioning-what-why-how/" target="_blank" class="tm-article-presenter__origin-link">
+                Автор оригинала:
+                <span>
+                  Hubert Lubaczewski
+                </span></a></div> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><i>Функцией партиционирования таблиц в PostgreSQL, к сожалению, активно пользуются пока не многие. На мой взгляд, очень достойно о ней рассказывает в своей работе Hubert Lubaczewski (<a href="http://www.depesz.com/2015/06/07/partitioning-what-why-how/">depesz.com</a>). Предлагаю вам еще один перевод его статьи!</i><br/>
+<img src="https://habrastorage.org/r/w1560/files/030/c86/70f/030c8670f3c74df587363c6855546fea.png" data-src="https://habrastorage.org/files/030/c86/70f/030c8670f3c74df587363c6855546fea.png"/><br/>
+В последнее время я заметил, что всё чаще и чаще сталкиваюсь с кейсами, где можно было бы использовать партиционирование. И хотя, теоретически, большинство людей знает о его существовании, на самом деле эту фичу не слишком хорошо понимают, а некоторые её даже побаиваются.<br/>
+<br/>
+Так что я постараюсь объяснить в меру своих знаний и возможностей, что это такое, зачем его стоит использовать и как это сделать.<br/>
+<a name="habracut"></a><br/>
+Как вы наверняка знаете, в PostgreSQL есть таблицы, а в таблицах есть данные. Иногда это всего несколько строк, а иногда – миллиарды.<br/>
+<br/>
+Партиционирование – это метод разделения больших (исходя из количества записей, а не столбцов) таблиц на много маленьких. И желательно, чтобы это происходило прозрачным для приложения способом.<br/>
+<br/>
+Одной из редко используемых фич PostgreSQL является тот факт, что это объектно-реляционная база данных. И «объект» здесь ключевое слово, потому что объекты (или, скорее, классы) знают то, что называется «наследование». Именно это используется для партиционирования.<br/>
+<br/>
+Давайте посмотрим, о чём речь.<br/>
+<br/>
+Я создам обычную таблицу users:<br/>
+<br/>
+<pre><code class="sql">$ create table users (
+    id             serial primary key,
+    username       text not null unique,
+    password       text,
+    created_on     timestamptz not null,
+    last_logged_on timestamptz not null
+);
+</code></pre><br/>
+Теперь, для полноты картины, давайте добавим несколько строк и дополнительный индекс:<br/>
+<br/>
+<pre><code class="sql">$ insert into users (username, password, created_on, last_logged_on)
+    select
+        random_string( (random() * 4 + 5)::int4),
+        random_string( 20 ),
+        now() - '2 years'::interval * random(),
+        now() - '2 years'::interval * random()
+    from
+        generate_series(1, 10000);
+$ create index newest_users on users (created_on);
+</code></pre><br/>
+Итак, у нас получилась тестовая таблица:<br/>
+<br/>
+<pre><code class="sql">$ \d
+                                      Table "public.users"
+     Column     |           Type           |                     Modifiers                      
+----------------+--------------------------+----------------------------------------------------
+ id             | integer                  | not null default nextval('users_id_seq'::regclass)
+ username       | text                     | not null
+ password       | text                     | 
+ created_on     | timestamp with time zone | not null
+ last_logged_on | timestamp with time zone | not null
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+    "users_username_key" UNIQUE CONSTRAINT, btree (username)
+    "newest_users" btree (created_on)
+</code></pre><br/>
+С какими-то случайными данными: <br/>
+<br/>
+<pre><code class="sql">$ select * from users limit 10;
+ id | username |       password       |          created_on           |        last_logged_on         
+----+----------+----------------------+-------------------------------+-------------------------------
+  1 | ityfce3  | 2ukgbflj_l2ndo3vilt2 | 2015-01-02 16:56:41.346113+01 | 2015-04-15 12:34:58.318913+02
+  2 | _xg_pv   | u8hy20aifyblg9f3_rf2 | 2014-09-27 05:41:05.317313+02 | 2014-08-07 14:46:14.197313+02
+  3 | uvi1wo   | h09ae85v_f_cx0gf6_8r | 2013-06-17 18:48:44.389313+02 | 2014-06-03 06:53:49.640513+02
+  4 | o6rgs    | vzbrkwhnsucxco5pjep0 | 2015-01-30 11:33:25.150913+01 | 2013-11-05 07:18:47.730113+01
+  5 | nk61jw77 | lidk_mnpe_olffmod7ed | 2014-06-15 07:18:34.597313+02 | 2014-03-21 17:42:44.763713+01
+  6 | 3w326_2u | pyoqg87feemojhql7jrn | 2015-01-20 05:41:54.133313+01 | 2014-09-07 20:33:23.682113+02
+  7 | m9rk9mnx | 6pvt94s6ol46kn0yl62b | 2013-07-17 15:13:36.315713+02 | 2013-11-12 10:53:06.123713+01
+  8 | adk6c    | egfp8re0z492e6ri8urz | 2014-07-23 11:41:11.883713+02 | 2013-10-22 07:19:36.200513+02
+  9 | rsyaedw  | ond0tie9er92oqhmdj39 | 2015-05-11 16:45:40.472513+02 | 2013-08-31 17:29:18.910913+02
+ 10 | prlobe46 | _3br5v97t2xngcd7xz4n | 2015-01-10 20:13:29.461313+01 | 2014-05-04 06:25:56.072513+02
+(10 rows)
+</code></pre><br/>
+Теперь, когда таблица готова, я могу создать партиции, что означает – наследованные таблицы: <br/>
+<br/>
+<pre><code class="sql">$ create table users_1 () inherits (users);
+ 
+$ \d users_1
+                                     Table "public.users_1"
+     Column     |           Type           |                     Modifiers                      
+----------------+--------------------------+----------------------------------------------------
+ id             | integer                  | not null default nextval('users_id_seq'::regclass)
+ username       | text                     | not null
+ password       | text                     | 
+ created_on     | timestamp with time zone | not null
+ last_logged_on | timestamp with time zone | not null
+Inherits: users
+</code></pre><br/>
+Таким образом, у нас получилась новая таблица, у которой есть определенные интересные свойства:<br/>
+<br/>
+<ul>
+<li>она использует тот же sequence, что и основная таблица, для своей колонки id;</li>
+<li>все столбцы имеют одинаковое определение, включая ограничения not null;</li>
+<li>нет ни первичного ключа, ни ограничений уникальности для имени пользователя, ни индекса для created_on.</li>
+</ul><br/>
+Давайте попробуем ещё раз, но на этот раз с более “взрывным” эффектом: <br/>
+<br/>
+<pre><code class="sql">$ drop table users_1;
+$ create table users_1 ( like users including all );
+$ \d users_1
+                                     Table "public.users_1"
+     Column     |           Type           |                     Modifiers                      
+----------------+--------------------------+----------------------------------------------------
+ id             | integer                  | not null default nextval('users_id_seq'::regclass)
+ username       | text                     | not null
+ password       | text                     | 
+ created_on     | timestamp with time zone | not null
+ last_logged_on | timestamp with time zone | not null
+Indexes:
+    "users_1_pkey" PRIMARY KEY, btree (id)
+    "users_1_username_key" UNIQUE CONSTRAINT, btree (username)
+    "users_1_created_on_idx" btree (created_on)
+</code></pre><br/>
+Теперь у нас есть все индексы и ограничения, но мы потеряли информацию о наследовании. Но мы можем добавить её позже с помощью: <br/>
+<br/>
+<pre><code class="sql">$ alter table users_1 inherit users;
+$ \d users_1
+                                     Table "public.users_1"
+     Column     |           Type           |                     Modifiers                      
+----------------+--------------------------+----------------------------------------------------
+ id             | integer                  | not null default nextval('users_id_seq'::regclass)
+ username       | text                     | not null
+ password       | text                     | 
+ created_on     | timestamp with time zone | not null
+ last_logged_on | timestamp with time zone | not null
+Indexes:
+    "users_1_pkey" PRIMARY KEY, btree (id)
+    "users_1_username_key" UNIQUE CONSTRAINT, btree (username)
+    "users_1_created_on_idx" btree (created_on)
+Inherits: users
+</code></pre><br/>
+Мы могли бы сделать это в один шаг, но тогда появляются разные неприятные уведомления: <br/>
+<br/>
+<pre><code class="sql">$ drop table users_1;
+ 
+$ create table users_1 ( like users including all ) inherits (users);
+NOTICE:  merging column "id" with inherited definition
+NOTICE:  merging column "username" with inherited definition
+NOTICE:  merging column "password" with inherited definition
+NOTICE:  merging column "created_on" with inherited definition
+NOTICE:  merging column "last_logged_on" with inherited definition
+ 
+$ \d users_1
+                                     Table "public.users_1"
+     Column     |           Type           |                     Modifiers                      
+----------------+--------------------------+----------------------------------------------------
+ id             | integer                  | not null default nextval('users_id_seq'::regclass)
+ username       | text                     | not null
+ password       | text                     | 
+ created_on     | timestamp with time zone | not null
+ last_logged_on | timestamp with time zone | not null
+Indexes:
+    "users_1_pkey" PRIMARY KEY, btree (id)
+    "users_1_username_key" UNIQUE CONSTRAINT, btree (username)
+    "users_1_created_on_idx" btree (created_on)
+Inherits: users
+</code></pre><br/>
+В любом случае, теперь у нас есть две таблицы – основная и первая партиция.<br/>
+<br/>
+Если я произведу какое-либо действие – выборка/обновление/удаление – с пользователями, обе таблицы будут просканированы: <br/>
+<br/>
+<pre><code class="sql">$ explain analyze select * from users where id = 123;
+                                                         QUERY PLAN                                                          
+-----------------------------------------------------------------------------------------------------------------------------
+ Append  (cost=0.29..16.47 rows=2 width=66) (actual time=0.008..0.009 rows=1 loops=1)
+   ->  Index Scan using users_pkey on users  (cost=0.29..8.30 rows=1 width=48) (actual time=0.008..0.008 rows=1 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_1_pkey on users_1  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (id = 123)
+ Planning time: 0.327 ms
+ Execution time: 0.031 ms
+(7 rows)
+</code></pre><br/>
+Но если я обращусь к партиции напрямую, запрос будет выполнен только на ней: <br/>
+<br/>
+<pre><code class="sql">$ explain analyze select * from users_1 where id = 123;
+                                                      QUERY PLAN                                                       
+-----------------------------------------------------------------------------------------------------------------------
+ Index Scan using users_1_pkey on users_1  (cost=0.15..8.17 rows=1 width=84) (actual time=0.002..0.002 rows=0 loops=1)
+   Index Cond: (id = 123)
+ Planning time: 0.162 ms
+ Execution time: 0.022 ms
+(4 rows)
+</code></pre><br/>
+Если бы мы хотели, мы могли бы обратиться только к таблице пользователей без её партиций, используя ключевое слово ONLY: <br/>
+<br/>
+<pre><code class="sql">$ explain analyze select * from only users where id = 123;
+                                                    QUERY PLAN                                                     
+-------------------------------------------------------------------------------------------------------------------
+ Index Scan using users_pkey on users  (cost=0.29..8.30 rows=1 width=48) (actual time=0.008..0.008 rows=1 loops=1)
+   Index Cond: (id = 123)
+ Planning time: 0.229 ms
+ Execution time: 0.031 ms
+(4 rows)
+</code></pre><br/>
+Вы могли заметить, что я сказал, что выборка/обновление/удаление работает на всех партициях. А что насчет вставок? Вставке требуется добавить куда-нибудь данные, так что она всегда работает так, как будто было использовано ONLY. Поэтому, если мне нужно добавить строку в users_1, я должен сделать так: <br/>
+<br/>
+<pre><code class="sql">INSERT INTO users_1 ...
+</code></pre><br/>
+Выглядит как-то не слишком хорошо, но не волнуйтесь, есть способы это обойти.<br/>
+<br/>
+Давайте попробуем произвести настоящее партиционирование. Для начала нам нужно решить, каким будет ключ партиционирования – другими словами, по какому алгоритму будут выбираться партиции.<br/>
+<br/>
+Есть пара наиболее очевидных:<br/>
+<br/>
+<ul>
+<li>партиционирование по дате – например, выбирать партиции, основываясь на годе, в котором пользователь был создан;</li>
+<li>партиционирование по диапазону идентификаторов – например, первый миллион пользователей, второй миллион пользователей, и так далее;</li>
+<li>партиционирование по чему-нибудь другому – например, по первой букве имени пользователя.</li>
+</ul><br/>
+Есть еще пара других, не так часто используемых вариантов, вроде «партиционирования по хэшу от имени пользователя».<br/>
+<br/>
+Почему стоит использовать одну схему, а не другую? Давайте разберемся в их достоинствах и недостатках:<br/>
+<br/>
+<ul>
+<li>партиционирование по дате:<br/>
+ <ul>
+<li>достоинства:<br/>
+ <ul>
+<li>легко понять;</li>
+<li>количество строк в данной таблице будет достаточно стабильным;</li>
+</ul><br/>
+ </li>
+<li>недостатки: <br/>
+ <ul>
+<li>требует поддержки – время от времени нам придётся добавлять новые партиции;</li>
+<li>поиск по имени пользователя или id потребует сканирования всех партиций;</li>
+</ul><br/>
+ </li>
+</ul><br/>
+ </li>
+<li>партиционирование по id:<br/>
+ <ul>
+<li>достоинства:<br/>
+ <ul>
+<li>легко понять;</li>
+<li>количество строк в партиции будет на 100% стабильным;</li>
+</ul><br/>
+ </li>
+<li>недостатки: <br/>
+ <ul>
+<li>требует поддержки – время от времени нам придётся добавлять новые партиции;</li>
+<li>поиск по имени пользователя или id потребует сканирования всех партиций;</li>
+</ul><br/>
+ </li>
+</ul><br/>
+ </li>
+<li>партиционирование по первой букве имени пользователя: <br/>
+ <ul>
+<li>достоинства:<br/>
+ <ul>
+<li>легко понять;</li>
+<li>никакой поддержки – есть строго определенный набор партиций и нам никогда не придется добавлять новые;</li>
+</ul><br/>
+ </li>
+<li>недостатки: <br/>
+ <ul>
+<li>количество строк в партициях будет стабильно расти;</li>
+<li>в некоторых партициях будет существенно больше строк, чем в других (больше людей с никами, начинающимися на “t*", чем на “y*");</li>
+<li>поиск по id потребует сканирования всех партиций;</li>
+</ul><br/>
+ </li>
+</ul><br/>
+ </li>
+<li>партиционирование по хэшу имени пользователя: <br/>
+ <ul>
+<li>достоинства:<br/>
+ <ul>
+<li>никакой поддержки – есть строго определенный набор партиций и нам никогда не придется добавлять новые;</li>
+<li>строки будут равно распределяться между партициями;</li>
+</ul><br/>
+ </li>
+<li>недостатки: <br/>
+ <ul>
+<li>количество строк в партициях будет стабильно расти;</li>
+<li>поиск по id потребует сканирования всех партиций;</li>
+<li>поиск по имени пользователя будет сканировать только одну партицию, но только при использовании дополнительных условий.</li>
+</ul><br/>
+ </li>
+</ul><br/>
+ </li>
+</ul><br/>
+Последний недостаток подхода с хэшированными именами пользователей весьма интересен. Давайте посмотрим, что там происходит.<br/>
+<br/>
+Для начала мне нужно создать побольше партиций: <br/>
+<br/>
+<pre><code class="sql">$ create table users_2 ( like users including all );
+$ alter table users_2 inherit users;
+...
+$ create table users_10 ( like users including all );
+$ alter table users_10 inherit users;
+</code></pre><br/>
+Теперь у таблицы users есть 10 партиций:<br/>
+<br/>
+<pre><code class="sql">$ \d users
+                                      Table "public.users"
+     Column     |           Type           |                     Modifiers                      
+----------------+--------------------------+----------------------------------------------------
+ id             | integer                  | not null default nextval('users_id_seq'::regclass)
+ username       | text                     | not null
+ password       | text                     | 
+ created_on     | timestamp with time zone | not null
+ last_logged_on | timestamp with time zone | not null
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+    "users_username_key" UNIQUE CONSTRAINT, btree (username)
+    "newest_users" btree (created_on)
+Number of child tables: 10 (Use \d+ to list them.)
+</code></pre><br/>
+В PostgreSQL есть опция constraint_exclusion. И если её настроить на «on» или «partition», PostgreSQL будет пропускать партиции, которые не могут содержать совпадающие строки.<br/>
+<br/>
+В моём Pg это установлено по умолчанию:<br/>
+<br/>
+<pre><code class="sql">$ show constraint_exclusion;
+ constraint_exclusion 
+----------------------
+ partition
+(1 row)
+</code></pre><br/>
+Итак, поскольку у всех моих партиций и базовой таблицы нет никаких осмысленных ограничений, так что любой запрос будет сканировать сразу все 11 таблиц (основную и 10 партиций): <br/>
+<br/>
+<pre><code class="sql">$ explain analyze select * from users where id = 123;
+                                                          QUERY PLAN                                                           
+-------------------------------------------------------------------------------------------------------------------------------
+ Append  (cost=0.29..89.98 rows=11 width=81) (actual time=0.009..0.013 rows=1 loops=1)
+   ->  Index Scan using users_pkey on users  (cost=0.29..8.30 rows=1 width=48) (actual time=0.007..0.007 rows=1 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_1_pkey on users_1  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_2_pkey on users_2  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_3_pkey on users_3  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_4_pkey on users_4  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_5_pkey on users_5  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_6_pkey on users_6  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_7_pkey on users_7  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_8_pkey on users_8  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_9_pkey on users_9  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_10_pkey on users_10  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)
+         Index Cond: (id = 123)
+ Planning time: 1.321 ms
+ Execution time: 0.087 ms
+(25 rows)
+</code></pre><br/>
+Это не слишком эффективно, но мы можем поставить ограничение.<br/>
+<br/>
+Допустим, наши партиции были сформированы методом партиционирования по id, и в каждой партиции хранится 100,000 идентификаторов.<br/>
+<br/>
+Мы можем добавить несколько ограничений: <br/>
+<br/>
+<pre><code class="sql">$ alter table users_1 add constraint partition_check check (id >= 0 and id &lt; 100000);
+$ alter table users_2 add constraint partition_check check (id >= 100000 and id &lt; 200000);
+...
+$ alter table users_10 add constraint partition_check check (id >= 900000 and id &lt; 1000000);
+</code></pre><br/>
+Теперь повторяем предыдущий запрос: <br/>
+<br/>
+<pre><code class="sql">$ explain analyze select * from users where id = 123;
+                                                         QUERY PLAN                                                          
+-----------------------------------------------------------------------------------------------------------------------------
+ Append  (cost=0.29..16.47 rows=2 width=66) (actual time=0.008..0.009 rows=1 loops=1)
+   ->  Index Scan using users_pkey on users  (cost=0.29..8.30 rows=1 width=48) (actual time=0.008..0.009 rows=1 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_1_pkey on users_1  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)
+         Index Cond: (id = 123)
+ Planning time: 1.104 ms
+ Execution time: 0.031 ms
+(7 rows)
+</code></pre><br/>
+Он сканирует только 2 таблицы: основную (в которой сейчас находятся все данные, и нет ограничений, так что её нельзя исключить) и подходящую партицию.<br/>
+<br/>
+Здорово, правда?<br/>
+<br/>
+Мы можем без проблем добавить подобные условия партиционирования по имени пользователя или created_on. Но посмотрите, что происходит, когда ключ партиционирования более сложный: <br/>
+<br/>
+<pre><code class="sql">$ alter table users_1 drop constraint partition_check, add constraint partition_check check (abs( hashtext(username) ) % 10 = 0);
+$ alter table users_2 drop constraint partition_check, add constraint partition_check check (abs( hashtext(username) ) % 10 = 1);
+...
+$ alter table users_10 drop constraint partition_check, add constraint partition_check check (abs( hashtext(username) ) % 10 = 9);
+</code></pre><br/>
+На случай, если вы не в курсе, hashtext() берет строку и возвращает целое число в диапазоне от -2147483648 до 2147483647.<br/>
+Благодаря простой арифметике мы знаем, что abs(hashtext(string)) % 10 всегда будет выдавать значение в диапазоне 0..9, и его легко посчитать для любого параметра.<br/>
+<br/>
+Знает ли об этом PostgreSQL? <br/>
+<br/>
+<pre><code class="sql">$ explain analyze select * from users where username = 'depesz';
+                                                              QUERY PLAN                                                               
+---------------------------------------------------------------------------------------------------------------------------------------
+ Append  (cost=0.29..89.98 rows=11 width=81) (actual time=0.023..0.023 rows=0 loops=1)
+   ->  Index Scan using users_username_key on users  (cost=0.29..8.30 rows=1 width=48) (actual time=0.016..0.016 rows=0 loops=1)
+         Index Cond: (username = 'depesz'::text)
+   ->  Index Scan using users_1_username_key on users_1  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)
+         Index Cond: (username = 'depesz'::text)
+   ->  Index Scan using users_2_username_key on users_2  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (username = 'depesz'::text)
+   ->  Index Scan using users_3_username_key on users_3  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (username = 'depesz'::text)
+   ->  Index Scan using users_4_username_key on users_4  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)
+         Index Cond: (username = 'depesz'::text)
+   ->  Index Scan using users_5_username_key on users_5  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (username = 'depesz'::text)
+   ->  Index Scan using users_6_username_key on users_6  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)
+         Index Cond: (username = 'depesz'::text)
+   ->  Index Scan using users_7_username_key on users_7  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (username = 'depesz'::text)
+   ->  Index Scan using users_8_username_key on users_8  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (username = 'depesz'::text)
+   ->  Index Scan using users_9_username_key on users_9  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)
+         Index Cond: (username = 'depesz'::text)
+   ->  Index Scan using users_10_username_key on users_10  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (username = 'depesz'::text)
+ Planning time: 1.092 ms
+ Execution time: 0.095 ms
+(25 rows)
+</code></pre><br/>
+Нет. Не знает. По сути, PostgreSQL может сделать автоматическое исключение партиций только для проверок, основанных на диапазоне (или равенстве). Ничего основанного на функциях. Даже простой модуль от числа – это уже перебор: <br/>
+<br/>
+<pre><code class="sql">$ alter table users_1 drop constraint partition_check, add constraint partition_check check ( id % 10 = 0);
+$ alter table users_2 drop constraint partition_check, add constraint partition_check check ( id % 10 = 1);
+...
+$ alter table users_10 drop constraint partition_check, add constraint partition_check check ( id % 10 = 9);
+$ explain analyze select * from users where id = 123;
+                                                          QUERY PLAN                                                           
+-------------------------------------------------------------------------------------------------------------------------------
+ Append  (cost=0.29..89.98 rows=11 width=81) (actual time=0.009..0.016 rows=1 loops=1)
+   ->  Index Scan using users_pkey on users  (cost=0.29..8.30 rows=1 width=48) (actual time=0.009..0.009 rows=1 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_1_pkey on users_1  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_2_pkey on users_2  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_3_pkey on users_3  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_4_pkey on users_4  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_5_pkey on users_5  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_6_pkey on users_6  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_7_pkey on users_7  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_8_pkey on users_8  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_9_pkey on users_9  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)
+         Index Cond: (id = 123)
+   ->  Index Scan using users_10_pkey on users_10  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (id = 123)
+ Planning time: 0.973 ms
+ Execution time: 0.086 ms
+(25 rows)
+</code></pre><br/>
+Это печально. Потому что у ключей партиционирования, основанных на модулях чисел, есть одно огромное (на мой взгляд) преимущество – стабильное число партиций. Вам не придется создавать их в будущем, если только вы не надумаете произвести партиционирование заново при достижении какого-то более высокого объема данных.<br/>
+<br/>
+Значит ли это, что вы не можете использовать сложные (основанные на функциях или модулях от чисел) ключи партиционирования? Нет. Вы можете использовать их, но тогда запросы получатся более сложными: <br/>
+<br/>
+<pre><code class="sql">$ explain analyze select * from users where id = 123 and id % 10 = 123 % 10;
+                                                         QUERY PLAN                                                          
+-----------------------------------------------------------------------------------------------------------------------------
+ Append  (cost=0.29..16.48 rows=2 width=66) (actual time=0.010..0.011 rows=1 loops=1)
+   ->  Index Scan using users_pkey on users  (cost=0.29..8.31 rows=1 width=48) (actual time=0.010..0.010 rows=1 loops=1)
+         Index Cond: (id = 123)
+         Filter: ((id % 10) = 3)
+   ->  Index Scan using users_4_pkey on users_4  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)
+         Index Cond: (id = 123)
+         Filter: ((id % 10) = 3)
+ Planning time: 1.018 ms
+ Execution time: 0.033 ms
+(9 rows)
+</code></pre><br/>
+Здесь я добавил еще одно условие, вот такое: <br/>
+<br/>
+<pre><code class="sql">id % 10 = 123 % 10
+</code></pre><br/>
+PostgreSQL может в процессе разбора выражения переписать его: <br/>
+<br/>
+<pre><code class="sql">id % 10 = 3
+</code></pre><br/>
+потому что он знает, что оператор % для целых чисел является иммутабельным. И теперь, как часть запроса, у меня есть точный ключ партиционирования – id % 10 = 3. Таким образом, Pg может использовать только те партиции, у которых либо нет ключа партиционирования (то есть, базовую таблицу), либо есть ключ, соответствующий запросу.<br/>
+<br/>
+Стоит ли вводить дополнительное усложнение – решать вам.<br/>
+<br/>
+Если вы предпочитаете не менять запросы, и вас не затруднит добавлять новые партиции время от времени, то вам стоит ознакомиться с <a href="https://github.com/keithf4/pg_partman">PG Partition Manger</a>, написанным моим бывшим коллегой Keith Fiske – это набор функций, которые вы запускаете вручную для определения партиций, и еще одна, которую вы запускаете по крону, и она берет на себя создание новых партиций для будущих данных.<br/>
+<br/>
+Я уже упоминал вставки, но не объяснил, как обойти проблему с вставками, которые должны добавиться к партициям.<br/>
+<br/>
+В целом, это работа для триггера. Pg_partman от Кита создает такие триггеры за вас, но я хочу, чтобы вы понимали, что происходит, и не использовали pg_partman как «черный ящик», а скорее как вспомогательный инструмент, который делает нудную работу за вас.<br/>
+<br/>
+Сейчас моя схема партиционирования основана на модуле от числа (насколько я знаю, partman так сделать не может), так что давайте напишем подходящую функцию триггера. Она будет вызываться при вставке данных в таблицу users и должна без ошибок перенаправлять вставку в соответствующую партицию. Итак, пишем: <br/>
+<br/>
+<pre><code class="sql">$ create function partition_for_users() returns trigger as $$
+DECLARE
+    v_parition_name text;
+BEGIN
+    v_parition_name := format( 'users_%s', 1 + NEW.id % 10 );
+    execute 'INSERT INTO ' || v_parition_name || ' VALUES ( ($1).* )' USING NEW;
+    return NULL;
+END;
+$$ language plpgsql;
+</code></pre><br/>
+А теперь определение триггера: <br/>
+<br/>
+<pre><code class="sql">$ create trigger partition_users before insert on users for each row execute procedure partition_for_users();
+</code></pre><br/>
+Попробуем добавить строку: <br/>
+<br/>
+<pre><code class="sql">$ insert into users (username, password, created_on, last_logged_on)
+    values (
+        'depesz',
+        random_string( 20 ),
+        now() - '2 years'::interval * random(),
+        now() - '2 years'::interval * random()
+    );
+$ select currval('users_id_seq');
+ currval 
+---------
+   10003
+(1 row)
+</code></pre><br/>
+Посмотрим, видны ли данные: <br/>
+<br/>
+<pre><code class="sql">$ select * from users where username = 'depesz';
+  id   | username |       password       |          created_on           |        last_logged_on         
+-------+----------+----------------------+-------------------------------+-------------------------------
+ 10003 | depesz   | bp7zwy8k3t3a37chf1hf | 2014-10-24 02:45:51.398824+02 | 2015-02-05 18:24:57.072424+01
+(1 row)
+</code></pre><br/>
+Выглядит хорошо, но где они находятся? В основной таблице? <br/>
+<br/>
+<pre><code class="sql">$ select * from only users where username = 'depesz';
+ id | username | password | created_on | last_logged_on 
+----+----------+----------+------------+----------------
+(0 rows)
+</code></pre><br/>
+Нет. Так может, в нужной партиции? <br/>
+<br/>
+<pre><code class="sql">$ select * from users_4 where username = 'depesz';
+  id   | username |       password       |          created_on           |        last_logged_on         
+-------+----------+----------------------+-------------------------------+-------------------------------
+ 10003 | depesz   | bp7zwy8k3t3a37chf1hf | 2014-10-24 02:45:51.398824+02 | 2015-02-05 18:24:57.072424+01
+</code></pre><br/>
+Да. Триггер сработал. Но у этого метода есть один недостаток. А именно – “RETURNING" не работает: <br/>
+<br/>
+<pre><code class="sql">$ insert into users (username, password, created_on, last_logged_on)
+    values (
+        'test',
+        random_string( 20 ),
+        now() - '2 years'::interval * random(),
+        now() - '2 years'::interval * random()
+    )
+    returning *;
+ id | username | password | created_on | last_logged_on 
+----+----------+----------+------------+----------------
+(0 rows)
+</code></pre><br/>
+Так происходит, потому что, с точки зрения исполнителя, вставка ничего не вернула – триггер вернул NULL.<br/>
+<br/>
+Мне пока не удалось найти удачное решение этой проблемы. В своих кейсах я просто предпочитаю получать первоначальное значение ключа заранее, используя nextval(), а потом вставляю готовое значение – так что оно уже имеется после вставки: <br/>
+<br/>
+<pre><code class="sql">$ select nextval('users_id_seq');
+ nextval 
+---------
+   10005
+(1 row)
+ 
+$ insert into users (id, username, password, created_on, last_logged_on)
+    values (
+        10005,
+        'test',
+        random_string( 20 ),
+        now() - '2 years'::interval * random(),
+        now() - '2 years'::interval * random()
+    );
+</code></pre><br/>
+Ко всему этому есть одно уточнение. Маршрутизация всех вставок через триггер замедляет их, ведь для каждой строки PG нужно будет выполнять еще один “insert".<br/>
+<br/>
+Для срочных объемных вставок лучшим решением будет заставить их работать напрямую с партициями. Поэтому, например, вместо <br/>
+<br/>
+<pre><code class="sql">COPY users FROM stdin;
+....
+\.
+</code></pre><br/>
+вы предварительно выясняете, сколько идентификаторов вам нужно, к примеру, вот таким способом: <br/>
+<br/>
+<pre><code class="sql">select nextval('users_id_seq') from generate_series(1, 100);
+</code></pre><br/>
+А потом выдаете подходящие: <br/>
+<br/>
+<pre><code class="sql">COPY users_p1 FROM stdin;
+....
+\.
+COPY users_p2 FROM stdin;
+....
+\.
+...
+</code></pre><br/>
+Не самый удобный способ, но он может быть полезен, если вы импортируете большие объемы данных в партиционированные таблицы.<br/>
+<br/>
+Итак, теперь вы должны понимать, что такое партиционирование, и как оно работает. Следующий вопрос в заголовке был: зачем?<br/>
+<br/>
+Ответить на него относительно легко: для обеспечения производительности или упрощения обслуживания.<br/>
+<br/>
+В качестве простого примера, возьмем таблицу users, в которой 1 миллиард строк (1,000,000,000).<br/>
+<br/>
+Поиск в ней будет прогрессивно дорожать даже с учётом индексирования, просто потому, что глубина индексов будет расти.<br/>
+Это видно даже в моей маленькой тестовой таблице.<br/>
+<br/>
+Давайте сбросим все партиции и триггер партиционирования: <br/>
+<br/>
+<pre><code class="sql">$ drop table users_1;
+$ drop table users_2;
+...
+$ drop table users_10;
+$ drop trigger partition_users on users;
+</code></pre><br/>
+Теперь в таблице users 10,000 строк. Простой поиск по имени пользователя занимает 0.020мс – это лучшее время из трех попыток.<br/>
+<br/>
+Если я добавлю больше строк: <br/>
+<br/>
+<pre><code class="sql">$ insert into users (username, password, created_on, last_logged_on)
+    select
+        random_string( (random() * 4 + 5)::int4),
+        random_string( 20 ),
+        now() - '2 years'::interval * random(),
+        now() - '2 years'::interval * random()
+    from
+        generate_series(1, 100000);
+</code></pre><br/>
+тот же поиск займёт 0.025мс. Увеличение времени поиска на 0.005мс может быть небольшим, но у нас по-прежнему всего лишь 110,000 строк, и в системе нет других таблиц, так что вся таблица с индексами помещается в память.<br/>
+<br/>
+Конечно, ваше партиционирование должно быть осмысленным. Например, если вы обычно осуществляете поиск по имени пользователя, то бессмысленно делать партиционирование по id – Pg придется искать по всем партициям (это может стать осмысленным в будущем, но об этом я расскажу в самом конце статьи).<br/>
+<br/>
+То есть вам нужно определиться с тем, что вы обычно запрашиваете – будь то поиск по какому-то ключу или, возможно, вы обычно просматриваете только свежие данные? И партиционировать таким образом, чтобы ограничить количество партиций, которые Pg нужно просканировать.<br/>
+<br/>
+Важно то, что партиционирование делает вашу жизнь проще, особенно если вы в большей степени администратор баз данных, нежели программист. Любые задачи по техобслуживанию (создание индекса, vacuum, pg_reorg/pg_repack, pg_dump) могут быть эффективно разбиты на столько подзадач, сколько у вас имеется партиций. Так что вместо одной многочасовой транзакции для переупаковки большой таблицы у вас будет 20 гораздо более быстрых и использующих меньше места на диске транзакций, а результат, в целом, окажется тем же самым!<br/>
+<br/>
+Конечно, хорошими новостями дело не ограничивается. В партиционировании есть один большой недостаток: у вас не может быть внешних ключей, указывающих на партиционированную таблицу.<br/>
+<br/>
+Это просто не работает. Вы могли бы завести внешние ключи, указывающие прямо на партиции, но это (обычно) является бессмысленным.<br/>
+<br/>
+Большая ли это проблема лично для вас, зависит от вашего юзкейса. Мне кажется, что в большинстве случаев, когда мы достигаем таблиц достаточно больших для того, чтобы партиционирование было оправдано, приложение протестировано достаточно хорошо, и мы можем смириться с отсутствием внешнего ключа. К тому же, мы всегда можем добавить задачу в крон для тестирования наличия «плохих» значений.<br/>
+<br/>
+Теперь мы знаем, что такое партиционирование, как оно работает и зачем используется. Остался последний вопрос: как преобразовать таблицу в партиционированную. Обычно, приложение не создается с партиционированными таблицами – в начале это не имеет смысла. Но, вскоре, у вас появится какая-нибудь таблица с множеством строк и вы подумаете: «Надо было партиционировать её сразу при создании».<br/>
+<br/>
+Но может быть, мы всё ещё можем её партиционировать, когда приложение уже работает? С минимумом проблем?<br/>
+Давайте посмотрим. Для теста я создал базу данных pgbench на 97 ГБ. Большая её часть, 83 ГБ, находится в таблице pgbench_accounts, которая содержит 666,600,000 записей.<br/>
+<br/>
+Схема у этой таблицы вот такая: <br/>
+<br/>
+<pre><code class="sql">   Table "public.pgbench_accounts"
+  Column  |     Type      | Modifiers 
+----------+---------------+-----------
+ aid      | integer       | not null
+ bid      | integer       | 
+ abalance | integer       | 
+ filler   | character(84) | 
+Indexes:
+    "pgbench_accounts_pkey" PRIMARY KEY, btree (aid)
+</code></pre><br/>
+И все запросы к ней основываются на колонке aid, которая содержит значения от 1 до 666,600,000.<br/>
+<br/>
+Так что давайте партиционируем её, основываясь на диапазоне значений aid.<br/>
+<br/>
+Допустим, я помещу в каждую партицию 10 миллионов строк, тогда мне потребуется 67 партиций.<br/>
+<br/>
+Но как я могу проверить, что мои действия не нарушат работу? Очень просто. Я запущу pgbench в цикле. Мне не интересны точные отчеты о скоростях, достаточно информации о том, как сильно моя работа влияет на то, что делает pgbench.<br/>
+<br/>
+С этими мыслями я запустил функцию: <br/>
+<br/>
+<pre><code class="sql">$ while true
+do
+    date
+    pgbench -T 10 -c 2 bench
+done 2>&amp;1 | tee pgbench.log
+</code></pre><br/>
+Она будет прогонять 10-секундные тесты и сохранять статистические данные в файл, так что я смогу позже проследить взаимосвязь результата с моей работой по партиционированию.<br/>
+<br/>
+Когда всё готово, я создам партиции с проверками в нужных местах: <br/>
+<br/>
+<pre><code class="sql">do $$
+declare
+    i int4;
+    aid_min INT4;
+    aid_max INT4;
+begin
+    for i in 1..67
+    loop
+        aid_min := (i - 1) * 10000000 + 1;
+        aid_max := i * 10000000;
+        execute format('CREATE TABLE pgbench_accounts_p_%s ( like pgbench_accounts including all )', i );
+        execute format('ALTER TABLE pgbench_accounts_p_%s inherit pgbench_accounts', i);
+        execute format('ALTER TABLE pgbench_accounts_p_%s add constraint partitioning_check check ( aid >= %s AND aid &lt;= %s )', i, aid_min, aid_max );
+    end loop;
+end;
+$$;
+</code></pre><br/>
+партиции готовы, и я могу убедиться, что проверки используются: <br/>
+<br/>
+<pre><code class="sql">$ explain analyze select * from pgbench_accounts where aid = 123;
+                                                                       QUERY PLAN                                                                       
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+ Append  (cost=0.57..16.75 rows=2 width=224) (actual time=6.468..6.473 rows=1 loops=1)
+   ->  Index Scan using pgbench_accounts_pkey on pgbench_accounts  (cost=0.57..8.59 rows=1 width=97) (actual time=6.468..6.469 rows=1 loops=1)
+         Index Cond: (aid = 123)
+   ->  Index Scan using pgbench_accounts_p_1_pkey on pgbench_accounts_p_1  (cost=0.14..8.16 rows=1 width=352) (actual time=0.004..0.004 rows=0 loops=1)
+         Index Cond: (aid = 123)
+ Planning time: 3.475 ms
+ Execution time: 6.497 ms
+(7 rows)
+</code></pre><br/>
+Теперь нужно добавить триггер-”маршрутизатор”:<br/>
+<br/>
+<pre><code class="sql">$ create function partition_for_accounts() returns trigger as $$
+DECLARE
+    v_parition_name text;
+BEGIN
+    v_parition_name := format( 'pgbench_accounts_p_%s', 1 + ( NEW.aid - 1 ) / 10000000 );
+    execute 'INSERT INTO ' || v_parition_name || ' VALUES ( ($1).* )' USING NEW;
+    return NULL;
+END;
+$$ language plpgsql;
+ 
+$ create trigger partition_users before insert on pgbench_accounts for each row execute procedure partition_for_accounts();
+</code></pre><br/>
+Это всё замечательно, но он сработает только для свежевставленных строк, а у меня уже 666 миллионов строк в исходной таблице. Что же с этим делать?<br/>
+<br/>
+Мне нужно их переместить. Это относительно просто в теории, но есть пара подводных камней:<br/>
+<br/>
+<ol>
+<li>Ни в коем случае обе строки не должны быть одновременно видимы ни для каких транзакций (то есть, из основной таблицы и из партиции). </li>
+<li>Я не могу удалить все строки и вставить их в партиции, потому что это заблокирует всю базовую таблицу на время перемещения.</li>
+</ol><br/>
+Вторую проблему можно смягчить, если работать с партиями данных. Но мы не можем использовать для этого SQL.<br/>
+Время от времени кто-нибудь спрашивает о том, как разделить большую операцию на порции и вызывать её одной функцией sql, которая будет итеративно обрабатывать порции данных. У этого подхода есть одна фундаментальная проблема: вызов функции – это транзакция. Поэтому всё, что делает эта функция, будет происходить в одной транзакции. Так что проблема блокировки не решается.<br/>
+<br/>
+Но мы можем использовать для этого psql (или ruby, perl, python – не важно), перемещая с каждой порцией лишь небольшое количество строк и, таким образом, блокируя основную таблицу на короткий момент времени.<br/>
+<br/>
+В целом, единичный запрос будет выглядеть так: <br/>
+<br/>
+<pre><code class="sql">with x as (delete from only pgbench_accounts where aid between .. and .. returning *)
+insert into appropriate_partition select * from x;
+</code></pre><br/>
+Я выбрал размер порции – 1000, это достаточно малое значение, чтобы процесс не затянулся, и достаточно большое, чтобы итоговое количество порций не было чрезмерным (666 тысяч).<br/>
+<br/>
+Теперь давайте создадим пакетный файл: <br/>
+<br/>
+<pre><code class="sql">\pset format unaligned
+\pset tuples_only true
+\o /tmp/run.batch.migration.sql
+SELECT
+    format(
+        'with x as (DELETE FROM ONLY pgbench_accounts WHERE aid >= %s AND aid &lt;= %s returning *) INSERT INTO pgbench_accounts_p_%s SELECT * FROM x;',
+        i,
+        i + 999,
+        ( i - 1 ) / 10000000 + 1
+    )
+FROM
+    generate_series( 1, 666600000, 1000 ) i;
+\o
+</code></pre><br/>
+Когда я запустил это в psql, он создал файл /tmp/run.batch.migration.sql, который достаточно объемен (97 ГБ), поскольку содержит 666,600 запросов, подобных этим:<br/>
+<br/>
+<pre><code class="sql">with x as (DELETE FROM ONLY pgbench_accounts WHERE aid >= 1 AND aid &lt;= 1000 returning *) INSERT INTO pgbench_accounts_p_1 SELECT * FROM x;
+with x as (DELETE FROM ONLY pgbench_accounts WHERE aid >= 1001 AND aid &lt;= 2000 returning *) INSERT INTO pgbench_accounts_p_1 SELECT * FROM x;
+with x as (DELETE FROM ONLY pgbench_accounts WHERE aid >= 2001 AND aid &lt;= 3000 returning *) INSERT INTO pgbench_accounts_p_1 SELECT * FROM x;
+</code></pre><br/>
+Теперь, когда всё подготовлено, я могу запустить процесс (конечно, с помощью «screen» или в «tmux», чтобы ничего не потерялось, если ssh соединение с сервером оборвется): <br/>
+<br/>
+<pre><code class="sql">$ psql -d bench -f /tmp/run.batch.migration.sql
+</code></pre><br/>
+Это займет некоторое время. В случае с моей тестовой базой данных средний пакет обрабатывается за ~ 92мс, а значит, у меня впереди 17 часов перемещения данных.<br/>
+<br/>
+В реальности ушло всего 7 часов. Неплохо. <br/>
+<br/>
+По окончании таблица pgbench_accounts всё еще весит ~ 83Гб (думаю, моему диску не хватает скорости, чтобы справиться с pgbench, перемещением и vacuum).<br/>
+<br/>
+Но я проверил и, похоже, что все строки переместились в партиции: <br/>
+<br/>
+<pre><code class="sql">$ select count(*) from only pgbench_accounts;
+ count 
+-------
+     0
+(1 row)
+</code></pre><br/>
+Как насчет скорости pgbench во время процесса перемещения?<br/>
+<br/>
+Было 4 фазы:<br/>
+<br/>
+<ol>
+<li>До начала работы по перемещению.</li>
+<li>После создания партиций.</li>
+<li>После создания триггера.</li>
+<li>Во время перемещения.</li>
+</ol><br/>
+Результаты? <br/>
+<br/>
+<pre><code class="sql">  phase  |    min    |       avg        |    max    
+---------+-----------+------------------+-----------
+ Phase 1 | 28.662223 | 64.0359512839506 | 87.219148
+ Phase 2 | 21.147816 | 56.2721418360656 | 75.967217
+ Phase 3 | 23.868018 | 58.6375074477612 | 75.335558
+ Phase 4 |  5.222364 | 23.6086916565574 | 65.770852
+(4 rows)
+</code></pre><br/>
+Да, перемещение всё замедлило. Но отметьте, пожалуйста, что это обычный персональный компьютер с SATA дисками, а не SSD, постоянно находящийся под высокой нагрузкой – pgbench прогонял запросы так быстро, как мог.<br/>
+<br/>
+Кроме того, некоторое замедление произошло из-за того, что vacuum не слишком хорошо справляется с удалениями. По-моему, результат абсолютно приемлемый.<br/>
+<br/>
+По окончании я мог бы сделать:<br/>
+<br/>
+<pre><code class="sql">$ truncate only pgbench_accounts;
+</code></pre><br/>
+И потом, чтобы проверить, всё ли ОК: <br/>
+<br/>
+<pre><code class="sql">$ select count(*) from pgbench_accounts;
+   count   
+-----------
+ 666600000
+(1 row)
+</code></pre><br/>
+Всё это было проделано без каких-либо ошибок и без прерывания работы «настоящего приложения».<br/>
+<br/>
+В конце добавлю, что партиционирование скоро (относительно) станет ещё круче. С недавних пор <a href="http://www.depesz.com/2015/04/02/waiting-for-9-5-allow-foreign-tables-to-participate-in-inheritance/">мы можем хранить партиции на разных серверах</a>. И сейчас ведется работа (хотя вряд ли это обновление появится раньше версии 9.6) над тем, чтобы дать возможность проводить параллельные сканирования, что существенно улучшит весь процесс.<br/>
+<br/>
+Надеюсь, этот текст будет вам полезен.<br/>
+<br/>
+<i>Какие еще аспекты партиционирования таблиц в PostgreSQL вы бы хотели обсудить? Будем рады дополнить программу докладов конференции <a href="http://pgday.ru/ru/2016/request/registration?utm_source=habrahabr&amp;utm_medium=post&amp;utm_campaign=habr_partitioning">PG Day'16 Russia</a> наиболее интересными для вас темами! Мы уже открыли продажи <a href="http://pgday.ru/ru/2016/request/registration?utm_source=habrahabr&amp;utm_medium=post&amp;utm_campaign=habr_partitioning">early bird билетов</a>, спешите зарегистрироваться по самой низкой цене!</i></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BSQL%5D" class="tm-tags-list__link">SQL</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BPostgreSQL%5D" class="tm-tags-list__link">PostgreSQL</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BF%D0%B0%D1%80%D1%82%D0%B8%D1%86%D0%B8%D0%BE%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%5D" class="tm-tags-list__link">партиционирование</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%81%D0%B5%D0%BA%D1%86%D0%B8%D0%BE%D0%BD%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%5D" class="tm-tags-list__link">секционирование</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BF%D0%B0%D1%80%D1%82%D0%B8%D1%86%D0%B8%D1%8F%5D" class="tm-tags-list__link">партиция</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%A1%D0%A3%D0%91%D0%94%5D" class="tm-tags-list__link">СУБД</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%88%D0%B0%D1%80%D0%B4%D0%B8%D0%BD%D0%B3%5D" class="tm-tags-list__link">шардинг</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bpartitioning%5D" class="tm-tags-list__link">partitioning</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bpartition%20table%5D" class="tm-tags-list__link">partition table</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/postgresql/" class="tm-hubs-list__link">
+    PostgreSQL
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/sql/" class="tm-hubs-list__link">
+    SQL
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 34: ↑33 и ↓1</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 34: ↑33 и ↓1" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+32</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">104K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    437
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/rdruzyagin/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_green"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 104 голоса " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    92
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><!----> <a href="https://habr.com/ru/users/rdruzyagin/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @rdruzyagin
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/273933/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 24 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner1058" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner1059" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/273933/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/273933/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"273933":{"id":"273933","timePublished":"2015-12-25T07:30:57+00:00","isCorporative":false,"lang":"ru","titleHtml":"Партиционирование в PostgreSQL – Что? Зачем? Как?","leadData":{"textHtml":"\u003Ci\u003EФункцией партиционирования таблиц в PostgreSQL, к сожалению, активно пользуются пока не многие. На мой взгляд, очень достойно о ней рассказывает в своей работе Hubert Lubaczewski (\u003Ca href=\"http:\u002F\u002Fwww.depesz.com\u002F2015\u002F06\u002F07\u002Fpartitioning-what-why-how\u002F\"\u003Edepesz.com\u003C\u002Fa\u003E). Предлагаю вам еще один перевод его статьи!\u003C\u002Fi\u003E\u003Cbr\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F030\u002Fc86\u002F70f\u002F030c8670f3c74df587363c6855546fea.png\"\u003E\u003Cbr\u003E\r\nВ последнее время я заметил, что всё чаще и чаще сталкиваюсь с кейсами, где можно было бы использовать партиционирование. И хотя, теоретически, большинство людей знает о его существовании, на самом деле эту фичу не слишком хорошо понимают, а некоторые её даже побаиваются.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nТак что я постараюсь объяснить в меру своих знаний и возможностей, что это такое, зачем его стоит использовать и как это сделать.\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"translation","data":{"originalAuthorName":"Hubert Lubaczewski","originalUrl":"http:\u002F\u002Fwww.depesz.com\u002F2015\u002F06\u002F07\u002Fpartitioning-what-why-how\u002F"}}],"author":{"scoreStats":{"score":92,"votesCount":104},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"977226","alias":"rdruzyagin","fullname":null,"avatarUrl":null,"speciality":null},"statistics":{"commentsCount":24,"favoritesCount":437,"readingCount":103923,"score":32,"votesCount":34},"hubs":[{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"358","alias":"postgresql","type":"collective","title":"PostgreSQL","titleHtml":"PostgreSQL","isProfiled":true},{"relatedData":null,"id":"594","alias":"sql","type":"collective","title":"SQL","titleHtml":"SQL","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Ci\u003EФункцией партиционирования таблиц в PostgreSQL, к сожалению, активно пользуются пока не многие. На мой взгляд, очень достойно о ней рассказывает в своей работе Hubert Lubaczewski (\u003Ca href=\"http:\u002F\u002Fwww.depesz.com\u002F2015\u002F06\u002F07\u002Fpartitioning-what-why-how\u002F\"\u003Edepesz.com\u003C\u002Fa\u003E). Предлагаю вам еще один перевод его статьи!\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F030\u002Fc86\u002F70f\u002F030c8670f3c74df587363c6855546fea.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F030\u002Fc86\u002F70f\u002F030c8670f3c74df587363c6855546fea.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\nВ последнее время я заметил, что всё чаще и чаще сталкиваюсь с кейсами, где можно было бы использовать партиционирование. И хотя, теоретически, большинство людей знает о его существовании, на самом деле эту фичу не слишком хорошо понимают, а некоторые её даже побаиваются.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак что я постараюсь объяснить в меру своих знаний и возможностей, что это такое, зачем его стоит использовать и как это сделать.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nКак вы наверняка знаете, в PostgreSQL есть таблицы, а в таблицах есть данные. Иногда это всего несколько строк, а иногда – миллиарды.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПартиционирование – это метод разделения больших (исходя из количества записей, а не столбцов) таблиц на много маленьких. И желательно, чтобы это происходило прозрачным для приложения способом.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОдной из редко используемых фич PostgreSQL является тот факт, что это объектно-реляционная база данных. И «объект» здесь ключевое слово, потому что объекты (или, скорее, классы) знают то, что называется «наследование». Именно это используется для партиционирования.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДавайте посмотрим, о чём речь.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯ создам обычную таблицу users:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ create table users (\n    id             serial primary key,\n    username       text not null unique,\n    password       text,\n    created_on     timestamptz not null,\n    last_logged_on timestamptz not null\n);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТеперь, для полноты картины, давайте добавим несколько строк и дополнительный индекс:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ insert into users (username, password, created_on, last_logged_on)\n    select\n        random_string( (random() * 4 + 5)::int4),\n        random_string( 20 ),\n        now() - '2 years'::interval * random(),\n        now() - '2 years'::interval * random()\n    from\n        generate_series(1, 10000);\n$ create index newest_users on users (created_on);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nИтак, у нас получилась тестовая таблица:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ \\d\n                                      Table \"public.users\"\n     Column     |           Type           |                     Modifiers                      \n----------------+--------------------------+----------------------------------------------------\n id             | integer                  | not null default nextval('users_id_seq'::regclass)\n username       | text                     | not null\n password       | text                     | \n created_on     | timestamp with time zone | not null\n last_logged_on | timestamp with time zone | not null\nIndexes:\n    \"users_pkey\" PRIMARY KEY, btree (id)\n    \"users_username_key\" UNIQUE CONSTRAINT, btree (username)\n    \"newest_users\" btree (created_on)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nС какими-то случайными данными: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ select * from users limit 10;\n id | username |       password       |          created_on           |        last_logged_on         \n----+----------+----------------------+-------------------------------+-------------------------------\n  1 | ityfce3  | 2ukgbflj_l2ndo3vilt2 | 2015-01-02 16:56:41.346113+01 | 2015-04-15 12:34:58.318913+02\n  2 | _xg_pv   | u8hy20aifyblg9f3_rf2 | 2014-09-27 05:41:05.317313+02 | 2014-08-07 14:46:14.197313+02\n  3 | uvi1wo   | h09ae85v_f_cx0gf6_8r | 2013-06-17 18:48:44.389313+02 | 2014-06-03 06:53:49.640513+02\n  4 | o6rgs    | vzbrkwhnsucxco5pjep0 | 2015-01-30 11:33:25.150913+01 | 2013-11-05 07:18:47.730113+01\n  5 | nk61jw77 | lidk_mnpe_olffmod7ed | 2014-06-15 07:18:34.597313+02 | 2014-03-21 17:42:44.763713+01\n  6 | 3w326_2u | pyoqg87feemojhql7jrn | 2015-01-20 05:41:54.133313+01 | 2014-09-07 20:33:23.682113+02\n  7 | m9rk9mnx | 6pvt94s6ol46kn0yl62b | 2013-07-17 15:13:36.315713+02 | 2013-11-12 10:53:06.123713+01\n  8 | adk6c    | egfp8re0z492e6ri8urz | 2014-07-23 11:41:11.883713+02 | 2013-10-22 07:19:36.200513+02\n  9 | rsyaedw  | ond0tie9er92oqhmdj39 | 2015-05-11 16:45:40.472513+02 | 2013-08-31 17:29:18.910913+02\n 10 | prlobe46 | _3br5v97t2xngcd7xz4n | 2015-01-10 20:13:29.461313+01 | 2014-05-04 06:25:56.072513+02\n(10 rows)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТеперь, когда таблица готова, я могу создать партиции, что означает – наследованные таблицы: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ create table users_1 () inherits (users);\n \n$ \\d users_1\n                                     Table \"public.users_1\"\n     Column     |           Type           |                     Modifiers                      \n----------------+--------------------------+----------------------------------------------------\n id             | integer                  | not null default nextval('users_id_seq'::regclass)\n username       | text                     | not null\n password       | text                     | \n created_on     | timestamp with time zone | not null\n last_logged_on | timestamp with time zone | not null\nInherits: users\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТаким образом, у нас получилась новая таблица, у которой есть определенные интересные свойства:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eона использует тот же sequence, что и основная таблица, для своей колонки id;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eвсе столбцы имеют одинаковое определение, включая ограничения not null;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eнет ни первичного ключа, ни ограничений уникальности для имени пользователя, ни индекса для created_on.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nДавайте попробуем ещё раз, но на этот раз с более “взрывным” эффектом: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ drop table users_1;\n$ create table users_1 ( like users including all );\n$ \\d users_1\n                                     Table \"public.users_1\"\n     Column     |           Type           |                     Modifiers                      \n----------------+--------------------------+----------------------------------------------------\n id             | integer                  | not null default nextval('users_id_seq'::regclass)\n username       | text                     | not null\n password       | text                     | \n created_on     | timestamp with time zone | not null\n last_logged_on | timestamp with time zone | not null\nIndexes:\n    \"users_1_pkey\" PRIMARY KEY, btree (id)\n    \"users_1_username_key\" UNIQUE CONSTRAINT, btree (username)\n    \"users_1_created_on_idx\" btree (created_on)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТеперь у нас есть все индексы и ограничения, но мы потеряли информацию о наследовании. Но мы можем добавить её позже с помощью: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ alter table users_1 inherit users;\n$ \\d users_1\n                                     Table \"public.users_1\"\n     Column     |           Type           |                     Modifiers                      \n----------------+--------------------------+----------------------------------------------------\n id             | integer                  | not null default nextval('users_id_seq'::regclass)\n username       | text                     | not null\n password       | text                     | \n created_on     | timestamp with time zone | not null\n last_logged_on | timestamp with time zone | not null\nIndexes:\n    \"users_1_pkey\" PRIMARY KEY, btree (id)\n    \"users_1_username_key\" UNIQUE CONSTRAINT, btree (username)\n    \"users_1_created_on_idx\" btree (created_on)\nInherits: users\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nМы могли бы сделать это в один шаг, но тогда появляются разные неприятные уведомления: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ drop table users_1;\n \n$ create table users_1 ( like users including all ) inherits (users);\nNOTICE:  merging column \"id\" with inherited definition\nNOTICE:  merging column \"username\" with inherited definition\nNOTICE:  merging column \"password\" with inherited definition\nNOTICE:  merging column \"created_on\" with inherited definition\nNOTICE:  merging column \"last_logged_on\" with inherited definition\n \n$ \\d users_1\n                                     Table \"public.users_1\"\n     Column     |           Type           |                     Modifiers                      \n----------------+--------------------------+----------------------------------------------------\n id             | integer                  | not null default nextval('users_id_seq'::regclass)\n username       | text                     | not null\n password       | text                     | \n created_on     | timestamp with time zone | not null\n last_logged_on | timestamp with time zone | not null\nIndexes:\n    \"users_1_pkey\" PRIMARY KEY, btree (id)\n    \"users_1_username_key\" UNIQUE CONSTRAINT, btree (username)\n    \"users_1_created_on_idx\" btree (created_on)\nInherits: users\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ любом случае, теперь у нас есть две таблицы – основная и первая партиция.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли я произведу какое-либо действие – выборка\u002Fобновление\u002Fудаление – с пользователями, обе таблицы будут просканированы: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ explain analyze select * from users where id = 123;\n                                                         QUERY PLAN                                                          \n-----------------------------------------------------------------------------------------------------------------------------\n Append  (cost=0.29..16.47 rows=2 width=66) (actual time=0.008..0.009 rows=1 loops=1)\n   -\u003E  Index Scan using users_pkey on users  (cost=0.29..8.30 rows=1 width=48) (actual time=0.008..0.008 rows=1 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_1_pkey on users_1  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (id = 123)\n Planning time: 0.327 ms\n Execution time: 0.031 ms\n(7 rows)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nНо если я обращусь к партиции напрямую, запрос будет выполнен только на ней: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ explain analyze select * from users_1 where id = 123;\n                                                      QUERY PLAN                                                       \n-----------------------------------------------------------------------------------------------------------------------\n Index Scan using users_1_pkey on users_1  (cost=0.15..8.17 rows=1 width=84) (actual time=0.002..0.002 rows=0 loops=1)\n   Index Cond: (id = 123)\n Planning time: 0.162 ms\n Execution time: 0.022 ms\n(4 rows)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЕсли бы мы хотели, мы могли бы обратиться только к таблице пользователей без её партиций, используя ключевое слово ONLY: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ explain analyze select * from only users where id = 123;\n                                                    QUERY PLAN                                                     \n-------------------------------------------------------------------------------------------------------------------\n Index Scan using users_pkey on users  (cost=0.29..8.30 rows=1 width=48) (actual time=0.008..0.008 rows=1 loops=1)\n   Index Cond: (id = 123)\n Planning time: 0.229 ms\n Execution time: 0.031 ms\n(4 rows)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВы могли заметить, что я сказал, что выборка\u002Fобновление\u002Fудаление работает на всех партициях. А что насчет вставок? Вставке требуется добавить куда-нибудь данные, так что она всегда работает так, как будто было использовано ONLY. Поэтому, если мне нужно добавить строку в users_1, я должен сделать так: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003EINSERT INTO users_1 ...\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВыглядит как-то не слишком хорошо, но не волнуйтесь, есть способы это обойти.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДавайте попробуем произвести настоящее партиционирование. Для начала нам нужно решить, каким будет ключ партиционирования – другими словами, по какому алгоритму будут выбираться партиции.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсть пара наиболее очевидных:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eпартиционирование по дате – например, выбирать партиции, основываясь на годе, в котором пользователь был создан;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eпартиционирование по диапазону идентификаторов – например, первый миллион пользователей, второй миллион пользователей, и так далее;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eпартиционирование по чему-нибудь другому – например, по первой букве имени пользователя.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nЕсть еще пара других, не так часто используемых вариантов, вроде «партиционирования по хэшу от имени пользователя».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПочему стоит использовать одну схему, а не другую? Давайте разберемся в их достоинствах и недостатках:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eпартиционирование по дате:\u003Cbr\u002F\u003E\r\n \u003Cul\u003E\r\n\u003Cli\u003Eдостоинства:\u003Cbr\u002F\u003E\r\n \u003Cul\u003E\r\n\u003Cli\u003Eлегко понять;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eколичество строк в данной таблице будет достаточно стабильным;\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003Cli\u003Eнедостатки: \u003Cbr\u002F\u003E\r\n \u003Cul\u003E\r\n\u003Cli\u003Eтребует поддержки – время от времени нам придётся добавлять новые партиции;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eпоиск по имени пользователя или id потребует сканирования всех партиций;\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003Cli\u003Eпартиционирование по id:\u003Cbr\u002F\u003E\r\n \u003Cul\u003E\r\n\u003Cli\u003Eдостоинства:\u003Cbr\u002F\u003E\r\n \u003Cul\u003E\r\n\u003Cli\u003Eлегко понять;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eколичество строк в партиции будет на 100% стабильным;\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003Cli\u003Eнедостатки: \u003Cbr\u002F\u003E\r\n \u003Cul\u003E\r\n\u003Cli\u003Eтребует поддержки – время от времени нам придётся добавлять новые партиции;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eпоиск по имени пользователя или id потребует сканирования всех партиций;\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003Cli\u003Eпартиционирование по первой букве имени пользователя: \u003Cbr\u002F\u003E\r\n \u003Cul\u003E\r\n\u003Cli\u003Eдостоинства:\u003Cbr\u002F\u003E\r\n \u003Cul\u003E\r\n\u003Cli\u003Eлегко понять;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eникакой поддержки – есть строго определенный набор партиций и нам никогда не придется добавлять новые;\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003Cli\u003Eнедостатки: \u003Cbr\u002F\u003E\r\n \u003Cul\u003E\r\n\u003Cli\u003Eколичество строк в партициях будет стабильно расти;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eв некоторых партициях будет существенно больше строк, чем в других (больше людей с никами, начинающимися на “t*\", чем на “y*\");\u003C\u002Fli\u003E\r\n\u003Cli\u003Eпоиск по id потребует сканирования всех партиций;\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003Cli\u003Eпартиционирование по хэшу имени пользователя: \u003Cbr\u002F\u003E\r\n \u003Cul\u003E\r\n\u003Cli\u003Eдостоинства:\u003Cbr\u002F\u003E\r\n \u003Cul\u003E\r\n\u003Cli\u003Eникакой поддержки – есть строго определенный набор партиций и нам никогда не придется добавлять новые;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eстроки будут равно распределяться между партициями;\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003Cli\u003Eнедостатки: \u003Cbr\u002F\u003E\r\n \u003Cul\u003E\r\n\u003Cli\u003Eколичество строк в партициях будет стабильно расти;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eпоиск по id потребует сканирования всех партиций;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eпоиск по имени пользователя будет сканировать только одну партицию, но только при использовании дополнительных условий.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nПоследний недостаток подхода с хэшированными именами пользователей весьма интересен. Давайте посмотрим, что там происходит.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля начала мне нужно создать побольше партиций: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ create table users_2 ( like users including all );\n$ alter table users_2 inherit users;\n...\n$ create table users_10 ( like users including all );\n$ alter table users_10 inherit users;\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТеперь у таблицы users есть 10 партиций:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ \\d users\n                                      Table \"public.users\"\n     Column     |           Type           |                     Modifiers                      \n----------------+--------------------------+----------------------------------------------------\n id             | integer                  | not null default nextval('users_id_seq'::regclass)\n username       | text                     | not null\n password       | text                     | \n created_on     | timestamp with time zone | not null\n last_logged_on | timestamp with time zone | not null\nIndexes:\n    \"users_pkey\" PRIMARY KEY, btree (id)\n    \"users_username_key\" UNIQUE CONSTRAINT, btree (username)\n    \"newest_users\" btree (created_on)\nNumber of child tables: 10 (Use \\d+ to list them.)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ PostgreSQL есть опция constraint_exclusion. И если её настроить на «on» или «partition», PostgreSQL будет пропускать партиции, которые не могут содержать совпадающие строки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ моём Pg это установлено по умолчанию:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ show constraint_exclusion;\n constraint_exclusion \n----------------------\n partition\n(1 row)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nИтак, поскольку у всех моих партиций и базовой таблицы нет никаких осмысленных ограничений, так что любой запрос будет сканировать сразу все 11 таблиц (основную и 10 партиций): \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ explain analyze select * from users where id = 123;\n                                                          QUERY PLAN                                                           \n-------------------------------------------------------------------------------------------------------------------------------\n Append  (cost=0.29..89.98 rows=11 width=81) (actual time=0.009..0.013 rows=1 loops=1)\n   -\u003E  Index Scan using users_pkey on users  (cost=0.29..8.30 rows=1 width=48) (actual time=0.007..0.007 rows=1 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_1_pkey on users_1  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_2_pkey on users_2  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_3_pkey on users_3  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_4_pkey on users_4  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_5_pkey on users_5  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_6_pkey on users_6  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_7_pkey on users_7  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_8_pkey on users_8  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_9_pkey on users_9  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_10_pkey on users_10  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)\n         Index Cond: (id = 123)\n Planning time: 1.321 ms\n Execution time: 0.087 ms\n(25 rows)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭто не слишком эффективно, но мы можем поставить ограничение.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДопустим, наши партиции были сформированы методом партиционирования по id, и в каждой партиции хранится 100,000 идентификаторов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМы можем добавить несколько ограничений: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ alter table users_1 add constraint partition_check check (id \u003E= 0 and id &lt; 100000);\n$ alter table users_2 add constraint partition_check check (id \u003E= 100000 and id &lt; 200000);\n...\n$ alter table users_10 add constraint partition_check check (id \u003E= 900000 and id &lt; 1000000);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТеперь повторяем предыдущий запрос: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ explain analyze select * from users where id = 123;\n                                                         QUERY PLAN                                                          \n-----------------------------------------------------------------------------------------------------------------------------\n Append  (cost=0.29..16.47 rows=2 width=66) (actual time=0.008..0.009 rows=1 loops=1)\n   -\u003E  Index Scan using users_pkey on users  (cost=0.29..8.30 rows=1 width=48) (actual time=0.008..0.009 rows=1 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_1_pkey on users_1  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)\n         Index Cond: (id = 123)\n Planning time: 1.104 ms\n Execution time: 0.031 ms\n(7 rows)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nОн сканирует только 2 таблицы: основную (в которой сейчас находятся все данные, и нет ограничений, так что её нельзя исключить) и подходящую партицию.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗдорово, правда?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМы можем без проблем добавить подобные условия партиционирования по имени пользователя или created_on. Но посмотрите, что происходит, когда ключ партиционирования более сложный: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ alter table users_1 drop constraint partition_check, add constraint partition_check check (abs( hashtext(username) ) % 10 = 0);\n$ alter table users_2 drop constraint partition_check, add constraint partition_check check (abs( hashtext(username) ) % 10 = 1);\n...\n$ alter table users_10 drop constraint partition_check, add constraint partition_check check (abs( hashtext(username) ) % 10 = 9);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nНа случай, если вы не в курсе, hashtext() берет строку и возвращает целое число в диапазоне от -2147483648 до 2147483647.\u003Cbr\u002F\u003E\r\nБлагодаря простой арифметике мы знаем, что abs(hashtext(string)) % 10 всегда будет выдавать значение в диапазоне 0..9, и его легко посчитать для любого параметра.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗнает ли об этом PostgreSQL? \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ explain analyze select * from users where username = 'depesz';\n                                                              QUERY PLAN                                                               \n---------------------------------------------------------------------------------------------------------------------------------------\n Append  (cost=0.29..89.98 rows=11 width=81) (actual time=0.023..0.023 rows=0 loops=1)\n   -\u003E  Index Scan using users_username_key on users  (cost=0.29..8.30 rows=1 width=48) (actual time=0.016..0.016 rows=0 loops=1)\n         Index Cond: (username = 'depesz'::text)\n   -\u003E  Index Scan using users_1_username_key on users_1  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)\n         Index Cond: (username = 'depesz'::text)\n   -\u003E  Index Scan using users_2_username_key on users_2  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (username = 'depesz'::text)\n   -\u003E  Index Scan using users_3_username_key on users_3  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (username = 'depesz'::text)\n   -\u003E  Index Scan using users_4_username_key on users_4  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)\n         Index Cond: (username = 'depesz'::text)\n   -\u003E  Index Scan using users_5_username_key on users_5  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (username = 'depesz'::text)\n   -\u003E  Index Scan using users_6_username_key on users_6  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)\n         Index Cond: (username = 'depesz'::text)\n   -\u003E  Index Scan using users_7_username_key on users_7  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (username = 'depesz'::text)\n   -\u003E  Index Scan using users_8_username_key on users_8  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (username = 'depesz'::text)\n   -\u003E  Index Scan using users_9_username_key on users_9  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)\n         Index Cond: (username = 'depesz'::text)\n   -\u003E  Index Scan using users_10_username_key on users_10  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (username = 'depesz'::text)\n Planning time: 1.092 ms\n Execution time: 0.095 ms\n(25 rows)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nНет. Не знает. По сути, PostgreSQL может сделать автоматическое исключение партиций только для проверок, основанных на диапазоне (или равенстве). Ничего основанного на функциях. Даже простой модуль от числа – это уже перебор: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ alter table users_1 drop constraint partition_check, add constraint partition_check check ( id % 10 = 0);\n$ alter table users_2 drop constraint partition_check, add constraint partition_check check ( id % 10 = 1);\n...\n$ alter table users_10 drop constraint partition_check, add constraint partition_check check ( id % 10 = 9);\n$ explain analyze select * from users where id = 123;\n                                                          QUERY PLAN                                                           \n-------------------------------------------------------------------------------------------------------------------------------\n Append  (cost=0.29..89.98 rows=11 width=81) (actual time=0.009..0.016 rows=1 loops=1)\n   -\u003E  Index Scan using users_pkey on users  (cost=0.29..8.30 rows=1 width=48) (actual time=0.009..0.009 rows=1 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_1_pkey on users_1  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_2_pkey on users_2  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_3_pkey on users_3  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_4_pkey on users_4  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_5_pkey on users_5  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_6_pkey on users_6  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_7_pkey on users_7  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_8_pkey on users_8  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_9_pkey on users_9  (cost=0.15..8.17 rows=1 width=84) (actual time=0.000..0.000 rows=0 loops=1)\n         Index Cond: (id = 123)\n   -\u003E  Index Scan using users_10_pkey on users_10  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (id = 123)\n Planning time: 0.973 ms\n Execution time: 0.086 ms\n(25 rows)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭто печально. Потому что у ключей партиционирования, основанных на модулях чисел, есть одно огромное (на мой взгляд) преимущество – стабильное число партиций. Вам не придется создавать их в будущем, если только вы не надумаете произвести партиционирование заново при достижении какого-то более высокого объема данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗначит ли это, что вы не можете использовать сложные (основанные на функциях или модулях от чисел) ключи партиционирования? Нет. Вы можете использовать их, но тогда запросы получатся более сложными: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ explain analyze select * from users where id = 123 and id % 10 = 123 % 10;\n                                                         QUERY PLAN                                                          \n-----------------------------------------------------------------------------------------------------------------------------\n Append  (cost=0.29..16.48 rows=2 width=66) (actual time=0.010..0.011 rows=1 loops=1)\n   -\u003E  Index Scan using users_pkey on users  (cost=0.29..8.31 rows=1 width=48) (actual time=0.010..0.010 rows=1 loops=1)\n         Index Cond: (id = 123)\n         Filter: ((id % 10) = 3)\n   -\u003E  Index Scan using users_4_pkey on users_4  (cost=0.15..8.17 rows=1 width=84) (actual time=0.001..0.001 rows=0 loops=1)\n         Index Cond: (id = 123)\n         Filter: ((id % 10) = 3)\n Planning time: 1.018 ms\n Execution time: 0.033 ms\n(9 rows)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗдесь я добавил еще одно условие, вот такое: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003Eid % 10 = 123 % 10\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nPostgreSQL может в процессе разбора выражения переписать его: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003Eid % 10 = 3\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nпотому что он знает, что оператор % для целых чисел является иммутабельным. И теперь, как часть запроса, у меня есть точный ключ партиционирования – id % 10 = 3. Таким образом, Pg может использовать только те партиции, у которых либо нет ключа партиционирования (то есть, базовую таблицу), либо есть ключ, соответствующий запросу.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСтоит ли вводить дополнительное усложнение – решать вам.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли вы предпочитаете не менять запросы, и вас не затруднит добавлять новые партиции время от времени, то вам стоит ознакомиться с \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fkeithf4\u002Fpg_partman\"\u003EPG Partition Manger\u003C\u002Fa\u003E, написанным моим бывшим коллегой Keith Fiske – это набор функций, которые вы запускаете вручную для определения партиций, и еще одна, которую вы запускаете по крону, и она берет на себя создание новых партиций для будущих данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯ уже упоминал вставки, но не объяснил, как обойти проблему с вставками, которые должны добавиться к партициям.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ целом, это работа для триггера. Pg_partman от Кита создает такие триггеры за вас, но я хочу, чтобы вы понимали, что происходит, и не использовали pg_partman как «черный ящик», а скорее как вспомогательный инструмент, который делает нудную работу за вас.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСейчас моя схема партиционирования основана на модуле от числа (насколько я знаю, partman так сделать не может), так что давайте напишем подходящую функцию триггера. Она будет вызываться при вставке данных в таблицу users и должна без ошибок перенаправлять вставку в соответствующую партицию. Итак, пишем: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ create function partition_for_users() returns trigger as $$\nDECLARE\n    v_parition_name text;\nBEGIN\n    v_parition_name := format( 'users_%s', 1 + NEW.id % 10 );\n    execute 'INSERT INTO ' || v_parition_name || ' VALUES ( ($1).* )' USING NEW;\n    return NULL;\nEND;\n$$ language plpgsql;\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nА теперь определение триггера: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ create trigger partition_users before insert on users for each row execute procedure partition_for_users();\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПопробуем добавить строку: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ insert into users (username, password, created_on, last_logged_on)\n    values (\n        'depesz',\n        random_string( 20 ),\n        now() - '2 years'::interval * random(),\n        now() - '2 years'::interval * random()\n    );\n$ select currval('users_id_seq');\n currval \n---------\n   10003\n(1 row)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПосмотрим, видны ли данные: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ select * from users where username = 'depesz';\n  id   | username |       password       |          created_on           |        last_logged_on         \n-------+----------+----------------------+-------------------------------+-------------------------------\n 10003 | depesz   | bp7zwy8k3t3a37chf1hf | 2014-10-24 02:45:51.398824+02 | 2015-02-05 18:24:57.072424+01\n(1 row)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВыглядит хорошо, но где они находятся? В основной таблице? \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ select * from only users where username = 'depesz';\n id | username | password | created_on | last_logged_on \n----+----------+----------+------------+----------------\n(0 rows)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nНет. Так может, в нужной партиции? \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ select * from users_4 where username = 'depesz';\n  id   | username |       password       |          created_on           |        last_logged_on         \n-------+----------+----------------------+-------------------------------+-------------------------------\n 10003 | depesz   | bp7zwy8k3t3a37chf1hf | 2014-10-24 02:45:51.398824+02 | 2015-02-05 18:24:57.072424+01\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДа. Триггер сработал. Но у этого метода есть один недостаток. А именно – “RETURNING\" не работает: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ insert into users (username, password, created_on, last_logged_on)\n    values (\n        'test',\n        random_string( 20 ),\n        now() - '2 years'::interval * random(),\n        now() - '2 years'::interval * random()\n    )\n    returning *;\n id | username | password | created_on | last_logged_on \n----+----------+----------+------------+----------------\n(0 rows)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТак происходит, потому что, с точки зрения исполнителя, вставка ничего не вернула – триггер вернул NULL.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМне пока не удалось найти удачное решение этой проблемы. В своих кейсах я просто предпочитаю получать первоначальное значение ключа заранее, используя nextval(), а потом вставляю готовое значение – так что оно уже имеется после вставки: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ select nextval('users_id_seq');\n nextval \n---------\n   10005\n(1 row)\n \n$ insert into users (id, username, password, created_on, last_logged_on)\n    values (\n        10005,\n        'test',\n        random_string( 20 ),\n        now() - '2 years'::interval * random(),\n        now() - '2 years'::interval * random()\n    );\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКо всему этому есть одно уточнение. Маршрутизация всех вставок через триггер замедляет их, ведь для каждой строки PG нужно будет выполнять еще один “insert\".\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля срочных объемных вставок лучшим решением будет заставить их работать напрямую с партициями. Поэтому, например, вместо \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003ECOPY users FROM stdin;\n....\n\\.\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nвы предварительно выясняете, сколько идентификаторов вам нужно, к примеру, вот таким способом: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003Eselect nextval('users_id_seq') from generate_series(1, 100);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nА потом выдаете подходящие: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003ECOPY users_p1 FROM stdin;\n....\n\\.\nCOPY users_p2 FROM stdin;\n....\n\\.\n...\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nНе самый удобный способ, но он может быть полезен, если вы импортируете большие объемы данных в партиционированные таблицы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИтак, теперь вы должны понимать, что такое партиционирование, и как оно работает. Следующий вопрос в заголовке был: зачем?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОтветить на него относительно легко: для обеспечения производительности или упрощения обслуживания.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ качестве простого примера, возьмем таблицу users, в которой 1 миллиард строк (1,000,000,000).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоиск в ней будет прогрессивно дорожать даже с учётом индексирования, просто потому, что глубина индексов будет расти.\u003Cbr\u002F\u003E\r\nЭто видно даже в моей маленькой тестовой таблице.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДавайте сбросим все партиции и триггер партиционирования: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ drop table users_1;\n$ drop table users_2;\n...\n$ drop table users_10;\n$ drop trigger partition_users on users;\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТеперь в таблице users 10,000 строк. Простой поиск по имени пользователя занимает 0.020мс – это лучшее время из трех попыток.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли я добавлю больше строк: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ insert into users (username, password, created_on, last_logged_on)\n    select\n        random_string( (random() * 4 + 5)::int4),\n        random_string( 20 ),\n        now() - '2 years'::interval * random(),\n        now() - '2 years'::interval * random()\n    from\n        generate_series(1, 100000);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nтот же поиск займёт 0.025мс. Увеличение времени поиска на 0.005мс может быть небольшим, но у нас по-прежнему всего лишь 110,000 строк, и в системе нет других таблиц, так что вся таблица с индексами помещается в память.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКонечно, ваше партиционирование должно быть осмысленным. Например, если вы обычно осуществляете поиск по имени пользователя, то бессмысленно делать партиционирование по id – Pg придется искать по всем партициям (это может стать осмысленным в будущем, но об этом я расскажу в самом конце статьи).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТо есть вам нужно определиться с тем, что вы обычно запрашиваете – будь то поиск по какому-то ключу или, возможно, вы обычно просматриваете только свежие данные? И партиционировать таким образом, чтобы ограничить количество партиций, которые Pg нужно просканировать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВажно то, что партиционирование делает вашу жизнь проще, особенно если вы в большей степени администратор баз данных, нежели программист. Любые задачи по техобслуживанию (создание индекса, vacuum, pg_reorg\u002Fpg_repack, pg_dump) могут быть эффективно разбиты на столько подзадач, сколько у вас имеется партиций. Так что вместо одной многочасовой транзакции для переупаковки большой таблицы у вас будет 20 гораздо более быстрых и использующих меньше места на диске транзакций, а результат, в целом, окажется тем же самым!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКонечно, хорошими новостями дело не ограничивается. В партиционировании есть один большой недостаток: у вас не может быть внешних ключей, указывающих на партиционированную таблицу.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто просто не работает. Вы могли бы завести внешние ключи, указывающие прямо на партиции, но это (обычно) является бессмысленным.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nБольшая ли это проблема лично для вас, зависит от вашего юзкейса. Мне кажется, что в большинстве случаев, когда мы достигаем таблиц достаточно больших для того, чтобы партиционирование было оправдано, приложение протестировано достаточно хорошо, и мы можем смириться с отсутствием внешнего ключа. К тому же, мы всегда можем добавить задачу в крон для тестирования наличия «плохих» значений.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТеперь мы знаем, что такое партиционирование, как оно работает и зачем используется. Остался последний вопрос: как преобразовать таблицу в партиционированную. Обычно, приложение не создается с партиционированными таблицами – в начале это не имеет смысла. Но, вскоре, у вас появится какая-нибудь таблица с множеством строк и вы подумаете: «Надо было партиционировать её сразу при создании».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо может быть, мы всё ещё можем её партиционировать, когда приложение уже работает? С минимумом проблем?\u003Cbr\u002F\u003E\r\nДавайте посмотрим. Для теста я создал базу данных pgbench на 97 ГБ. Большая её часть, 83 ГБ, находится в таблице pgbench_accounts, которая содержит 666,600,000 записей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСхема у этой таблицы вот такая: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E   Table \"public.pgbench_accounts\"\n  Column  |     Type      | Modifiers \n----------+---------------+-----------\n aid      | integer       | not null\n bid      | integer       | \n abalance | integer       | \n filler   | character(84) | \nIndexes:\n    \"pgbench_accounts_pkey\" PRIMARY KEY, btree (aid)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nИ все запросы к ней основываются на колонке aid, которая содержит значения от 1 до 666,600,000.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак что давайте партиционируем её, основываясь на диапазоне значений aid.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДопустим, я помещу в каждую партицию 10 миллионов строк, тогда мне потребуется 67 партиций.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо как я могу проверить, что мои действия не нарушат работу? Очень просто. Я запущу pgbench в цикле. Мне не интересны точные отчеты о скоростях, достаточно информации о том, как сильно моя работа влияет на то, что делает pgbench.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nС этими мыслями я запустил функцию: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ while true\ndo\n    date\n    pgbench -T 10 -c 2 bench\ndone 2\u003E&amp;1 | tee pgbench.log\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nОна будет прогонять 10-секундные тесты и сохранять статистические данные в файл, так что я смогу позже проследить взаимосвязь результата с моей работой по партиционированию.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКогда всё готово, я создам партиции с проверками в нужных местах: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003Edo $$\ndeclare\n    i int4;\n    aid_min INT4;\n    aid_max INT4;\nbegin\n    for i in 1..67\n    loop\n        aid_min := (i - 1) * 10000000 + 1;\n        aid_max := i * 10000000;\n        execute format('CREATE TABLE pgbench_accounts_p_%s ( like pgbench_accounts including all )', i );\n        execute format('ALTER TABLE pgbench_accounts_p_%s inherit pgbench_accounts', i);\n        execute format('ALTER TABLE pgbench_accounts_p_%s add constraint partitioning_check check ( aid \u003E= %s AND aid &lt;= %s )', i, aid_min, aid_max );\n    end loop;\nend;\n$$;\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nпартиции готовы, и я могу убедиться, что проверки используются: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ explain analyze select * from pgbench_accounts where aid = 123;\n                                                                       QUERY PLAN                                                                       \n--------------------------------------------------------------------------------------------------------------------------------------------------------\n Append  (cost=0.57..16.75 rows=2 width=224) (actual time=6.468..6.473 rows=1 loops=1)\n   -\u003E  Index Scan using pgbench_accounts_pkey on pgbench_accounts  (cost=0.57..8.59 rows=1 width=97) (actual time=6.468..6.469 rows=1 loops=1)\n         Index Cond: (aid = 123)\n   -\u003E  Index Scan using pgbench_accounts_p_1_pkey on pgbench_accounts_p_1  (cost=0.14..8.16 rows=1 width=352) (actual time=0.004..0.004 rows=0 loops=1)\n         Index Cond: (aid = 123)\n Planning time: 3.475 ms\n Execution time: 6.497 ms\n(7 rows)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТеперь нужно добавить триггер-”маршрутизатор”:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ create function partition_for_accounts() returns trigger as $$\nDECLARE\n    v_parition_name text;\nBEGIN\n    v_parition_name := format( 'pgbench_accounts_p_%s', 1 + ( NEW.aid - 1 ) \u002F 10000000 );\n    execute 'INSERT INTO ' || v_parition_name || ' VALUES ( ($1).* )' USING NEW;\n    return NULL;\nEND;\n$$ language plpgsql;\n \n$ create trigger partition_users before insert on pgbench_accounts for each row execute procedure partition_for_accounts();\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭто всё замечательно, но он сработает только для свежевставленных строк, а у меня уже 666 миллионов строк в исходной таблице. Что же с этим делать?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМне нужно их переместить. Это относительно просто в теории, но есть пара подводных камней:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EНи в коем случае обе строки не должны быть одновременно видимы ни для каких транзакций (то есть, из основной таблицы и из партиции). \u003C\u002Fli\u003E\r\n\u003Cli\u003EЯ не могу удалить все строки и вставить их в партиции, потому что это заблокирует всю базовую таблицу на время перемещения.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nВторую проблему можно смягчить, если работать с партиями данных. Но мы не можем использовать для этого SQL.\u003Cbr\u002F\u003E\r\nВремя от времени кто-нибудь спрашивает о том, как разделить большую операцию на порции и вызывать её одной функцией sql, которая будет итеративно обрабатывать порции данных. У этого подхода есть одна фундаментальная проблема: вызов функции – это транзакция. Поэтому всё, что делает эта функция, будет происходить в одной транзакции. Так что проблема блокировки не решается.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо мы можем использовать для этого psql (или ruby, perl, python – не важно), перемещая с каждой порцией лишь небольшое количество строк и, таким образом, блокируя основную таблицу на короткий момент времени.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ целом, единичный запрос будет выглядеть так: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003Ewith x as (delete from only pgbench_accounts where aid between .. and .. returning *)\ninsert into appropriate_partition select * from x;\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЯ выбрал размер порции – 1000, это достаточно малое значение, чтобы процесс не затянулся, и достаточно большое, чтобы итоговое количество порций не было чрезмерным (666 тысяч).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТеперь давайте создадим пакетный файл: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E\\pset format unaligned\n\\pset tuples_only true\n\\o \u002Ftmp\u002Frun.batch.migration.sql\nSELECT\n    format(\n        'with x as (DELETE FROM ONLY pgbench_accounts WHERE aid \u003E= %s AND aid &lt;= %s returning *) INSERT INTO pgbench_accounts_p_%s SELECT * FROM x;',\n        i,\n        i + 999,\n        ( i - 1 ) \u002F 10000000 + 1\n    )\nFROM\n    generate_series( 1, 666600000, 1000 ) i;\n\\o\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКогда я запустил это в psql, он создал файл \u002Ftmp\u002Frun.batch.migration.sql, который достаточно объемен (97 ГБ), поскольку содержит 666,600 запросов, подобных этим:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003Ewith x as (DELETE FROM ONLY pgbench_accounts WHERE aid \u003E= 1 AND aid &lt;= 1000 returning *) INSERT INTO pgbench_accounts_p_1 SELECT * FROM x;\nwith x as (DELETE FROM ONLY pgbench_accounts WHERE aid \u003E= 1001 AND aid &lt;= 2000 returning *) INSERT INTO pgbench_accounts_p_1 SELECT * FROM x;\nwith x as (DELETE FROM ONLY pgbench_accounts WHERE aid \u003E= 2001 AND aid &lt;= 3000 returning *) INSERT INTO pgbench_accounts_p_1 SELECT * FROM x;\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТеперь, когда всё подготовлено, я могу запустить процесс (конечно, с помощью «screen» или в «tmux», чтобы ничего не потерялось, если ssh соединение с сервером оборвется): \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ psql -d bench -f \u002Ftmp\u002Frun.batch.migration.sql\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭто займет некоторое время. В случае с моей тестовой базой данных средний пакет обрабатывается за ~ 92мс, а значит, у меня впереди 17 часов перемещения данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ реальности ушло всего 7 часов. Неплохо. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПо окончании таблица pgbench_accounts всё еще весит ~ 83Гб (думаю, моему диску не хватает скорости, чтобы справиться с pgbench, перемещением и vacuum).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо я проверил и, похоже, что все строки переместились в партиции: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ select count(*) from only pgbench_accounts;\n count \n-------\n     0\n(1 row)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКак насчет скорости pgbench во время процесса перемещения?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nБыло 4 фазы:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EДо начала работы по перемещению.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПосле создания партиций.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПосле создания триггера.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВо время перемещения.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nРезультаты? \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E  phase  |    min    |       avg        |    max    \n---------+-----------+------------------+-----------\n Phase 1 | 28.662223 | 64.0359512839506 | 87.219148\n Phase 2 | 21.147816 | 56.2721418360656 | 75.967217\n Phase 3 | 23.868018 | 58.6375074477612 | 75.335558\n Phase 4 |  5.222364 | 23.6086916565574 | 65.770852\n(4 rows)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДа, перемещение всё замедлило. Но отметьте, пожалуйста, что это обычный персональный компьютер с SATA дисками, а не SSD, постоянно находящийся под высокой нагрузкой – pgbench прогонял запросы так быстро, как мог.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКроме того, некоторое замедление произошло из-за того, что vacuum не слишком хорошо справляется с удалениями. По-моему, результат абсолютно приемлемый.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПо окончании я мог бы сделать:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ truncate only pgbench_accounts;\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nИ потом, чтобы проверить, всё ли ОК: \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003E$ select count(*) from pgbench_accounts;\n   count   \n-----------\n 666600000\n(1 row)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВсё это было проделано без каких-либо ошибок и без прерывания работы «настоящего приложения».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ конце добавлю, что партиционирование скоро (относительно) станет ещё круче. С недавних пор \u003Ca href=\"http:\u002F\u002Fwww.depesz.com\u002F2015\u002F04\u002F02\u002Fwaiting-for-9-5-allow-foreign-tables-to-participate-in-inheritance\u002F\"\u003Eмы можем хранить партиции на разных серверах\u003C\u002Fa\u003E. И сейчас ведется работа (хотя вряд ли это обновление появится раньше версии 9.6) над тем, чтобы дать возможность проводить параллельные сканирования, что существенно улучшит весь процесс.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНадеюсь, этот текст будет вам полезен.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ci\u003EКакие еще аспекты партиционирования таблиц в PostgreSQL вы бы хотели обсудить? Будем рады дополнить программу докладов конференции \u003Ca href=\"http:\u002F\u002Fpgday.ru\u002Fru\u002F2016\u002Frequest\u002Fregistration?utm_source=habrahabr&amp;utm_medium=post&amp;utm_campaign=habr_partitioning\"\u003EPG Day'16 Russia\u003C\u002Fa\u003E наиболее интересными для вас темами! Мы уже открыли продажи \u003Ca href=\"http:\u002F\u002Fpgday.ru\u002Fru\u002F2016\u002Frequest\u002Fregistration?utm_source=habrahabr&amp;utm_medium=post&amp;utm_campaign=habr_partitioning\"\u003Eearly bird билетов\u003C\u002Fa\u003E, спешите зарегистрироваться по самой низкой цене!\u003C\u002Fi\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"SQL"},{"titleHtml":"PostgreSQL"},{"titleHtml":"партиционирование"},{"titleHtml":"секционирование"},{"titleHtml":"партиция"},{"titleHtml":"СУБД"},{"titleHtml":"шардинг"},{"titleHtml":"partitioning"},{"titleHtml":"partition table"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F273933\u002F85985883cb41f431602a7be510c9954b\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F273933\u002F85985883cb41f431602a7be510c9954b\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F273933\\\u002F\"},\"headline\":\"Партиционирование в PostgreSQL – Что? Зачем? Как?\",\"datePublished\":\"2015-12-25T10:30:57+03:00\",\"dateModified\":\"2017-11-22T14:42:45+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"rdruzyagin\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Функцией партиционирования таблиц в PostgreSQL, к сожалению, активно пользуются пока не многие. На мой взгляд, очень достойно о ней рассказывает в своей работе H...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F273933\\\u002F#post-content-body\",\"about\":[\"h_webdev\",\"h_postgresql\",\"h_sql\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F273933\\\u002F85985883cb41f431602a7be510c9954b\\\u002F\"]}","metaDescription":"Функцией партиционирования таблиц в PostgreSQL, к сожалению, активно пользуются пока не многие. На мой взгляд, очень достойно о ней рассказывает в своей работе Hubert Lubaczewski (depesz.com)....","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":"webdev,postgresql,sql"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Игра в прятки с оптимизатором. Гейм овер, это CTE PostgreSQL 12 / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/postgrespro\/blog\/451344\/"},"headline":"Игра в прятки с оптимизатором. Гейм овер, это CTE PostgreSQL 12","datePublished":"2019-06-13T14:42:10+03:00","dateModified":"2019-06-17T13:29:06+03:00","author":{"@type":"Person","name":"Igor_Le"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Эта статья &mdash; продолжение рассказа о новом в PostgreSQL 12. Мы уже разобрали SQL\/JSON (патч JSONPath) в статье &laquo;Что заморозили на feature freeze 2019. Часть I.","url":"https:\/\/habr.com\/ru\/company\/postgrespro\/blog\/451344\/#post-content-body","about":["c_postgrespro","h_postgresql","f_develop"],"image":["https:\/\/habrastorage.org\/webt\/lx\/r3\/ps\/lxr3psy9oebq4i01moowesbn_mq.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Игра в прятки с оптимизатором. Гейм овер, это CTE PostgreSQL 12" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Игра в прятки с оптимизатором. Гейм овер, это CTE PostgreSQL 12" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Игра в прятки с оптимизатором. Гейм овер, это CTE PostgreSQL 12" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Эта статья — продолжение рассказа о новом в PostgreSQL 12. Мы уже разобрали SQL/JSON (патч JSONPath) в статье «Что заморозили на feature freeze 2019. Часть I. JSONPath», теперь очередь..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Эта статья — продолжение рассказа о новом в PostgreSQL 12. Мы уже разобрали SQL/JSON (патч JSONPath) в статье «Что заморозили на feature freeze 2019. Часть I. JSONPath», теперь очередь..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Эта статья — продолжение рассказа о новом в PostgreSQL 12. Мы уже разобрали SQL/JSON (патч JSONPath) в статье «Что заморозили на feature freeze 2019. Часть I. JSONPath», теперь очередь..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Эта статья — продолжение рассказа о новом в PostgreSQL 12. Мы уже разобрали SQL/JSON (патч JSONPath) в статье «Что заморозили на feature freeze 2019. Часть I. JSONPath», теперь очередь..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Эта статья — продолжение рассказа о новом в PostgreSQL 12. Мы уже разобрали SQL/JSON (патч JSONPath) в статье «Что заморозили на feature freeze 2019. Часть I. JSONPath», теперь очередь..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/451344/2411f9aadf0bcbafecc342669731c61b/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/451344/2411f9aadf0bcbafecc342669731c61b/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/451344/2411f9aadf0bcbafecc342669731c61b/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/451344/2411f9aadf0bcbafecc342669731c61b/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/451344/2411f9aadf0bcbafecc342669731c61b/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="451344" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2019-06-13T11:42:10.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/postgrespro/blog/451344/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="postgresql, postgres, dbms, субд, базы данных">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/451344/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.125.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/451344/2411f9aadf0bcbafecc342669731c61b/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="postgrespro" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><!----></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/postgrespro/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/4e0/339/621/4e0339621abc865fefb88f9e9f44748f.jpg" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">140.03</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/postgrespro/profile/" class="tm-company-card__name">
+      Postgres Professional
+    </a> <div class="tm-company-card__description">Разработчик СУБД Postgres Pro</div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/Igor_Le/" title="Igor_Le" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_pink"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/Igor_Le/" class="tm-user-info__username">
+      Igor_Le
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2019-06-13T11:42:10.000Z" title="2019-06-13, 14:42">13  июня  2019 в 14:42</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Игра в прятки с оптимизатором. Гейм овер, это CTE PostgreSQL 12</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/postgrespro/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании Postgres Professional</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/postgresql/" class="tm-article-snippet__hubs-item-link"><span>PostgreSQL</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><img src="https://habrastorage.org/r/w1560/webt/lx/r3/ps/lxr3psy9oebq4i01moowesbn_mq.png" data-src="https://habrastorage.org/webt/lx/r3/ps/lxr3psy9oebq4i01moowesbn_mq.png"/><br/>
+<br/>
+Эта статья — продолжение рассказа о новом в PostgreSQL 12. Мы уже разобрали SQL/JSON (патч JSONPath) в статье <a href="https://habr.com/ru/company/postgrespro/blog/448612/">«Что заморозили на feature freeze 2019. Часть I. JSONPath»</a>, теперь очередь CTE.<br/>
+<br/>
+<h2>CTE</h2><br/>
+CTE это Common Table Expression — общие табличные выражения, их еще называют конструкциями с WITH. Фактически это создание временных таблиц, но существующих только для одного запроса, а не для сессии. К ним можно обращаться внутри этого запроса. Такой запрос хорошо читается, он понятен, его легко видоизменять, если потребуется. Это очень востребованная вещь, и она в PostgreSQL давно.<br/>
+<br/>
+Но удобства могут обойтись дорого. Проблемы связаны с материализацией выражения после AS внутри конструкции WITH… AS (). Его еще называют внутренним выражением и вычисляют перед тем, как начать вычисление остального, его нельзя встроить в запрос верхнего уровня (no inlining). Планирование этого выражения происходит без учета остальной части запроса. Такое поведение называют барьером для оптимизации, или fencing. Кроме того, сама материализация требует под себя work_mem. И если выборка большая, то начинаются проблемы (об этом, например, есть в <a href="https://pgconf.ru/2019/242878">докладе</a> Ивана Фролкова на PGConf 2019). <br/>
+<a name="habracut"></a><br/>
+Игра в прятки с оптимизатором, которую мы разберем ниже, в целом не баг, а фича. Конечно, есть ситуации, когда предварительное вычисление части выражения избавляет, скажем, от ненужных повторных операций в рекурсивных запросах. С другой стороны, многие разработчики пользовались CTE как view, не задумываясь о том самом барьере, а в результате запросы с CTE исполнялись не просто медленнее, чем эквивалентные им (но более замысловатого вида) запросы с подзапросами, а медленней на порядки. Взвесив за и против, сообщество пошло на довольно решительный шаг: изменило поведение по умолчанию.<br/>
+<br/>
+Будем наблюдать работу CTE на такой табличке:<br/>
+<br/>
+<pre><code class="sql">CREATE TABLE xytable AS SELECT x, x AS y FROM generate_series(1,10000000) AS x;
+CREATE INDEX ON xytable(x,y);</code></pre><br/>
+<pre><code class="plaintext">Table "public.xytable"
+    Column    |  Type   |     Collation    |    Nullable    | Default
+--------------+---------+------------------+----------------+---------
+x             | integer |                  |                |
+y             | integer |                  |                |
+
+Indexes:
+"xytable_x_y_idx" btree (x, y)</code></pre><br/>
+Начнем с простенького запроса:<br/>
+<br/>
+<pre><code class="sql">SELECT * FROM xytable WHERE x=2 AND y>1;
+                                                          QUERY PLAN                                                          
+-----------------------------------------------------------------------------
+ Index Only Scan using xytable_x_y_idx on xytable  (cost=0.43..8.46 rows=1 width=8) (actual time=0.016..0.017 rows=1 loops=1)
+      Index Cond: ((x = 2) AND (y > 1))
+      Heap Fetches: 1
+ Planning Time: 0.075 ms
+ Execution Time: 0.035 ms
+(5 rows)</code></pre><br/>
+Всё считается моментально, используется только индекс.<br/>
+<br/>
+Запрос с подзапросом, вычисляющий то же самое, но с синтаксисом чуть посложней:<br/>
+<br/>
+<pre><code class="sql">SELECT * FROM
+    (SELECT * FROM xytable WHERE y>1) AS t WHERE x=2;
+                                                          QUERY PLAN                                                          
+---------------------------------------------------------------------------------
+ Index Only Scan using xytable_x_y_idx on xytable  (cost=0.43..8.46 rows=1 width=8) (actual time=0.016..0.016 rows=1 loops=1)
+   Index Cond: ((x = 2) AND (y > 1))
+   Heap Fetches: 1
+ Planning Time: 0.062 ms
+ Execution Time: 0.029 ms
+(5 rows)</code></pre><br/>
+Всё в порядке, очень быстрое вычисление по индексу.<br/>
+<br/>
+А теперь еще один логически эквивалентный запрос, но уже с CTE:<br/>
+<br/>
+<pre><code class="sql">WITH yy AS (
+     SELECT * FROM xytable WHERE y>1)
+SELECT * FROM yy WHERE x=2;
+QUERY PLAN
+------------------------------------------
+CTE Scan on yy (actual time=0.099..3672.842 rows=1 loops=1)
+   Filter: (x = 2)
+   Rows Removed by Filter: 9999998
+   CTE yy
+      -> Seq Scan on cte (actual time=0.097..1355.367 rows=9999999 loops=1)
+          Filter: (y > 1)
+          Rows Removed by Filter: 1
+ Planning Time: 0.088 ms
+ Execution Time: 3735.986 ms
+(9 rows)</code></pre><br/>
+Такая задержка видна уже и невооруженным глазом. Кофе не попьешь, но в почту заглянуть времени хватит (когда у нас 11-я версия или более ранняя).<br/>
+<br/>
+А произошло вот что: в случае с подзапросами оптимизатор сразу сообразил, что условия x=2 и y>1 можно объединить в один фильтр и искать по индексу. В случае CTE у оптимизатора нет выбора: он должен сначала разобраться с условием внутри конструкции WITH… AS, материализовать результат и только после этого работать дальше.<br/>
+<br/>
+И здесь дело не в том, что материализация потребует ресурсов: если условие будет y&lt;3, то материализовать придется не миллионы записей а всего 2. Чудовищное для несложного запроса время тратится на последовательный поиск, оптимизатор не может использовать поиск по индексу из-за того, что составной индекс строится по x, а уже потом по y, а о запросе с условием x=2 он ничего не узнает, пока не выполнит внутренне условие CTE. Оно — за барьером.<br/>
+<br/>
+Итак, до версии PostgreSQL 12 по умолчанию была материализация, теперь — ее отсутствие. Запускаем тот же запрос на базе новой версии. Барьера как не бывало, оптимизатор сразу видит весь запрос:<br/>
+<br/>
+<pre><code class="sql">WITH yy AS (
+     SELECT * FROM xytable WHERE y>1)
+SELECT * FROM yy
+WHERE x=2;</code></pre><br/>
+<pre><code class="plaintext">QUERY PLAN
+------------------------------------------
+Index Only Scan using xytable_x_y_idx1 on xytable  (cost=0.43..8.46 rows=1 width=8) (actual time=0.015..0.016 rows=1 loops=1)
+       Index Cond: ((x = 2) AND (y > 1))
+       Heap Fetches: 1
+ Planning Time: 0.067 ms
+ Execution Time: 0.029 ms
+(5 rows)</code></pre><br/>
+Оптимизатор моментально научился объединять условия в оптимальном порядке — как это было с подзапросами.<br/>
+<br/>
+Но умолчания умолчаниями, а для полного владения ситуацией теперь, в версии 12 имеется контролируемая, управляемая материализация CTE:<br/>
+<br/>
+<pre><code class="sql">WITH cte_name
+AS [NOT] MATERIALIZED</code></pre><br/>
+Заставим материализоваться:<br/>
+<br/>
+<pre><code class="sql">EXPLAIN ANALYZE  WITH yy AS MATERIALIZED (
+     SELECT * FROM xytable WHERE y>1)
+SELECT * FROM yy WHERE x=2;</code></pre><br/>
+<pre><code class="plaintext">QUERY PLAN
+---------------------------
+ CTE Scan on yy  (cost=356423.68..581401.19 rows=49995 width=8) (actual time=661.038..3603.292 rows=1 loops=1)
+   Filter: (x = 2)
+   Rows Removed by Filter: 9999998
+   CTE yy
+     ->  Bitmap Heap Scan on cte  (cost=187188.18..356423.68 rows=9999000 width=8) (actual time=661.032..2102.040 rows=9999999 loops=1)
+           Recheck Cond: (y > 1)
+           Heap Blocks: exact=44248
+           ->  Bitmap Index Scan on xytable_x_y_idx1  (cost=0.00..184688.43 rows=9999000 width=0) (actual time=655.519..655.519 rows=9999999 loops=1)
+                 Index Cond: (y > 1)
+ Planning Time: 0.086 ms
+ Execution Time: 3612.840 ms
+(11 rows)</code></pre><br/>
+Всё как в 11 и до нее, можно глянуть почту в режиме ожидания результатов запроса. Запрещаем материализацию, убираем барьер:<br/>
+<br/>
+<pre><code class="sql">EXPLAIN ANALYZE  WITH yy AS NOT MATERIALIZED (
+     SELECT * FROM xytable WHERE y>1)
+SELECT * FROM yy WHERE x=2;
+QUERY PLAN
+---------------------------
+ Index Only Scan using xytable_x_y_idx1 on xytable  (cost=0.43..8.46 rows=1 width=8) (actual time=0.070..0.072 rows=1 loops=1)
+   Index Cond: ((x = 2) AND (y > 1))
+   Heap Fetches: 1
+ Planning Time: 0.182 ms
+ Execution Time: 0.108 ms
+(5 rows)</code></pre><br/>
+Опять никакой передышки: считается моментально.<br/>
+Остались нюансы. Но важные нюансы.<br/>
+<br/>
+<h3>CTE материализуется по умолчанию, если к ней обращаются более одного раза.</h3><br/>
+На первый взгляд материализация в таких случаях разумное решение: зачем вычислять одно и то же дважды. На практике это часто приводит к тому, что мы наблюдали выше. Чтобы заставить отказаться от материализации, надо явно приказать оптимизатору: NOT MATERIALIZED.<br/>
+<br/>
+Исполняем без NOT MATERIALIZED запрос с двойным WHERE:<br/>
+<br/>
+<pre><code class="sql">WITH yy AS ( 
+     SELECT * FROM xytable WHERE y > 1)
+SELECT (
+     SELECT count(*) FROM yy WHERE x=2), (
+     SELECT count(*) FROM yy WHERE x=2);</code></pre><br/>
+<pre><code class="plaintext">QUERY PLAN
+---------------------------------------------------------------------------
+Result (actual time=3922.274..3922.275 rows=1 loops=1)
+   CTE yy
+      -> Seq Scan on xytable (actual time=0.023..1295.262 rows=9999999 loops=1)
+          Filter: (y > 1)
+          Rows Removed by Filter: 1
+   InitPlan 2 (returns $1)
+      -> Aggregate (actual time=3109.687..3109.687 rows=1 loops=1)
+          -> CTE Scan on yy (actual time=0.027..3109.682 rows=1 loops=1)
+              Filter: (x = 2)
+              Rows Removed by Filter: 9999998
+   InitPlan 3 (returns $2)
+      -> Aggregate (actual time=812.580..812.580 rows=1 loops=1)
+          -> CTE Scan on yy yy_1 (actual time=0.016..812.575 rows=1 loops=1)
+               Filter: (x = 2)
+               Rows Removed by Filter: 9999998
+   Planning Time: 0.136 ms
+   Execution Time: 3939.848 ms
+(17 rows)</code></pre><br/>
+А теперь явно пропишем запрет на материализацию:<br/>
+<br/>
+<pre><code class="sql">WITH yy AS NOT MATERIALIZED (
+     SELECT * FROM xytable WHERE y > 1)
+SELECT (
+     SELECT count(*) FROM yy WHERE x=2), (
+     SELECT count(*) FROM yy WHERE x=2);</code></pre><br/>
+<pre><code class="plaintext">QUERY PLAN
+---------------------------------------------------------------------------
+Result (actual time=0.035..0.035 rows=1 loops=1)
+   InitPlan 1 (returns $0)
+     -> Aggregate (actual time=0.024..0.024 rows=1 loops=1)
+         -> Index Only Scan using xytable_x_y_idx on xytable (actual time=0.019..0.020 rows=1 loops=1)
+             Index Cond: ((x = 2) AND (y > 1))
+             Heap Fetches: 1
+   InitPlan 2 (returns $1)
+     -> Aggregate (actual time=0.006..0.006 rows=1 loops=1)
+        -> Index Only Scan using xytable_x_y_idx on xytable cte_1 (actual time=0.004..0.005 rows=1 loops=1)
+            Index Cond: ((x = 2) AND (y > 1))
+            Heap Fetches: 1
+   Planning Time: 0.253 ms
+   Execution Time: 0.075 ms
+(13 rows)</code></pre><br/>
+<h3>пишущие CTE исполняются всегда, а CTE, на которые нет ссылок — никогда.</h3><br/>
+Это видно из плана: not_executed в нем нет. Это верно и для предыдущих версий, но об этом стоит помнить, и к исполняемому выражению в версии 12 применима конструкция (NOT) MATERIALIZED.<br/>
+<br/>
+<pre><code class="sql">EXPLAIN (COSTS OFF) WITH yy AS (
+     SELECT * FROM xytable WHERE y > 1),
+not_executed AS (
+     SELECT * FROM xytable),
+always_executed AS (
+     INSERT INTO xytable VALUES(2,2) RETURNING *)
+SELECT FROM yy WHERE x=2;</code></pre><br/>
+<pre><code class="plaintext">QUERY PLAN
+-----------------------------
+CTE Scan on yy
+   Filter: (x = 2)
+   CTE yy
+      -> Seq Scan on cte
+            Filter: (y > 1)
+   CTE always_executed
+      -> Insert on cte cte_1
+            -> Result
+(5 rows)</code></pre><br/>
+И еще одно правило:<br/>
+<br/>
+<h3>рекурсивные запросы с WITH материализуются всегда.</h3><br/>
+Именно всегда, а не по умолчанию. Если мы прикажем оптимизатору: NOT MATERIALIZED, ошибки не будет, а материализация все равно будет. Это сознательное, обсуждавшееся сообществом решение.<br/>
+<br/>
+Будем считать иллюстрирующий пример домашним заданием. На этом на сегодня всё.<br/>
+<br/>
+<i>В этой части обзора, посвященной новому в CTE, используются примеры и фрагменты из доклада «Postgres 12 в этюдах», который прочитал Олег Бартунов на <a href="https://www.highload.ru/spb/2019">Saint Highload++</a> в СПБ 9 апреля сего года.</i><br/>
+<br/>
+В следующей серии — <b>KNN</b>.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bpostgresql%5D" class="tm-tags-list__link">postgresql</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bpostgres%5D" class="tm-tags-list__link">postgres</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bdbms%5D" class="tm-tags-list__link">dbms</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%81%D1%83%D0%B1%D0%B4%5D" class="tm-tags-list__link">субд</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B1%D0%B0%D0%B7%D1%8B%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%5D" class="tm-tags-list__link">базы данных</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/postgrespro/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании Postgres Professional
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/postgresql/" class="tm-hubs-list__link">
+    PostgreSQL
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 29: ↑29 и ↓0</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 29: ↑29 и ↓0" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+29</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">17K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    61
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/postgrespro/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/4e0/339/621/4e0339621abc865fefb88f9e9f44748f.jpg" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/postgrespro/profile/" class="tm-company-snippet__title">Postgres Professional</a> <div class="tm-company-snippet__description">Разработчик СУБД Postgres Pro</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="https://facebook.com/PostgresProfessional" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Facebook
+    </a><a href="https://twitter.com/PostgresPro" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Twitter
+    </a><a href="https://vk.com/public101507899" rel="noopener" target="_blank" class="tm-article-author__contact">
+      ВКонтакте
+    </a><a href="https://plus.google.com/+PostgresproRuCompany" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Google+
+    </a><a href="https://postgrespro.livejournal.com/" rel="noopener" target="_blank" class="tm-article-author__contact">
+      LiveJournal
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/Igor_Le/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_pink"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 108 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    100
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">11</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><!----> <a href="https://habr.com/ru/users/Igor_Le/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @Igor_Le
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/postgrespro/blog/451344/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 11 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2015-01-26T21:00:00.000Z" title="2015-01-27, 00:00">27  января  2015</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="http://www.postgrespro.ru/" target="_blank" class="tm-company-basic-info__link">
+      www.postgrespro.ru
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    101–200 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2015-09-30T07:41:09.000Z" title="2015-09-30, 10:41">30  сентября  2015</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Представитель</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://habr.com/ru/users/x-wao/" class="tm-company-basic-info__link">
+      Иван Панченко
+    </a></dd></dl></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/postgrespro/blog/451344/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/postgrespro/blog/451344/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"451344":{"id":"451344","timePublished":"2019-06-13T11:42:10+00:00","isCorporative":true,"lang":"ru","titleHtml":"Игра в прятки с оптимизатором. Гейм овер, это CTE PostgreSQL 12","leadData":{"textHtml":"\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Flx\u002Fr3\u002Fps\u002Flxr3psy9oebq4i01moowesbn_mq.png\"\u003E\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nЭта статья — продолжение рассказа о новом в PostgreSQL 12. Мы уже разобрали SQL\u002FJSON (патч JSONPath) в статье \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fru\u002Fcompany\u002Fpostgrespro\u002Fblog\u002F448612\u002F\"\u003E«Что заморозили на feature freeze 2019. Часть I. JSONPath»\u003C\u002Fa\u003E, теперь очередь CTE.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Ch2\u003ECTE\u003C\u002Fh2\u003E\u003Cbr\u003E\r\nCTE это Common Table Expression — общие табличные выражения, их еще называют конструкциями с WITH. Фактически это создание временных таблиц, но существующих только для одного запроса, а не для сессии. К ним можно обращаться внутри этого запроса. Такой запрос хорошо читается, он понятен, его легко видоизменять, если потребуется. Это очень востребованная вещь, и она в PostgreSQL давно.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nНо удобства могут обойтись дорого. Проблемы связаны с материализацией выражения после AS внутри конструкции WITH… AS (). Его еще называют внутренним выражением и вычисляют перед тем, как начать вычисление остального, его нельзя встроить в запрос верхнего уровня (no inlining). Планирование этого выражения происходит без учета остальной части запроса. Такое поведение называют барьером для оптимизации, или fencing. Кроме того, сама материализация требует под себя work_mem. И если выборка большая, то начинаются проблемы (об этом, например, есть в \u003Ca href=\"https:\u002F\u002Fpgconf.ru\u002F2019\u002F242878\"\u003Eдокладе\u003C\u002Fa\u003E Ивана Фролкова на PGConf 2019). \u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":100,"votesCount":108},"rating":11,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1380392","alias":"Igor_Le","fullname":null,"avatarUrl":null,"speciality":null},"statistics":{"commentsCount":11,"favoritesCount":61,"readingCount":17103,"score":29,"votesCount":29},"hubs":[{"relatedData":null,"id":"19663","alias":"postgrespro","type":"corporative","title":"Блог компании Postgres Professional","titleHtml":"Блог компании Postgres Professional","isProfiled":false},{"relatedData":null,"id":"358","alias":"postgresql","type":"collective","title":"PostgreSQL","titleHtml":"PostgreSQL","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Flx\u002Fr3\u002Fps\u002Flxr3psy9oebq4i01moowesbn_mq.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Flx\u002Fr3\u002Fps\u002Flxr3psy9oebq4i01moowesbn_mq.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭта статья — продолжение рассказа о новом в PostgreSQL 12. Мы уже разобрали SQL\u002FJSON (патч JSONPath) в статье \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fru\u002Fcompany\u002Fpostgrespro\u002Fblog\u002F448612\u002F\"\u003E«Что заморозили на feature freeze 2019. Часть I. JSONPath»\u003C\u002Fa\u003E, теперь очередь CTE.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003ECTE\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nCTE это Common Table Expression — общие табличные выражения, их еще называют конструкциями с WITH. Фактически это создание временных таблиц, но существующих только для одного запроса, а не для сессии. К ним можно обращаться внутри этого запроса. Такой запрос хорошо читается, он понятен, его легко видоизменять, если потребуется. Это очень востребованная вещь, и она в PostgreSQL давно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо удобства могут обойтись дорого. Проблемы связаны с материализацией выражения после AS внутри конструкции WITH… AS (). Его еще называют внутренним выражением и вычисляют перед тем, как начать вычисление остального, его нельзя встроить в запрос верхнего уровня (no inlining). Планирование этого выражения происходит без учета остальной части запроса. Такое поведение называют барьером для оптимизации, или fencing. Кроме того, сама материализация требует под себя work_mem. И если выборка большая, то начинаются проблемы (об этом, например, есть в \u003Ca href=\"https:\u002F\u002Fpgconf.ru\u002F2019\u002F242878\"\u003Eдокладе\u003C\u002Fa\u003E Ивана Фролкова на PGConf 2019). \u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nИгра в прятки с оптимизатором, которую мы разберем ниже, в целом не баг, а фича. Конечно, есть ситуации, когда предварительное вычисление части выражения избавляет, скажем, от ненужных повторных операций в рекурсивных запросах. С другой стороны, многие разработчики пользовались CTE как view, не задумываясь о том самом барьере, а в результате запросы с CTE исполнялись не просто медленнее, чем эквивалентные им (но более замысловатого вида) запросы с подзапросами, а медленней на порядки. Взвесив за и против, сообщество пошло на довольно решительный шаг: изменило поведение по умолчанию.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nБудем наблюдать работу CTE на такой табличке:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003ECREATE TABLE xytable AS SELECT x, x AS y FROM generate_series(1,10000000) AS x;\nCREATE INDEX ON xytable(x,y);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003ETable \"public.xytable\"\n    Column    |  Type   |     Collation    |    Nullable    | Default\n--------------+---------+------------------+----------------+---------\nx             | integer |                  |                |\ny             | integer |                  |                |\n\nIndexes:\n\"xytable_x_y_idx\" btree (x, y)\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nНачнем с простенького запроса:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003ESELECT * FROM xytable WHERE x=2 AND y\u003E1;\n                                                          QUERY PLAN                                                          \n-----------------------------------------------------------------------------\n Index Only Scan using xytable_x_y_idx on xytable  (cost=0.43..8.46 rows=1 width=8) (actual time=0.016..0.017 rows=1 loops=1)\n      Index Cond: ((x = 2) AND (y \u003E 1))\n      Heap Fetches: 1\n Planning Time: 0.075 ms\n Execution Time: 0.035 ms\n(5 rows)\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВсё считается моментально, используется только индекс.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗапрос с подзапросом, вычисляющий то же самое, но с синтаксисом чуть посложней:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003ESELECT * FROM\n    (SELECT * FROM xytable WHERE y\u003E1) AS t WHERE x=2;\n                                                          QUERY PLAN                                                          \n---------------------------------------------------------------------------------\n Index Only Scan using xytable_x_y_idx on xytable  (cost=0.43..8.46 rows=1 width=8) (actual time=0.016..0.016 rows=1 loops=1)\n   Index Cond: ((x = 2) AND (y \u003E 1))\n   Heap Fetches: 1\n Planning Time: 0.062 ms\n Execution Time: 0.029 ms\n(5 rows)\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВсё в порядке, очень быстрое вычисление по индексу.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nА теперь еще один логически эквивалентный запрос, но уже с CTE:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003EWITH yy AS (\n     SELECT * FROM xytable WHERE y\u003E1)\nSELECT * FROM yy WHERE x=2;\nQUERY PLAN\n------------------------------------------\nCTE Scan on yy (actual time=0.099..3672.842 rows=1 loops=1)\n   Filter: (x = 2)\n   Rows Removed by Filter: 9999998\n   CTE yy\n      -\u003E Seq Scan on cte (actual time=0.097..1355.367 rows=9999999 loops=1)\n          Filter: (y \u003E 1)\n          Rows Removed by Filter: 1\n Planning Time: 0.088 ms\n Execution Time: 3735.986 ms\n(9 rows)\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТакая задержка видна уже и невооруженным глазом. Кофе не попьешь, но в почту заглянуть времени хватит (когда у нас 11-я версия или более ранняя).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nА произошло вот что: в случае с подзапросами оптимизатор сразу сообразил, что условия x=2 и y\u003E1 можно объединить в один фильтр и искать по индексу. В случае CTE у оптимизатора нет выбора: он должен сначала разобраться с условием внутри конструкции WITH… AS, материализовать результат и только после этого работать дальше.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИ здесь дело не в том, что материализация потребует ресурсов: если условие будет y&lt;3, то материализовать придется не миллионы записей а всего 2. Чудовищное для несложного запроса время тратится на последовательный поиск, оптимизатор не может использовать поиск по индексу из-за того, что составной индекс строится по x, а уже потом по y, а о запросе с условием x=2 он ничего не узнает, пока не выполнит внутренне условие CTE. Оно — за барьером.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИтак, до версии PostgreSQL 12 по умолчанию была материализация, теперь — ее отсутствие. Запускаем тот же запрос на базе новой версии. Барьера как не бывало, оптимизатор сразу видит весь запрос:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003EWITH yy AS (\n     SELECT * FROM xytable WHERE y\u003E1)\nSELECT * FROM yy\nWHERE x=2;\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EQUERY PLAN\n------------------------------------------\nIndex Only Scan using xytable_x_y_idx1 on xytable  (cost=0.43..8.46 rows=1 width=8) (actual time=0.015..0.016 rows=1 loops=1)\n       Index Cond: ((x = 2) AND (y \u003E 1))\n       Heap Fetches: 1\n Planning Time: 0.067 ms\n Execution Time: 0.029 ms\n(5 rows)\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nОптимизатор моментально научился объединять условия в оптимальном порядке — как это было с подзапросами.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо умолчания умолчаниями, а для полного владения ситуацией теперь, в версии 12 имеется контролируемая, управляемая материализация CTE:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003EWITH cte_name\nAS [NOT] MATERIALIZED\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗаставим материализоваться:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003EEXPLAIN ANALYZE  WITH yy AS MATERIALIZED (\n     SELECT * FROM xytable WHERE y\u003E1)\nSELECT * FROM yy WHERE x=2;\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EQUERY PLAN\n---------------------------\n CTE Scan on yy  (cost=356423.68..581401.19 rows=49995 width=8) (actual time=661.038..3603.292 rows=1 loops=1)\n   Filter: (x = 2)\n   Rows Removed by Filter: 9999998\n   CTE yy\n     -\u003E  Bitmap Heap Scan on cte  (cost=187188.18..356423.68 rows=9999000 width=8) (actual time=661.032..2102.040 rows=9999999 loops=1)\n           Recheck Cond: (y \u003E 1)\n           Heap Blocks: exact=44248\n           -\u003E  Bitmap Index Scan on xytable_x_y_idx1  (cost=0.00..184688.43 rows=9999000 width=0) (actual time=655.519..655.519 rows=9999999 loops=1)\n                 Index Cond: (y \u003E 1)\n Planning Time: 0.086 ms\n Execution Time: 3612.840 ms\n(11 rows)\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВсё как в 11 и до нее, можно глянуть почту в режиме ожидания результатов запроса. Запрещаем материализацию, убираем барьер:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003EEXPLAIN ANALYZE  WITH yy AS NOT MATERIALIZED (\n     SELECT * FROM xytable WHERE y\u003E1)\nSELECT * FROM yy WHERE x=2;\nQUERY PLAN\n---------------------------\n Index Only Scan using xytable_x_y_idx1 on xytable  (cost=0.43..8.46 rows=1 width=8) (actual time=0.070..0.072 rows=1 loops=1)\n   Index Cond: ((x = 2) AND (y \u003E 1))\n   Heap Fetches: 1\n Planning Time: 0.182 ms\n Execution Time: 0.108 ms\n(5 rows)\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nОпять никакой передышки: считается моментально.\u003Cbr\u002F\u003E\r\nОстались нюансы. Но важные нюансы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003ECTE материализуется по умолчанию, если к ней обращаются более одного раза.\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nНа первый взгляд материализация в таких случаях разумное решение: зачем вычислять одно и то же дважды. На практике это часто приводит к тому, что мы наблюдали выше. Чтобы заставить отказаться от материализации, надо явно приказать оптимизатору: NOT MATERIALIZED.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИсполняем без NOT MATERIALIZED запрос с двойным WHERE:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003EWITH yy AS ( \n     SELECT * FROM xytable WHERE y \u003E 1)\nSELECT (\n     SELECT count(*) FROM yy WHERE x=2), (\n     SELECT count(*) FROM yy WHERE x=2);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EQUERY PLAN\n---------------------------------------------------------------------------\nResult (actual time=3922.274..3922.275 rows=1 loops=1)\n   CTE yy\n      -\u003E Seq Scan on xytable (actual time=0.023..1295.262 rows=9999999 loops=1)\n          Filter: (y \u003E 1)\n          Rows Removed by Filter: 1\n   InitPlan 2 (returns $1)\n      -\u003E Aggregate (actual time=3109.687..3109.687 rows=1 loops=1)\n          -\u003E CTE Scan on yy (actual time=0.027..3109.682 rows=1 loops=1)\n              Filter: (x = 2)\n              Rows Removed by Filter: 9999998\n   InitPlan 3 (returns $2)\n      -\u003E Aggregate (actual time=812.580..812.580 rows=1 loops=1)\n          -\u003E CTE Scan on yy yy_1 (actual time=0.016..812.575 rows=1 loops=1)\n               Filter: (x = 2)\n               Rows Removed by Filter: 9999998\n   Planning Time: 0.136 ms\n   Execution Time: 3939.848 ms\n(17 rows)\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nА теперь явно пропишем запрет на материализацию:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003EWITH yy AS NOT MATERIALIZED (\n     SELECT * FROM xytable WHERE y \u003E 1)\nSELECT (\n     SELECT count(*) FROM yy WHERE x=2), (\n     SELECT count(*) FROM yy WHERE x=2);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EQUERY PLAN\n---------------------------------------------------------------------------\nResult (actual time=0.035..0.035 rows=1 loops=1)\n   InitPlan 1 (returns $0)\n     -\u003E Aggregate (actual time=0.024..0.024 rows=1 loops=1)\n         -\u003E Index Only Scan using xytable_x_y_idx on xytable (actual time=0.019..0.020 rows=1 loops=1)\n             Index Cond: ((x = 2) AND (y \u003E 1))\n             Heap Fetches: 1\n   InitPlan 2 (returns $1)\n     -\u003E Aggregate (actual time=0.006..0.006 rows=1 loops=1)\n        -\u003E Index Only Scan using xytable_x_y_idx on xytable cte_1 (actual time=0.004..0.005 rows=1 loops=1)\n            Index Cond: ((x = 2) AND (y \u003E 1))\n            Heap Fetches: 1\n   Planning Time: 0.253 ms\n   Execution Time: 0.075 ms\n(13 rows)\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003Eпишущие CTE исполняются всегда, а CTE, на которые нет ссылок — никогда.\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЭто видно из плана: not_executed в нем нет. Это верно и для предыдущих версий, но об этом стоит помнить, и к исполняемому выражению в версии 12 применима конструкция (NOT) MATERIALIZED.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"sql\"\u003EEXPLAIN (COSTS OFF) WITH yy AS (\n     SELECT * FROM xytable WHERE y \u003E 1),\nnot_executed AS (\n     SELECT * FROM xytable),\nalways_executed AS (\n     INSERT INTO xytable VALUES(2,2) RETURNING *)\nSELECT FROM yy WHERE x=2;\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EQUERY PLAN\n-----------------------------\nCTE Scan on yy\n   Filter: (x = 2)\n   CTE yy\n      -\u003E Seq Scan on cte\n            Filter: (y \u003E 1)\n   CTE always_executed\n      -\u003E Insert on cte cte_1\n            -\u003E Result\n(5 rows)\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nИ еще одно правило:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003Eрекурсивные запросы с WITH материализуются всегда.\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nИменно всегда, а не по умолчанию. Если мы прикажем оптимизатору: NOT MATERIALIZED, ошибки не будет, а материализация все равно будет. Это сознательное, обсуждавшееся сообществом решение.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nБудем считать иллюстрирующий пример домашним заданием. На этом на сегодня всё.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ci\u003EВ этой части обзора, посвященной новому в CTE, используются примеры и фрагменты из доклада «Postgres 12 в этюдах», который прочитал Олег Бартунов на \u003Ca href=\"https:\u002F\u002Fwww.highload.ru\u002Fspb\u002F2019\"\u003ESaint Highload++\u003C\u002Fa\u003E в СПБ 9 апреля сего года.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ следующей серии — \u003Cb\u003EKNN\u003C\u002Fb\u003E.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"postgresql"},{"titleHtml":"postgres"},{"titleHtml":"dbms"},{"titleHtml":"субд"},{"titleHtml":"базы данных"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F451344\u002F2411f9aadf0bcbafecc342669731c61b\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F451344\u002F2411f9aadf0bcbafecc342669731c61b\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fpostgrespro\\\u002Fblog\\\u002F451344\\\u002F\"},\"headline\":\"Игра в прятки с оптимизатором. Гейм овер, это CTE PostgreSQL 12\",\"datePublished\":\"2019-06-13T14:42:10+03:00\",\"dateModified\":\"2019-06-17T13:29:06+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Igor_Le\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Эта статья &mdash; продолжение рассказа о новом в PostgreSQL 12. Мы уже разобрали SQL\\\u002FJSON (патч JSONPath) в статье &laquo;Что заморозили на feature freeze 2019. Часть I.\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fpostgrespro\\\u002Fblog\\\u002F451344\\\u002F#post-content-body\",\"about\":[\"c_postgrespro\",\"h_postgresql\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Flx\\\u002Fr3\\\u002Fps\\\u002Flxr3psy9oebq4i01moowesbn_mq.png\"]}","metaDescription":"Эта статья — продолжение рассказа о новом в PostgreSQL 12. Мы уже разобрали SQL\u002FJSON (патч JSONPath) в статье «Что заморозили на feature freeze 2019. Часть I. JSONPath», теперь очередь...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"postgrespro":{"alias":"postgrespro","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002F4e0\u002F339\u002F621\u002F4e0339621abc865fefb88f9e9f44748f.jpg","titleHtml":"Postgres Professional","descriptionHtml":"Разработчик СУБД Postgres Pro","relatedData":null,"statistics":{"postsCount":159,"newsCount":0,"vacanciesCount":0,"employeesCount":23,"careerRating":null,"subscribersCount":50249,"rating":140.03,"invest":null},"foundationDate":{"year":"2015","month":"01","day":"27"},"location":{"city":{"id":"447159","title":"Москва"},"region":{"id":"1885","title":"Москва и Московская обл."},"country":{"id":"168","title":"Россия"}},"siteUrl":"http:\u002F\u002Fwww.postgrespro.ru\u002F","staffNumber":"101–200 человек","registrationDate":"2015-09-30T07:41:09+00:00","representativeUser":{"alias":"x-wao","fullname":"Иван Панченко"},"contacts":[{"title":"Facebook","url":"https:\u002F\u002Ffacebook.com\u002FPostgresProfessional"},{"title":"Twitter","url":"https:\u002F\u002Ftwitter.com\u002FPostgresPro"},{"title":"ВКонтакте","url":"https:\u002F\u002Fvk.com\u002Fpublic101507899"},{"title":"Google+","url":"https:\u002F\u002Fplus.google.com\u002F+PostgresproRuCompany"},{"title":"LiveJournal","url":"https:\u002F\u002Fpostgrespro.livejournal.com\u002F"}],"settings":{"analyticsSettings":[{"type":"ga","trackingId":"UA-55152600-4"}],"branding":null,"status":"active","isStartup":false},"metadata":{"titleHtml":"Postgres Professional, Москва - Разработчик СУБД Postgres Pro с 27 января 2015 г.","title":"Postgres Professional, Москва - Разработчик СУБД Postgres Pro с 27 января 2015 г.","keywords":["PostgreSQL","SQL","Занимательные задачки","Open source","Системное администрирование","postgresql","postgres","субд","dbms","базы данных","sql","data bases","rdbms","рсубд","index","indexing","оптимизация","postgres pro","новый редактор никуда не годится","планирование","c","open source","vacuum","(:","wal"],"descriptionHtml":"159 статей от авторов компании Postgres Professional","description":"159 статей от авторов компании Postgres Professional"},"aDeskSettings":null,"careerAlias":"postgrespro"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

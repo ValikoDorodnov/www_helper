@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>ООП для ООП: GRASP / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/38323\/"},"headline":"ООП для ООП: GRASP","datePublished":"2008-08-28T13:40:49+04:00","dateModified":"2013-10-30T10:29:56+04:00","author":{"@type":"Person","name":"Aлексей Токарь"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"GRASP &mdash; General Responsibility Assignment Software Patterns (основные шаблоны распределения обязанностей в программном обеспечении) Когда речь заходит о термине...","url":"https:\/\/habr.com\/ru\/post\/38323\/#post-content-body","about":["h_programming","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/38323\/003d1e538d6d9206697f8e9924b2eff9\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="ООП для ООП: GRASP" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="ООП для ООП: GRASP" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="ООП для ООП: GRASP" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="GRASP — General Responsibility Assignment Software Patterns (основные шаблоны распределения обязанностей в программном обеспечении)
+Когда речь заходит о термине «ООП», все непременно подразумевают..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="GRASP — General Responsibility Assignment Software Patterns (основные шаблоны распределения обязанностей в программном обеспечении)
+Когда речь заходит о термине «ООП», все непременно подразумевают..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="GRASP — General Responsibility Assignment Software Patterns (основные шаблоны распределения обязанностей в программном обеспечении)
+Когда речь заходит о термине «ООП», все непременно подразумевают..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="GRASP — General Responsibility Assignment Software Patterns (основные шаблоны распределения обязанностей в программном обеспечении)
+Когда речь заходит о термине «ООП», все непременно подразумевают..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="GRASP — General Responsibility Assignment Software Patterns (основные шаблоны распределения обязанностей в программном обеспечении)
+Когда речь заходит о термине «ООП», все непременно подразумевают..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/38323/003d1e538d6d9206697f8e9924b2eff9/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/38323/003d1e538d6d9206697f8e9924b2eff9/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/38323/003d1e538d6d9206697f8e9924b2eff9/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/38323/003d1e538d6d9206697f8e9924b2eff9/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/38323/003d1e538d6d9206697f8e9924b2eff9/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="38323" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2008-08-28T09:40:49.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/38323/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="GRASP, OOD, ООА, ООП, примеры, шаблоны проектирования">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/38323/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.123.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/38323/003d1e538d6d9206697f8e9924b2eff9/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/AlexeyTokar/" title="AlexeyTokar" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/70a/bcb/f85/70abcbf8516e0dc95b509fab76932f4b.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/AlexeyTokar/" class="tm-user-info__username">
+      AlexeyTokar
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2008-08-28T09:40:49.000Z" title="2008-08-28, 13:40">28  августа  2008 в 13:40</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>ООП для ООП: GRASP</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/programming/" class="tm-article-snippet__hubs-item-link"><span>Программирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><blockquote>GRASP — General Responsibility Assignment Software Patterns (основные шаблоны распределения обязанностей в программном обеспечении)</blockquote><br/>
+Когда речь заходит о термине «ООП», все непременно подразумевают Объектно-Ориентированное Программирование, но сегодня речь пойдет не о нем. Почти. Сегодня я бы хотел рассказать о принципах Объектно-Ориентированного Проектирования, а в частности о шаблонах GRAPS и области их применения.<a name="habracut"></a><br/>
+<br/>
+GRASP состоит из 9 шаблонов:<br/>
+<ul>
+<li>Creator</li>
+<li>Controller</li>
+<li>Pure Fabrication</li>
+<li>Information Expert</li>
+<li>High Cohesion</li>
+<li>Indirection</li>
+<li>Low Coupling</li>
+<li>Polymorphism</li>
+<li>Protected Variations</li>
+</ul><br/>
+Но сегодня рассмотрены будут не все, а только основные. При этом хочу добавить что не все шаблоны являются «программными». Некоторые из них (например High Cohesion и Low Coupling) это принципы, а не примеры реализации.<br/>
+<br/>
+Чем больше опыта за плечами у разработчика ПО, тем больше он осознает смысл предварительного проектирования и макетирования, и тем позже он приступает к непосредственной разработке системы, даже если это БД из четырех таблиц. Это в нем отзывается лень :) Ведь именно из-за того, что в нескольких предыдущих проектах проектированию уделили слишком мало времени, в итоге система переписывалась на 40-60%%, а среднестатистический мыслящий программист не любит делать одно и то же по многу раз, вот и «приходится» уделять больше времени на предварительный анализ. И именно тут его начинают интересовать такие аспекты разработки ПО как объектно-ориентированный анализ и проектирование.<br/>
+<br/>
+Итак, поняв, что на моделирование необходимо уделить больше времени, актуальным становится следующий вопрос: «НУ а что ж такого тут проектировать, если и так все понятно?» Вобщем-то, если за плечами довольно большой груз знаний и опыта, а с ООА/П сталкиваться не приходилось, то все решения принимаются на уровне интуиции, а чтение литературы приводит только к систематизации знаний и, возможно, новым подходам. Так, со временем, для себя открывают GRASP.<br/>
+<br/>
+Как было сказано ранее, GRASP — это шаблоны проектирования. А именно — шаблоны, которые отвечают за взаимосвязь объектов в системе. Сколько раз вы задумывались над тем, где будет порождаться новый объект? В данном материале я хочу рассмотреть основные шаблоны GRAS ( «P» опускаю для избежания тавтологии, так как в аббревиатуре оно заменяется ловом «шаблоны»), на примере блога.<br/>
+<br/>
+<h2>Creator.</h2><br/>
+Как часто вам приходилось задумываться о том, кто должен создавать объект X? Часто приходят к выводу, что объект должен создаваться независимо от кого-то, часто эту задачу возлагают на хранилище объектов (класс-коллекцию), а иногда на иные объекты системы. Что же правильно и какой вариант выбрать?<br/>
+Шаблон <em>creator</em> говорит нам какие условия должны соблюстись, что бы объекты верно порождали друг друга. Для этого есть несколько правил:<br/>
+объект А должен порождать объект Б, если:<br/>
+<ul>
+<li>объект А содержит или агрегирует объекты Б <sup>(содержит в себе как свойство или коллекцию)</sup></li>
+<li>объект А активно использует объекты Б <sup>(основной объем работы с объектом Б происходит посредством объекта А)</sup></li>
+<li>объект А обладает данными инициализации объекта Б <sup>(каждый раз при создании объекта Б, данные берутся из объекта А)</sup></li>
+</ul><br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/getpro/habr/post_images/e2d/ee7/aeb/e2dee7aeb7557c4848d2f9b68776bde1.jpg" title="blogpostcomment01" width="453" height="66" data-src="https://habrastorage.org/getpro/habr/post_images/e2d/ee7/aeb/e2dee7aeb7557c4848d2f9b68776bde1.jpg" data-blurred="true"/><br/>
+<br/>
+Итак, взглянув на диаграмму отношений, на основании шаблона Creator можно сделать вывод, что экземпляры класса Post должны создаваться внутри класса Blog, а Comment — в Post. Почему так а не иначе? Например, почему Comment не должны создаваться в Blog? Ну хотя бы потому, что именно Post <em>содержит</em> в себе экземпляры Comment, а так же Post обладает информацией для создания экземпляра Comment (в нашем случае это всего лишь указатель на родителя, но даже этим не обладает Blog по отношению к Comment).<br/>
+<br/>
+<h2>Information Expert</h2><br/>
+Информационный эксперт, как следует из названия, занимается не чем иным, как предоставлением информации об объекте. В нашем случае Information Expert должен отвечать на такие вопросы:<br/>
+<ul>
+<li>Кто должен знать кол-во комментариев к посту?</li>
+<li>Кто должен знать общее кол-во комментариев в блоге?</li>
+</ul><br/>
+Пытаясь ответить на эти вопросы, нам необходимо определить, кто из участников системы имеет необходимые сведения. Так getCommentsCount() стоит назначить объекту Post, а объект Blog, на основании промежуточных значений каждого из входящего в него объекта Post получит общую сумму комментариев getTotalComments().<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/getpro/habr/post_images/820/50d/aa3/82050daa3065be9974dd669038a4b17c.jpg" title="blogpostcomment02" width="444" height="155" data-src="https://habrastorage.org/getpro/habr/post_images/820/50d/aa3/82050daa3065be9974dd669038a4b17c.jpg" data-blurred="true"/><br/>
+<br/>
+Но при этом именно Post должен отвечать за такие аспекты, как «получить название поста» ( getTitle() ), «получить пост», «получить автора» и пр.<br/>
+<br/>
+<h2>Controller</h2><br/>
+Ну тут все просто. Это не что иное, как C из аббревиатуры MVC :) Этот шаблон отвечает за то, к кому именно должны обращаться вызовы из V (View), и кому C должен делегировать запросы на выполнение ( какая модель M должна их обработать )<br/>
+<br/>
+<h2>Low Coupling</h2><br/>
+Низкая связанность, отвечает за то, что бы объекты в системе знали друг о друге как можно меньше. Ведь чем меньше объект знает о других объектах, тем больше будет изолировано и тем меньше правок необходимо будет делать, если в системе что-то поменяется.<br/>
+На наших диаграммах все хорошо. Blog ничего не знает о Comment, а степени связанности у каждого класса составляют всего лишь единицу. В более сложных системах связей бывает гораздо больше, и шаблон Low Coupling позволяет избежать следующих проблем:<br/>
+<ul>
+<li>При изменении в связанных классах, необходимо делать локальные изменения в данном классе</li>
+<li>Понимание каждого класса в отдельности усложняется и требует изучения всех связанных классов</li>
+<li>Повторное использование становится невозможным из-за того, что перетянув часть системы, необходимо тянуть почти всю систему.</li>
+</ul><br/>
+<br/>
+<h2>High Cohesion</h2><br/>
+Высокая степень зацепления — так переводится название шаблона. Это противовес предыдущего шаблона. Зацепление — процесс взаимодействия класса с другими классами системы и область ответственности за действия. Рассмотрим две диаграммы:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/getpro/habr/post_images/294/829/f6b/294829f6bfd91b0ae91829c03e7f2949.jpg" title="blogpostcomment03" width="216" height="313" data-src="https://habrastorage.org/getpro/habr/post_images/294/829/f6b/294829f6bfd91b0ae91829c03e7f2949.jpg" data-blurred="true"/><br/>
+<br/>
+<img src="http://blog.azazel.org.ua/wp-content/uploads/2008/08/blogpostcomment04.jpg" title="blogpostcomment04" width="387" height="240" data-src="http://blog.azazel.org.ua/wp-content/uploads/2008/08/blogpostcomment04.jpg" data-blurred="true"/><br/>
+<br/>
+Как по вашему, что более правильно? Отвечая на этот вопрос с точки зрения Low Coupling, то первое, но так ли хорошо, когда один класс отвечает и за измерение температуры за окном и за движение метро и за расчет pi до 87342 знака после запятой? Именно поэтому High Cohesion твердит, что класс должен стараться выполнять как можно меньше не специфичных для него задач, и иметь вполне определенную область применения. Только с опытом приходит понимание балансировки между этими двумя шаблонами.<br/>
+<br/>
+Все. На первое время достаточно :) Если статья будет иметь успех — обещаю рассказать о некоторых других шаблонах GRASP, а так же о шаблонах GoF и многом другом из мира ООА/ООП.<br/>
+<br/>
+<a href="http://alexey.tokar.net.ua/2008/08/%d0%be%d0%be%d0%bf-%d0%b4%d0%bb%d1%8f-%d0%be%d0%be%d0%bf-grasp/">оригинал статьи в моем блоге</a></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BGRASP%5D" class="tm-tags-list__link">GRASP</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BOOD%5D" class="tm-tags-list__link">OOD</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%9E%D0%9E%D0%90%5D" class="tm-tags-list__link">ООА</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%9E%D0%9E%D0%9F%5D" class="tm-tags-list__link">ООП</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D1%8B%5D" class="tm-tags-list__link">примеры</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%88%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD%D1%8B%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%5D" class="tm-tags-list__link">шаблоны проектирования</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/programming/" class="tm-hubs-list__link">
+    Программирование
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 67: ↑64 и ↓3</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 67: ↑64 и ↓3" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+61</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">54K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    141
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/AlexeyTokar/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/70a/bcb/f85/70abcbf8516e0dc95b509fab76932f4b.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 209 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    53
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Aлексей Токарь</span> <a href="https://habr.com/ru/users/AlexeyTokar/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @AlexeyTokar
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/38323/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 42 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner2037" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner2038" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/38323/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/38323/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"38323":{"id":"38323","timePublished":"2008-08-28T09:40:49+00:00","isCorporative":false,"lang":"ru","titleHtml":"ООП для ООП: GRASP","leadData":{"textHtml":"\u003Cblockquote\u003EGRASP — General Responsibility Assignment Software Patterns (основные шаблоны распределения обязанностей в программном обеспечении)\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nКогда речь заходит о термине «ООП», все непременно подразумевают Объектно-Ориентированное Программирование, но сегодня речь пойдет не о нем. Почти. Сегодня я бы хотел рассказать о принципах Объектно-Ориентированного Проектирования, а в частности о шаблонах GRAPS и области их применения.","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":53,"votesCount":209},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"28960","alias":"AlexeyTokar","fullname":"Aлексей Токарь","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F70a\u002Fbcb\u002Ff85\u002F70abcbf8516e0dc95b509fab76932f4b.jpg","speciality":"Пользователь"},"statistics":{"commentsCount":42,"favoritesCount":141,"readingCount":53938,"score":61,"votesCount":67},"hubs":[{"relatedData":null,"id":"359","alias":"programming","type":"collective","title":"Программирование","titleHtml":"Программирование","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cblockquote\u003EGRASP — General Responsibility Assignment Software Patterns (основные шаблоны распределения обязанностей в программном обеспечении)\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nКогда речь заходит о термине «ООП», все непременно подразумевают Объектно-Ориентированное Программирование, но сегодня речь пойдет не о нем. Почти. Сегодня я бы хотел рассказать о принципах Объектно-Ориентированного Проектирования, а в частности о шаблонах GRAPS и области их применения.\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nGRASP состоит из 9 шаблонов:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003ECreator\u003C\u002Fli\u003E\r\n\u003Cli\u003EController\u003C\u002Fli\u003E\r\n\u003Cli\u003EPure Fabrication\u003C\u002Fli\u003E\r\n\u003Cli\u003EInformation Expert\u003C\u002Fli\u003E\r\n\u003Cli\u003EHigh Cohesion\u003C\u002Fli\u003E\r\n\u003Cli\u003EIndirection\u003C\u002Fli\u003E\r\n\u003Cli\u003ELow Coupling\u003C\u002Fli\u003E\r\n\u003Cli\u003EPolymorphism\u003C\u002Fli\u003E\r\n\u003Cli\u003EProtected Variations\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nНо сегодня рассмотрены будут не все, а только основные. При этом хочу добавить что не все шаблоны являются «программными». Некоторые из них (например High Cohesion и Low Coupling) это принципы, а не примеры реализации.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЧем больше опыта за плечами у разработчика ПО, тем больше он осознает смысл предварительного проектирования и макетирования, и тем позже он приступает к непосредственной разработке системы, даже если это БД из четырех таблиц. Это в нем отзывается лень :) Ведь именно из-за того, что в нескольких предыдущих проектах проектированию уделили слишком мало времени, в итоге система переписывалась на 40-60%%, а среднестатистический мыслящий программист не любит делать одно и то же по многу раз, вот и «приходится» уделять больше времени на предварительный анализ. И именно тут его начинают интересовать такие аспекты разработки ПО как объектно-ориентированный анализ и проектирование.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИтак, поняв, что на моделирование необходимо уделить больше времени, актуальным становится следующий вопрос: «НУ а что ж такого тут проектировать, если и так все понятно?» Вобщем-то, если за плечами довольно большой груз знаний и опыта, а с ООА\u002FП сталкиваться не приходилось, то все решения принимаются на уровне интуиции, а чтение литературы приводит только к систематизации знаний и, возможно, новым подходам. Так, со временем, для себя открывают GRASP.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКак было сказано ранее, GRASP — это шаблоны проектирования. А именно — шаблоны, которые отвечают за взаимосвязь объектов в системе. Сколько раз вы задумывались над тем, где будет порождаться новый объект? В данном материале я хочу рассмотреть основные шаблоны GRAS ( «P» опускаю для избежания тавтологии, так как в аббревиатуре оно заменяется ловом «шаблоны»), на примере блога.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003ECreator.\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nКак часто вам приходилось задумываться о том, кто должен создавать объект X? Часто приходят к выводу, что объект должен создаваться независимо от кого-то, часто эту задачу возлагают на хранилище объектов (класс-коллекцию), а иногда на иные объекты системы. Что же правильно и какой вариант выбрать?\u003Cbr\u002F\u003E\r\nШаблон \u003Cem\u003Ecreator\u003C\u002Fem\u003E говорит нам какие условия должны соблюстись, что бы объекты верно порождали друг друга. Для этого есть несколько правил:\u003Cbr\u002F\u003E\r\nобъект А должен порождать объект Б, если:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eобъект А содержит или агрегирует объекты Б \u003Csup\u003E(содержит в себе как свойство или коллекцию)\u003C\u002Fsup\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003Eобъект А активно использует объекты Б \u003Csup\u003E(основной объем работы с объектом Б происходит посредством объекта А)\u003C\u002Fsup\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003Eобъект А обладает данными инициализации объекта Б \u003Csup\u003E(каждый раз при создании объекта Б, данные берутся из объекта А)\u003C\u002Fsup\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fe2d\u002Fee7\u002Faeb\u002Fe2dee7aeb7557c4848d2f9b68776bde1.jpg\" title=\"blogpostcomment01\" width=\"453\" height=\"66\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fe2d\u002Fee7\u002Faeb\u002Fe2dee7aeb7557c4848d2f9b68776bde1.jpg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИтак, взглянув на диаграмму отношений, на основании шаблона Creator можно сделать вывод, что экземпляры класса Post должны создаваться внутри класса Blog, а Comment — в Post. Почему так а не иначе? Например, почему Comment не должны создаваться в Blog? Ну хотя бы потому, что именно Post \u003Cem\u003Eсодержит\u003C\u002Fem\u003E в себе экземпляры Comment, а так же Post обладает информацией для создания экземпляра Comment (в нашем случае это всего лишь указатель на родителя, но даже этим не обладает Blog по отношению к Comment).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EInformation Expert\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nИнформационный эксперт, как следует из названия, занимается не чем иным, как предоставлением информации об объекте. В нашем случае Information Expert должен отвечать на такие вопросы:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EКто должен знать кол-во комментариев к посту?\u003C\u002Fli\u003E\r\n\u003Cli\u003EКто должен знать общее кол-во комментариев в блоге?\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nПытаясь ответить на эти вопросы, нам необходимо определить, кто из участников системы имеет необходимые сведения. Так getCommentsCount() стоит назначить объекту Post, а объект Blog, на основании промежуточных значений каждого из входящего в него объекта Post получит общую сумму комментариев getTotalComments().\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F820\u002F50d\u002Faa3\u002F82050daa3065be9974dd669038a4b17c.jpg\" title=\"blogpostcomment02\" width=\"444\" height=\"155\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F820\u002F50d\u002Faa3\u002F82050daa3065be9974dd669038a4b17c.jpg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо при этом именно Post должен отвечать за такие аспекты, как «получить название поста» ( getTitle() ), «получить пост», «получить автора» и пр.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EController\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nНу тут все просто. Это не что иное, как C из аббревиатуры MVC :) Этот шаблон отвечает за то, к кому именно должны обращаться вызовы из V (View), и кому C должен делегировать запросы на выполнение ( какая модель M должна их обработать )\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003ELow Coupling\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nНизкая связанность, отвечает за то, что бы объекты в системе знали друг о друге как можно меньше. Ведь чем меньше объект знает о других объектах, тем больше будет изолировано и тем меньше правок необходимо будет делать, если в системе что-то поменяется.\u003Cbr\u002F\u003E\r\nНа наших диаграммах все хорошо. Blog ничего не знает о Comment, а степени связанности у каждого класса составляют всего лишь единицу. В более сложных системах связей бывает гораздо больше, и шаблон Low Coupling позволяет избежать следующих проблем:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EПри изменении в связанных классах, необходимо делать локальные изменения в данном классе\u003C\u002Fli\u003E\r\n\u003Cli\u003EПонимание каждого класса в отдельности усложняется и требует изучения всех связанных классов\u003C\u002Fli\u003E\r\n\u003Cli\u003EПовторное использование становится невозможным из-за того, что перетянув часть системы, необходимо тянуть почти всю систему.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EHigh Cohesion\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nВысокая степень зацепления — так переводится название шаблона. Это противовес предыдущего шаблона. Зацепление — процесс взаимодействия класса с другими классами системы и область ответственности за действия. Рассмотрим две диаграммы:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F294\u002F829\u002Ff6b\u002F294829f6bfd91b0ae91829c03e7f2949.jpg\" title=\"blogpostcomment03\" width=\"216\" height=\"313\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F294\u002F829\u002Ff6b\u002F294829f6bfd91b0ae91829c03e7f2949.jpg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"http:\u002F\u002Fblog.azazel.org.ua\u002Fwp-content\u002Fuploads\u002F2008\u002F08\u002Fblogpostcomment04.jpg\" title=\"blogpostcomment04\" width=\"387\" height=\"240\" data-src=\"http:\u002F\u002Fblog.azazel.org.ua\u002Fwp-content\u002Fuploads\u002F2008\u002F08\u002Fblogpostcomment04.jpg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКак по вашему, что более правильно? Отвечая на этот вопрос с точки зрения Low Coupling, то первое, но так ли хорошо, когда один класс отвечает и за измерение температуры за окном и за движение метро и за расчет pi до 87342 знака после запятой? Именно поэтому High Cohesion твердит, что класс должен стараться выполнять как можно меньше не специфичных для него задач, и иметь вполне определенную область применения. Только с опытом приходит понимание балансировки между этими двумя шаблонами.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВсе. На первое время достаточно :) Если статья будет иметь успех — обещаю рассказать о некоторых других шаблонах GRASP, а так же о шаблонах GoF и многом другом из мира ООА\u002FООП.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Falexey.tokar.net.ua\u002F2008\u002F08\u002F%d0%be%d0%be%d0%bf-%d0%b4%d0%bb%d1%8f-%d0%be%d0%be%d0%bf-grasp\u002F\"\u003Eоригинал статьи в моем блоге\u003C\u002Fa\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"GRASP"},{"titleHtml":"OOD"},{"titleHtml":"ООА"},{"titleHtml":"ООП"},{"titleHtml":"примеры"},{"titleHtml":"шаблоны проектирования"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F38323\u002F003d1e538d6d9206697f8e9924b2eff9\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F38323\u002F003d1e538d6d9206697f8e9924b2eff9\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F38323\\\u002F\"},\"headline\":\"ООП для ООП: GRASP\",\"datePublished\":\"2008-08-28T13:40:49+04:00\",\"dateModified\":\"2013-10-30T10:29:56+04:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Aлексей Токарь\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"GRASP &mdash; General Responsibility Assignment Software Patterns (основные шаблоны распределения обязанностей в программном обеспечении) Когда речь заходит о термине...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F38323\\\u002F#post-content-body\",\"about\":[\"h_programming\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F38323\\\u002F003d1e538d6d9206697f8e9924b2eff9\\\u002F\"]}","metaDescription":"GRASP — General Responsibility Assignment Software Patterns (основные шаблоны распределения обязанностей в программном обеспечении)\r\nКогда речь заходит о термине «ООП», все непременно подразумевают...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":"programming"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

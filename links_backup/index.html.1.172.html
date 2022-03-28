@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Руководство по Node.js, часть 1: общие сведения и начало работы / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/ruvds\/blog\/422893\/"},"headline":"Руководство по Node.js, часть 1: общие сведения и начало работы","datePublished":"2018-09-11T11:23:07+03:00","dateModified":"2018-11-08T12:36:29+03:00","author":{"@type":"Person","name":"ru_vds"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Мы начинаем публикацию серии материалов, которые представляют собой поэтапный перевод руководства по Node.js для начинающих. А именно, в данном случае &laquo;начинающи...","url":"https:\/\/habr.com\/ru\/company\/ruvds\/blog\/422893\/#post-content-body","about":["c_ruvds","h_webdev","h_javascript","h_nodejs","f_develop"],"image":["https:\/\/habrastorage.org\/webt\/he\/di\/2j\/hedi2j_qyfbnwfo_jqnnqd3ub6o.png","https:\/\/habrastorage.org\/files\/1ba\/550\/d25\/1ba550d25e8846ce8805de564da6aa63.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Руководство по Node.js, часть 1: общие сведения и начало работы" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Руководство по Node.js, часть 1: общие сведения и начало работы" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Руководство по Node.js, часть 1: общие сведения и начало работы" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Мы начинаем публикацию серии материалов, которые представляют собой поэтапный перевод руководства по Node.js для начинающих. А именно, в данном случае «начинающий» — это тот, кто обладает некоторыми..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Мы начинаем публикацию серии материалов, которые представляют собой поэтапный перевод руководства по Node.js для начинающих. А именно, в данном случае «начинающий» — это тот, кто обладает некоторыми..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Мы начинаем публикацию серии материалов, которые представляют собой поэтапный перевод руководства по Node.js для начинающих. А именно, в данном случае «начинающий» — это тот, кто обладает некоторыми..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Мы начинаем публикацию серии материалов, которые представляют собой поэтапный перевод руководства по Node.js для начинающих. А именно, в данном случае «начинающий» — это тот, кто обладает некоторыми..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Мы начинаем публикацию серии материалов, которые представляют собой поэтапный перевод руководства по Node.js для начинающих. А именно, в данном случае «начинающий» — это тот, кто обладает некоторыми..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/422893/4637b6b08b5db93befff883f8aff5e7b/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/422893/4637b6b08b5db93befff883f8aff5e7b/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/422893/4637b6b08b5db93befff883f8aff5e7b/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/422893/4637b6b08b5db93befff883f8aff5e7b/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/422893/4637b6b08b5db93befff883f8aff5e7b/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="422893" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2018-09-11T08:23:07.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/ruvds/blog/422893/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="JavaScript, Node.js, обучение, разработка">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/422893/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.172.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/422893/4637b6b08b5db93befff883f8aff5e7b/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="ruvds" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><div class="tm-company-card__branding tm-company-article__branding tm-company-card__branding_loading"><div class="tm-company-card__branding-placeholder"><!----></div> <a href="https://ruvds.com/ru-rub"><img src="https://habrastorage.org/getpro/habr/branding/b77/8d5/a41/b778d5a41f83016379c6630262c3294c.png" width="100%" class="tm-company-card__branding-image"></a></div></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/ruvds/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/f27/ea8/5bd/f27ea85bd62fbd985c308110885af7e0.png" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">2738.1</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/ruvds/profile/" class="tm-company-card__name">
+      RUVDS.com
+    </a> <div class="tm-company-card__description">VDS/VPS-хостинг. Скидка 10% по коду <b>HABR10</b></div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/ru_vds/" title="ru_vds" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/e36/812/d3d/e36812d3de38eb3d479d7a13228717ef.png" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/ru_vds/" class="tm-user-info__username">
+      ru_vds
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2018-09-11T08:23:07.000Z" title="2018-09-11, 11:23">11  сентября  2018 в 11:23</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Руководство по Node.js, часть 1: общие сведения и начало работы</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/ruvds/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании RUVDS.com</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/javascript/" class="tm-article-snippet__hubs-item-link"><span>JavaScript</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/nodejs/" class="tm-article-snippet__hubs-item-link"><span>Node.JS</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-translation"><span>
+        Перевод
+      </span></div><div class="tm-article-snippet__label tm-article-snippet__label_variant-tutorial"><span>
+        Tutorial
+      </span></div></div> <!----> <!----></div></div> <div class="tm-article-presenter__origin"><a href="https://medium.freecodecamp.org/the-definitive-node-js-handbook-6912378afc6e" target="_blank" class="tm-article-presenter__origin-link">
+                Автор оригинала:
+                <span>
+                  Flavio Copes
+                </span></a></div> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">Мы начинаем публикацию серии материалов, которые представляют собой поэтапный перевод <a href="https://medium.freecodecamp.org/the-definitive-node-js-handbook-6912378afc6e">руководства</a> по Node.js для начинающих. А именно, в данном случае «начинающий» — это тот, кто обладает некоторыми познаниями в области браузерного JavaScript. Он слышал о том, что существует серверная платформа, программы для которой тоже пишут на JS, и хотел бы эту платформу освоить. Возможно, вы найдёте здесь что-то полезное для себя и в том случае, если уже знакомы с Node.js.<br/>
+<br/>
+Кстати, в прошлом году у нас был похожий по масштабам <a href="https://habr.com/company/ruvds/blog/325522/">проект</a>, посвящённый bash-скриптам. Тогда мы, после публикации всех запланированных материалов, собрали их в виде <a href="https://habr.com/company/ruvds/blog/336764/">PDF-файла</a>. Так же планируется поступить и в этот раз.<br/>
+<br/>
+<a href="https://habr.com/company/ruvds/blog/422893/"><img src="https://habrastorage.org/r/w1560/webt/he/di/2j/hedi2j_qyfbnwfo_jqnnqd3ub6o.png" data-src="https://habrastorage.org/webt/he/di/2j/hedi2j_qyfbnwfo_jqnnqd3ub6o.png"/></a><br/>
+<br/>
+Сегодня мы обсудим особенности Node.js, начнём знакомство с экосистемой этой платформы и напишем серверный «Hello World».<br/>
+<br/>
+<div class="spoiler"><b class="spoiler_title">[Советуем почитать] Другие части цикла</b><div class="spoiler_text">Часть 1: <a href="https://habr.com/company/ruvds/blog/422893/">Общие сведения и начало работы</a><br/>
+Часть 2: <a href="https://habr.com/company/ruvds/blog/423153/">JavaScript, V8, некоторые приёмы разработки</a><br/>
+Часть 3: <a href="https://habr.com/company/ruvds/blog/423701/">Хостинг, REPL, работа с консолью, модули</a><br/>
+Часть 4: <a href="https://habr.com/company/ruvds/blog/423703/">npm, файлы package.json и package-lock.json</a><br/>
+Часть 5: <a href="https://habr.com/company/ruvds/blog/423705/">npm и npx</a><br/>
+Часть 6: <a href="https://habr.com/company/ruvds/blog/424553/">цикл событий, стек вызовов, таймеры</a><br/>
+Часть 7: <a href="https://habr.com/company/ruvds/blog/424555/">асинхронное программирование</a><br/>
+Часть 8: <a href="https://habr.com/company/ruvds/blog/424557/">Руководство по Node.js, часть 8: протоколы HTTP и WebSocket</a><br/>
+Часть 9: <a href="https://habr.com/company/ruvds/blog/424969/">Руководство по Node.js, часть 9: работа с файловой системой</a><br/>
+Часть 10: <a href="https://habr.com/company/ruvds/blog/425667/">Руководство по Node.js, часть 10: стандартные модули, потоки, базы данных, NODE_ENV</a><br/>
+<a href="https://habr.com/company/ruvds/blog/428576/">Полная PDF-версия руководства по Node.js</a><br/>
+</div></div><a name="habracut"></a><br/>
+<h2><font color="#3AC1EF">Обзор Node.js</font></h2><br/>
+Node.js — это опенсорсная кроссплатформенная среда выполнения для JavaScript, которая работает на серверах. С момента выпуска этой платформы в 2009 году она стала чрезвычайно популярной и в наши дни играет весьма важную роль в области веб-разработки. Если считать показателем популярности число звёзд, которые собрал некий проект на GitHub, то <a href="https://github.com/nodejs/node">Node.js</a>, у которого более 50000 звёзд, это очень и очень популярный проект.<br/>
+<br/>
+Платформа Node.js построена на базе JavaScript движка V8 от Google, который используется в браузере Google Chrome. Данная платформа, в основном, используется для создания веб-серверов, однако сфера её применения этим не ограничивается.<br/>
+<br/>
+Рассмотрим основные особенности Node.js.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Скорость</font></h3><br/>
+Одной из основных привлекательных особенностей Node.js является скорость. JavaScript-код, выполняемый в среде Node.js, может быть в два раза быстрее, чем код, написанный на компилируемых языках, вроде C или Java, и на порядки быстрее интерпретируемых языков наподобие Python или Ruby. Причиной подобного является неблокирующая архитектура платформы, а конкретные результаты зависят от используемых тестов производительности, но, в целом, Node.js — это очень быстрая платформа.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Простота</font></h3><br/>
+Платформа Node.js проста в освоении и использовании. На самом деле, она прямо-таки очень проста, особенно это заметно в сравнении с некоторыми другими серверными платформами.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍JavaScript</font></h3><br/>
+В среде Node.js выполняется код, написанный на JavaScript. Это означает, что миллионы фронтенд-разработчиков, которые уже пользуются JavaScript в браузере, могут писать и серверный, и клиентский код на одном и том же языке программирования без необходимости изучать совершенно новый инструмент для перехода к серверной разработке.<br/>
+<br/>
+В браузере и на сервере используются одинаковые концепции языка. Кроме того, в Node.js можно оперативно переходить на использование новых стандартов ECMAScript по мере их реализации на платформе. Для этого не нужно ждать до тех пор, пока пользователи обновят браузеры, так как Node.js — это серверная среда, которую полностью контролирует разработчик. В результате новые возможности языка оказываются доступными при установке поддерживающей их версии Node.js.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Движок V8</font></h3><br/>
+В основе Node.js, помимо других решений, лежит опенсорсный JavaScript-движок V8 от Google, применяемый в браузере Google Chrome и в других браузерах. Это означает, что Node.js пользуется наработками тысяч инженеров, которые сделали среду выполнения JavaScript Chrome невероятно быстрой и продолжают работать в направлении совершенствования V8.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Асинхронность</font></h3><br/>
+В традиционных языках программирования (C, Java, Python, PHP) все инструкции, по умолчанию, являются блокирующими, если только разработчик явным образом не позаботится об асинхронном выполнении кода. В результате если, например, в такой среде, произвести сетевой запрос для загрузки некоего JSON-кода, выполнение потока, из которого сделан запрос, будет приостановлено до тех пор, пока не завершится получение и обработка ответа.<br/>
+<br/>
+JavaScript значительно упрощает написание асинхронного и неблокирующего кода с использованием единственного потока, функций обратного вызова (коллбэков) и подхода к разработке, основанной на событиях. Каждый раз, когда нам нужно выполнить тяжёлую операцию, мы передаём соответствующему механизму коллбэк, который будет вызван сразу после завершения этой операции. В результате, для того чтобы программа продолжила работу, ждать результатов выполнения подобных операций не нужно.<br/>
+<br/>
+Подобный механизм возник в браузерах. Мы не можем позволить себе ждать, скажем, окончания выполнения AJAX-запроса, не имея при этом возможности реагировать на действия пользователя, например, на щелчки по кнопкам. Для того чтобы пользователям было удобно работать с веб-страницами, всё, и загрузка данных из сети, и обработка нажатия на кнопки, должно происходить одновременно, в режиме реального времени.<br/>
+<br/>
+Если вы создавали когда-нибудь обработчик события нажатия на кнопку, то вы уже пользовались методиками асинхронного программирования.<br/>
+<br/>
+Асинхронные механизмы позволяют единственному Node.js-серверу одновременно обрабатывать тысячи подключений, не нагружая при этом программиста задачами по управлению потоками и по организации параллельного выполнения кода. Подобные вещи часто являются источниками ошибок.<br/>
+<br/>
+Node.js предоставляет разработчику неблокирующие базовые механизмы ввода вывода, и, в целом, библиотеки, использующиеся в среде Node.js, написаны с использованием неблокирующих парадигм. Это делает блокирующее поведение кода скорее исключением, чем нормой.<br/>
+<br/>
+Когда Node.js нужно выполнить операцию ввода-вывода, вроде загрузки данных из сети, доступа к базе данных или к файловой системе, вместо того, чтобы заблокировать ожиданием результатов такой операции главный поток, Node.js инициирует её выполнение и продолжает заниматься другими делами до тех пор, пока результаты выполнения этой операции не будут получены.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍Библиотеки</font></h3><br/>
+Благодаря простоте и удобству работы с менеджером пакетов для Node.js, который называется <a href="https://flaviocopes.com/npm/">npm</a>, экосистема Node.js прямо-таки процветает. Сейчас в <a href="https://www.npmjs.com/">реестре npm</a> имеется более полумиллиона опенсорсных пакетов, которые может свободно использовать любой Node.js-разработчик.<br/>
+Рассмотрев некоторые основные особенности платформы Node.js, опробуем её в действии. Начнём с установки.<br/>
+<br/>
+<h2><font color="#3AC1EF">Установка Node.js</font></h2><br/>
+Node.js можно устанавливать различными способами, которые мы сейчас рассмотрим.<br/>
+Так, официальные установочные пакеты для всех основных платформ можно найти <a href="https://nodejs.org/en/download/">здесь</a>.<br/>
+<br/>
+Существует ещё один весьма удобный способ установки Node.js, который заключается в использовании менеджера пакетов, имеющегося в операционной системе. Например, менеджер пакетов macOS, который является фактическим стандартом в этой области, называется <a href="https://brew.sh/">Homebrew</a>. Если он в вашей системе есть, вы можете установить Node.js, выполнив эту команду в командной строке:<br/>
+<br/>
+<pre><code>brew install node</code></pre><br/>
+Список менеджеров пакетов для других операционных систем, в том числе — для Linux и Windows, можно найти <a href="https://nodejs.org/en/download/package-manager/">здесь</a>.<br/>
+<br/>
+Популярным менеджером версий Node.js является <a href="https://github.com/creationix/nvm/blob/master/README.md">nvm</a>. Это средство позволяет удобно переключаться между различными версиями Node.js, с его помощью можно, например, установить и попробовать новую версию Node.js, после чего, при необходимости, вернуться на старую. Nvm пригодится и в ситуации, когда нужно испытать какой-нибудь код на старой версии Node.js.<br/>
+<br/>
+Я посоветовал бы начинающим пользоваться официальными установщиками Node.js. Пользователям macOS я порекомендовал бы устанавливать Node.js с помощью Homebrew. Теперь, после того, как вы установили Node.js, пришло время написать «Hello World».<br/>
+<br/>
+<h2><font color="#3AC1EF">Первое Node.js-приложение</font></h2><br/>
+Самым распространённым примером первого приложения для Node.js можно назвать простой веб-сервер. Вот его код:<br/>
+<br/>
+<pre><code>const http = require('http')
+const hostname = '127.0.0.1'
+const port = 3000
+const server = http.createServer((req, res) => {
+  res.statusCode = 200
+  res.setHeader('Content-Type', 'text/plain')
+  res.end('Hello World\n')
+})
+server.listen(port, hostname, () => {
+  console.log(`Server running at http://${hostname}:${port}/`)
+})</code></pre><br/>
+Для того чтобы запустить этот код, сохраните его в файле <code>server.js</code> и выполните в терминале такую команду:<br/>
+<br/>
+<pre><code>node server.js</code></pre><br/>
+Для проверки сервера откройте какой-нибудь браузер и введите в адресной строке <code>http://127.0.0.1:3000</code>, то есть — тот адрес сервера, который будет выведен в консоли после его успешного запуска. Если всё работает как надо — на странице будет выведено «Hello World».<br/>
+<br/>
+Разберём этот пример.<br/>
+<br/>
+Для начала, обратите внимание на то, что код содержит команду подключения модуля <a href="https://nodejs.org/api/http.html">http</a>.<br/>
+<br/>
+Платформа Node.js является обладателем замечательного <a href="https://nodejs.org/api/">стандартного набора модулей</a>, в который входят отлично проработанные механизмы для работы с сетью.<br/>
+<br/>
+Метод <code>createServer()</code> объекта <code>http</code> создаёт новый HTTP-сервер и возвращает его.<br/>
+<br/>
+Сервер настроен на прослушивание определённого порта на заданном хосте. Когда сервер будет готов, вызывается соответствующий коллбэк, сообщающий нам о том, что сервер работает.<br/>
+<br/>
+Когда сервер получает запрос, вызывается событие <code>request</code>, предоставляющее два объекта. Первый — это запрос (<code>req</code>, объект <a href="https://nodejs.org/api/http.html#http_class_http_incomingmessage">http.IncomingMessage</a>), второй — ответ (<code>res</code>, объект <a href="https://nodejs.org/api/http.html#http_class_http_serverresponse">http.ServerResponse</a>). Они представляют собой важнейшие механизмы обработки HTTP-запросов.<br/>
+<br/>
+Первый предоставляет в наше распоряжение сведения о запросе. В нашем простом примере этими данными мы не пользуемся, но, при необходимости, с помощью объекта <code>req</code> можно получить доступ к заголовкам запроса и к переданным в нём данным.<br/>
+<br/>
+Второй нужен для формирования и отправки ответа на запрос.<br/>
+<br/>
+В данном случае ответ на запрос мы формируем следующим образом. Сначала устанавливаем свойство <code>statusCode</code> в значение <code>200</code>, что указывает на успешное выполнение операции:<br/>
+<br/>
+<pre><code>res.statusCode = 200</code></pre><br/>
+Далее, мы устанавливаем заголовок <code>Content-Type</code>:<br/>
+<br/>
+<pre><code>res.setHeader('Content-Type', 'text/plain')</code></pre><br/>
+После этого мы завершаем подготовку ответа, добавляя его содержимое в качестве аргумента метода <code>end()</code>:<br/>
+<br/>
+<pre><code>res.end('Hello World\n')</code></pre><br/>
+Мы уже говорили о том, что вокруг платформы Node.js сформировалась мощная экосистема. Обсудим теперь некоторые популярные фреймворки и вспомогательные инструменты для Node.js.<br/>
+<br/>
+<h2><font color="#3AC1EF">Фреймворки и вспомогательные инструменты для Node.js</font></h2><br/>
+Node.js — это низкоуровневая платформа. Для того чтобы упростить разработку для неё и облегчить жизнь программистам, было создано огромное количество библиотек. Некоторые из них со временем стали весьма популярными. Вот небольшой список библиотек, которые я считаю отлично сделанными и достойными изучения:<br/>
+<br/>
+<ul>
+<li><a href="https://expressjs.com/">Express</a>. Эта библиотека предоставляет разработчику предельно простой, но мощный инструмент для создания веб-серверов. Ключом к успеху Express стал минималистический подход и ориентация на базовые серверные механизмы без попытки навязать некое видение «единственно правильной» серверной архитектуры.</li>
+<li><a href="https://flaviocopes.com/meteor/">Meteor</a>. Это — мощный фулстек-фреймворк, реализующий изоморфный подход к разработке приложений на JavaScript и к использованию кода и на клиенте, и на сервере. Когда-то Meteor представлял собой самостоятельный инструмент, включающий в себя всё, что только может понадобиться разработчику. Теперь он, кроме того, интегрирован с фронтенд-библиотеками, такими, как <a href="https://flaviocopes.com/react/">React</a>, <a href="https://flaviocopes.com/vue-introduction/">Vue</a> и <a href="https://angularjs.org/">Angular</a>. Meteor, помимо разработки обычных веб-приложений, можно использовать и в мобильной разработке.</li>
+<li><a href="http://koajs.com/">Koa</a>. Этот веб-фреймворк создан той же командой, которая занимается работой над Express. При его разработке, в основу которой легли годы опыта работы над Express, внимание уделялось простоте решения и его компактности. Этот проект появился как решение задачи внесения в Express серьёзных изменений, несовместимых с другими механизмами фреймворка, которые могли бы расколоть сообщество.</li>
+<li><a href="https://flaviocopes.com/nextjs/">Next.js</a>. Этот фреймворк предназначен для организации серверного рендеринга <a href="https://reactjs.org/">React</a>-приложений.</li>
+<li><a href="https://github.com/zeit/micro">Micro</a>. Это — весьма компактная библиотека для создания асинхронных HTTP-микросервисов.</li>
+<li><a href="https://socket.io/">Socket.io</a>. Это библиотека для разработки сетевых приложений реального времени.</li>
+</ul><br/>
+На самом деле, в экосистеме Node.js можно найти вспомогательную библиотеку для решения практически любой задачи. Как вы понимаете, на строительство подобной экосистемы нужно немало времени. Платформа Node.js появилась в 2009 году. За время её существования случилось много всего такого, о чём стоит знать программисту, который хочет изучить эту платформу.<br/>
+<br/>
+<h2><font color="#3AC1EF">Краткая история Node.js</font></h2><br/>
+В этом году Node.js исполнилось уже 9 лет. Это, конечно, не так уж и много, если сравнить этот возраст с возрастом JavaScript, которому уже 23 года, или с 25-летним возрастом веба, существующем в таком виде, в котором мы его знаем, если считать от появления браузера Mosaic.<br/>
+<br/>
+9 лет — это маленький срок для технологии, но сейчас возникает такое ощущение, что платформа Node.js существовала всегда.<br/>
+<br/>
+Я начал работу с Node.js с ранних версий платформы, когда ей было ещё только 2 года. Даже тогда, несмотря на то, что информации о Node.js было не так уж и много, уже можно было почувствовать, что Node.js — это очень серьёзно.<br/>
+<br/>
+Теперь поговорим о технологиях, лежащих в основе Node.js и кратко рассмотрим основные события, связанные с этой платформой.<br/>
+<br/>
+Итак, JavaScript — это язык программирования, который был создан в Netscape как скриптовый язык, предназначенный для управления веб-страницами в браузере <a href="https://en.wikipedia.org/wiki/Netscape_Navigator">Netscape Navigator</a>.<br/>
+<br/>
+Частью бизнеса Netscape была продажа веб-серверов, которые включали в себя среду, называемую Netscape LiveWire. Она позволяла создавать динамические веб-страницы, используя серверный JavaScript. Как видите, идея использования JS для серверной разработки гораздо старше чем Node.js. Этой идее почти столько же лет, сколько и самому JavaScript, но во времена, о которых идёт речь, популярности серверный JS не снискал.<br/>
+<br/>
+Одним из ключевых факторов, благодаря которому платформа Node.js стала столь распространённой и популярной, является время её появления. Так, за несколько лет до этого JavaScript начали считать серьёзным языком. Случилось это благодаря приложениям Web 2.0, вроде Google Maps или Gmail, которые продемонстрировали миру возможности современных веб-технологий.<br/>
+<br/>
+Благодаря конкурентной войне браузеров, которая продолжается и по сей день, серьёзно возросла производительность JavaScript-движков. Команды разработчиков, стоящих за основными браузерами, каждый день работают над повышением производительности их решений, что благотворно влияет на JavaScript в целом. Один из таких движков — это уже упомянутый V8, используемый в браузере Chrome и применяемый в Node.js. Он является одним из результатов стремления разработчиков браузеров к высокой производительности JS-кода.<br/>
+<br/>
+Конечно же, популярность Node.js основана не только на удачном стечении обстоятельств и на том, что эта платформа появилась в правильное время. Она представила миру инновационный подход к серверной разработке на JavaScript. Рассмотрим основные вехи истории Node.js.<br/>
+<br/>
+<h3><font color="#3AC1EF">▍2009</font></h3><br/>
+<ul>
+<li>Появление Node.js</li>
+<li>Создание первого варианта <a href="https://flaviocopes.com/npm/">npm</a>.</li>
+</ul><br/>
+<h3><font color="#3AC1EF">▍2010</font></h3><br/>
+<ul>
+<li>Появление <a href="https://flaviocopes.com/express/">Express</a>.</li>
+<li>Появление <a href="https://socket.io/">Socket.io</a>.</li>
+</ul><br/>
+<h3><font color="#3AC1EF">▍2011</font></h3><br/>
+<ul>
+<li>Выход npm 1.0.</li>
+<li>Большие компании, такие, как <a href="https://www.linkedin.com/">LinkedIn</a> и <a href="https://www.uber.com/">Uber</a>, начали пользоваться Node.js.</li>
+</ul><br/>
+<h3><font color="#3AC1EF">▍2012</font></h3><br/>
+<ul>
+<li>Быстрый рост популярности Node.js.</li>
+</ul><br/>
+<h3><font color="#3AC1EF">▍2013</font></h3><br/>
+<ul>
+<li>Появление <a href="https://ghost.org/">Ghost</a>, первой крупной платформы для публикаций, использующей Node.js.</li>
+<li>Выпуск <a href="https://koajs.com/">Koa</a>.</li>
+</ul><br/>
+<h3><font color="#3AC1EF">▍2014</font></h3><br/>
+<ul>
+<li>В этом году произошли драматические события. Появился проект <a href="https://iojs.org/">IO.js</a>, являющийся форком Node.js, целью создания которого, кроме прочего, было внедрение поддержки ES6 и ускорение развития платформы.</li>
+</ul><br/>
+<h3><font color="#3AC1EF">▍2015</font></h3><br/>
+<ul>
+<li>Основание организации <a href="https://foundation.nodejs.org/">Node.js Foundation</a>.</li>
+<li>Слияние IO.js и Node.js.</li>
+<li>В npm появляется возможность работать с приватными модулями.</li>
+<li>Выход <a href="https://nodejs.org/en/blog/release/v4.0.0/">Node.js 4</a> (надо отметить, что версий 1, 2 и 3 у этой платформы не было).</li>
+</ul><br/>
+<h3><font color="#3AC1EF">▍2016</font></h3><br/>
+<ul>
+<li>Инцидент с пакетом <a href="https://blog.npmjs.org/post/141577284765/kik-left-pad-and-npm">left-pad</a>.</li>
+<li>Появление <a href="https://flaviocopes.com/yarn/">Yarn</a>.</li>
+<li>Выход Node.js 6.</li>
+</ul><br/>
+<h3><font color="#3AC1EF">▍2017</font></h3><br/>
+<ul>
+<li>В npm начинают больше внимания уделять безопасности.</li>
+<li>Выход Node.js 8</li>
+<li>Появление поддержки <a href="https://nodejs.org/api/http2.html">HTTP/2</a>.</li>
+<li><a href="https://flaviocopes.com/v8/">V8</a> официально признают в качестве JS-движка, предназначенного не только для Chrome, но и для Node.</li>
+<li>Еженедельно осуществляется 3 миллиарда загрузок из npm.</li>
+</ul><br/>
+<h3><font color="#3AC1EF">▍2018</font></h3><br/>
+<ul>
+<li>Выход Node.js 10.</li>
+<li>Поддержка <a href="https://flaviocopes.com/es-modules/">ES-модулей</a>.</li>
+<li>Экспериментальная поддержка <a href="https://nodejs.org/api/esm.html">mjs</a>.</li>
+</ul><br/>
+<h2><font color="#3AC1EF">Итоги</font></h2><br/>
+Сегодня вы ознакомились с платформой Node.js, разобрались с её установкой, написали и испытали первое простое приложение. В следующий раз мы поговорим о том, каким объёмом знаний в области JavaScript нужно обладать для успешной разработки для Node.js, о том, чем различаются браузерный и серверный JS-код, и обсудим некоторые приёмы Node.js-разработки.<br/>
+<br/>
+Уважаемые читатели! Скажите, запустился ли у вас Hello World для Node.js?<br/>
+<br/>
+Следующие части руководства:<br/>
+Часть 1: <a href="https://habr.com/company/ruvds/blog/422893/">Общие сведения и начало работы</a><br/>
+Часть 2: <a href="https://habr.com/company/ruvds/blog/423153/">JavaScript, V8, некоторые приёмы разработки</a><br/>
+Часть 3: <a href="https://habr.com/company/ruvds/blog/423701/">Хостинг, REPL, работа с консолью, модули</a><br/>
+Часть 4: <a href="https://habr.com/company/ruvds/blog/423703/">npm, файлы package.json и package-lock.json</a><br/>
+Часть 5: <a href="https://habr.com/company/ruvds/blog/423705/">npm и npx</a><br/>
+Часть 6: <a href="https://habr.com/company/ruvds/blog/424553/">цикл событий, стек вызовов, таймеры</a><br/>
+Часть 7: <a href="https://habr.com/company/ruvds/blog/424555/">асинхронное программирование</a><br/>
+<a href="https://ruvds.com/ru-rub/#order"><img src="https://habrastorage.org/r/w1560/files/1ba/550/d25/1ba550d25e8846ce8805de564da6aa63.png" data-src="https://habrastorage.org/files/1ba/550/d25/1ba550d25e8846ce8805de564da6aa63.png"/></a></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <div class="tm-article-poll"><div class="tm-notice tm-article-poll__notice tm-notice_positive"><!----> <div class="tm-notice__inner"><!----> <div class="tm-notice__content"><span>Только зарегистрированные пользователи могут участвовать в опросе. <a rel="nofollow" href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/ruvds/blog/422893/&amp;hl=ru">Войдите</a>, пожалуйста.</span></div></div></div> <div class="tm-article-poll__header">Продолжать ли перевод цикла статей про Node.js?</div> <div class="tm-article-poll__answers"><div class="tm-article-poll__answer"><div class="tm-article-poll__answer-data"><span class="tm-article-poll__answer-percent tm-article-poll__answer-percent_winning">
+            85.03%
+          </span> <span class="tm-article-poll__answer-label">Категорически да :)</span> <span class="tm-article-poll__answer-votes">
+            517
+          </span></div> <div class="tm-article-poll__answer-bar"><div class="tm-article-poll__answer-progress tm-article-poll__answer-progress_winning" style="width:85.03%;"></div></div></div><div class="tm-article-poll__answer"><div class="tm-article-poll__answer-data"><span class="tm-article-poll__answer-percent">
+            11.68%
+          </span> <span class="tm-article-poll__answer-label">С удовольствием добавлю в закладки</span> <span class="tm-article-poll__answer-votes">
+            71
+          </span></div> <div class="tm-article-poll__answer-bar"><div class="tm-article-poll__answer-progress" style="width:11.68%;"></div></div></div><div class="tm-article-poll__answer"><div class="tm-article-poll__answer-data"><span class="tm-article-poll__answer-percent">
+            3.29%
+          </span> <span class="tm-article-poll__answer-label">Да нет наверное</span> <span class="tm-article-poll__answer-votes">
+            20
+          </span></div> <div class="tm-article-poll__answer-bar"><div class="tm-article-poll__answer-progress" style="width:3.29%;"></div></div></div></div> <div class="tm-article-poll__stats">
+       Проголосовали 608 пользователей. 
+
+       Воздержались 46 пользователей. 
+    </div></div></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BJavaScript%5D" class="tm-tags-list__link">JavaScript</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BNode.js%5D" class="tm-tags-list__link">Node.js</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BE%D0%B1%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5%5D" class="tm-tags-list__link">обучение</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0%5D" class="tm-tags-list__link">разработка</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/ruvds/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании RUVDS.com
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/javascript/" class="tm-hubs-list__link">
+    JavaScript
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/nodejs/" class="tm-hubs-list__link">
+    Node.JS
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 47: ↑39 и ↓8</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 47: ↑39 и ↓8" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+31</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">231K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    708
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/ruvds/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/f27/ea8/5bd/f27ea85bd62fbd985c308110885af7e0.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/ruvds/profile/" class="tm-company-snippet__title">RUVDS.com</a> <div class="tm-company-snippet__description">VDS/VPS-хостинг. Скидка 10% по коду <b>HABR10</b></div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="https://facebook.com/ruvds" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Facebook
+    </a><a href="https://twitter.com/ru_vds" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Twitter
+    </a><a href="https://vk.com/ru_vds" rel="noopener" target="_blank" class="tm-article-author__contact">
+      ВКонтакте
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/ru_vds/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/e36/812/d3d/e36812d3de38eb3d479d7a13228717ef.png" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 1009 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    247
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">131.5</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><!----> <a href="https://habr.com/ru/users/ru_vds/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @ru_vds
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/ruvds/blog/422893/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 25 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2015-07-26T21:00:00.000Z" title="2015-07-27, 00:00">27  июля  2015</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://ruvds.com" target="_blank" class="tm-company-basic-info__link">
+      ruvds.com
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    11–30 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2016-03-18T05:43:01.000Z" title="2016-03-18, 08:43">18  марта  2016</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Представитель</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://habr.com/ru/users/ruvds/" class="tm-company-basic-info__link">
+      ruvds
+    </a></dd></dl></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/ruvds/blog/422893/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/ruvds/blog/422893/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"422893":{"id":"422893","timePublished":"2018-09-11T08:23:07+00:00","isCorporative":true,"lang":"ru","titleHtml":"Руководство по Node.js, часть 1: общие сведения и начало работы","leadData":{"textHtml":"Мы начинаем публикацию серии материалов, которые представляют собой поэтапный перевод \u003Ca href=\"https:\u002F\u002Fmedium.freecodecamp.org\u002Fthe-definitive-node-js-handbook-6912378afc6e\"\u003Eруководства\u003C\u002Fa\u003E по Node.js для начинающих. А именно, в данном случае «начинающий» — это тот, кто обладает некоторыми познаниями в области браузерного JavaScript. Он слышал о том, что существует серверная платформа, программы для которой тоже пишут на JS, и хотел бы эту платформу освоить. Возможно, вы найдёте здесь что-то полезное для себя и в том случае, если уже знакомы с Node.js.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nКстати, в прошлом году у нас был похожий по масштабам \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F325522\u002F\"\u003Eпроект\u003C\u002Fa\u003E, посвящённый bash-скриптам. Тогда мы, после публикации всех запланированных материалов, собрали их в виде \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F336764\u002F\"\u003EPDF-файла\u003C\u002Fa\u003E. Так же планируется поступить и в этот раз.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F422893\u002F\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fhe\u002Fdi\u002F2j\u002Fhedi2j_qyfbnwfo_jqnnqd3ub6o.png\"\u003E\u003C\u002Fa\u003E\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nСегодня мы обсудим особенности Node.js, начнём знакомство с экосистемой этой платформы и напишем серверный «Hello World».\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003E[Советуем почитать] Другие части цикла\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EЧасть 1: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F422893\u002F\"\u003EОбщие сведения и начало работы\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 2: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423153\u002F\"\u003EJavaScript, V8, некоторые приёмы разработки\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 3: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423701\u002F\"\u003EХостинг, REPL, работа с консолью, модули\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 4: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423703\u002F\"\u003Enpm, файлы package.json и package-lock.json\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 5: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423705\u002F\"\u003Enpm и npx\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 6: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424553\u002F\"\u003Eцикл событий, стек вызовов, таймеры\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 7: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424555\u002F\"\u003Eасинхронное программирование\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 8: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424557\u002F\"\u003EРуководство по Node.js, часть 8: протоколы HTTP и WebSocket\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 9: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424969\u002F\"\u003EРуководство по Node.js, часть 9: работа с файловой системой\u003C\u002Fa\u003E\u003Cbr\u003E\r\nЧасть 10: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F425667\u002F\"\u003EРуководство по Node.js, часть 10: стандартные модули, потоки, базы данных, NODE_ENV\u003C\u002Fa\u003E\u003Cbr\u003E\r\n\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F428576\u002F\"\u003EПолная PDF-версия руководства по Node.js\u003C\u002Fa\u003E\u003Cbr\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"translation","data":{"originalAuthorName":"Flavio Copes","originalUrl":"https:\u002F\u002Fmedium.freecodecamp.org\u002Fthe-definitive-node-js-handbook-6912378afc6e"}},{"type":"tutorial","data":null}],"author":{"scoreStats":{"score":247,"votesCount":1009},"rating":131.5,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1220775","alias":"ru_vds","fullname":null,"avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002Fe36\u002F812\u002Fd3d\u002Fe36812d3de38eb3d479d7a13228717ef.png","speciality":"Пользователь"},"statistics":{"commentsCount":25,"favoritesCount":708,"readingCount":231190,"score":31,"votesCount":47},"hubs":[{"relatedData":null,"id":"19791","alias":"ruvds","type":"corporative","title":"Блог компании RUVDS.com","titleHtml":"Блог компании RUVDS.com","isProfiled":false},{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"357","alias":"javascript","type":"collective","title":"JavaScript","titleHtml":"JavaScript","isProfiled":true},{"relatedData":null,"id":"17110","alias":"nodejs","type":"collective","title":"Node.JS","titleHtml":"Node.JS","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EМы начинаем публикацию серии материалов, которые представляют собой поэтапный перевод \u003Ca href=\"https:\u002F\u002Fmedium.freecodecamp.org\u002Fthe-definitive-node-js-handbook-6912378afc6e\"\u003Eруководства\u003C\u002Fa\u003E по Node.js для начинающих. А именно, в данном случае «начинающий» — это тот, кто обладает некоторыми познаниями в области браузерного JavaScript. Он слышал о том, что существует серверная платформа, программы для которой тоже пишут на JS, и хотел бы эту платформу освоить. Возможно, вы найдёте здесь что-то полезное для себя и в том случае, если уже знакомы с Node.js.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКстати, в прошлом году у нас был похожий по масштабам \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F325522\u002F\"\u003Eпроект\u003C\u002Fa\u003E, посвящённый bash-скриптам. Тогда мы, после публикации всех запланированных материалов, собрали их в виде \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F336764\u002F\"\u003EPDF-файла\u003C\u002Fa\u003E. Так же планируется поступить и в этот раз.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F422893\u002F\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fhe\u002Fdi\u002F2j\u002Fhedi2j_qyfbnwfo_jqnnqd3ub6o.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fhe\u002Fdi\u002F2j\u002Fhedi2j_qyfbnwfo_jqnnqd3ub6o.png\"\u002F\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСегодня мы обсудим особенности Node.js, начнём знакомство с экосистемой этой платформы и напишем серверный «Hello World».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\"\u003E\u003Cb class=\"spoiler_title\"\u003E[Советуем почитать] Другие части цикла\u003C\u002Fb\u003E\u003Cdiv class=\"spoiler_text\"\u003EЧасть 1: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F422893\u002F\"\u003EОбщие сведения и начало работы\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 2: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423153\u002F\"\u003EJavaScript, V8, некоторые приёмы разработки\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 3: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423701\u002F\"\u003EХостинг, REPL, работа с консолью, модули\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 4: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423703\u002F\"\u003Enpm, файлы package.json и package-lock.json\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 5: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423705\u002F\"\u003Enpm и npx\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 6: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424553\u002F\"\u003Eцикл событий, стек вызовов, таймеры\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 7: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424555\u002F\"\u003Eасинхронное программирование\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 8: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424557\u002F\"\u003EРуководство по Node.js, часть 8: протоколы HTTP и WebSocket\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 9: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424969\u002F\"\u003EРуководство по Node.js, часть 9: работа с файловой системой\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 10: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F425667\u002F\"\u003EРуководство по Node.js, часть 10: стандартные модули, потоки, базы данных, NODE_ENV\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F428576\u002F\"\u003EПолная PDF-версия руководства по Node.js\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EОбзор Node.js\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nNode.js — это опенсорсная кроссплатформенная среда выполнения для JavaScript, которая работает на серверах. С момента выпуска этой платформы в 2009 году она стала чрезвычайно популярной и в наши дни играет весьма важную роль в области веб-разработки. Если считать показателем популярности число звёзд, которые собрал некий проект на GitHub, то \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fnodejs\u002Fnode\"\u003ENode.js\u003C\u002Fa\u003E, у которого более 50000 звёзд, это очень и очень популярный проект.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПлатформа Node.js построена на базе JavaScript движка V8 от Google, который используется в браузере Google Chrome. Данная платформа, в основном, используется для создания веб-серверов, однако сфера её применения этим не ограничивается.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРассмотрим основные особенности Node.js.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Скорость\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nОдной из основных привлекательных особенностей Node.js является скорость. JavaScript-код, выполняемый в среде Node.js, может быть в два раза быстрее, чем код, написанный на компилируемых языках, вроде C или Java, и на порядки быстрее интерпретируемых языков наподобие Python или Ruby. Причиной подобного является неблокирующая архитектура платформы, а конкретные результаты зависят от используемых тестов производительности, но, в целом, Node.js — это очень быстрая платформа.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Простота\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nПлатформа Node.js проста в освоении и использовании. На самом деле, она прямо-таки очень проста, особенно это заметно в сравнении с некоторыми другими серверными платформами.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍JavaScript\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВ среде Node.js выполняется код, написанный на JavaScript. Это означает, что миллионы фронтенд-разработчиков, которые уже пользуются JavaScript в браузере, могут писать и серверный, и клиентский код на одном и том же языке программирования без необходимости изучать совершенно новый инструмент для перехода к серверной разработке.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ браузере и на сервере используются одинаковые концепции языка. Кроме того, в Node.js можно оперативно переходить на использование новых стандартов ECMAScript по мере их реализации на платформе. Для этого не нужно ждать до тех пор, пока пользователи обновят браузеры, так как Node.js — это серверная среда, которую полностью контролирует разработчик. В результате новые возможности языка оказываются доступными при установке поддерживающей их версии Node.js.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Движок V8\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВ основе Node.js, помимо других решений, лежит опенсорсный JavaScript-движок V8 от Google, применяемый в браузере Google Chrome и в других браузерах. Это означает, что Node.js пользуется наработками тысяч инженеров, которые сделали среду выполнения JavaScript Chrome невероятно быстрой и продолжают работать в направлении совершенствования V8.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Асинхронность\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВ традиционных языках программирования (C, Java, Python, PHP) все инструкции, по умолчанию, являются блокирующими, если только разработчик явным образом не позаботится об асинхронном выполнении кода. В результате если, например, в такой среде, произвести сетевой запрос для загрузки некоего JSON-кода, выполнение потока, из которого сделан запрос, будет приостановлено до тех пор, пока не завершится получение и обработка ответа.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nJavaScript значительно упрощает написание асинхронного и неблокирующего кода с использованием единственного потока, функций обратного вызова (коллбэков) и подхода к разработке, основанной на событиях. Каждый раз, когда нам нужно выполнить тяжёлую операцию, мы передаём соответствующему механизму коллбэк, который будет вызван сразу после завершения этой операции. В результате, для того чтобы программа продолжила работу, ждать результатов выполнения подобных операций не нужно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПодобный механизм возник в браузерах. Мы не можем позволить себе ждать, скажем, окончания выполнения AJAX-запроса, не имея при этом возможности реагировать на действия пользователя, например, на щелчки по кнопкам. Для того чтобы пользователям было удобно работать с веб-страницами, всё, и загрузка данных из сети, и обработка нажатия на кнопки, должно происходить одновременно, в режиме реального времени.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли вы создавали когда-нибудь обработчик события нажатия на кнопку, то вы уже пользовались методиками асинхронного программирования.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nАсинхронные механизмы позволяют единственному Node.js-серверу одновременно обрабатывать тысячи подключений, не нагружая при этом программиста задачами по управлению потоками и по организации параллельного выполнения кода. Подобные вещи часто являются источниками ошибок.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nNode.js предоставляет разработчику неблокирующие базовые механизмы ввода вывода, и, в целом, библиотеки, использующиеся в среде Node.js, написаны с использованием неблокирующих парадигм. Это делает блокирующее поведение кода скорее исключением, чем нормой.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКогда Node.js нужно выполнить операцию ввода-вывода, вроде загрузки данных из сети, доступа к базе данных или к файловой системе, вместо того, чтобы заблокировать ожиданием результатов такой операции главный поток, Node.js инициирует её выполнение и продолжает заниматься другими делами до тех пор, пока результаты выполнения этой операции не будут получены.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍Библиотеки\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nБлагодаря простоте и удобству работы с менеджером пакетов для Node.js, который называется \u003Ca href=\"https:\u002F\u002Fflaviocopes.com\u002Fnpm\u002F\"\u003Enpm\u003C\u002Fa\u003E, экосистема Node.js прямо-таки процветает. Сейчас в \u003Ca href=\"https:\u002F\u002Fwww.npmjs.com\u002F\"\u003Eреестре npm\u003C\u002Fa\u003E имеется более полумиллиона опенсорсных пакетов, которые может свободно использовать любой Node.js-разработчик.\u003Cbr\u002F\u003E\r\nРассмотрев некоторые основные особенности платформы Node.js, опробуем её в действии. Начнём с установки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EУстановка Node.js\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nNode.js можно устанавливать различными способами, которые мы сейчас рассмотрим.\u003Cbr\u002F\u003E\r\nТак, официальные установочные пакеты для всех основных платформ можно найти \u003Ca href=\"https:\u002F\u002Fnodejs.org\u002Fen\u002Fdownload\u002F\"\u003Eздесь\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСуществует ещё один весьма удобный способ установки Node.js, который заключается в использовании менеджера пакетов, имеющегося в операционной системе. Например, менеджер пакетов macOS, который является фактическим стандартом в этой области, называется \u003Ca href=\"https:\u002F\u002Fbrew.sh\u002F\"\u003EHomebrew\u003C\u002Fa\u003E. Если он в вашей системе есть, вы можете установить Node.js, выполнив эту команду в командной строке:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003Ebrew install node\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nСписок менеджеров пакетов для других операционных систем, в том числе — для Linux и Windows, можно найти \u003Ca href=\"https:\u002F\u002Fnodejs.org\u002Fen\u002Fdownload\u002Fpackage-manager\u002F\"\u003Eздесь\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПопулярным менеджером версий Node.js является \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fcreationix\u002Fnvm\u002Fblob\u002Fmaster\u002FREADME.md\"\u003Envm\u003C\u002Fa\u003E. Это средство позволяет удобно переключаться между различными версиями Node.js, с его помощью можно, например, установить и попробовать новую версию Node.js, после чего, при необходимости, вернуться на старую. Nvm пригодится и в ситуации, когда нужно испытать какой-нибудь код на старой версии Node.js.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯ посоветовал бы начинающим пользоваться официальными установщиками Node.js. Пользователям macOS я порекомендовал бы устанавливать Node.js с помощью Homebrew. Теперь, после того, как вы установили Node.js, пришло время написать «Hello World».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EПервое Node.js-приложение\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nСамым распространённым примером первого приложения для Node.js можно назвать простой веб-сервер. Вот его код:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003Econst http = require('http')\nconst hostname = '127.0.0.1'\nconst port = 3000\nconst server = http.createServer((req, res) =\u003E {\n  res.statusCode = 200\n  res.setHeader('Content-Type', 'text\u002Fplain')\n  res.end('Hello World\\n')\n})\nserver.listen(port, hostname, () =\u003E {\n  console.log(`Server running at http:\u002F\u002F${hostname}:${port}\u002F`)\n})\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДля того чтобы запустить этот код, сохраните его в файле \u003Ccode\u003Eserver.js\u003C\u002Fcode\u003E и выполните в терминале такую команду:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003Enode server.js\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДля проверки сервера откройте какой-нибудь браузер и введите в адресной строке \u003Ccode\u003Ehttp:\u002F\u002F127.0.0.1:3000\u003C\u002Fcode\u003E, то есть — тот адрес сервера, который будет выведен в консоли после его успешного запуска. Если всё работает как надо — на странице будет выведено «Hello World».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРазберём этот пример.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля начала, обратите внимание на то, что код содержит команду подключения модуля \u003Ca href=\"https:\u002F\u002Fnodejs.org\u002Fapi\u002Fhttp.html\"\u003Ehttp\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПлатформа Node.js является обладателем замечательного \u003Ca href=\"https:\u002F\u002Fnodejs.org\u002Fapi\u002F\"\u003Eстандартного набора модулей\u003C\u002Fa\u003E, в который входят отлично проработанные механизмы для работы с сетью.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМетод \u003Ccode\u003EcreateServer()\u003C\u002Fcode\u003E объекта \u003Ccode\u003Ehttp\u003C\u002Fcode\u003E создаёт новый HTTP-сервер и возвращает его.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСервер настроен на прослушивание определённого порта на заданном хосте. Когда сервер будет готов, вызывается соответствующий коллбэк, сообщающий нам о том, что сервер работает.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКогда сервер получает запрос, вызывается событие \u003Ccode\u003Erequest\u003C\u002Fcode\u003E, предоставляющее два объекта. Первый — это запрос (\u003Ccode\u003Ereq\u003C\u002Fcode\u003E, объект \u003Ca href=\"https:\u002F\u002Fnodejs.org\u002Fapi\u002Fhttp.html#http_class_http_incomingmessage\"\u003Ehttp.IncomingMessage\u003C\u002Fa\u003E), второй — ответ (\u003Ccode\u003Eres\u003C\u002Fcode\u003E, объект \u003Ca href=\"https:\u002F\u002Fnodejs.org\u002Fapi\u002Fhttp.html#http_class_http_serverresponse\"\u003Ehttp.ServerResponse\u003C\u002Fa\u003E). Они представляют собой важнейшие механизмы обработки HTTP-запросов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПервый предоставляет в наше распоряжение сведения о запросе. В нашем простом примере этими данными мы не пользуемся, но, при необходимости, с помощью объекта \u003Ccode\u003Ereq\u003C\u002Fcode\u003E можно получить доступ к заголовкам запроса и к переданным в нём данным.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВторой нужен для формирования и отправки ответа на запрос.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ данном случае ответ на запрос мы формируем следующим образом. Сначала устанавливаем свойство \u003Ccode\u003EstatusCode\u003C\u002Fcode\u003E в значение \u003Ccode\u003E200\u003C\u002Fcode\u003E, что указывает на успешное выполнение операции:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003Eres.statusCode = 200\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДалее, мы устанавливаем заголовок \u003Ccode\u003EContent-Type\u003C\u002Fcode\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003Eres.setHeader('Content-Type', 'text\u002Fplain')\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПосле этого мы завершаем подготовку ответа, добавляя его содержимое в качестве аргумента метода \u003Ccode\u003Eend()\u003C\u002Fcode\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003Eres.end('Hello World\\n')\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nМы уже говорили о том, что вокруг платформы Node.js сформировалась мощная экосистема. Обсудим теперь некоторые популярные фреймворки и вспомогательные инструменты для Node.js.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EФреймворки и вспомогательные инструменты для Node.js\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nNode.js — это низкоуровневая платформа. Для того чтобы упростить разработку для неё и облегчить жизнь программистам, было создано огромное количество библиотек. Некоторые из них со временем стали весьма популярными. Вот небольшой список библиотек, которые я считаю отлично сделанными и достойными изучения:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fexpressjs.com\u002F\"\u003EExpress\u003C\u002Fa\u003E. Эта библиотека предоставляет разработчику предельно простой, но мощный инструмент для создания веб-серверов. Ключом к успеху Express стал минималистический подход и ориентация на базовые серверные механизмы без попытки навязать некое видение «единственно правильной» серверной архитектуры.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fflaviocopes.com\u002Fmeteor\u002F\"\u003EMeteor\u003C\u002Fa\u003E. Это — мощный фулстек-фреймворк, реализующий изоморфный подход к разработке приложений на JavaScript и к использованию кода и на клиенте, и на сервере. Когда-то Meteor представлял собой самостоятельный инструмент, включающий в себя всё, что только может понадобиться разработчику. Теперь он, кроме того, интегрирован с фронтенд-библиотеками, такими, как \u003Ca href=\"https:\u002F\u002Fflaviocopes.com\u002Freact\u002F\"\u003EReact\u003C\u002Fa\u003E, \u003Ca href=\"https:\u002F\u002Fflaviocopes.com\u002Fvue-introduction\u002F\"\u003EVue\u003C\u002Fa\u003E и \u003Ca href=\"https:\u002F\u002Fangularjs.org\u002F\"\u003EAngular\u003C\u002Fa\u003E. Meteor, помимо разработки обычных веб-приложений, можно использовать и в мобильной разработке.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"http:\u002F\u002Fkoajs.com\u002F\"\u003EKoa\u003C\u002Fa\u003E. Этот веб-фреймворк создан той же командой, которая занимается работой над Express. При его разработке, в основу которой легли годы опыта работы над Express, внимание уделялось простоте решения и его компактности. Этот проект появился как решение задачи внесения в Express серьёзных изменений, несовместимых с другими механизмами фреймворка, которые могли бы расколоть сообщество.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fflaviocopes.com\u002Fnextjs\u002F\"\u003ENext.js\u003C\u002Fa\u003E. Этот фреймворк предназначен для организации серверного рендеринга \u003Ca href=\"https:\u002F\u002Freactjs.org\u002F\"\u003EReact\u003C\u002Fa\u003E-приложений.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fzeit\u002Fmicro\"\u003EMicro\u003C\u002Fa\u003E. Это — весьма компактная библиотека для создания асинхронных HTTP-микросервисов.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fsocket.io\u002F\"\u003ESocket.io\u003C\u002Fa\u003E. Это библиотека для разработки сетевых приложений реального времени.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nНа самом деле, в экосистеме Node.js можно найти вспомогательную библиотеку для решения практически любой задачи. Как вы понимаете, на строительство подобной экосистемы нужно немало времени. Платформа Node.js появилась в 2009 году. За время её существования случилось много всего такого, о чём стоит знать программисту, который хочет изучить эту платформу.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EКраткая история Node.js\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nВ этом году Node.js исполнилось уже 9 лет. Это, конечно, не так уж и много, если сравнить этот возраст с возрастом JavaScript, которому уже 23 года, или с 25-летним возрастом веба, существующем в таком виде, в котором мы его знаем, если считать от появления браузера Mosaic.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n9 лет — это маленький срок для технологии, но сейчас возникает такое ощущение, что платформа Node.js существовала всегда.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯ начал работу с Node.js с ранних версий платформы, когда ей было ещё только 2 года. Даже тогда, несмотря на то, что информации о Node.js было не так уж и много, уже можно было почувствовать, что Node.js — это очень серьёзно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТеперь поговорим о технологиях, лежащих в основе Node.js и кратко рассмотрим основные события, связанные с этой платформой.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИтак, JavaScript — это язык программирования, который был создан в Netscape как скриптовый язык, предназначенный для управления веб-страницами в браузере \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FNetscape_Navigator\"\u003ENetscape Navigator\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЧастью бизнеса Netscape была продажа веб-серверов, которые включали в себя среду, называемую Netscape LiveWire. Она позволяла создавать динамические веб-страницы, используя серверный JavaScript. Как видите, идея использования JS для серверной разработки гораздо старше чем Node.js. Этой идее почти столько же лет, сколько и самому JavaScript, но во времена, о которых идёт речь, популярности серверный JS не снискал.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОдним из ключевых факторов, благодаря которому платформа Node.js стала столь распространённой и популярной, является время её появления. Так, за несколько лет до этого JavaScript начали считать серьёзным языком. Случилось это благодаря приложениям Web 2.0, вроде Google Maps или Gmail, которые продемонстрировали миру возможности современных веб-технологий.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nБлагодаря конкурентной войне браузеров, которая продолжается и по сей день, серьёзно возросла производительность JavaScript-движков. Команды разработчиков, стоящих за основными браузерами, каждый день работают над повышением производительности их решений, что благотворно влияет на JavaScript в целом. Один из таких движков — это уже упомянутый V8, используемый в браузере Chrome и применяемый в Node.js. Он является одним из результатов стремления разработчиков браузеров к высокой производительности JS-кода.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКонечно же, популярность Node.js основана не только на удачном стечении обстоятельств и на том, что эта платформа появилась в правильное время. Она представила миру инновационный подход к серверной разработке на JavaScript. Рассмотрим основные вехи истории Node.js.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍2009\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EПоявление Node.js\u003C\u002Fli\u003E\r\n\u003Cli\u003EСоздание первого варианта \u003Ca href=\"https:\u002F\u002Fflaviocopes.com\u002Fnpm\u002F\"\u003Enpm\u003C\u002Fa\u003E.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍2010\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EПоявление \u003Ca href=\"https:\u002F\u002Fflaviocopes.com\u002Fexpress\u002F\"\u003EExpress\u003C\u002Fa\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПоявление \u003Ca href=\"https:\u002F\u002Fsocket.io\u002F\"\u003ESocket.io\u003C\u002Fa\u003E.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍2011\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EВыход npm 1.0.\u003C\u002Fli\u003E\r\n\u003Cli\u003EБольшие компании, такие, как \u003Ca href=\"https:\u002F\u002Fwww.linkedin.com\u002F\"\u003ELinkedIn\u003C\u002Fa\u003E и \u003Ca href=\"https:\u002F\u002Fwww.uber.com\u002F\"\u003EUber\u003C\u002Fa\u003E, начали пользоваться Node.js.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍2012\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EБыстрый рост популярности Node.js.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍2013\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EПоявление \u003Ca href=\"https:\u002F\u002Fghost.org\u002F\"\u003EGhost\u003C\u002Fa\u003E, первой крупной платформы для публикаций, использующей Node.js.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВыпуск \u003Ca href=\"https:\u002F\u002Fkoajs.com\u002F\"\u003EKoa\u003C\u002Fa\u003E.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍2014\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EВ этом году произошли драматические события. Появился проект \u003Ca href=\"https:\u002F\u002Fiojs.org\u002F\"\u003EIO.js\u003C\u002Fa\u003E, являющийся форком Node.js, целью создания которого, кроме прочего, было внедрение поддержки ES6 и ускорение развития платформы.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍2015\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EОснование организации \u003Ca href=\"https:\u002F\u002Ffoundation.nodejs.org\u002F\"\u003ENode.js Foundation\u003C\u002Fa\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003EСлияние IO.js и Node.js.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВ npm появляется возможность работать с приватными модулями.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВыход \u003Ca href=\"https:\u002F\u002Fnodejs.org\u002Fen\u002Fblog\u002Frelease\u002Fv4.0.0\u002F\"\u003ENode.js 4\u003C\u002Fa\u003E (надо отметить, что версий 1, 2 и 3 у этой платформы не было).\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍2016\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EИнцидент с пакетом \u003Ca href=\"https:\u002F\u002Fblog.npmjs.org\u002Fpost\u002F141577284765\u002Fkik-left-pad-and-npm\"\u003Eleft-pad\u003C\u002Fa\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПоявление \u003Ca href=\"https:\u002F\u002Fflaviocopes.com\u002Fyarn\u002F\"\u003EYarn\u003C\u002Fa\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВыход Node.js 6.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍2017\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EВ npm начинают больше внимания уделять безопасности.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВыход Node.js 8\u003C\u002Fli\u003E\r\n\u003Cli\u003EПоявление поддержки \u003Ca href=\"https:\u002F\u002Fnodejs.org\u002Fapi\u002Fhttp2.html\"\u003EHTTP\u002F2\u003C\u002Fa\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fflaviocopes.com\u002Fv8\u002F\"\u003EV8\u003C\u002Fa\u003E официально признают в качестве JS-движка, предназначенного не только для Chrome, но и для Node.\u003C\u002Fli\u003E\r\n\u003Cli\u003EЕженедельно осуществляется 3 миллиарда загрузок из npm.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Cfont color=\"#3AC1EF\"\u003E▍2018\u003C\u002Ffont\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EВыход Node.js 10.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПоддержка \u003Ca href=\"https:\u002F\u002Fflaviocopes.com\u002Fes-modules\u002F\"\u003EES-модулей\u003C\u002Fa\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003EЭкспериментальная поддержка \u003Ca href=\"https:\u002F\u002Fnodejs.org\u002Fapi\u002Fesm.html\"\u003Emjs\u003C\u002Fa\u003E.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cfont color=\"#3AC1EF\"\u003EИтоги\u003C\u002Ffont\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nСегодня вы ознакомились с платформой Node.js, разобрались с её установкой, написали и испытали первое простое приложение. В следующий раз мы поговорим о том, каким объёмом знаний в области JavaScript нужно обладать для успешной разработки для Node.js, о том, чем различаются браузерный и серверный JS-код, и обсудим некоторые приёмы Node.js-разработки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУважаемые читатели! Скажите, запустился ли у вас Hello World для Node.js?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСледующие части руководства:\u003Cbr\u002F\u003E\r\nЧасть 1: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F422893\u002F\"\u003EОбщие сведения и начало работы\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 2: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423153\u002F\"\u003EJavaScript, V8, некоторые приёмы разработки\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 3: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423701\u002F\"\u003EХостинг, REPL, работа с консолью, модули\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 4: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423703\u002F\"\u003Enpm, файлы package.json и package-lock.json\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 5: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F423705\u002F\"\u003Enpm и npx\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 6: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424553\u002F\"\u003Eцикл событий, стек вызовов, таймеры\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЧасть 7: \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fruvds\u002Fblog\u002F424555\u002F\"\u003Eасинхронное программирование\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fruvds.com\u002Fru-rub\u002F#order\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F1ba\u002F550\u002Fd25\u002F1ba550d25e8846ce8805de564da6aa63.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F1ba\u002F550\u002Fd25\u002F1ba550d25e8846ce8805de564da6aa63.png\"\u002F\u003E\u003C\u002Fa\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"JavaScript"},{"titleHtml":"Node.js"},{"titleHtml":"обучение"},{"titleHtml":"разработка"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F422893\u002F4637b6b08b5db93befff883f8aff5e7b\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F422893\u002F4637b6b08b5db93befff883f8aff5e7b\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fruvds\\\u002Fblog\\\u002F422893\\\u002F\"},\"headline\":\"Руководство по Node.js, часть 1: общие сведения и начало работы\",\"datePublished\":\"2018-09-11T11:23:07+03:00\",\"dateModified\":\"2018-11-08T12:36:29+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"ru_vds\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Мы начинаем публикацию серии материалов, которые представляют собой поэтапный перевод руководства по Node.js для начинающих. А именно, в данном случае &laquo;начинающи...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fruvds\\\u002Fblog\\\u002F422893\\\u002F#post-content-body\",\"about\":[\"c_ruvds\",\"h_webdev\",\"h_javascript\",\"h_nodejs\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fhe\\\u002Fdi\\\u002F2j\\\u002Fhedi2j_qyfbnwfo_jqnnqd3ub6o.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Ffiles\\\u002F1ba\\\u002F550\\\u002Fd25\\\u002F1ba550d25e8846ce8805de564da6aa63.png\"]}","metaDescription":"Мы начинаем публикацию серии материалов, которые представляют собой поэтапный перевод руководства по Node.js для начинающих. А именно, в данном случае «начинающий» — это тот, кто обладает некоторыми...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[{"id":"28615","timeElapsed":null,"answersType":"radio","votesCount":608,"passCount":46,"textHtml":"Продолжать ли перевод цикла статей про Node.js?","relatedData":null,"variants":[{"id":"137287","textHtml":"Категорически да :)","votesCount":517,"percent":85.03,"selected":false},{"id":"137289","textHtml":"С удовольствием добавлю в закладки","votesCount":71,"percent":11.68,"selected":false},{"id":"137291","textHtml":"Да нет наверное","votesCount":20,"percent":3.29,"selected":false}]}],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"ruvds":{"alias":"ruvds","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002Ff27\u002Fea8\u002F5bd\u002Ff27ea85bd62fbd985c308110885af7e0.png","titleHtml":"RUVDS.com","descriptionHtml":"VDS\u002FVPS-хостинг. Скидка 10% по коду \u003Cb\u003EHABR10\u003C\u002Fb\u003E","relatedData":null,"statistics":{"postsCount":2242,"newsCount":95,"vacanciesCount":0,"employeesCount":75,"careerRating":null,"subscribersCount":45766,"rating":2738.1,"invest":null},"foundationDate":{"year":"2015","month":"07","day":"27"},"location":{"city":{"id":"447159","title":"Москва"},"region":{"id":"1885","title":"Москва и Московская обл."},"country":{"id":"168","title":"Россия"}},"siteUrl":"https:\u002F\u002Fruvds.com","staffNumber":"11–30 человек","registrationDate":"2016-03-18T05:43:01+00:00","representativeUser":{"alias":"ruvds","fullname":null},"contacts":[{"title":"Facebook","url":"https:\u002F\u002Ffacebook.com\u002Fruvds"},{"title":"Twitter","url":"https:\u002F\u002Ftwitter.com\u002Fru_vds"},{"title":"ВКонтакте","url":"https:\u002F\u002Fvk.com\u002Fru_vds"}],"settings":{"analyticsSettings":[{"type":"ym","trackingId":"33905479"}],"branding":{"imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fbranding\u002Fb77\u002F8d5\u002Fa41\u002Fb778d5a41f83016379c6630262c3294c.png","linkUrl":"https:\u002F\u002Fruvds.com\u002Fru-rub","pixelUrl":null},"status":"active","isStartup":false},"metadata":{"titleHtml":"RUVDS.com, Москва - VDS\u002FVPS-хостинг. Скидка 10% по коду \u003Cb\u003EHABR10\u003C\u002Fb\u003E с 27 июля 2015 г.","title":"RUVDS.com, Москва - VDS\u002FVPS-хостинг. Скидка 10% по коду HABR10 с 27 июля 2015 г.","keywords":["Научно-популярное","Читальный зал","DIY или Сделай сам","Информационная безопасность","Системное администрирование","разработка","ruvds_статьи","javascript","ruvds_перевод","ruvds","linux","react","python","ruvds_новости","обучение","системное администрирование","css","node.js","ruvds_статьи_выходного_дня","diy","игры","программирование","информационная безопасность","хостинг","arduino"],"descriptionHtml":"2 242 статьи от авторов компании RUVDS.com","description":"2 242 статьи от авторов компании RUVDS.com"},"aDeskSettings":null,"careerAlias":"ruvds"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

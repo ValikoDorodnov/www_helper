@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Иллюстрированное руководство по OAuth и OpenID Connect / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/flant\/blog\/475942\/"},"headline":"Иллюстрированное руководство по OAuth и OpenID Connect","datePublished":"2019-11-29T09:13:32+03:00","dateModified":"2019-11-29T11:23:50+03:00","author":{"@type":"Person","name":"Андрей Сидоров"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Прим. перев.: В этом замечательном материале компании Okta просто и наглядно рассказывается о принципах работы OAuth и OIDC (OpenID Connect). Эти знания будут по...","url":"https:\/\/habr.com\/ru\/company\/flant\/blog\/475942\/#post-content-body","about":["c_flant","h_infosecurity","h_sys_admin","h_network_technologies","h_itstandarts","f_develop","f_admin"],"image":["https:\/\/habr.com\/share\/publication\/475942\/7a667cb5218a43e0ef2c77f4c8fa138a\/","https:\/\/habrastorage.org\/webt\/rx\/ra\/vg\/rxravgxduaf3sxrhkt2nhug7i6s.jpeg","https:\/\/habrastorage.org\/webt\/lg\/nk\/9q\/lgnk9qkktk3knzxtaayy4xk__nm.jpeg","https:\/\/habrastorage.org\/webt\/d6\/jt\/t2\/d6jtt286dyfri-ktp4ji0brb7eq.jpeg","https:\/\/habrastorage.org\/webt\/ne\/a7\/xr\/nea7xr3zktdkb0xv3m-yf2d5kau.jpeg","https:\/\/habrastorage.org\/webt\/9p\/5g\/tl\/9p5gtl43wfa2mnr6kfbuiazctzs.jpeg","https:\/\/habrastorage.org\/webt\/dl\/at\/5k\/dlat5k4zk6rrpvb7mktbnvtowr8.jpeg","https:\/\/habrastorage.org\/webt\/b4\/o-\/m4\/b4o-m4kvqrsuunljcldxp2q6bae.jpeg","https:\/\/habrastorage.org\/webt\/fu\/fl\/_c\/fufl_cllrq_tdk-zalwp7ataih4.jpeg","https:\/\/habrastorage.org\/webt\/a2\/h-\/kv\/a2h-kvbxckuopojl8dn6swi3rpg.jpeg","https:\/\/habrastorage.org\/webt\/wc\/jv\/td\/wcjvtdihlw8vsjkdgpausfclbmg.jpeg","https:\/\/habrastorage.org\/webt\/a0\/jg\/iq\/a0jgiqevvklh7e8_byzb3eemaum.jpeg","https:\/\/habrastorage.org\/webt\/ez\/uk\/o7\/ezuko7xeyguycpna-e3h-vcyw34.jpeg","https:\/\/habrastorage.org\/webt\/hj\/of\/ng\/hjofngcag_9ccxqxlrc9swusu7k.jpeg","https:\/\/habrastorage.org\/webt\/pv\/xv\/em\/pvxvemmv2zjc5mmmzz9brhxyt2u.jpeg","https:\/\/habrastorage.org\/webt\/id\/8z\/vf\/id8zvfniuutpottsefv7szfcv1i.jpeg","https:\/\/habrastorage.org\/webt\/40\/5y\/qv\/405yqvgjeif_jw_v5rcp9mkdqhm.jpeg","https:\/\/habrastorage.org\/webt\/nc\/uz\/4v\/ncuz4vsgvu5-2pwz03zjd5tcvfq.jpeg","https:\/\/habrastorage.org\/webt\/3x\/2x\/ws\/3x2xws1sjmxxplughakgfhyb-dc.jpeg","https:\/\/habrastorage.org\/webt\/ln\/kg\/vm\/lnkgvmrtvr6xoz9lnewocsaqp3y.jpeg","https:\/\/habrastorage.org\/webt\/_4\/u8\/kp\/_4u8kpoed-au_fxnfprdo_zso1q.jpeg","https:\/\/habrastorage.org\/webt\/ki\/aj\/kr\/kiajkr98mv_-efal16rdec0ma8e.jpeg"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Иллюстрированное руководство по OAuth и OpenID Connect" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Иллюстрированное руководство по OAuth и OpenID Connect" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Иллюстрированное руководство по OAuth и OpenID Connect" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Прим. перев.: В этом замечательном материале компании Okta просто и наглядно рассказывается о принципах работы OAuth и OIDC (OpenID Connect). Эти знания будут полезны разработчикам, системным..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Прим. перев.: В этом замечательном материале компании Okta просто и наглядно рассказывается о принципах работы OAuth и OIDC (OpenID Connect). Эти знания будут полезны разработчикам, системным..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Прим. перев.: В этом замечательном материале компании Okta просто и наглядно рассказывается о принципах работы OAuth и OIDC (OpenID Connect). Эти знания будут полезны разработчикам, системным..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Прим. перев.: В этом замечательном материале компании Okta просто и наглядно рассказывается о принципах работы OAuth и OIDC (OpenID Connect). Эти знания будут полезны разработчикам, системным..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Прим. перев.: В этом замечательном материале компании Okta просто и наглядно рассказывается о принципах работы OAuth и OIDC (OpenID Connect). Эти знания будут полезны разработчикам, системным..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habrastorage.org/webt/lg/nk/9q/lgnk9qkktk3knzxtaayy4xk__nm.jpeg" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habrastorage.org/webt/lg/nk/9q/lgnk9qkktk3knzxtaayy4xk__nm.jpeg" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habrastorage.org/webt/lg/nk/9q/lgnk9qkktk3knzxtaayy4xk__nm.jpeg" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habrastorage.org/webt/lg/nk/9q/lgnk9qkktk3knzxtaayy4xk__nm.jpeg" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habrastorage.org/webt/lg/nk/9q/lgnk9qkktk3knzxtaayy4xk__nm.jpeg?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="475942" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2019-11-29T06:13:32.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/flant/blog/475942/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="OAuth, openid connect, OIDC, авторизация, аутентификация">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/475942/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.99.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habrastorage.org/webt/lg/nk/9q/lgnk9qkktk3knzxtaayy4xk__nm.jpeg" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="flant" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><div class="tm-company-card__branding tm-company-article__branding tm-company-card__branding_loading"><div class="tm-company-card__branding-placeholder"><!----></div> <a href="https://flant.ru"><img src="https://habrastorage.org/getpro/habr/branding/3d4/c06/8ba/3d4c068ba151a5c21727ee9bb31f95de.png" width="100%" class="tm-company-card__branding-image"></a></div></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/flant/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/de7/635/363/de763536359ce6e2d2a978f8dded1964.png" width="48" class="tm-entity-image__pic"></div></a> <a href="https://career.habr.com/companies/flant" rel="noopener" target="_blank" class="tm-grade tm-company-card__rating"><div class="tm-rating"><div class="tm-rating__header"><svg height="24" width="24" class="tm-svg-img tm-svg-grade__icon"><title>Оценка компании на Хабр Карьере</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#grade"></use></svg> <div class="tm-rating__counter tm-rating__counter_variant-grade">4.58</div></div> <div class="tm-rating__text tm-rating__text_variant-grade">
+    Оценка
+  </div></div></a> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">249.76</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/flant/profile/" class="tm-company-card__name">
+      Флант
+    </a> <div class="tm-company-card__description">DevOps-as-a-Service, Kubernetes, обслуживание 24×7</div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/Wimbo/" title="Wimbo" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/09e/3fa/76f/09e3fa76f20fd7c0d84be60a6d41a51d.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/Wimbo/" class="tm-user-info__username">
+      Wimbo
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2019-11-29T06:13:32.000Z" title="2019-11-29, 09:13">29  ноября  2019 в 09:13</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Иллюстрированное руководство по OAuth и OpenID Connect</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/flant/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании Флант</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/infosecurity/" class="tm-article-snippet__hubs-item-link"><span>Информационная безопасность</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/sys_admin/" class="tm-article-snippet__hubs-item-link"><span>Системное администрирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/network_technologies/" class="tm-article-snippet__hubs-item-link"><span>Сетевые технологии</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/itstandarts/" class="tm-article-snippet__hubs-item-link"><span>IT-стандарты</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-translation"><span>
+        Перевод
+      </span></div></div> <!----> <!----></div></div> <div class="tm-article-presenter__origin"><a href="https://developer.okta.com/blog/2019/10/21/illustrated-guide-to-oauth-and-oidc" target="_blank" class="tm-article-presenter__origin-link">
+                Автор оригинала:
+                <span>
+                  David Neal
+                </span></a></div> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><i><b>Прим. перев.</b>: В этом замечательном материале компании Okta просто и наглядно рассказывается о принципах работы OAuth и OIDC (OpenID Connect). Эти знания будут полезны разработчикам, системным администраторам и даже «обычным пользователям» популярных веб-приложений, которые скорее всего тоже обмениваются конфиденциальными данными с другими сервисами.</i><br/>
+<br/>
+В «каменном веке» интернета делиться информацией между сервисами было легко. Вы просто давали свой логин и пароль от одного сервиса другому, чтобы тот вошел в вашу учетную запись и получил любую необходимую ему информацию.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/rx/ra/vg/rxravgxduaf3sxrhkt2nhug7i6s.jpeg" data-src="https://habrastorage.org/webt/rx/ra/vg/rxravgxduaf3sxrhkt2nhug7i6s.jpeg" data-blurred="true"/><br/>
+<i>«Предоставьте свою банковскую учётку». — «Обещаем, что с паролем и деньгами все будет в порядке. Вот прям честно-пречестно!» *хи-хи*</i><br/>
+<br/>
+Жуть! Никто и никогда не должен требовать от пользователя поделиться логином и паролем, его <i>учётными данными</i>, с другим сервисом. Нет никакой гарантии, что организация, стоящая за этим сервисом, будет хранить данные в безопасности и не соберет больше персональной информации, чем нужно. Это может показаться дикостью, но некоторые приложения до сих пор применяют подобную практику!<br/>
+<br/>
+Сегодня имеется единый стандарт, позволяющий одному сервису безопасно воспользоваться данными другого. К сожалению, подобные стандарты используют массу жаргонизмов и терминов, что усложняет их понимание. Цель этого материала — с помощью простых иллюстраций объяснить, как они работают (Думаете, что мои рисунки напоминают детскую мазню? Ну и ладно!).<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/lg/nk/9q/lgnk9qkktk3knzxtaayy4xk__nm.jpeg" data-src="https://habrastorage.org/webt/lg/nk/9q/lgnk9qkktk3knzxtaayy4xk__nm.jpeg" data-blurred="true"/><a name="habracut"></a><br/>
+<br/>
+Между прочим, это руководство также доступно в формате видео:<br/>
+<br/>
+<div class="oembed"><div><div style="left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.2493%;"><div class="tm-iframe_temp" data-src="https://www.youtube.com/embed/t18YB3xDfXI?rel=0&amp;showinfo=1&amp;hl=en-US" data-style="border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;" id="" width=""></div></div></div></div><br/>
+<h2>Дамы и господа, встречайте: OAuth 2.0</h2><br/>
+<a href="https://oauth.net/2/">OAuth 2.0</a> — это стандарт безопасности, позволяющий одному приложению получить разрешение на доступ к информации в другом приложении. Последовательность действий для выдачи разрешения <i>[permission]</i> (или <b>согласия</b> <i>[consent]</i>) часто называют <b>авторизацией</b> <i>[authorization]</i> или даже <b>делегированной авторизацией</b> <i>[delegated authorization]</i>. С помощью этого стандарта вы позволяете приложению считать данные или использовать функции другого приложения от вашего имени, не сообщая ему свой пароль. Класс!<br/>
+<br/>
+В качестве примера представим, что вы обнаружили сайт с названием «Неудачный каламбур дня» <i>[Terrible Pun of the Day]</i> и решили зарегистрироваться на нем, чтобы ежедневно получать каламбуры в виде текстовых сообщений на телефон. Сайт вам очень понравился, и вы решили поделиться им со всеми знакомыми. Ведь жуткие каламбурчики нравятся всем, не так ли?<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/d6/jt/t2/d6jtt286dyfri-ktp4ji0brb7eq.jpeg" data-src="https://habrastorage.org/webt/d6/jt/t2/d6jtt286dyfri-ktp4ji0brb7eq.jpeg" data-blurred="true"/><br/>
+<i>«Неудачный каламбур дня: Слышали о парне, который потерял левую половину тела? Теперь он всегда прав!» (перевод примерный, т.к. в оригинале своя игра слов — прим. перев.)</i><br/>
+<br/>
+Понятно, что писать каждому человеку из контакт-листа не вариант. И, если вы хотя бы чуточку похожи на меня, то пойдете на всё, чтобы избежать лишней работы. Благо Terrible Pun of the Day может сам пригласить всех ваших друзей! Для этого лишь нужно открыть ему доступ к электронной почте контактов — сайт сам отправит им приглашения (OAuth рулит)!<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/ne/a7/xr/nea7xr3zktdkb0xv3m-yf2d5kau.jpeg" data-src="https://habrastorage.org/webt/ne/a7/xr/nea7xr3zktdkb0xv3m-yf2d5kau.jpeg" data-blurred="true"/><br/>
+<i>«Все любят каламбуры! — Уже залогинились? — Хотите открыть доступ сайту Terrible Pun of the Day к списку контактов? — Спасибо! Теперь мы каждый день будем слать напоминания всем, кого вы знаете, до скончания веков! Вы самый лучший друг!»</i><br/>
+<br/>
+<ol>
+<li> Выберите свой сервис электронной почты.</li>
+<li> При необходимости перейдите на сайт почты и войдите в учетную запись.</li>
+<li> Дайте разрешение сайту Terrible Pun of the Day на доступ к контактам.</li>
+<li> Вернитесь на сайт Terrible Pun of the Day.</li>
+</ol><br/>
+В случае, если вы передумаете, приложения, использующие OAuth, также предоставляют способ аннулировать доступ. Решив, что вы больше не желаете делиться контактами с Terrible Pun of the Day, вы можете перейти на сайт почты и удалить сайт с каламбурами из списка авторизованных приложений.<br/>
+<br/>
+<h2>Поток OAuth</h2><br/>
+Только что мы прошли через то, что обычно называют <b>потоком</b> <i>[flow]</i> OAuth. В нашем примере этот поток состоит из видимых шагов, а также из нескольких невидимых шагов, в рамках которых два сервиса договариваются о безопасном обмене информацией. В предыдущем примере с Terrible Pun of the Day используется наиболее распространенный поток OAuth 2.0, известный как поток «с кодом авторизации» <i>[«authorization code» flow]</i>.<br/>
+<br/>
+Прежде чем углубиться в подробности работы OAuth, давайте поговорим о значении некоторых терминов:<br/>
+<br/>
+<ul>
+<li> <b>Resource Owner</b>:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/9p/5g/tl/9p5gtl43wfa2mnr6kfbuiazctzs.jpeg" data-src="https://habrastorage.org/webt/9p/5g/tl/9p5gtl43wfa2mnr6kfbuiazctzs.jpeg" data-blurred="true"/><br/>
+<br/>
+Это вы! Вы владеете своими учетными данными, своими данными и управляете всеми действиями, которые могут быть произведены с вашими аккаунтами.</li>
+<li> <b>Client</b>:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/dl/at/5k/dlat5k4zk6rrpvb7mktbnvtowr8.jpeg" data-src="https://habrastorage.org/webt/dl/at/5k/dlat5k4zk6rrpvb7mktbnvtowr8.jpeg" data-blurred="true"/><br/>
+<br/>
+Приложение (например, сервис Terrible Pun of the Day), которое хочет получить доступ или выполнить определенные действия от имени <b>Resource Owner</b>'а.</li>
+<li> <b>Authorization Server</b>:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/b4/o-/m4/b4o-m4kvqrsuunljcldxp2q6bae.jpeg" data-src="https://habrastorage.org/webt/b4/o-/m4/b4o-m4kvqrsuunljcldxp2q6bae.jpeg" data-blurred="true"/><br/>
+<br/>
+Приложение, которое знает <b>Resource Owner</b>'а и в котором у <b>Resource Owner</b>'а уже есть учетная запись.</li>
+<li> <b>Resource Server</b>:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/fu/fl/_c/fufl_cllrq_tdk-zalwp7ataih4.jpeg" data-src="https://habrastorage.org/webt/fu/fl/_c/fufl_cllrq_tdk-zalwp7ataih4.jpeg" data-blurred="true"/><br/>
+<br/>
+Программный интерфейс приложения (API) или сервис, которым <b>Client</b> хочет воспользоваться от имени <b>Resource Owner</b>'а.</li>
+<li> <b>Redirect URI</b>:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/a2/h-/kv/a2h-kvbxckuopojl8dn6swi3rpg.jpeg" data-src="https://habrastorage.org/webt/a2/h-/kv/a2h-kvbxckuopojl8dn6swi3rpg.jpeg" data-blurred="true"/><br/>
+<br/>
+Ссылка, по которой <b>Authorization Server</b> перенаправит <b>Resource Owner</b>'а после предоставления разрешения <b>Client</b>'у. Иногда ее называют «Возвратным URL» («Callback URL»).</li>
+<li> <b>Response Type</b>:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/wc/jv/td/wcjvtdihlw8vsjkdgpausfclbmg.jpeg" data-src="https://habrastorage.org/webt/wc/jv/td/wcjvtdihlw8vsjkdgpausfclbmg.jpeg" data-blurred="true"/><br/>
+<br/>
+Тип информации, которую ожидает получить <b>Client</b>. Самым распространенным <b>Response Type</b>'ом является код, то есть <b>Client</b> рассчитывает получить <b>Authorization Code</b>.</li>
+<li> <b>Scope</b>:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/a0/jg/iq/a0jgiqevvklh7e8_byzb3eemaum.jpeg" data-src="https://habrastorage.org/webt/a0/jg/iq/a0jgiqevvklh7e8_byzb3eemaum.jpeg" data-blurred="true"/><br/>
+<br/>
+Это подробное описание разрешений, которые требуются <b>Client</b>'у, такие как доступ к данным или выполнение определенных действий.</li>
+<li> <b>Consent</b>:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/ez/uk/o7/ezuko7xeyguycpna-e3h-vcyw34.jpeg" data-src="https://habrastorage.org/webt/ez/uk/o7/ezuko7xeyguycpna-e3h-vcyw34.jpeg" data-blurred="true"/><br/>
+<br/>
+<b>Authorization Server</b> берет <b>Scopes</b>, запрашиваемые <b>Client</b>'ом, и спрашивает у <b>Resource Owner</b>'а, готов ли тот предоставить <b>Client</b>'у соответствующие разрешения.</li>
+<li> <b>Client ID</b>:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/hj/of/ng/hjofngcag_9ccxqxlrc9swusu7k.jpeg" data-src="https://habrastorage.org/webt/hj/of/ng/hjofngcag_9ccxqxlrc9swusu7k.jpeg" data-blurred="true"/><br/>
+<br/>
+Этот ID используется для идентификации <b>Client</b>'а на <b>Authorization Server</b>'е.</li>
+<li> <b>Client Secret</b>:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/pv/xv/em/pvxvemmv2zjc5mmmzz9brhxyt2u.jpeg" data-src="https://habrastorage.org/webt/pv/xv/em/pvxvemmv2zjc5mmmzz9brhxyt2u.jpeg" data-blurred="true"/><br/>
+<br/>
+Это пароль, который известен только <b>Client</b>'у и <b>Authorization Server</b>'у. Он позволяет им конфиденциально обмениваться информацией.</li>
+<li> <b>Authorization Code</b>:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/id/8z/vf/id8zvfniuutpottsefv7szfcv1i.jpeg" data-src="https://habrastorage.org/webt/id/8z/vf/id8zvfniuutpottsefv7szfcv1i.jpeg" data-blurred="true"/><br/>
+<br/>
+Временный код с небольшим периодом действия, который <b>Client</b> предоставляет <b>Authorization Server</b>'у в обмен на <b>Access Token</b>.</li>
+<li> <b>Access Token</b>:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/40/5y/qv/405yqvgjeif_jw_v5rcp9mkdqhm.jpeg" data-src="https://habrastorage.org/webt/40/5y/qv/405yqvgjeif_jw_v5rcp9mkdqhm.jpeg" data-blurred="true"/><br/>
+<br/>
+Ключ, который клиент будет использовать для связи с <b>Resource Server</b>'ом. Этакий бейдж или ключ-карта, предоставляющий <b>Client</b>'у разрешения на запрос данных или выполнение действий на <b>Resource Server</b>'е от вашего имени.</li>
+</ul><br/>
+<br/>
+<b>Примечание</b>: иногда Authorization Server и Resource Server являются одним и тем же сервером. Однако в некоторых случаях это могут быть разные серверы, даже не принадлежащие к одной организации. Например, Authorization Server может быть сторонним сервисом, которому доверяет Resource Server.<br/>
+<br/>
+Теперь, когда мы ознакомились с основными понятиями OAuth 2.0, давайте вернемся к нашему примеру и подробно рассмотрим, что происходит в потоке OAuth.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/nc/uz/4v/ncuz4vsgvu5-2pwz03zjd5tcvfq.jpeg" data-src="https://habrastorage.org/webt/nc/uz/4v/ncuz4vsgvu5-2pwz03zjd5tcvfq.jpeg" data-blurred="true"/><br/>
+<br/>
+<ol>
+<li> Вы, <b>Resource Owner</b>, желаете предоставить сервису Terrible Pun of the Day (<b>Client</b>'у) доступ к своим контактам, чтобы тот мог разослать приглашения всем вашим друзьям.</li>
+<li> <b>Client</b> перенаправляет браузер на страницу <b>Authorization Server</b>'а и включает в запрос <b>Client ID</b>, <b>Redirect URI</b>, <b>Response Type</b> и одно или несколько <b>Scopes</b> (разрешений), которые ему необходимы.</li>
+<li> <b>Authorization Server</b> проверяет вас, при необходимости запрашивая логин и пароль.</li>
+<li> <b>Authorization Server</b> выводит форму <b>Consent</b> (подтверждения) с перечнем всех <b>Scopes</b>, запрашиваемых <b>Client</b>'ом. Вы соглашаетесь или отказываетесь.</li>
+<li> <b>Authorization Server</b> перенаправляет вас на сайт <b>Client</b>'а, используя <b>Redirect URI</b> вместе с <b>Authorization Code</b> (кодом авторизации).</li>
+<li> <b>Client</b> напрямую связывается с <b>Authorization Server</b>'ом (в обход браузера <b>Resource Owner</b>'а) и безопасно отправляет <b>Client ID</b>, <b>Client Secret</b> и <b>Authorization Code</b>.</li>
+<li> <b>Authorization Server</b> проверяет данные и отвечает с <b>Access Token</b>'ом (токеном доступа).</li>
+<li> Теперь <b>Client</b> может использовать <b>Access Token</b> для отправки запроса на <b>Resource Server</b> с целью получить список контактов.</li>
+</ol><br/>
+<h2>Client ID и Secret</h2><br/>
+Задолго до того, как вы разрешили Terrible Pun of the Day получить доступ к контактам, Client и Authorization Server установили рабочие отношения. Authorization Server сгенерировал Client ID и Client Secret (иногда их называют <i>App ID</i> и <i>App Secret</i>) и отправил их Client'у для дальнейшего взаимодействия в рамках OAuth.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/3x/2x/ws/3x2xws1sjmxxplughakgfhyb-dc.jpeg" data-src="https://habrastorage.org/webt/3x/2x/ws/3x2xws1sjmxxplughakgfhyb-dc.jpeg" data-blurred="true"/><br/>
+<i>«— Привет! Я хотел бы работать с тобой! — Да не вопрос! Вот твои Client ID и Secret!»</i><br/>
+<br/>
+Название намекает, что Client Secret должен держаться в тайне, чтобы его знали только Client и Authorization Server. Ведь именно с его помощь Authorization Server подтверждает истинность Client'а.<br/>
+<br/>
+<h2>Но это ещё не всё… Пожалуйста, поприветствуйте OpenID Connect!</h2><br/>
+OAuth 2.0 разработан только для <i>авторизации</i> — для предоставления доступа к данным и функциям от одного приложения другому. <a href="https://openid.net/connect/">OpenID Connect</a> (OIDC) — это тонкий слой поверх OAuth 2.0, добавляющий сведения о логине и профиле пользователя, который вошел в учетную запись. Организацию логин-сессии часто называют <b>аутентификацией</b> <i>[authentication]</i>, а информацию о пользователе, вошедшем в систему (т.е. о <b>Resource Owner</b>'е), — <b>личными данными</b> <i>[identity]</i>. Если Authorization Server поддерживает OIDC, его иногда называют <b>поставщиком личных данных</b> <i>[identity provider]</i>, поскольку он предоставляет <b>Client</b>'у информацию о <b>Resource Owner</b>'е.<br/>
+<br/>
+OpenID Connect позволяет реализовывать сценарии, когда единственный логин можно использовать во множестве приложений, — этот подход также известен как <b>single sign-on</b> (SSO). Например, приложение может поддерживать SSO-интеграцию с социальными сетями, такими как Facebook или Twitter, позволяя пользователям использовать учётную запись, которая у них уже имеется и которую они предпочитают использовать.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/ln/kg/vm/lnkgvmrtvr6xoz9lnewocsaqp3y.jpeg" data-src="https://habrastorage.org/webt/ln/kg/vm/lnkgvmrtvr6xoz9lnewocsaqp3y.jpeg" data-blurred="true"/><br/>
+<br/>
+Поток (flow) OpenID Connect выглядит так же, как и в случае OAuth. Единственная разница в том, что в первичном запросе используемый конкретный scope — <code>openid</code>, — а <b>Client</b> в итоге получает как <b>Access Token</b>, так и <b>ID Token</b>.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/_4/u8/kp/_4u8kpoed-au_fxnfprdo_zso1q.jpeg" data-src="https://habrastorage.org/webt/_4/u8/kp/_4u8kpoed-au_fxnfprdo_zso1q.jpeg" data-blurred="true"/><br/>
+<br/>
+Так же, как и в потоке OAuth, <b>Access Token</b> в OpenID Connect — это некое значение, не понятное <b>Client</b>'у. С точки зрения <b>Client</b>'а <b>Access Token</b> представляет некую строку из символов, которая передается вместе с каждым запросом к <b>Resource Server</b>'у, а тот определяет, действителен ли токен. <b>ID Token</b> представляет собой совсем иное.<br/>
+<br/>
+<h2>ID Token — это JWT</h2><br/>
+<b>ID Token</b> — это особым образом отформатированная строка символов, известная как JSON Web Token или JWT <i>(иногда токены JWT произносят как «jots»)</i>. Сторонним наблюдателям JWT может показаться непонятной абракадаброй, однако <b>Client</b> может извлечь из JWT различную информацию, такую как ID, имя пользователя, время входа в учетную запись, срок окончания действия <b>ID Token</b>'а, наличие попыток вмешательства в JWT. Данные внутри <b>ID Token</b>'а называются <b>заявками</b> <i>[claims]</i>.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/ki/aj/kr/kiajkr98mv_-efal16rdec0ma8e.jpeg" data-src="https://habrastorage.org/webt/ki/aj/kr/kiajkr98mv_-efal16rdec0ma8e.jpeg" data-blurred="true"/><br/>
+<br/>
+В случае OIDC также имеется стандартный способ, с помощью которого <b>Client</b> может запросить дополнительную информацию о личности <i>[identity]</i> от <b>Authorization Server</b>'а, например, адрес электронной почты, используя <b>Access Token</b>.<br/>
+<br/>
+<h2>Дополнительные сведения об OAuth и OIDC</h2><br/>
+Итак, мы вкратце рассмотрели принципы работы OAuth и OIDC. Готовы копнуть глубже? Вот дополнительные ресурсы, которые помогут узнать больше об OAuth 2.0 и OpenID Connect:<br/>
+<br/>
+<ul>
+<li> <a href="https://developer.okta.com/blog/2017/06/21/what-the-heck-is-oauth">What the Heck is OAuth?</a></li>
+<li> <a href="https://developer.okta.com/blog/2019/01/23/nobody-cares-about-oauth-or-openid-connect">Nobody Cares About OAuth or OpenID Connect</a></li>
+<li> <a href="https://developer.okta.com/blog/2019/08/22/okta-authjs-pkce">Implement the OAuth 2.0 Authorization Code with PKCE Flow</a></li>
+<li> <a href="https://developer.okta.com/blog/2018/06/29/what-is-the-oauth2-password-grant">What is the OAuth 2.0 Grant Type?</a></li>
+<li> <a href="https://developer.okta.com/blog/2018/07/16/oauth-2-command-line">OAuth 2.0 From the Command Line</a></li>
+<li> <a href="https://developer.okta.com/blog/2019/03/11/node-sql-server">Build a Secure Node.js App with SQL Server</a></li>
+</ul><br/>
+Как обычно, не стесняйтесь комментировать. Чтобы быть в курсе наших последних новинок, подписывайтесь на <a href="https://twitter.com/oktadev">Twitter</a> и <a href="https://www.youtube.com/c/oktadev">YouTube</a> компании Okta для разработчиков!<br/>
+<br/>
+<h2>P.S. от переводчика</h2><br/>
+Читайте также в нашем блоге:<br/>
+<br/>
+<ul>
+<li> «<a href="https://habr.com/ru/company/flant/blog/468679/">Азбука безопасности в Kubernetes: аутентификация, авторизация, аудит</a>»;</li>
+<li> «<a href="https://habr.com/ru/company/flant/blog/470503/">Пользователи и авторизация RBAC в Kubernetes</a>»;</li>
+<li> «<a href="https://habr.com/ru/company/flant/blog/465141/">33+ инструмента для безопасности Kubernetes</a>»;</li>
+<li> «<a href="https://habr.com/ru/company/flant/blog/474012/">Безопасность для Docker-контейнеров</a>».</li>
+</ul></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BOAuth%5D" class="tm-tags-list__link">OAuth</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bopenid%20connect%5D" class="tm-tags-list__link">openid connect</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BOIDC%5D" class="tm-tags-list__link">OIDC</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F%5D" class="tm-tags-list__link">авторизация</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B0%D1%83%D1%82%D0%B5%D0%BD%D1%82%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%5D" class="tm-tags-list__link">аутентификация</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/flant/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании Флант
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/infosecurity/" class="tm-hubs-list__link">
+    Информационная безопасность
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/sys_admin/" class="tm-hubs-list__link">
+    Системное администрирование
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/network_technologies/" class="tm-hubs-list__link">
+    Сетевые технологии
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/itstandarts/" class="tm-hubs-list__link">
+    IT-стандарты
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 42: ↑40 и ↓2</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 42: ↑40 и ↓2" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+38</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">49K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    293
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/flant/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/de7/635/363/de763536359ce6e2d2a978f8dded1964.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/flant/profile/" class="tm-company-snippet__title">Флант</a> <div class="tm-company-snippet__description">DevOps-as-a-Service, Kubernetes, обслуживание 24×7</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="https://flant.ru/" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Сайт
+    </a><a href="https://twitter.com/flant_ru" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Twitter
+    </a><a href="https://vk.com/flant_ru" rel="noopener" target="_blank" class="tm-article-author__contact">
+      ВКонтакте
+    </a><a href="https://github.com/flant" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Github
+    </a><a href="https://telegram.me/flant_ru" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Telegram
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/Wimbo/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/09e/3fa/76f/09e3fa76f20fd7c0d84be60a6d41a51d.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 98 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    94
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Андрей Сидоров</span> <a href="https://habr.com/ru/users/Wimbo/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @Wimbo
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Engineer</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <button type="submit" class="tm-user-card__button btn btn_transparent btn_small">
+      Задонатить
+    </button> <!----> <!----></div></div> <div class="tm-article-author__user-contacts"><a href="https://telegram.me/asidorovj" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Telegram
+    </a></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/flant/blog/475942/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 3 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2008-05-12T20:00:00.000Z" title="2008-05-13, 00:00">13  мая  2008</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://flant.ru/" target="_blank" class="tm-company-basic-info__link">
+      flant.ru
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    101–200 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2017-01-25T07:25:09.000Z" title="2017-01-25, 10:25">25  января  2017</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Представитель</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://habr.com/ru/users/shurup/" class="tm-company-basic-info__link">
+      Дмитрий Шурупов
+    </a></dd></dl></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/flant/blog/475942/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/flant/blog/475942/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"475942":{"id":"475942","timePublished":"2019-11-29T06:13:32+00:00","isCorporative":true,"lang":"ru","titleHtml":"Иллюстрированное руководство по OAuth и OpenID Connect","leadData":{"textHtml":"\u003Ci\u003E\u003Cb\u003EПрим. перев.\u003C\u002Fb\u003E: В этом замечательном материале компании Okta просто и наглядно рассказывается о принципах работы OAuth и OIDC (OpenID Connect). Эти знания будут полезны разработчикам, системным администраторам и даже «обычным пользователям» популярных веб-приложений, которые скорее всего тоже обмениваются конфиденциальными данными с другими сервисами.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ «каменном веке» интернета делиться информацией между сервисами было легко. Вы просто давали свой логин и пароль от одного сервиса другому, чтобы тот вошел в вашу учетную запись и получил любую необходимую ему информацию.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Frx\u002Fra\u002Fvg\u002Frxravgxduaf3sxrhkt2nhug7i6s.jpeg\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003E«Предоставьте свою банковскую учётку». — «Обещаем, что с паролем и деньгами все будет в порядке. Вот прям честно-пречестно!» *хи-хи*\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЖуть! Никто и никогда не должен требовать от пользователя поделиться логином и паролем, его \u003Ci\u003Eучётными данными\u003C\u002Fi\u003E, с другим сервисом. Нет никакой гарантии, что организация, стоящая за этим сервисом, будет хранить данные в безопасности и не соберет больше персональной информации, чем нужно. Это может показаться дикостью, но некоторые приложения до сих пор применяют подобную практику!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСегодня имеется единый стандарт, позволяющий одному сервису безопасно воспользоваться данными другого. К сожалению, подобные стандарты используют массу жаргонизмов и терминов, что усложняет их понимание. Цель этого материала — с помощью простых иллюстраций объяснить, как они работают (Думаете, что мои рисунки напоминают детскую мазню? Ну и ладно!).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Flg\u002Fnk\u002F9q\u002Flgnk9qkktk3knzxtaayy4xk__nm.jpeg\"\u002F\u003E","imageUrl":null,"buttonTextHtml":null,"image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"translation","data":{"originalAuthorName":"David Neal","originalUrl":"https:\u002F\u002Fdeveloper.okta.com\u002Fblog\u002F2019\u002F10\u002F21\u002Fillustrated-guide-to-oauth-and-oidc"}}],"author":{"scoreStats":{"score":94,"votesCount":98},"rating":0,"relatedData":null,"contacts":[{"title":"Telegram","url":"https:\u002F\u002Ftelegram.me\u002Fasidorovj","value":"asidorovj"}],"authorContacts":[{"title":"Telegram","url":"https:\u002F\u002Ftelegram.me\u002Fasidorovj","value":"asidorovj"}],"paymentDetails":{"paymentYandexMoney":"410012335497510","paymentPayPalMe":null,"paymentWebmoney":null},"id":"73325","alias":"Wimbo","fullname":"Андрей Сидоров","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F09e\u002F3fa\u002F76f\u002F09e3fa76f20fd7c0d84be60a6d41a51d.jpg","speciality":"Engineer"},"statistics":{"commentsCount":3,"favoritesCount":293,"readingCount":48676,"score":38,"votesCount":42},"hubs":[{"relatedData":null,"id":"20940","alias":"flant","type":"corporative","title":"Блог компании Флант","titleHtml":"Блог компании Флант","isProfiled":false},{"relatedData":null,"id":"50","alias":"infosecurity","type":"collective","title":"Информационная безопасность","titleHtml":"Информационная безопасность","isProfiled":true},{"relatedData":null,"id":"221","alias":"sys_admin","type":"collective","title":"Системное администрирование","titleHtml":"Системное администрирование","isProfiled":true},{"relatedData":null,"id":"17123","alias":"network_technologies","type":"collective","title":"Сетевые технологии","titleHtml":"Сетевые технологии","isProfiled":true},{"relatedData":null,"id":"17189","alias":"itstandarts","type":"collective","title":"IT-стандарты","titleHtml":"IT-стандарты","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"},{"id":"6","alias":"admin","title":"Администрирование"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Ci\u003E\u003Cb\u003EПрим. перев.\u003C\u002Fb\u003E: В этом замечательном материале компании Okta просто и наглядно рассказывается о принципах работы OAuth и OIDC (OpenID Connect). Эти знания будут полезны разработчикам, системным администраторам и даже «обычным пользователям» популярных веб-приложений, которые скорее всего тоже обмениваются конфиденциальными данными с другими сервисами.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ «каменном веке» интернета делиться информацией между сервисами было легко. Вы просто давали свой логин и пароль от одного сервиса другому, чтобы тот вошел в вашу учетную запись и получил любую необходимую ему информацию.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Frx\u002Fra\u002Fvg\u002Frxravgxduaf3sxrhkt2nhug7i6s.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Frx\u002Fra\u002Fvg\u002Frxravgxduaf3sxrhkt2nhug7i6s.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003E«Предоставьте свою банковскую учётку». — «Обещаем, что с паролем и деньгами все будет в порядке. Вот прям честно-пречестно!» *хи-хи*\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЖуть! Никто и никогда не должен требовать от пользователя поделиться логином и паролем, его \u003Ci\u003Eучётными данными\u003C\u002Fi\u003E, с другим сервисом. Нет никакой гарантии, что организация, стоящая за этим сервисом, будет хранить данные в безопасности и не соберет больше персональной информации, чем нужно. Это может показаться дикостью, но некоторые приложения до сих пор применяют подобную практику!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСегодня имеется единый стандарт, позволяющий одному сервису безопасно воспользоваться данными другого. К сожалению, подобные стандарты используют массу жаргонизмов и терминов, что усложняет их понимание. Цель этого материала — с помощью простых иллюстраций объяснить, как они работают (Думаете, что мои рисунки напоминают детскую мазню? Ну и ладно!).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Flg\u002Fnk\u002F9q\u002Flgnk9qkktk3knzxtaayy4xk__nm.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Flg\u002Fnk\u002F9q\u002Flgnk9qkktk3knzxtaayy4xk__nm.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМежду прочим, это руководство также доступно в формате видео:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"oembed\"\u003E\u003Cdiv\u003E\u003Cdiv style=\"left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.2493%;\"\u003E\u003Cdiv class=\"tm-iframe_temp\" data-src=\"https:\u002F\u002Fwww.youtube.com\u002Fembed\u002Ft18YB3xDfXI?rel=0&amp;showinfo=1&amp;hl=en-US\" data-style=\"border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;\" id=\"\" width=\"\"\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EДамы и господа, встречайте: OAuth 2.0\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Foauth.net\u002F2\u002F\"\u003EOAuth 2.0\u003C\u002Fa\u003E — это стандарт безопасности, позволяющий одному приложению получить разрешение на доступ к информации в другом приложении. Последовательность действий для выдачи разрешения \u003Ci\u003E[permission]\u003C\u002Fi\u003E (или \u003Cb\u003Eсогласия\u003C\u002Fb\u003E \u003Ci\u003E[consent]\u003C\u002Fi\u003E) часто называют \u003Cb\u003Eавторизацией\u003C\u002Fb\u003E \u003Ci\u003E[authorization]\u003C\u002Fi\u003E или даже \u003Cb\u003Eделегированной авторизацией\u003C\u002Fb\u003E \u003Ci\u003E[delegated authorization]\u003C\u002Fi\u003E. С помощью этого стандарта вы позволяете приложению считать данные или использовать функции другого приложения от вашего имени, не сообщая ему свой пароль. Класс!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ качестве примера представим, что вы обнаружили сайт с названием «Неудачный каламбур дня» \u003Ci\u003E[Terrible Pun of the Day]\u003C\u002Fi\u003E и решили зарегистрироваться на нем, чтобы ежедневно получать каламбуры в виде текстовых сообщений на телефон. Сайт вам очень понравился, и вы решили поделиться им со всеми знакомыми. Ведь жуткие каламбурчики нравятся всем, не так ли?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fd6\u002Fjt\u002Ft2\u002Fd6jtt286dyfri-ktp4ji0brb7eq.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fd6\u002Fjt\u002Ft2\u002Fd6jtt286dyfri-ktp4ji0brb7eq.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003E«Неудачный каламбур дня: Слышали о парне, который потерял левую половину тела? Теперь он всегда прав!» (перевод примерный, т.к. в оригинале своя игра слов — прим. перев.)\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПонятно, что писать каждому человеку из контакт-листа не вариант. И, если вы хотя бы чуточку похожи на меня, то пойдете на всё, чтобы избежать лишней работы. Благо Terrible Pun of the Day может сам пригласить всех ваших друзей! Для этого лишь нужно открыть ему доступ к электронной почте контактов — сайт сам отправит им приглашения (OAuth рулит)!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fne\u002Fa7\u002Fxr\u002Fnea7xr3zktdkb0xv3m-yf2d5kau.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fne\u002Fa7\u002Fxr\u002Fnea7xr3zktdkb0xv3m-yf2d5kau.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003E«Все любят каламбуры! — Уже залогинились? — Хотите открыть доступ сайту Terrible Pun of the Day к списку контактов? — Спасибо! Теперь мы каждый день будем слать напоминания всем, кого вы знаете, до скончания веков! Вы самый лучший друг!»\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E Выберите свой сервис электронной почты.\u003C\u002Fli\u003E\r\n\u003Cli\u003E При необходимости перейдите на сайт почты и войдите в учетную запись.\u003C\u002Fli\u003E\r\n\u003Cli\u003E Дайте разрешение сайту Terrible Pun of the Day на доступ к контактам.\u003C\u002Fli\u003E\r\n\u003Cli\u003E Вернитесь на сайт Terrible Pun of the Day.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nВ случае, если вы передумаете, приложения, использующие OAuth, также предоставляют способ аннулировать доступ. Решив, что вы больше не желаете делиться контактами с Terrible Pun of the Day, вы можете перейти на сайт почты и удалить сайт с каламбурами из списка авторизованных приложений.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EПоток OAuth\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nТолько что мы прошли через то, что обычно называют \u003Cb\u003Eпотоком\u003C\u002Fb\u003E \u003Ci\u003E[flow]\u003C\u002Fi\u003E OAuth. В нашем примере этот поток состоит из видимых шагов, а также из нескольких невидимых шагов, в рамках которых два сервиса договариваются о безопасном обмене информацией. В предыдущем примере с Terrible Pun of the Day используется наиболее распространенный поток OAuth 2.0, известный как поток «с кодом авторизации» \u003Ci\u003E[«authorization code» flow]\u003C\u002Fi\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПрежде чем углубиться в подробности работы OAuth, давайте поговорим о значении некоторых терминов:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E \u003Cb\u003EResource Owner\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F9p\u002F5g\u002Ftl\u002F9p5gtl43wfa2mnr6kfbuiazctzs.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F9p\u002F5g\u002Ftl\u002F9p5gtl43wfa2mnr6kfbuiazctzs.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто вы! Вы владеете своими учетными данными, своими данными и управляете всеми действиями, которые могут быть произведены с вашими аккаунтами.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EClient\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fdl\u002Fat\u002F5k\u002Fdlat5k4zk6rrpvb7mktbnvtowr8.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fdl\u002Fat\u002F5k\u002Fdlat5k4zk6rrpvb7mktbnvtowr8.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПриложение (например, сервис Terrible Pun of the Day), которое хочет получить доступ или выполнить определенные действия от имени \u003Cb\u003EResource Owner\u003C\u002Fb\u003E'а.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EAuthorization Server\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fb4\u002Fo-\u002Fm4\u002Fb4o-m4kvqrsuunljcldxp2q6bae.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fb4\u002Fo-\u002Fm4\u002Fb4o-m4kvqrsuunljcldxp2q6bae.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПриложение, которое знает \u003Cb\u003EResource Owner\u003C\u002Fb\u003E'а и в котором у \u003Cb\u003EResource Owner\u003C\u002Fb\u003E'а уже есть учетная запись.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EResource Server\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Ffu\u002Ffl\u002F_c\u002Ffufl_cllrq_tdk-zalwp7ataih4.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ffu\u002Ffl\u002F_c\u002Ffufl_cllrq_tdk-zalwp7ataih4.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПрограммный интерфейс приложения (API) или сервис, которым \u003Cb\u003EClient\u003C\u002Fb\u003E хочет воспользоваться от имени \u003Cb\u003EResource Owner\u003C\u002Fb\u003E'а.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003ERedirect URI\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fa2\u002Fh-\u002Fkv\u002Fa2h-kvbxckuopojl8dn6swi3rpg.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fa2\u002Fh-\u002Fkv\u002Fa2h-kvbxckuopojl8dn6swi3rpg.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСсылка, по которой \u003Cb\u003EAuthorization Server\u003C\u002Fb\u003E перенаправит \u003Cb\u003EResource Owner\u003C\u002Fb\u003E'а после предоставления разрешения \u003Cb\u003EClient\u003C\u002Fb\u003E'у. Иногда ее называют «Возвратным URL» («Callback URL»).\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EResponse Type\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fwc\u002Fjv\u002Ftd\u002Fwcjvtdihlw8vsjkdgpausfclbmg.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fwc\u002Fjv\u002Ftd\u002Fwcjvtdihlw8vsjkdgpausfclbmg.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТип информации, которую ожидает получить \u003Cb\u003EClient\u003C\u002Fb\u003E. Самым распространенным \u003Cb\u003EResponse Type\u003C\u002Fb\u003E'ом является код, то есть \u003Cb\u003EClient\u003C\u002Fb\u003E рассчитывает получить \u003Cb\u003EAuthorization Code\u003C\u002Fb\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EScope\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fa0\u002Fjg\u002Fiq\u002Fa0jgiqevvklh7e8_byzb3eemaum.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fa0\u002Fjg\u002Fiq\u002Fa0jgiqevvklh7e8_byzb3eemaum.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто подробное описание разрешений, которые требуются \u003Cb\u003EClient\u003C\u002Fb\u003E'у, такие как доступ к данным или выполнение определенных действий.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EConsent\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fez\u002Fuk\u002Fo7\u002Fezuko7xeyguycpna-e3h-vcyw34.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fez\u002Fuk\u002Fo7\u002Fezuko7xeyguycpna-e3h-vcyw34.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EAuthorization Server\u003C\u002Fb\u003E берет \u003Cb\u003EScopes\u003C\u002Fb\u003E, запрашиваемые \u003Cb\u003EClient\u003C\u002Fb\u003E'ом, и спрашивает у \u003Cb\u003EResource Owner\u003C\u002Fb\u003E'а, готов ли тот предоставить \u003Cb\u003EClient\u003C\u002Fb\u003E'у соответствующие разрешения.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EClient ID\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fhj\u002Fof\u002Fng\u002Fhjofngcag_9ccxqxlrc9swusu7k.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fhj\u002Fof\u002Fng\u002Fhjofngcag_9ccxqxlrc9swusu7k.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭтот ID используется для идентификации \u003Cb\u003EClient\u003C\u002Fb\u003E'а на \u003Cb\u003EAuthorization Server\u003C\u002Fb\u003E'е.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EClient Secret\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fpv\u002Fxv\u002Fem\u002Fpvxvemmv2zjc5mmmzz9brhxyt2u.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fpv\u002Fxv\u002Fem\u002Fpvxvemmv2zjc5mmmzz9brhxyt2u.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто пароль, который известен только \u003Cb\u003EClient\u003C\u002Fb\u003E'у и \u003Cb\u003EAuthorization Server\u003C\u002Fb\u003E'у. Он позволяет им конфиденциально обмениваться информацией.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EAuthorization Code\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fid\u002F8z\u002Fvf\u002Fid8zvfniuutpottsefv7szfcv1i.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fid\u002F8z\u002Fvf\u002Fid8zvfniuutpottsefv7szfcv1i.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВременный код с небольшим периодом действия, который \u003Cb\u003EClient\u003C\u002Fb\u003E предоставляет \u003Cb\u003EAuthorization Server\u003C\u002Fb\u003E'у в обмен на \u003Cb\u003EAccess Token\u003C\u002Fb\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EAccess Token\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F40\u002F5y\u002Fqv\u002F405yqvgjeif_jw_v5rcp9mkdqhm.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F40\u002F5y\u002Fqv\u002F405yqvgjeif_jw_v5rcp9mkdqhm.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКлюч, который клиент будет использовать для связи с \u003Cb\u003EResource Server\u003C\u002Fb\u003E'ом. Этакий бейдж или ключ-карта, предоставляющий \u003Cb\u003EClient\u003C\u002Fb\u003E'у разрешения на запрос данных или выполнение действий на \u003Cb\u003EResource Server\u003C\u002Fb\u003E'е от вашего имени.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EПримечание\u003C\u002Fb\u003E: иногда Authorization Server и Resource Server являются одним и тем же сервером. Однако в некоторых случаях это могут быть разные серверы, даже не принадлежащие к одной организации. Например, Authorization Server может быть сторонним сервисом, которому доверяет Resource Server.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТеперь, когда мы ознакомились с основными понятиями OAuth 2.0, давайте вернемся к нашему примеру и подробно рассмотрим, что происходит в потоке OAuth.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fnc\u002Fuz\u002F4v\u002Fncuz4vsgvu5-2pwz03zjd5tcvfq.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fnc\u002Fuz\u002F4v\u002Fncuz4vsgvu5-2pwz03zjd5tcvfq.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E Вы, \u003Cb\u003EResource Owner\u003C\u002Fb\u003E, желаете предоставить сервису Terrible Pun of the Day (\u003Cb\u003EClient\u003C\u002Fb\u003E'у) доступ к своим контактам, чтобы тот мог разослать приглашения всем вашим друзьям.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EClient\u003C\u002Fb\u003E перенаправляет браузер на страницу \u003Cb\u003EAuthorization Server\u003C\u002Fb\u003E'а и включает в запрос \u003Cb\u003EClient ID\u003C\u002Fb\u003E, \u003Cb\u003ERedirect URI\u003C\u002Fb\u003E, \u003Cb\u003EResponse Type\u003C\u002Fb\u003E и одно или несколько \u003Cb\u003EScopes\u003C\u002Fb\u003E (разрешений), которые ему необходимы.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EAuthorization Server\u003C\u002Fb\u003E проверяет вас, при необходимости запрашивая логин и пароль.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EAuthorization Server\u003C\u002Fb\u003E выводит форму \u003Cb\u003EConsent\u003C\u002Fb\u003E (подтверждения) с перечнем всех \u003Cb\u003EScopes\u003C\u002Fb\u003E, запрашиваемых \u003Cb\u003EClient\u003C\u002Fb\u003E'ом. Вы соглашаетесь или отказываетесь.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EAuthorization Server\u003C\u002Fb\u003E перенаправляет вас на сайт \u003Cb\u003EClient\u003C\u002Fb\u003E'а, используя \u003Cb\u003ERedirect URI\u003C\u002Fb\u003E вместе с \u003Cb\u003EAuthorization Code\u003C\u002Fb\u003E (кодом авторизации).\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EClient\u003C\u002Fb\u003E напрямую связывается с \u003Cb\u003EAuthorization Server\u003C\u002Fb\u003E'ом (в обход браузера \u003Cb\u003EResource Owner\u003C\u002Fb\u003E'а) и безопасно отправляет \u003Cb\u003EClient ID\u003C\u002Fb\u003E, \u003Cb\u003EClient Secret\u003C\u002Fb\u003E и \u003Cb\u003EAuthorization Code\u003C\u002Fb\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cb\u003EAuthorization Server\u003C\u002Fb\u003E проверяет данные и отвечает с \u003Cb\u003EAccess Token\u003C\u002Fb\u003E'ом (токеном доступа).\u003C\u002Fli\u003E\r\n\u003Cli\u003E Теперь \u003Cb\u003EClient\u003C\u002Fb\u003E может использовать \u003Cb\u003EAccess Token\u003C\u002Fb\u003E для отправки запроса на \u003Cb\u003EResource Server\u003C\u002Fb\u003E с целью получить список контактов.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EClient ID и Secret\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nЗадолго до того, как вы разрешили Terrible Pun of the Day получить доступ к контактам, Client и Authorization Server установили рабочие отношения. Authorization Server сгенерировал Client ID и Client Secret (иногда их называют \u003Ci\u003EApp ID\u003C\u002Fi\u003E и \u003Ci\u003EApp Secret\u003C\u002Fi\u003E) и отправил их Client'у для дальнейшего взаимодействия в рамках OAuth.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F3x\u002F2x\u002Fws\u002F3x2xws1sjmxxplughakgfhyb-dc.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F3x\u002F2x\u002Fws\u002F3x2xws1sjmxxplughakgfhyb-dc.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003E«— Привет! Я хотел бы работать с тобой! — Да не вопрос! Вот твои Client ID и Secret!»\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНазвание намекает, что Client Secret должен держаться в тайне, чтобы его знали только Client и Authorization Server. Ведь именно с его помощь Authorization Server подтверждает истинность Client'а.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EНо это ещё не всё… Пожалуйста, поприветствуйте OpenID Connect!\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nOAuth 2.0 разработан только для \u003Ci\u003Eавторизации\u003C\u002Fi\u003E — для предоставления доступа к данным и функциям от одного приложения другому. \u003Ca href=\"https:\u002F\u002Fopenid.net\u002Fconnect\u002F\"\u003EOpenID Connect\u003C\u002Fa\u003E (OIDC) — это тонкий слой поверх OAuth 2.0, добавляющий сведения о логине и профиле пользователя, который вошел в учетную запись. Организацию логин-сессии часто называют \u003Cb\u003Eаутентификацией\u003C\u002Fb\u003E \u003Ci\u003E[authentication]\u003C\u002Fi\u003E, а информацию о пользователе, вошедшем в систему (т.е. о \u003Cb\u003EResource Owner\u003C\u002Fb\u003E'е), — \u003Cb\u003Eличными данными\u003C\u002Fb\u003E \u003Ci\u003E[identity]\u003C\u002Fi\u003E. Если Authorization Server поддерживает OIDC, его иногда называют \u003Cb\u003Eпоставщиком личных данных\u003C\u002Fb\u003E \u003Ci\u003E[identity provider]\u003C\u002Fi\u003E, поскольку он предоставляет \u003Cb\u003EClient\u003C\u002Fb\u003E'у информацию о \u003Cb\u003EResource Owner\u003C\u002Fb\u003E'е.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nOpenID Connect позволяет реализовывать сценарии, когда единственный логин можно использовать во множестве приложений, — этот подход также известен как \u003Cb\u003Esingle sign-on\u003C\u002Fb\u003E (SSO). Например, приложение может поддерживать SSO-интеграцию с социальными сетями, такими как Facebook или Twitter, позволяя пользователям использовать учётную запись, которая у них уже имеется и которую они предпочитают использовать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fln\u002Fkg\u002Fvm\u002Flnkgvmrtvr6xoz9lnewocsaqp3y.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fln\u002Fkg\u002Fvm\u002Flnkgvmrtvr6xoz9lnewocsaqp3y.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоток (flow) OpenID Connect выглядит так же, как и в случае OAuth. Единственная разница в том, что в первичном запросе используемый конкретный scope — \u003Ccode\u003Eopenid\u003C\u002Fcode\u003E, — а \u003Cb\u003EClient\u003C\u002Fb\u003E в итоге получает как \u003Cb\u003EAccess Token\u003C\u002Fb\u003E, так и \u003Cb\u003EID Token\u003C\u002Fb\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F_4\u002Fu8\u002Fkp\u002F_4u8kpoed-au_fxnfprdo_zso1q.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F_4\u002Fu8\u002Fkp\u002F_4u8kpoed-au_fxnfprdo_zso1q.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак же, как и в потоке OAuth, \u003Cb\u003EAccess Token\u003C\u002Fb\u003E в OpenID Connect — это некое значение, не понятное \u003Cb\u003EClient\u003C\u002Fb\u003E'у. С точки зрения \u003Cb\u003EClient\u003C\u002Fb\u003E'а \u003Cb\u003EAccess Token\u003C\u002Fb\u003E представляет некую строку из символов, которая передается вместе с каждым запросом к \u003Cb\u003EResource Server\u003C\u002Fb\u003E'у, а тот определяет, действителен ли токен. \u003Cb\u003EID Token\u003C\u002Fb\u003E представляет собой совсем иное.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EID Token — это JWT\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cb\u003EID Token\u003C\u002Fb\u003E — это особым образом отформатированная строка символов, известная как JSON Web Token или JWT \u003Ci\u003E(иногда токены JWT произносят как «jots»)\u003C\u002Fi\u003E. Сторонним наблюдателям JWT может показаться непонятной абракадаброй, однако \u003Cb\u003EClient\u003C\u002Fb\u003E может извлечь из JWT различную информацию, такую как ID, имя пользователя, время входа в учетную запись, срок окончания действия \u003Cb\u003EID Token\u003C\u002Fb\u003E'а, наличие попыток вмешательства в JWT. Данные внутри \u003Cb\u003EID Token\u003C\u002Fb\u003E'а называются \u003Cb\u003Eзаявками\u003C\u002Fb\u003E \u003Ci\u003E[claims]\u003C\u002Fi\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fki\u002Faj\u002Fkr\u002Fkiajkr98mv_-efal16rdec0ma8e.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fki\u002Faj\u002Fkr\u002Fkiajkr98mv_-efal16rdec0ma8e.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ случае OIDC также имеется стандартный способ, с помощью которого \u003Cb\u003EClient\u003C\u002Fb\u003E может запросить дополнительную информацию о личности \u003Ci\u003E[identity]\u003C\u002Fi\u003E от \u003Cb\u003EAuthorization Server\u003C\u002Fb\u003E'а, например, адрес электронной почты, используя \u003Cb\u003EAccess Token\u003C\u002Fb\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EДополнительные сведения об OAuth и OIDC\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nИтак, мы вкратце рассмотрели принципы работы OAuth и OIDC. Готовы копнуть глубже? Вот дополнительные ресурсы, которые помогут узнать больше об OAuth 2.0 и OpenID Connect:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E \u003Ca href=\"https:\u002F\u002Fdeveloper.okta.com\u002Fblog\u002F2017\u002F06\u002F21\u002Fwhat-the-heck-is-oauth\"\u003EWhat the Heck is OAuth?\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Ca href=\"https:\u002F\u002Fdeveloper.okta.com\u002Fblog\u002F2019\u002F01\u002F23\u002Fnobody-cares-about-oauth-or-openid-connect\"\u003ENobody Cares About OAuth or OpenID Connect\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Ca href=\"https:\u002F\u002Fdeveloper.okta.com\u002Fblog\u002F2019\u002F08\u002F22\u002Fokta-authjs-pkce\"\u003EImplement the OAuth 2.0 Authorization Code with PKCE Flow\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Ca href=\"https:\u002F\u002Fdeveloper.okta.com\u002Fblog\u002F2018\u002F06\u002F29\u002Fwhat-is-the-oauth2-password-grant\"\u003EWhat is the OAuth 2.0 Grant Type?\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Ca href=\"https:\u002F\u002Fdeveloper.okta.com\u002Fblog\u002F2018\u002F07\u002F16\u002Foauth-2-command-line\"\u003EOAuth 2.0 From the Command Line\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Ca href=\"https:\u002F\u002Fdeveloper.okta.com\u002Fblog\u002F2019\u002F03\u002F11\u002Fnode-sql-server\"\u003EBuild a Secure Node.js App with SQL Server\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nКак обычно, не стесняйтесь комментировать. Чтобы быть в курсе наших последних новинок, подписывайтесь на \u003Ca href=\"https:\u002F\u002Ftwitter.com\u002Foktadev\"\u003ETwitter\u003C\u002Fa\u003E и \u003Ca href=\"https:\u002F\u002Fwww.youtube.com\u002Fc\u002Foktadev\"\u003EYouTube\u003C\u002Fa\u003E компании Okta для разработчиков!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EP.S. от переводчика\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nЧитайте также в нашем блоге:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E «\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fru\u002Fcompany\u002Fflant\u002Fblog\u002F468679\u002F\"\u003EАзбука безопасности в Kubernetes: аутентификация, авторизация, аудит\u003C\u002Fa\u003E»;\u003C\u002Fli\u003E\r\n\u003Cli\u003E «\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fru\u002Fcompany\u002Fflant\u002Fblog\u002F470503\u002F\"\u003EПользователи и авторизация RBAC в Kubernetes\u003C\u002Fa\u003E»;\u003C\u002Fli\u003E\r\n\u003Cli\u003E «\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fru\u002Fcompany\u002Fflant\u002Fblog\u002F465141\u002F\"\u003E33+ инструмента для безопасности Kubernetes\u003C\u002Fa\u003E»;\u003C\u002Fli\u003E\r\n\u003Cli\u003E «\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fru\u002Fcompany\u002Fflant\u002Fblog\u002F474012\u002F\"\u003EБезопасность для Docker-контейнеров\u003C\u002Fa\u003E».\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"OAuth"},{"titleHtml":"openid connect"},{"titleHtml":"OIDC"},{"titleHtml":"авторизация"},{"titleHtml":"аутентификация"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Flg\u002Fnk\u002F9q\u002Flgnk9qkktk3knzxtaayy4xk__nm.jpeg","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Flg\u002Fnk\u002F9q\u002Flgnk9qkktk3knzxtaayy4xk__nm.jpeg","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fflant\\\u002Fblog\\\u002F475942\\\u002F\"},\"headline\":\"Иллюстрированное руководство по OAuth и OpenID Connect\",\"datePublished\":\"2019-11-29T09:13:32+03:00\",\"dateModified\":\"2019-11-29T11:23:50+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Андрей Сидоров\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Прим. перев.: В этом замечательном материале компании Okta просто и наглядно рассказывается о принципах работы OAuth и OIDC (OpenID Connect). Эти знания будут по...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fflant\\\u002Fblog\\\u002F475942\\\u002F#post-content-body\",\"about\":[\"c_flant\",\"h_infosecurity\",\"h_sys_admin\",\"h_network_technologies\",\"h_itstandarts\",\"f_develop\",\"f_admin\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F475942\\\u002F7a667cb5218a43e0ef2c77f4c8fa138a\\\u002F\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Frx\\\u002Fra\\\u002Fvg\\\u002Frxravgxduaf3sxrhkt2nhug7i6s.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Flg\\\u002Fnk\\\u002F9q\\\u002Flgnk9qkktk3knzxtaayy4xk__nm.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fd6\\\u002Fjt\\\u002Ft2\\\u002Fd6jtt286dyfri-ktp4ji0brb7eq.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fne\\\u002Fa7\\\u002Fxr\\\u002Fnea7xr3zktdkb0xv3m-yf2d5kau.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F9p\\\u002F5g\\\u002Ftl\\\u002F9p5gtl43wfa2mnr6kfbuiazctzs.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fdl\\\u002Fat\\\u002F5k\\\u002Fdlat5k4zk6rrpvb7mktbnvtowr8.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fb4\\\u002Fo-\\\u002Fm4\\\u002Fb4o-m4kvqrsuunljcldxp2q6bae.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Ffu\\\u002Ffl\\\u002F_c\\\u002Ffufl_cllrq_tdk-zalwp7ataih4.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa2\\\u002Fh-\\\u002Fkv\\\u002Fa2h-kvbxckuopojl8dn6swi3rpg.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fwc\\\u002Fjv\\\u002Ftd\\\u002Fwcjvtdihlw8vsjkdgpausfclbmg.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa0\\\u002Fjg\\\u002Fiq\\\u002Fa0jgiqevvklh7e8_byzb3eemaum.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fez\\\u002Fuk\\\u002Fo7\\\u002Fezuko7xeyguycpna-e3h-vcyw34.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fhj\\\u002Fof\\\u002Fng\\\u002Fhjofngcag_9ccxqxlrc9swusu7k.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fpv\\\u002Fxv\\\u002Fem\\\u002Fpvxvemmv2zjc5mmmzz9brhxyt2u.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fid\\\u002F8z\\\u002Fvf\\\u002Fid8zvfniuutpottsefv7szfcv1i.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F40\\\u002F5y\\\u002Fqv\\\u002F405yqvgjeif_jw_v5rcp9mkdqhm.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fnc\\\u002Fuz\\\u002F4v\\\u002Fncuz4vsgvu5-2pwz03zjd5tcvfq.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F3x\\\u002F2x\\\u002Fws\\\u002F3x2xws1sjmxxplughakgfhyb-dc.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fln\\\u002Fkg\\\u002Fvm\\\u002Flnkgvmrtvr6xoz9lnewocsaqp3y.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F_4\\\u002Fu8\\\u002Fkp\\\u002F_4u8kpoed-au_fxnfprdo_zso1q.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fki\\\u002Faj\\\u002Fkr\\\u002Fkiajkr98mv_-efal16rdec0ma8e.jpeg\"]}","metaDescription":"Прим. перев.: В этом замечательном материале компании Okta просто и наглядно рассказывается о принципах работы OAuth и OIDC (OpenID Connect). Эти знания будут полезны разработчикам, системным...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"flant":{"alias":"flant","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002Fde7\u002F635\u002F363\u002Fde763536359ce6e2d2a978f8dded1964.png","titleHtml":"Флант","descriptionHtml":"DevOps-as-a-Service, Kubernetes, обслуживание 24×7","relatedData":null,"statistics":{"postsCount":424,"newsCount":38,"vacanciesCount":0,"employeesCount":64,"careerRating":4.58,"subscribersCount":30081,"rating":249.76,"invest":null},"foundationDate":{"year":"2008","month":"05","day":"13"},"location":{"city":{"id":"447159","title":"Москва"},"region":{"id":"1885","title":"Москва и Московская обл."},"country":{"id":"168","title":"Россия"}},"siteUrl":"https:\u002F\u002Fflant.ru\u002F","staffNumber":"101–200 человек","registrationDate":"2017-01-25T07:25:09+00:00","representativeUser":{"alias":"shurup","fullname":"Дмитрий Шурупов"},"contacts":[{"title":"Сайт","url":"https:\u002F\u002Fflant.ru\u002F"},{"title":"Twitter","url":"https:\u002F\u002Ftwitter.com\u002Fflant_ru"},{"title":"ВКонтакте","url":"https:\u002F\u002Fvk.com\u002Fflant_ru"},{"title":"Github","url":"https:\u002F\u002Fgithub.com\u002Fflant"},{"title":"Telegram","url":"https:\u002F\u002Ftelegram.me\u002Fflant_ru"}],"settings":{"analyticsSettings":[{"type":"ga","trackingId":"UA-87911172-2"}],"branding":{"imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fbranding\u002F3d4\u002Fc06\u002F8ba\u002F3d4c068ba151a5c21727ee9bb31f95de.png","linkUrl":"https:\u002F\u002Fflant.ru","pixelUrl":null},"status":"active","isStartup":false},"metadata":{"titleHtml":"Флант, Москва - DevOps-as-a-Service, Kubernetes, обслуживание 24×7 с 13 мая 2008 г.","title":"Флант, Москва - DevOps-as-a-Service, Kubernetes, обслуживание 24×7 с 13 мая 2008 г.","keywords":["DevOps","Kubernetes","Системное администрирование","Open source","IT-инфраструктура","kubernetes","флант","docker","werf","контейнеры","devops","continuous delivery","микросервисы","open source","cncf","helm","cloud native","linux","истории успеха","continuous integration","безопасность","мониторинг","kubernetes operator","gitlab","aws"],"descriptionHtml":"424 статьи от авторов компании Флант","description":"424 статьи от авторов компании Флант"},"aDeskSettings":null,"careerAlias":"flant"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

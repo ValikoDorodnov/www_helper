@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Composer — менеджер зависимостей для PHP / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/145946\/"},"headline":"Composer — менеджер зависимостей для PHP","datePublished":"2012-06-17T11:12:04+04:00","dateModified":"2014-12-01T13:00:54+03:00","author":{"@type":"Person","name":"Petr Myazin"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Composer (getcomposer.org) &mdash; это относительно новый и уже достаточно популярный менеджер зависимостей для PHP. Вы можете описать от каких библиотек зависит ваш п...","url":"https:\/\/habr.com\/ru\/post\/145946\/#post-content-body","about":["h_php","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/145946\/38b453488cf144669485270897976624\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Composer — менеджер зависимостей для PHP" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Composer — менеджер зависимостей для PHP" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Composer — менеджер зависимостей для PHP" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Composer (getcomposer.org) — это относительно новый и уже достаточно популярный менеджер зависимостей для PHP. Вы можете описать от каких библиотек зависит ваш проект и Composer установит нужные..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Composer (getcomposer.org) — это относительно новый и уже достаточно популярный менеджер зависимостей для PHP. Вы можете описать от каких библиотек зависит ваш проект и Composer установит нужные..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Composer (getcomposer.org) — это относительно новый и уже достаточно популярный менеджер зависимостей для PHP. Вы можете описать от каких библиотек зависит ваш проект и Composer установит нужные..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Composer (getcomposer.org) — это относительно новый и уже достаточно популярный менеджер зависимостей для PHP. Вы можете описать от каких библиотек зависит ваш проект и Composer установит нужные..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Composer (getcomposer.org) — это относительно новый и уже достаточно популярный менеджер зависимостей для PHP. Вы можете описать от каких библиотек зависит ваш проект и Composer установит нужные..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/145946/38b453488cf144669485270897976624/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/145946/38b453488cf144669485270897976624/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/145946/38b453488cf144669485270897976624/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/145946/38b453488cf144669485270897976624/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/145946/38b453488cf144669485270897976624/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="145946" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2012-06-17T07:12:04.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/145946/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="php, composer">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/145946/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.59.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/145946/38b453488cf144669485270897976624/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/PQR/" title="PQR" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/c08/796/091/c08796091ec553dc46d5ccd2f1b2d9d5.png" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/PQR/" class="tm-user-info__username">
+      PQR
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2012-06-17T07:12:04.000Z" title="2012-06-17, 11:12">17  июня  2012 в 11:12</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Composer — менеджер зависимостей для PHP</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/php/" class="tm-article-snippet__hubs-item-link"><span>PHP</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/96b/62c/18e/96b62c18e8edf6bc45f328123c5c4a4b.png" align="left" data-src="https://habrastorage.org/getpro/habr/post_images/96b/62c/18e/96b62c18e8edf6bc45f328123c5c4a4b.png"/><strong>Composer</strong> (<a href="http://getcomposer.org">getcomposer.org</a>) — это относительно новый и уже достаточно популярный менеджер зависимостей для PHP. Вы можете описать от каких библиотек зависит ваш проект и Composer установит нужные библиотеки за вас! Причём Composer — это не менеджер пакетов в классическом понимании. Да, он оперирует с сущностями, которые мы будем называть «пакетами» или библиотеками, но устанавливаются они внутрь каждого проекта отдельно, а не глобально (это одно из основных отличий от старого-доброго PEAR).<br/>
+<br/>
+Кратко, как это работает:<br/>
+<ol>
+<li>У вас есть проект, который зависит от нескольких библиотек.</li>
+<li>Некоторые из этих библиотек зависят от других библиотек.</li>
+<li>Вы описываете в своём проекте те библиотеки, от которых непосредственно зависит ваш код.</li>
+<li>Composer находит нужные версии требуемых библиотек для всего проекта, скачивает их и устанавливает в папку вашего проекта.</li>
+</ol><br/>
+При создании Composer авторы черпали идеи и вдохновение из аналогичных проектов: npm для Node.js и Bundler для Ruby.<br/>
+<br/>
+Изначально он был спроектирован и разработан двумя людьми <a href="http://www.naderman.de/">Nils Adermann</a> и <a href="http://seld.be/">Jordi Boggiano</a>, сейчас в проекте участвует более двадцати контрибьюторов, Проект написан на PHP 5.3, распространяется под лицензией MIT и доступен на <a href="http://github.com/composer">github</a>.<br/>
+<br/>
+Первые коммиты были сделаны апреле 2011 года и на сегодняшний день Composer находится в стадии «alpha3». Однако, он уже достаточно стабилен и используется многими популярными PHP проектами (например, <strong>Symfony 2</strong>). Список проектов использующих Composer можно посмотреть на сайте <a href="http://packagist.org">packagist.org</a> — это официальный репозиторий Composer пакетов. Кстати, на недавней конференции Devconf 2012 разработчик фреймворка Yii в своём докладе упомянул, что <strong>Yii2</strong> скорее всего тоже будет использовать Composer.<br/>
+<br/>
+В этой статье я кратко опишу основные возможности Composer и мы попробуем создать демонстрационный проект использующий Composer для загрузки необходимых библиотек. Все примеры будут доступны на github.com и bitbucket.org.<br/>
+<br/>
+<a name="habracut"></a><br/>
+<br/>
+<h4>Что умеет Composer?</h4><br/>
+<ul>
+<li>Скачивать пакеты и их зависимости;</li>
+<li>по умолчанию, пакеты скачиваются из официального репозитория packagist.org. Любой человек может свободно добавить туда свой пакет, чтобы сделать его установку максимально лёгкой и удобной для всего мира;</li>
+<li>пакеты можно скачивать не только с packagist.org, но и из любого git, mercurial или svn репозитория;</li>
+<li>при скачивании пакетов с github.com или bitbucket.org не требуется установленной системы контроля версий (git или hg), Composer работает через API этих сайтов;</li>
+<li>git/hg/svn репозиторий с пакетом может находиться не только на одном из перечисленных выше сайтов, но в любом другом месте, например, в локальной сети предприятия или вообще на локальном жестком диске;</li>
+<li>кроме того, устанавливаемая библиотека не обязательно должна быть оформлена в виде Composer-пакета, вы можете сделать установку из любого git/hg/svn репозитория произвольной структуры;</li>
+<li>наконец, устанавливаемый пакет не обязательно должен быть git/hg/svn репозиторием, это может быть произвольный zip файл доступный по любому uri!</li>
+<li>все пакеты устанавливаются в текущую директорию (откуда была выполнена команда install), это позволяет иметь несколько различных версий библиотек при работе над разными проектами параллельно;</li>
+<li>команда update обновляет все установленные (или установит заново случайно удалённые) пакеты до свежих версий. А может и не обновлять версии до самых свежих, если создать специальный composer.lock файл — это позволяет зафиксировать комбинацию из стабильных версий всех используемых в проекте библиотек;</li>
+<li>после установки пакетов автоматически генерируется autoload.php, с помощью которого можно подключить установленные библиотеки в коде вашего проекта. При подготовке Composer-пакета рекомендуется использовать <a href="https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md">PSR-0</a> — стандарт расположения и именования php файлов, чтобы autoload смог их легко найти. В любом случае, автор пакета может описать правила, по которым autoload будет искать файлы тех или иных классов или неймспейсов. Если вы устанавливаете библиотеку, которая не оформлена как Composer-пакет (например, произвольный git репозиторий с github), то задача описания правил autoload ложится на ваши плечи. Так что никакой магии с генерируемым autoload.php нет — он умеет загружать всё (даже библиотеки с набором функций вне классов), главное, чтобы были описаны правила (автором библиотеки или вами).</li>
+</ul><br/>
+<br/>
+<h4>Рабочий пример: используем Composer в своём проекте</h4><br/>
+Чтобы разобраться, как пользоваться Composer'ом, напишем маленький проектик на PHP: «Super Hello World». Поскольку мы не хотим изобретать велосипед и писать код «с нуля», возьмём готовые библиотеки и фреймворки.<br/>
+<br/>
+Мы будем использовать cледующие библиотеки:<br/>
+<ol>
+<li>микрофреймворк <a href="http://silex.sensiolabs.org/">Silex</a> (доступен в виде Composer пакета на packagist.org),</li>
+<li>шаблонизатор <a href="http://twig.sensiolabs.org/">Twig</a> (доступен в виде Composer пакета на packagist.org),</li>
+<li>наш собственный логер посещений <a href="http://github.com/pqr/superlogger">SuperLogger</a>, который я оформил в виде Composer-пакета и опубликовал на github</li>
+<li>нашу старую, но любимую легаси-библиотеку <a href="http://github.com/pqr/superlib">superlib</a>, которая состоит из мешанины классов без неймспейсов и функций без классов; библиотека опубликована на github, но не является оформленным Composer-пакетом</li>
+</ol><br/>
+Как мы это делали раньше: скачивали нужные нам фреймворки и библиотеки, думали куда их распаковать, писали в проекте кучу require (или require_once для надёжности).<br/>
+<br/>
+Как мы это сделаем теперь: используем Composer — он сам скачает все библиотеки и сгенерирует для нас autoload.php. Кроме того, если мы захотим показать «Super Hello World» коллегам, достаточно будет опубликовать код нашего проекта на github (или ещё где-нибудь), не включая всех требуемых библиотек в репозиторий и не готовя длинной инструкции по их установке. Нашим коллегам достаточно будет скачать (склонировать) «Super Hello World» и выполнить команду<br/>
+<pre><code class="bash">php composer.phar install
+</code></pre><br/>
+Composer распространяется в виде одного файла <strong>composer.phar</strong> (<a href="http://php.net/manual/en/book.phar.php">phar</a> — это php-архив) — по сути это PHP скприт, который может принимать несколько команд (install, update, ...) и умеет скачивать и распаковывать библиотеки.<br/>
+<br/>
+Кстати, немного о синтаксисе запуска.<br/>
+Если вы работаете под Windows, то скорее всего вы будете писать что-то вроде<br/>
+<pre><code class="bash">php C:\path\to\composer.phar install
+</code></pre><br/>
+Можно упростить себе жизнь, создав composer.bat и положив его в %PATH%.<br/>
+<br/>
+В Linux и OS X можно настроить на исполнение команду типа<br/>
+<pre><code class="bash">composer install
+</code></pre><br/>
+<br/>
+<h5>composer.json</h5><br/>
+Итак, мы готовы написать наш Super Hello World проект. И я его только что написал: <a href="http://github.com/pqr/superhelloworld">http://github.com/pqr/superhelloworld</a>. Код состоит из одного index.php файла в директории web и шаблона layout.twig в директории views.<br/>
+<br/>
+Голова всему — это файл <strong>composer.json</strong>. Он должен быть в корне проекта, в нашем случае рядом с директориями web и view. В этом файле необходимо указать от каких библиотек зависит наш проект. Кроме того, если эти библиотеки не являются оформленными Composer-пакетами, то нужно указать некоторую дополнительную информацию об устанавливаемой библиотеке (например, описать правила автозагрузки классов и функций для autoload.php).<br/>
+<br/>
+composer.json, как вы догадались, имеет формат данных JSON. На вопрос "<em>почему именно JSON?</em>" разработчики Composer отвечают "<em>Потому что. Просто примите это.</em>".<br/>
+<br/>
+Нам нужно описать один js-объект, в котором будут находиться все инструкции. Первая и самая главная инструкция: <strong>require</strong>.<br/>
+<br/>
+<h5>Подключаем пакеты с сайта packagist.org</h5><br/>
+<pre><code class="javascript">{
+    "require": {
+        "php":">=5.3.0",
+        "silex/silex":"dev-master",
+        "twig/twig":">=1.8,&lt;2.0-dev"
+    }
+}
+</code></pre><br/>
+Здесь я описал зависимость проекта от PHP версии 5.3.0 и выше, от silex (микрофреймворк) и от twig (шаблонизатор). Silex и Twig доступны в виде Composer-пакетов на сайте packagist.org, поэтому дополнительных настроек не требуют. Замечу, что Silex в свою очередь зависит ещё от нескольких пакетов — все они будут скачены и установлены автоматически.<br/>
+<br/>
+Имя пакета состоит из двух частей разделёных косой чертой: <strong>названия поставщика</strong> (vendor name) и <strong>названия библиотеки</strong>. Названием поставщика зачастую является ник автора или имя компании. Иногда, название поставщика совпадает с именем самой библиотеки или фреймворка.<br/>
+<br/>
+Для каждого пакета обязательно нужно указать номер версии. Это может быть бранч в репозитории, например, «dev-master» — приставка dev сигнализирует, что это имя бранча, а сам бранч соответсвенно называется «master». Для mercurial репозитория аналогичная запись будет выглядеть как «dev-default». В качестве номера версии можно указать и более сложные правила, используя операторы сравнения. Кстати, если вы скачиваете код из удалённого репозитория, то Composer сканирует теги и имена веток в этом репозитории на предмет чего-то похожего на номера версий, например тег «v1.2.3» будет использован как указатель на версию 1.2.3.<br/>
+<br/>
+<h5>Подключаем на собственный Compsoer-пакет</h5><br/>
+Далее, подключим наш собственный пакет SuperLogger, который правильно оформлен, но опубликован не на packagist.org, а на github:<br/>
+<pre><code class="javascript">{
+    "require": {
+        "php":">=5.3.0",
+        "silex/silex":"dev-master",
+        "twig/twig":">=1.8,&lt;2.0-dev",
+        "mycompany/superlogger":"dev-master"
+    },
+    "repositories":[
+        {
+            "type":"git",
+            "url":"http://github.com/pqr/superlogger"
+        }
+    ]
+}
+</code></pre><br/>
+Чтобы Composer знал где искать пакет «mycompany/superlogger», мы добавили массив <strong>repositories</strong> со ссылкой на соотвествующий github репозиторий. Обратим внимание, что записи в массиве repositories напрямую никак не связаны с блоком require — между пакетами и репозиториями не указано соответствие. На сколько я понял, Composer ищет все требуемые пакеты во всех указанных репозиториях (в т.ч. на сайте packagist.org) и скачивает найденные совпадения по каким-то внутренним приоритетам. Более глубоко я в этом моменте ещё не разбирался, поправьте меня, если кто-то знает детали.<br/>
+<br/>
+<h5>Подключаем произвольный git репозиторий</h5><br/>
+Теперь подключим нашу легаси-библиотеку superlib, которая лежит на github, но не является оформленным Composer-пакетом, т.к. она очень старая.<br/>
+<pre><code class="javascript">{
+    "require":{
+        "php":">=5.3.0",
+        "silex/silex":"dev-master",
+        "twig/twig":">=1.8,&lt;2.0-dev",
+        "mycompany/superlogger":"dev-master",
+        "pqr/superlib":"1.2.3"
+    },
+    "repositories":[
+        {
+            "type":"git",
+            "url":"http://github.com/pqr/superlogger"
+        },
+        {
+            "type":"package",
+            "package":{
+                "name":"pqr/superlib",
+                "version":"1.2.3",
+                "source":{
+                    "type":"git",
+                    "url":"http://github.com/pqr/superlib",
+                    "reference":"master"
+                },
+                "autoload":{
+                    "classmap":["timer.php"],
+                    "files":["lib_functions.php"]
+                }
+            }
+        }
+    ]
+}
+</code></pre><br/>
+В массив repositories добавился объект, который целиком описывает пакет pqr/superlib. По сути, это то описание, которое должен был бы сделать автор библиотеки и положить его внутри своего репозитория. Но по условиям задачи, superlib не является оформленным Composer-пакетом, поэтому нам пришлось создать его описание в рамках Super Hello World проекта. Аналогичным образом можно подключить любую другую библиотеку, в т.ч. простой zip файл.<br/>
+<br/>
+<h5>Подключаем простой zip файл</h5><br/>
+Например, вот как могло бы выглядеть описание зависимости от шаблонизатора Smarty, распространяемого в виде zip файла с исходниками в svn:<br/>
+<pre><code class="javascript">{
+    "repositories":[
+        {
+            "type":"package",
+            "package":{
+                "name":"smarty/smarty",
+                "version":"3.1.7",
+                "dist":{
+                    "url":"http://www.smarty.net/files/Smarty-3.1.7.zip",
+                    "type":"zip"
+                },
+                "source":{
+                    "url":"http://smarty-php.googlecode.com/svn/",
+                    "type":"svn",
+                    "reference":"tags/Smarty_3_1_7/distribution/"
+                }
+            }
+        }
+    ],
+    "require":{
+        "smarty/smarty":"3.1.*"
+    }
+}
+</code></pre><br/>
+<br/>
+<h5>Инстукция autoload</h5><br/>
+Вернёмся к нашему проекту.<br/>
+Описывая «pqr/superlib», мы добавили инструкцию <strong>autoload</strong>. В ней указан файл timer.php, в котором будущий автозагрузчик будет искать классы и указали файл с функциями lib_functions.php — он будет принудительно подключаться в начале autoload.php.<br/>
+<br/>
+Итак, наш проект состоит из:<br/>
+<ul>
+<li>в корне лежит файл composer.json;</li>
+<li>в корне находятся директории web и views;</li>
+<li>внутри директории web лежит файл с «бизнес-логикой» нашего приложения: index.php;</li>
+<li>внутри директории views лежит файл шаблона layout.twig;</li>
+<li>дополнительно, в папку web я положил .htaccess (для apache) и web.config (для IIS 7.5) с правилами mod_rewrite/url rewriter — непосредсвенно к настройке Composer они отношения не имеют.</li>
+</ul><br/>
+Всё готово к запуску.<br/>
+<br/>
+<h5>Запускаем composer install</h5><br/>
+<pre><code class="bash">php composer.phar install
+</code></pre><br/>
+Composer клонирует репозитории и распаковывает их на нужной версии в директорию <strong>vendor</strong>, которую он сам создаёт в корне проекта. После распаковки, в директории vendor мы найдём:<br/>
+<ul>
+<li>файл autoload.php</li>
+<li>служебные директории .composer и composer</li>
+<li>pimple — пакет, который подтянулся вместе с микрофреймворком Silex</li>
+<li>silex — сам микрофреймворк, его мы явным образом затребовали при описании зависимостей</li>
+<li>symfony — некоторые компоненты из Symfony 2, которые требуются для работы Silex</li>
+<li>twig — шаблонизатор, который мы также явно запросили</li>
+<li>mycompany — внутри этой директории будет находиться репозиторий superlogger скаченный с github</li>
+<li>pqr — внутри этой директории будет находиться репозиторий superlib, также скаченный с github</li>
+</ul><br/>
+Остаётся только подключить autoload.php в начале файла web/index.php (require "../vendor/autoload.php") и все библиотеки и функции будут доступны!<br/>
+<br/>
+<h5>Как создать собственный Composer пакет?</h5><br/>
+В этом проекте мы использовали Composer с точки зрения потребителя библиотек. А как самому создать Composer пакет, чтобы любой другой человек смог им воспользоваться?<br/>
+<br/>
+На самом деле, один из таких пакетов я создал, когда подготавливал примеры для этой статьи. В корне репозитория superlogger лежит файл <a href="http://github.com/pqr/superlogger/blob/master/composer.json">composer.json</a> похожей структуры, который описывает сам пакет и его зависимости (в случае с superlogger зависимостей нет). Другие примеры: репозитории silex и twig, которые скачались в папку vendor — все они имеют файл composer.json в корне — смотрите, изучайте!<br/>
+<br/>
+И, конечно, не забывайте про документацию на официальном сайте <a href="http://getcomposer.org/doc/">getcomposer.org/doc/</a>.<br/>
+Эту тему я оставлю вам для самостоятельной проработки.<br/>
+<br/>
+<h4>Подведём итоги</h4><br/>
+В этой статье я рассказал, что такое Composer, его историю и описал основные возможности. Мы с вами попробовали создать проект, который использует Composer для установки пакетов с сайта packagist.org и из наших собственных репозиториев.<br/>
+<br/>
+<strong>Самое время попробовать!</strong><br/>
+<ol>
+<li>Скачате Composer (<a href="http://getcomposer.org/download/">getcomposer.org/download/</a>)</li>
+<li>Скачате superhelloworld (git clone git://github.com/pqr/superhelloworld.git)</li>
+<li>Установите зависимости (cd superhelloworld &amp;&amp; php composer.phar install)</li>
+<li>Изучите появившуюся папку vendor и сгенерированный autoload.php</li>
+<li>Используте Composer в своих проектах<br/>
+…</li>
+<li>PROFIT!!!</li>
+</ol><br/>
+<br/>
+На добавку пара ссылок по теме:<br/>
+<a href="http://nelm.io/blog/2011/12/composer-part-1-what-why/">Composer: Part 1 – What &amp; Why</a><br/>
+<a href="http://nelm.io/blog/2011/12/composer-part-2-impact/">Composer: Part 2 – Impact</a><br/>
+<br/>
+<h4>P.S.</h4><br/>
+В своих рабочих проектах я использую систему контроля версий Mercurial. Этот пример вы также можете скачать и установить через Composer с сайта bitbucket.org: <a href="http://bitbucket.org/pqr/superhelloworld">http://bitbucket.org/pqr/superhelloworld</a><br/>
+<br/>
+<strong>Внимание</strong>: к сожалению, при использовании Composer с Mercurial репозиториями на Windows машине я нашел один баг. Если вы устанавливаете зависимости в проекте, который находится на диске отличном от системного диска, то получите ошибку. Например, системный диск C:, а проект вы разворачиваете где-то в папке D:\someproject и ваш проект зависит от библиотек опубликованных в виде Mercurial репозиториев — Composer не сможет правильно их прочитать. Собираюсь в ближайшее время пофиксить этот баг и отправить pull request в официальный репозиторий Composer'а.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bphp%5D" class="tm-tags-list__link">php</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bcomposer%5D" class="tm-tags-list__link">composer</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/php/" class="tm-hubs-list__link">
+    PHP
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 73: ↑60 и ↓13</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 73: ↑60 и ↓13" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+47</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">389K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    730
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/PQR/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/c08/796/091/c08796091ec553dc46d5ccd2f1b2d9d5.png" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 109 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    65
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Petr Myazin</span> <a href="https://habr.com/ru/users/PQR/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @PQR
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Разработчик</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <div class="tm-article-author__user-contacts"><a href="https://5minphp.ru" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Сайт
+    </a></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/145946/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 43 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner11548" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner11549" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/php_programmist" target="_blank" class="tm-vacancies-block__vacancy-title">
+        PHP программист
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        259
+    вакансий
+      </div></div><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/programmist_laravel" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Разработчик Laravel
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        92
+    вакансии
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/145946/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/145946/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"145946":{"id":"145946","timePublished":"2012-06-17T07:12:04+00:00","isCorporative":false,"lang":"ru","titleHtml":"Composer — менеджер зависимостей для PHP","leadData":{"textHtml":"\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F96b\u002F62c\u002F18e\u002F96b62c18e8edf6bc45f328123c5c4a4b.png\" align=\"left\"\u002F\u003E\u003Cstrong\u003EComposer\u003C\u002Fstrong\u003E (\u003Ca href=\"http:\u002F\u002Fgetcomposer.org\"\u003Egetcomposer.org\u003C\u002Fa\u003E) — это относительно новый и уже достаточно популярный менеджер зависимостей для PHP. Вы можете описать от каких библиотек зависит ваш проект и Composer установит нужные библиотеки за вас! Причём Composer — это не менеджер пакетов в классическом понимании. Да, он оперирует с сущностями, которые мы будем называть «пакетами» или библиотеками, но устанавливаются они внутрь каждого проекта отдельно, а не глобально (это одно из основных отличий от старого-доброго PEAR).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКратко, как это работает:\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EУ вас есть проект, который зависит от нескольких библиотек.\u003C\u002Fli\u003E\r\n\u003Cli\u003EНекоторые из этих библиотек зависят от других библиотек.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВы описываете в своём проекте те библиотеки, от которых непосредственно зависит ваш код.\u003C\u002Fli\u003E\r\n\u003Cli\u003EComposer находит нужные версии требуемых библиотек для всего проекта, скачивает их и устанавливает в папку вашего проекта.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nПри создании Composer авторы черпали идеи и вдохновение из аналогичных проектов: npm для Node.js и Bundler для Ruby.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИзначально он был спроектирован и разработан двумя людьми \u003Ca href=\"http:\u002F\u002Fwww.naderman.de\u002F\"\u003ENils Adermann\u003C\u002Fa\u003E и \u003Ca href=\"http:\u002F\u002Fseld.be\u002F\"\u003EJordi Boggiano\u003C\u002Fa\u003E, сейчас в проекте участвует более двадцати контрибьюторов, Проект написан на PHP 5.3, распространяется под лицензией MIT и доступен на \u003Ca href=\"http:\u002F\u002Fgithub.com\u002Fcomposer\"\u003Egithub\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПервые коммиты были сделаны апреле 2011 года и на сегодняшний день Composer находится в стадии «alpha3». Однако, он уже достаточно стабилен и используется многими популярными PHP проектами (например, \u003Cstrong\u003ESymfony 2\u003C\u002Fstrong\u003E). Список проектов использующих Composer можно посмотреть на сайте \u003Ca href=\"http:\u002F\u002Fpackagist.org\"\u003Epackagist.org\u003C\u002Fa\u003E — это официальный репозиторий Composer пакетов. Кстати, на недавней конференции Devconf 2012 разработчик фреймворка Yii в своём докладе упомянул, что \u003Cstrong\u003EYii2\u003C\u002Fstrong\u003E скорее всего тоже будет использовать Composer.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ этой статье я кратко опишу основные возможности Composer и мы попробуем создать демонстрационный проект использующий Composer для загрузки необходимых библиотек. Все примеры будут доступны на github.com и bitbucket.org.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":65,"votesCount":109},"rating":0,"relatedData":null,"contacts":[{"title":"Сайт","url":"https:\u002F\u002F5minphp.ru","value":"https:\u002F\u002F5minphp.ru"}],"authorContacts":[{"title":"Сайт","url":"https:\u002F\u002F5minphp.ru","value":"https:\u002F\u002F5minphp.ru"}],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"25042","alias":"PQR","fullname":"Petr Myazin","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002Fc08\u002F796\u002F091\u002Fc08796091ec553dc46d5ccd2f1b2d9d5.png","speciality":"Разработчик"},"statistics":{"commentsCount":43,"favoritesCount":730,"readingCount":389142,"score":47,"votesCount":73},"hubs":[{"relatedData":null,"id":"260","alias":"php","type":"collective","title":"PHP","titleHtml":"PHP","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F96b\u002F62c\u002F18e\u002F96b62c18e8edf6bc45f328123c5c4a4b.png\" align=\"left\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F96b\u002F62c\u002F18e\u002F96b62c18e8edf6bc45f328123c5c4a4b.png\"\u002F\u003E\u003Cstrong\u003EComposer\u003C\u002Fstrong\u003E (\u003Ca href=\"http:\u002F\u002Fgetcomposer.org\"\u003Egetcomposer.org\u003C\u002Fa\u003E) — это относительно новый и уже достаточно популярный менеджер зависимостей для PHP. Вы можете описать от каких библиотек зависит ваш проект и Composer установит нужные библиотеки за вас! Причём Composer — это не менеджер пакетов в классическом понимании. Да, он оперирует с сущностями, которые мы будем называть «пакетами» или библиотеками, но устанавливаются они внутрь каждого проекта отдельно, а не глобально (это одно из основных отличий от старого-доброго PEAR).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКратко, как это работает:\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EУ вас есть проект, который зависит от нескольких библиотек.\u003C\u002Fli\u003E\r\n\u003Cli\u003EНекоторые из этих библиотек зависят от других библиотек.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВы описываете в своём проекте те библиотеки, от которых непосредственно зависит ваш код.\u003C\u002Fli\u003E\r\n\u003Cli\u003EComposer находит нужные версии требуемых библиотек для всего проекта, скачивает их и устанавливает в папку вашего проекта.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nПри создании Composer авторы черпали идеи и вдохновение из аналогичных проектов: npm для Node.js и Bundler для Ruby.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИзначально он был спроектирован и разработан двумя людьми \u003Ca href=\"http:\u002F\u002Fwww.naderman.de\u002F\"\u003ENils Adermann\u003C\u002Fa\u003E и \u003Ca href=\"http:\u002F\u002Fseld.be\u002F\"\u003EJordi Boggiano\u003C\u002Fa\u003E, сейчас в проекте участвует более двадцати контрибьюторов, Проект написан на PHP 5.3, распространяется под лицензией MIT и доступен на \u003Ca href=\"http:\u002F\u002Fgithub.com\u002Fcomposer\"\u003Egithub\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПервые коммиты были сделаны апреле 2011 года и на сегодняшний день Composer находится в стадии «alpha3». Однако, он уже достаточно стабилен и используется многими популярными PHP проектами (например, \u003Cstrong\u003ESymfony 2\u003C\u002Fstrong\u003E). Список проектов использующих Composer можно посмотреть на сайте \u003Ca href=\"http:\u002F\u002Fpackagist.org\"\u003Epackagist.org\u003C\u002Fa\u003E — это официальный репозиторий Composer пакетов. Кстати, на недавней конференции Devconf 2012 разработчик фреймворка Yii в своём докладе упомянул, что \u003Cstrong\u003EYii2\u003C\u002Fstrong\u003E скорее всего тоже будет использовать Composer.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ этой статье я кратко опишу основные возможности Composer и мы попробуем создать демонстрационный проект использующий Composer для загрузки необходимых библиотек. Все примеры будут доступны на github.com и bitbucket.org.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EЧто умеет Composer?\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EСкачивать пакеты и их зависимости;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eпо умолчанию, пакеты скачиваются из официального репозитория packagist.org. Любой человек может свободно добавить туда свой пакет, чтобы сделать его установку максимально лёгкой и удобной для всего мира;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eпакеты можно скачивать не только с packagist.org, но и из любого git, mercurial или svn репозитория;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eпри скачивании пакетов с github.com или bitbucket.org не требуется установленной системы контроля версий (git или hg), Composer работает через API этих сайтов;\u003C\u002Fli\u003E\r\n\u003Cli\u003Egit\u002Fhg\u002Fsvn репозиторий с пакетом может находиться не только на одном из перечисленных выше сайтов, но в любом другом месте, например, в локальной сети предприятия или вообще на локальном жестком диске;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eкроме того, устанавливаемая библиотека не обязательно должна быть оформлена в виде Composer-пакета, вы можете сделать установку из любого git\u002Fhg\u002Fsvn репозитория произвольной структуры;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eнаконец, устанавливаемый пакет не обязательно должен быть git\u002Fhg\u002Fsvn репозиторием, это может быть произвольный zip файл доступный по любому uri!\u003C\u002Fli\u003E\r\n\u003Cli\u003Eвсе пакеты устанавливаются в текущую директорию (откуда была выполнена команда install), это позволяет иметь несколько различных версий библиотек при работе над разными проектами параллельно;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eкоманда update обновляет все установленные (или установит заново случайно удалённые) пакеты до свежих версий. А может и не обновлять версии до самых свежих, если создать специальный composer.lock файл — это позволяет зафиксировать комбинацию из стабильных версий всех используемых в проекте библиотек;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eпосле установки пакетов автоматически генерируется autoload.php, с помощью которого можно подключить установленные библиотеки в коде вашего проекта. При подготовке Composer-пакета рекомендуется использовать \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fphp-fig\u002Ffig-standards\u002Fblob\u002Fmaster\u002Faccepted\u002FPSR-0.md\"\u003EPSR-0\u003C\u002Fa\u003E — стандарт расположения и именования php файлов, чтобы autoload смог их легко найти. В любом случае, автор пакета может описать правила, по которым autoload будет искать файлы тех или иных классов или неймспейсов. Если вы устанавливаете библиотеку, которая не оформлена как Composer-пакет (например, произвольный git репозиторий с github), то задача описания правил autoload ложится на ваши плечи. Так что никакой магии с генерируемым autoload.php нет — он умеет загружать всё (даже библиотеки с набором функций вне классов), главное, чтобы были описаны правила (автором библиотеки или вами).\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EРабочий пример: используем Composer в своём проекте\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nЧтобы разобраться, как пользоваться Composer'ом, напишем маленький проектик на PHP: «Super Hello World». Поскольку мы не хотим изобретать велосипед и писать код «с нуля», возьмём готовые библиотеки и фреймворки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМы будем использовать cледующие библиотеки:\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003Eмикрофреймворк \u003Ca href=\"http:\u002F\u002Fsilex.sensiolabs.org\u002F\"\u003ESilex\u003C\u002Fa\u003E (доступен в виде Composer пакета на packagist.org),\u003C\u002Fli\u003E\r\n\u003Cli\u003Eшаблонизатор \u003Ca href=\"http:\u002F\u002Ftwig.sensiolabs.org\u002F\"\u003ETwig\u003C\u002Fa\u003E (доступен в виде Composer пакета на packagist.org),\u003C\u002Fli\u003E\r\n\u003Cli\u003Eнаш собственный логер посещений \u003Ca href=\"http:\u002F\u002Fgithub.com\u002Fpqr\u002Fsuperlogger\"\u003ESuperLogger\u003C\u002Fa\u003E, который я оформил в виде Composer-пакета и опубликовал на github\u003C\u002Fli\u003E\r\n\u003Cli\u003Eнашу старую, но любимую легаси-библиотеку \u003Ca href=\"http:\u002F\u002Fgithub.com\u002Fpqr\u002Fsuperlib\"\u003Esuperlib\u003C\u002Fa\u003E, которая состоит из мешанины классов без неймспейсов и функций без классов; библиотека опубликована на github, но не является оформленным Composer-пакетом\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nКак мы это делали раньше: скачивали нужные нам фреймворки и библиотеки, думали куда их распаковать, писали в проекте кучу require (или require_once для надёжности).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКак мы это сделаем теперь: используем Composer — он сам скачает все библиотеки и сгенерирует для нас autoload.php. Кроме того, если мы захотим показать «Super Hello World» коллегам, достаточно будет опубликовать код нашего проекта на github (или ещё где-нибудь), не включая всех требуемых библиотек в репозиторий и не готовя длинной инструкции по их установке. Нашим коллегам достаточно будет скачать (склонировать) «Super Hello World» и выполнить команду\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Ephp composer.phar install\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nComposer распространяется в виде одного файла \u003Cstrong\u003Ecomposer.phar\u003C\u002Fstrong\u003E (\u003Ca href=\"http:\u002F\u002Fphp.net\u002Fmanual\u002Fen\u002Fbook.phar.php\"\u003Ephar\u003C\u002Fa\u003E — это php-архив) — по сути это PHP скприт, который может принимать несколько команд (install, update, ...) и умеет скачивать и распаковывать библиотеки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКстати, немного о синтаксисе запуска.\u003Cbr\u002F\u003E\r\nЕсли вы работаете под Windows, то скорее всего вы будете писать что-то вроде\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Ephp C:\\path\\to\\composer.phar install\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nМожно упростить себе жизнь, создав composer.bat и положив его в %PATH%.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ Linux и OS X можно настроить на исполнение команду типа\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Ecomposer install\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003Ecomposer.json\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nИтак, мы готовы написать наш Super Hello World проект. И я его только что написал: \u003Ca href=\"http:\u002F\u002Fgithub.com\u002Fpqr\u002Fsuperhelloworld\"\u003Ehttp:\u002F\u002Fgithub.com\u002Fpqr\u002Fsuperhelloworld\u003C\u002Fa\u003E. Код состоит из одного index.php файла в директории web и шаблона layout.twig в директории views.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nГолова всему — это файл \u003Cstrong\u003Ecomposer.json\u003C\u002Fstrong\u003E. Он должен быть в корне проекта, в нашем случае рядом с директориями web и view. В этом файле необходимо указать от каких библиотек зависит наш проект. Кроме того, если эти библиотеки не являются оформленными Composer-пакетами, то нужно указать некоторую дополнительную информацию об устанавливаемой библиотеке (например, описать правила автозагрузки классов и функций для autoload.php).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\ncomposer.json, как вы догадались, имеет формат данных JSON. На вопрос \"\u003Cem\u003Eпочему именно JSON?\u003C\u002Fem\u003E\" разработчики Composer отвечают \"\u003Cem\u003EПотому что. Просто примите это.\u003C\u002Fem\u003E\".\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНам нужно описать один js-объект, в котором будут находиться все инструкции. Первая и самая главная инструкция: \u003Cstrong\u003Erequire\u003C\u002Fstrong\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003EПодключаем пакеты с сайта packagist.org\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E{\n    \"require\": {\n        \"php\":\"\u003E=5.3.0\",\n        \"silex\u002Fsilex\":\"dev-master\",\n        \"twig\u002Ftwig\":\"\u003E=1.8,&lt;2.0-dev\"\n    }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗдесь я описал зависимость проекта от PHP версии 5.3.0 и выше, от silex (микрофреймворк) и от twig (шаблонизатор). Silex и Twig доступны в виде Composer-пакетов на сайте packagist.org, поэтому дополнительных настроек не требуют. Замечу, что Silex в свою очередь зависит ещё от нескольких пакетов — все они будут скачены и установлены автоматически.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИмя пакета состоит из двух частей разделёных косой чертой: \u003Cstrong\u003Eназвания поставщика\u003C\u002Fstrong\u003E (vendor name) и \u003Cstrong\u003Eназвания библиотеки\u003C\u002Fstrong\u003E. Названием поставщика зачастую является ник автора или имя компании. Иногда, название поставщика совпадает с именем самой библиотеки или фреймворка.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля каждого пакета обязательно нужно указать номер версии. Это может быть бранч в репозитории, например, «dev-master» — приставка dev сигнализирует, что это имя бранча, а сам бранч соответсвенно называется «master». Для mercurial репозитория аналогичная запись будет выглядеть как «dev-default». В качестве номера версии можно указать и более сложные правила, используя операторы сравнения. Кстати, если вы скачиваете код из удалённого репозитория, то Composer сканирует теги и имена веток в этом репозитории на предмет чего-то похожего на номера версий, например тег «v1.2.3» будет использован как указатель на версию 1.2.3.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003EПодключаем на собственный Compsoer-пакет\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nДалее, подключим наш собственный пакет SuperLogger, который правильно оформлен, но опубликован не на packagist.org, а на github:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E{\n    \"require\": {\n        \"php\":\"\u003E=5.3.0\",\n        \"silex\u002Fsilex\":\"dev-master\",\n        \"twig\u002Ftwig\":\"\u003E=1.8,&lt;2.0-dev\",\n        \"mycompany\u002Fsuperlogger\":\"dev-master\"\n    },\n    \"repositories\":[\n        {\n            \"type\":\"git\",\n            \"url\":\"http:\u002F\u002Fgithub.com\u002Fpqr\u002Fsuperlogger\"\n        }\n    ]\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЧтобы Composer знал где искать пакет «mycompany\u002Fsuperlogger», мы добавили массив \u003Cstrong\u003Erepositories\u003C\u002Fstrong\u003E со ссылкой на соотвествующий github репозиторий. Обратим внимание, что записи в массиве repositories напрямую никак не связаны с блоком require — между пакетами и репозиториями не указано соответствие. На сколько я понял, Composer ищет все требуемые пакеты во всех указанных репозиториях (в т.ч. на сайте packagist.org) и скачивает найденные совпадения по каким-то внутренним приоритетам. Более глубоко я в этом моменте ещё не разбирался, поправьте меня, если кто-то знает детали.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003EПодключаем произвольный git репозиторий\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nТеперь подключим нашу легаси-библиотеку superlib, которая лежит на github, но не является оформленным Composer-пакетом, т.к. она очень старая.\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E{\n    \"require\":{\n        \"php\":\"\u003E=5.3.0\",\n        \"silex\u002Fsilex\":\"dev-master\",\n        \"twig\u002Ftwig\":\"\u003E=1.8,&lt;2.0-dev\",\n        \"mycompany\u002Fsuperlogger\":\"dev-master\",\n        \"pqr\u002Fsuperlib\":\"1.2.3\"\n    },\n    \"repositories\":[\n        {\n            \"type\":\"git\",\n            \"url\":\"http:\u002F\u002Fgithub.com\u002Fpqr\u002Fsuperlogger\"\n        },\n        {\n            \"type\":\"package\",\n            \"package\":{\n                \"name\":\"pqr\u002Fsuperlib\",\n                \"version\":\"1.2.3\",\n                \"source\":{\n                    \"type\":\"git\",\n                    \"url\":\"http:\u002F\u002Fgithub.com\u002Fpqr\u002Fsuperlib\",\n                    \"reference\":\"master\"\n                },\n                \"autoload\":{\n                    \"classmap\":[\"timer.php\"],\n                    \"files\":[\"lib_functions.php\"]\n                }\n            }\n        }\n    ]\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ массив repositories добавился объект, который целиком описывает пакет pqr\u002Fsuperlib. По сути, это то описание, которое должен был бы сделать автор библиотеки и положить его внутри своего репозитория. Но по условиям задачи, superlib не является оформленным Composer-пакетом, поэтому нам пришлось создать его описание в рамках Super Hello World проекта. Аналогичным образом можно подключить любую другую библиотеку, в т.ч. простой zip файл.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003EПодключаем простой zip файл\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nНапример, вот как могло бы выглядеть описание зависимости от шаблонизатора Smarty, распространяемого в виде zip файла с исходниками в svn:\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E{\n    \"repositories\":[\n        {\n            \"type\":\"package\",\n            \"package\":{\n                \"name\":\"smarty\u002Fsmarty\",\n                \"version\":\"3.1.7\",\n                \"dist\":{\n                    \"url\":\"http:\u002F\u002Fwww.smarty.net\u002Ffiles\u002FSmarty-3.1.7.zip\",\n                    \"type\":\"zip\"\n                },\n                \"source\":{\n                    \"url\":\"http:\u002F\u002Fsmarty-php.googlecode.com\u002Fsvn\u002F\",\n                    \"type\":\"svn\",\n                    \"reference\":\"tags\u002FSmarty_3_1_7\u002Fdistribution\u002F\"\n                }\n            }\n        }\n    ],\n    \"require\":{\n        \"smarty\u002Fsmarty\":\"3.1.*\"\n    }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003EИнстукция autoload\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nВернёмся к нашему проекту.\u003Cbr\u002F\u003E\r\nОписывая «pqr\u002Fsuperlib», мы добавили инструкцию \u003Cstrong\u003Eautoload\u003C\u002Fstrong\u003E. В ней указан файл timer.php, в котором будущий автозагрузчик будет искать классы и указали файл с функциями lib_functions.php — он будет принудительно подключаться в начале autoload.php.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИтак, наш проект состоит из:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eв корне лежит файл composer.json;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eв корне находятся директории web и views;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eвнутри директории web лежит файл с «бизнес-логикой» нашего приложения: index.php;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eвнутри директории views лежит файл шаблона layout.twig;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eдополнительно, в папку web я положил .htaccess (для apache) и web.config (для IIS 7.5) с правилами mod_rewrite\u002Furl rewriter — непосредсвенно к настройке Composer они отношения не имеют.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nВсё готово к запуску.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003EЗапускаем composer install\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Ephp composer.phar install\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nComposer клонирует репозитории и распаковывает их на нужной версии в директорию \u003Cstrong\u003Evendor\u003C\u002Fstrong\u003E, которую он сам создаёт в корне проекта. После распаковки, в директории vendor мы найдём:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eфайл autoload.php\u003C\u002Fli\u003E\r\n\u003Cli\u003Eслужебные директории .composer и composer\u003C\u002Fli\u003E\r\n\u003Cli\u003Epimple — пакет, который подтянулся вместе с микрофреймворком Silex\u003C\u002Fli\u003E\r\n\u003Cli\u003Esilex — сам микрофреймворк, его мы явным образом затребовали при описании зависимостей\u003C\u002Fli\u003E\r\n\u003Cli\u003Esymfony — некоторые компоненты из Symfony 2, которые требуются для работы Silex\u003C\u002Fli\u003E\r\n\u003Cli\u003Etwig — шаблонизатор, который мы также явно запросили\u003C\u002Fli\u003E\r\n\u003Cli\u003Emycompany — внутри этой директории будет находиться репозиторий superlogger скаченный с github\u003C\u002Fli\u003E\r\n\u003Cli\u003Epqr — внутри этой директории будет находиться репозиторий superlib, также скаченный с github\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nОстаётся только подключить autoload.php в начале файла web\u002Findex.php (require \"..\u002Fvendor\u002Fautoload.php\") и все библиотеки и функции будут доступны!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003EКак создать собственный Composer пакет?\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nВ этом проекте мы использовали Composer с точки зрения потребителя библиотек. А как самому создать Composer пакет, чтобы любой другой человек смог им воспользоваться?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа самом деле, один из таких пакетов я создал, когда подготавливал примеры для этой статьи. В корне репозитория superlogger лежит файл \u003Ca href=\"http:\u002F\u002Fgithub.com\u002Fpqr\u002Fsuperlogger\u002Fblob\u002Fmaster\u002Fcomposer.json\"\u003Ecomposer.json\u003C\u002Fa\u003E похожей структуры, который описывает сам пакет и его зависимости (в случае с superlogger зависимостей нет). Другие примеры: репозитории silex и twig, которые скачались в папку vendor — все они имеют файл composer.json в корне — смотрите, изучайте!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИ, конечно, не забывайте про документацию на официальном сайте \u003Ca href=\"http:\u002F\u002Fgetcomposer.org\u002Fdoc\u002F\"\u003Egetcomposer.org\u002Fdoc\u002F\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\nЭту тему я оставлю вам для самостоятельной проработки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EПодведём итоги\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВ этой статье я рассказал, что такое Composer, его историю и описал основные возможности. Мы с вами попробовали создать проект, который использует Composer для установки пакетов с сайта packagist.org и из наших собственных репозиториев.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EСамое время попробовать!\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EСкачате Composer (\u003Ca href=\"http:\u002F\u002Fgetcomposer.org\u002Fdownload\u002F\"\u003Egetcomposer.org\u002Fdownload\u002F\u003C\u002Fa\u003E)\u003C\u002Fli\u003E\r\n\u003Cli\u003EСкачате superhelloworld (git clone git:\u002F\u002Fgithub.com\u002Fpqr\u002Fsuperhelloworld.git)\u003C\u002Fli\u003E\r\n\u003Cli\u003EУстановите зависимости (cd superhelloworld &amp;&amp; php composer.phar install)\u003C\u002Fli\u003E\r\n\u003Cli\u003EИзучите появившуюся папку vendor и сгенерированный autoload.php\u003C\u002Fli\u003E\r\n\u003Cli\u003EИспользуте Composer в своих проектах\u003Cbr\u002F\u003E\r\n…\u003C\u002Fli\u003E\r\n\u003Cli\u003EPROFIT!!!\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа добавку пара ссылок по теме:\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fnelm.io\u002Fblog\u002F2011\u002F12\u002Fcomposer-part-1-what-why\u002F\"\u003EComposer: Part 1 – What &amp; Why\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fnelm.io\u002Fblog\u002F2011\u002F12\u002Fcomposer-part-2-impact\u002F\"\u003EComposer: Part 2 – Impact\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EP.S.\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВ своих рабочих проектах я использую систему контроля версий Mercurial. Этот пример вы также можете скачать и установить через Composer с сайта bitbucket.org: \u003Ca href=\"http:\u002F\u002Fbitbucket.org\u002Fpqr\u002Fsuperhelloworld\"\u003Ehttp:\u002F\u002Fbitbucket.org\u002Fpqr\u002Fsuperhelloworld\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EВнимание\u003C\u002Fstrong\u003E: к сожалению, при использовании Composer с Mercurial репозиториями на Windows машине я нашел один баг. Если вы устанавливаете зависимости в проекте, который находится на диске отличном от системного диска, то получите ошибку. Например, системный диск C:, а проект вы разворачиваете где-то в папке D:\\someproject и ваш проект зависит от библиотек опубликованных в виде Mercurial репозиториев — Composer не сможет правильно их прочитать. Собираюсь в ближайшее время пофиксить этот баг и отправить pull request в официальный репозиторий Composer'а.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"php"},{"titleHtml":"composer"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F145946\u002F38b453488cf144669485270897976624\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F145946\u002F38b453488cf144669485270897976624\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F145946\\\u002F\"},\"headline\":\"Composer — менеджер зависимостей для PHP\",\"datePublished\":\"2012-06-17T11:12:04+04:00\",\"dateModified\":\"2014-12-01T13:00:54+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Petr Myazin\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Composer (getcomposer.org) &mdash; это относительно новый и уже достаточно популярный менеджер зависимостей для PHP. Вы можете описать от каких библиотек зависит ваш п...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F145946\\\u002F#post-content-body\",\"about\":[\"h_php\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F145946\\\u002F38b453488cf144669485270897976624\\\u002F\"]}","metaDescription":"Composer (getcomposer.org) — это относительно новый и уже достаточно популярный менеджер зависимостей для PHP. Вы можете описать от каких библиотек зависит ваш проект и Composer установит нужные...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"PHP программист","vacanciesCount":259,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fphp_programmist","itemHubs":["laravel","symfony","yii","php"]},{"title":"Разработчик Laravel","vacanciesCount":92,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fprogrammist_laravel","itemHubs":["laravel","php"]}],"hubs":"php"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

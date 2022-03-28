@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Давайте уже разберемся в DNS / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/303446\/"},"headline":"Давайте уже разберемся в DNS","datePublished":"2016-06-16T13:59:49+03:00","dateModified":"2016-06-17T15:13:10+03:00","author":{"@type":"Person","name":"Рахим Давлеткалиев"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Внимательный читатель найдет на этой картинке IPv6 Люди часто озадачены доменами. Почему мой сайт не работает? Почему эта хрень поломана, ничего не помогает, я...","url":"https:\/\/habr.com\/ru\/post\/303446\/#post-content-body","about":["h_dns","f_admin"],"image":["https:\/\/habr.com\/share\/publication\/303446\/f50dc4ea7fb09aa256f8b4e95ff40b78\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Давайте уже разберемся в DNS" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Давайте уже разберемся в DNS" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Давайте уже разберемся в DNS" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Внимательный читатель найдет на этой картинке IPv6
+Люди часто озадачены доменами. Почему мой сайт не работает? Почему эта хрень поломана, ничего не помогает, я просто хочу, чтобы это работало!..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Внимательный читатель найдет на этой картинке IPv6
+Люди часто озадачены доменами. Почему мой сайт не работает? Почему эта хрень поломана, ничего не помогает, я просто хочу, чтобы это работало!..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Внимательный читатель найдет на этой картинке IPv6
+Люди часто озадачены доменами. Почему мой сайт не работает? Почему эта хрень поломана, ничего не помогает, я просто хочу, чтобы это работало!..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Внимательный читатель найдет на этой картинке IPv6
+Люди часто озадачены доменами. Почему мой сайт не работает? Почему эта хрень поломана, ничего не помогает, я просто хочу, чтобы это работало!..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Внимательный читатель найдет на этой картинке IPv6
+Люди часто озадачены доменами. Почему мой сайт не работает? Почему эта хрень поломана, ничего не помогает, я просто хочу, чтобы это работало!..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/303446/f50dc4ea7fb09aa256f8b4e95ff40b78/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/303446/f50dc4ea7fb09aa256f8b4e95ff40b78/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/303446/f50dc4ea7fb09aa256f8b4e95ff40b78/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/303446/f50dc4ea7fb09aa256f8b4e95ff40b78/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/303446/f50dc4ea7fb09aa256f8b4e95ff40b78/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="303446" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2016-06-16T10:59:49.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/303446/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="dns, домен, сеть, интернет, администрирование">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/303446/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.13.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/303446/f50dc4ea7fb09aa256f8b4e95ff40b78/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/freetonik/" title="freetonik" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/0a4/1df/bde/0a41dfbdea8e3b55e381271d12f59b0c.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/freetonik/" class="tm-user-info__username">
+      freetonik
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2016-06-16T10:59:49.000Z" title="2016-06-16, 13:59">16  июня  2016 в 13:59</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Давайте уже разберемся в DNS</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/dns/" class="tm-article-snippet__hubs-item-link"><span>DNS</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-translation"><span>
+        Перевод
+      </span></div></div> <!----> <!----></div></div> <div class="tm-article-presenter__origin"><a href="https://www.petekeen.net/dns-the-good-parts" target="_blank" class="tm-article-presenter__origin-link">
+                Автор оригинала:
+                <span>
+                  Pete Keen
+                </span></a></div> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><p><img src="https://habrastorage.org/r/w780q1/files/ad4/769/2a4/ad47692a477040ffbad91a23211b5c63.jpg" alt="image" data-src="https://habrastorage.org/files/ad4/769/2a4/ad47692a477040ffbad91a23211b5c63.jpg" data-blurred="true"/><br/>
+<em>Внимательный читатель найдет на этой картинке IPv6</em></p><br/>
+<p>Люди часто озадачены доменами. <em>Почему мой сайт не работает? Почему эта хрень поломана, ничего не помогает, я просто хочу, чтобы это работало!</em> Обычно, вопрошающий или не знает про DNS, или не понимает фундаментальных идей. Для многих DNS — страшная и непонятная штука. Эта статья — попытка развеять такой страх. DNS — это <em>просто</em>, если понять несколько базовых концепций.</p><br/>
+<h4>Что такое DNS</h4><br/>
+<p><em>DNS</em> расшифровывается как <em>Domain Name System</em>. Это глобальное распределенное хранилище ключей и значений. Сервера по всему миру могут предоставить вам значение по ключу, а если им неизвестен ключ, то они попросят помощи у другого сервера.</p><br/>
+<p>Вот и все. Правда. Вы или ваш браузер запрашивает значение для ключа <code>www.example.com</code>, и получает в ответ <code>1.2.3.4</code>.<a name="habracut"></a></p><br/>
+<h4>Базовые штуки</h4><br/>
+<p>Большой плюс DNS в том, что это публичная услуга, и можно потыкать в сервера если хочется разобраться. Давайте попробуем. У меня есть домен <code>petekeen.net</code>, который хостится на машине <code>web01.bugsplat.info</code>. Команды, используемые ниже, можно запустить из командной строки OS X (<em>ой, то есть macOS, — прим. пер.</em>).</p><br/>
+<p>Давайте взглянем на маппинг между именем и адресом:</p><br/>
+<pre><code>$ dig web01.bugsplat.info
+</code></pre><br/>
+<p>Команда <code>dig</code> это такой швейцарский армейский нож для DNS-запросов. Крутой, многофункциональный инструмент. Вот первая часть ответа:</p><br/>
+<pre><code>; &lt;&lt;>> DiG 9.7.6-P1 &lt;&lt;>> web01.bugsplat.info
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 51539
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+</code></pre><br/>
+<p>Здесь есть только одна интересная деталь: информация о самом запросе. Говорится, что мы запросили запись и получили ровно один ответ. Вот:</p><br/>
+<pre><code>;; QUESTION SECTION:
+;web01.bugsplat.info.       IN  A
+</code></pre><br/>
+<p><code>dig</code> по-умолчанию запрашивает <code>A</code>-записи. <code>A</code> это <em>address</em> (адрес), и это один из фундаментальных видов записей в DNS. <code>A</code> содержит один <code>IPv4</code>-адрес. Есть эквивалент для <code>IPv6</code>-адресов —  <code>AAAA</code>. Давайте взглянем на ответ:</p><br/>
+<pre><code>;; ANSWER SECTION:
+web01.bugsplat.info.    300 IN  A   192.241.250.244
+</code></pre><br/>
+<p>Тут говорится, что у хоста <code>web01.bugsplat.info.</code> есть один адрес <code>A</code>: <code>192.241.250.244</code>. Число <code>300</code> это <code>TTL</code>, или <em>time to live</em> (время жизни). Столько секунд можно держать значение в кэше до повторной проверки. Слово <code>IN</code> означает <code>Internet</code>. Так сложилось исторически, это нужно для разделения типов сетей. Подробнее об этом можно почитать в документе <a href="https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml#dns-parameters-2">IANA's DNS Parameters</a>.</p><br/>
+<p>Оставшаяся часть ответа описывает сам ответ:</p><br/>
+<pre><code>;; Query time: 20 msec
+;; SERVER: 192.168.1.1#53(192.168.1.1)
+;; WHEN: Fri Jul 19 20:01:16 2013
+;; MSG SIZE  rcvd: 56
+</code></pre><br/>
+<p>В частности, здесь говорится, как долго сервер откликался, какой у сервера IP-адрес (<code>192.168.1.1</code>), на какой порт стучался <code>dig</code>  (<code>53</code>, DNS-порт по-умолчанию), когда запрос был завершен и сколько байтов было в ответе.</p><br/>
+<p>Как видите, при обычном DNS-запросе происходит куча всего. <a href="https://habrahabr.ru/company/htmlacademy/blog/254825/">Каждый раз</a>, когда вы открываете веб-страницу, браузер делает десятки таких запросов, в том числе для загрузки всех внешних ресурсов вроде картинок и скриптов. Каждый ресурс отвечает за минимум один новый DNS-запрос, и если бы DNS не был рассчитан на сильное кэширование, то трафика генерировалось бы очень много.</p><br/>
+<p>Но в этом примере не видно, что DNS-сервер <code>192.168.1.1</code> связался с кучей других серверов чтобы ответить на простой вопрос: «куда указывает адрес <code>web01.bugsplat.info</code>?». Давайте запустим трейс чтобы узнать о всей возможной цепочке, которую пришлось бы пройти <code>dig</code>'у, если бы информация не был закэширована:</p><br/>
+<pre><code>$ dig +trace web01.bugsplat.info
+
+; &lt;&lt;>> DiG 9.7.6-P1 &lt;&lt;>> +trace web01.bugsplat.info
+;; global options: +cmd
+.           137375  IN  NS  l.root-servers.net.
+.           137375  IN  NS  m.root-servers.net.
+.           137375  IN  NS  a.root-servers.net.
+.           137375  IN  NS  b.root-servers.net.
+.           137375  IN  NS  c.root-servers.net.
+.           137375  IN  NS  d.root-servers.net.
+.           137375  IN  NS  e.root-servers.net.
+.           137375  IN  NS  f.root-servers.net.
+.           137375  IN  NS  g.root-servers.net.
+.           137375  IN  NS  h.root-servers.net.
+.           137375  IN  NS  i.root-servers.net.
+.           137375  IN  NS  j.root-servers.net.
+.           137375  IN  NS  k.root-servers.net.
+;; Received 512 bytes from 192.168.1.1#53(192.168.1.1) in 189 ms
+
+info.           172800  IN  NS  c0.info.afilias-nst.info.
+info.           172800  IN  NS  a2.info.afilias-nst.info.
+info.           172800  IN  NS  d0.info.afilias-nst.org.
+info.           172800  IN  NS  b2.info.afilias-nst.org.
+info.           172800  IN  NS  b0.info.afilias-nst.org.
+info.           172800  IN  NS  a0.info.afilias-nst.info.
+;; Received 443 bytes from 192.5.5.241#53(192.5.5.241) in 1224 ms
+
+bugsplat.info.      86400   IN  NS  ns-1356.awsdns-41.org.
+bugsplat.info.      86400   IN  NS  ns-212.awsdns-26.com.
+bugsplat.info.      86400   IN  NS  ns-1580.awsdns-05.co.uk.
+bugsplat.info.      86400   IN  NS  ns-911.awsdns-49.net.
+;; Received 180 bytes from 199.254.48.1#53(199.254.48.1) in 239 ms
+
+web01.bugsplat.info.    300 IN  A   192.241.250.244
+bugsplat.info.      172800  IN  NS  ns-1356.awsdns-41.org.
+bugsplat.info.      172800  IN  NS  ns-1580.awsdns-05.co.uk.
+bugsplat.info.      172800  IN  NS  ns-212.awsdns-26.com.
+bugsplat.info.      172800  IN  NS  ns-911.awsdns-49.net.
+;; Received 196 bytes from 205.251.195.143#53(205.251.195.143) in 15 ms
+</code></pre><br/>
+<p>Информация выводится в иерархической последовательности. Помните как <code>dig</code> вставил точку <code>.</code> после хоста, <code>web01.bugsplat.info</code>? Так вот, точка <code>.</code> это важная деталь, и она означает корень иерархии. </p><br/>
+<p>Корневые DNS-сервера обслуживаются различными компаниями и государствами по всему миру. Изначально их было мало, но интернет рос, и сейчас их 13 штук. Но у каждого из серверов есть десятки или сотни физических машин, которые прячутся за одним IP.</p><br/>
+<p>Итак, в самом верху трейса находятся корневые сервера, каждый определен с помощью <code>NS-</code>записи. <code>NS</code>-запись связывает доменное имя (в данном случае, корневой домен) с DNS-сервером. Когда вы регистрируете доменное имя у регистратора типа Namecheap или Godaddy, они создают <code>NS</code>-записи для вас.</p><br/>
+<p>В следующем блоке видно, как <code>dig</code> выбрал случайный корневой сервер, и запросил у него <code>A</code>-запись для <code>web01.bugsplat.info</code>. Видно только IP-адрес корневого сервера (<code>192.5.5.241</code>). Так какой именно корневой сервер это был? Давайте узнаем!</p><br/>
+<pre><code>$ dig -x 192.5.5.241
+
+; &lt;&lt;>> DiG 9.8.3-P1 &lt;&lt;>> -x 192.5.5.241
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 2862
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;241.5.5.192.in-addr.arpa.  IN  PTR
+
+;; ANSWER SECTION:
+241.5.5.192.in-addr.arpa. 3261  IN  PTR f.root-servers.net.</code></pre><br/>
+<p>Флаг <code>-x</code> заставляет <code>dig</code> провести обратный поиск по IP-адресу. DNS отвечает записью <code>PTR</code>, которая соединяет IP и хост, в данном случае — <code>f.root-servers.net</code>.</p><br/>
+<p>Возвращаясь к нашему начальному запросу: корневой сервер <code>F</code> вернул другой набор <code>NS</code>-серверов. Он отвечает за домен верхнего уровня <code>info</code>. <code>dig</code> запрашивает у одного из этих серверов запись <code>A</code> для <code>web01.bugsplat.info</code>, и получает в ответ еще один набор <code>NS</code>-серверов, и потом запрашивает у <em>одного из этих</em> серверов запись <code>A</code> для <code>web01.bugsplat.info.</code>. И, наконец, получает ответ!</p><br/>
+<p>Уф! Сгенерировалось бы много трафика, но почти все эти записи были надолго закэшированы каждым сервером в цепочке. Ваш компьютер тоже кэширует эти данные, как и ваш браузер. Чаще всего DNS-запросы никогда не доходят до корневых серверов, потому что их IP-адреса почти никогда не изменяются (<em>«Наверно все таки речь идет о большом TTL для записей в их базе. Если у DNS сервера IP адрес вообще ни разу не изменялся, то это не означает, что его база навечно закеширована»</em> — прим. от  <a href="https://habrahabr.ru/users/rrrav/" class="user_link">rrrav</a>). Домены верхнего уровня <code>com</code>, <code>net</code>, <code>org</code>, и т.д. тоже обычно сильно закэшированы.</p><br/>
+<h4>Другие типы</h4><br/>
+<p>Есть еще несколько типов, о которых стоит знать. Первый это <code>MX</code>. Он соединяет доменное имя с одним или несколькими почтовыми серверами. Электронная почта настолько важна, что у нее есть свой тип DNS-записи. Вот значения <code>MX</code> для <code>petekeen.net</code>:</p><br/>
+<pre><code>$ dig petekeen.net mx
+
+; &lt;&lt;>> DiG 9.7.6-P1 &lt;&lt;>> petekeen.net mx
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 18765
+;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;petekeen.net.          IN  MX
+
+;; ANSWER SECTION:
+petekeen.net.       86400   IN  MX  60 web01.bugsplat.info.
+
+;; Query time: 272 msec
+;; SERVER: 192.168.1.1#53(192.168.1.1)
+;; WHEN: Fri Jul 19 20:33:43 2013
+;; MSG SIZE  rcvd: 93</code></pre><br/>
+<p>Заметьте, что <code>MX</code>-запись указывает на имя, а не на IP-адрес.</p><br/>
+<p>Еще один тип, который вам скорее всего знаком, это <code>CNAME</code>. Расшифровываетя как <em>Canonical Name</em> (каноническое имя). Он связывает одно имя с другим. Давайте посмотрим на ответ:</p><br/>
+<pre><code>$ dig www.petekeen.net
+
+; &lt;&lt;>> DiG 9.7.6-P1 &lt;&lt;>> www.petekeen.net
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 16785
+;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;www.petekeen.net.      IN  A
+
+;; ANSWER SECTION:
+www.petekeen.net.   86400   IN  CNAME   web01.bugsplat.info.
+web01.bugsplat.info.    300 IN  A   192.241.250.244
+
+;; Query time: 63 msec
+;; SERVER: 192.168.1.1#53(192.168.1.1)
+;; WHEN: Fri Jul 19 20:36:58 2013
+;; MSG SIZE  rcvd: 86</code></pre><br/>
+<p>Сразу видно, что мы получили два ответа. Первый говорит, что <code>www.petekeen.net</code> указывает на <code>web01.bugsplat.info</code>. Второй возвращает запись <code>A</code> для того сервера. Можно считать, что <code>CNAME</code> это псевдоним (или алиас) для другого сервера.</p><br/>
+<h3>Что не так с CNAME</h3><br/>
+<p>Записи <code>CNAME</code> очень полезны, но есть важный момент: если есть <code>CNAME</code> с каким-то именем, то нельзя создать другую запись с таким же именем. Ни <code>MX</code>, ни <code>A</code>, ни <code>NS</code>, ничего. </p><br/>
+<p>Причина в том, что DNS производит замену таким образом, что все записи того места, куда указывает <code>CNAME</code>, также валидны для <code>CNAME</code>. В нашем примере, записи у <code>www.petekeen.net</code> и <code>web01.bugsplat.info</code> будут совпадать.</p><br/>
+<p>Поэтому нельзя делать <code>CNAME</code> на корневом домене вроде <code>petekeen.net</code>, потому что обычно там нужны другие записи, например, <code>MX</code>.</p><br/>
+<h3>Запросы к другим серверам</h3><br/>
+<p>Давайте представим, что конфигурация DNS испорчена. Вам кажется, что вы исправили проблему, но не хотите ждать когда обновится кэш чтобы удостовериться. С помощью <code>dig</code> можно сделать запрос к публичному DNS-серверу вместо своего дефолтного, вот так:</p><br/>
+<pre><code>$ dig www.petekeen.net @8.8.8.8</code></pre><br/>
+<p>Символ <code>@</code> с IP-адресом или хостом заставляет <code>dig</code> прозводить запрос к указанному серверу через порт по-умолчанию. Можно использовать <a href="https://developers.google.com/speed/public-dns/">публичный DNS-сервер Гугла</a> или <a href="http://www.tummy.com/articles/famous-dns-server/">почти-публичный-сервер Level 3</a> по адресу <code>4.2.2.2</code>.</p><br/>
+<h2>Типичные ситуации</h2><br/>
+<p>Давайте рассмотрим типичные ситуации, знакомые многим веб-разработчикам.</p><br/>
+<h5>Редирект домена на www</h5><br/>
+<p>Часто нужно сделать редирект домена <code>iskettlemanstillopen.com</code> на <code>www.iskettlemanstillopen.com</code>. Регистраторы типа Namecheap или DNSimple называют это <em>URL Redirect</em>. Вот пример из админки Namecheap:</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/files/216/cb3/e70/216cb3e7014044c58a6e0b8ec01eb4d7.png" data-src="https://habrastorage.org/files/216/cb3/e70/216cb3e7014044c58a6e0b8ec01eb4d7.png"/></p><br/>
+<p>Символ <code>@</code> означает корневой домен <code>iskettlemanstillopen.com</code>. Давайте посмотрим на запись <code>A</code> у этого домена:</p><br/>
+<pre><code>$ dig iskettlemanstillopen.com
+;; QUESTION SECTION:
+;iskettlemanstillopen.com.  IN  A
+
+;; ANSWER SECTION:
+iskettlemanstillopen.com. 500   IN  A   192.64.119.118
+</code></pre><br/>
+<p>Этот IP принадлежит Namecheap'у, и там крутится маленький веб-сервер, который просто делает перенаправление на уровне HTTP на адрес <code>http://www.iskettlemanstillopen.com</code>:</p><br/>
+<pre><code>$ curl -I iskettlemanstillopen.com
+curl -I iskettlemanstillopen.com
+HTTP/1.1 302 Moved Temporarily
+Server: nginx
+Date: Fri, 19 Jul 2013 23:53:21 GMT
+Content-Type: text/html
+Connection: keep-alive
+Content-Length: 154
+Location: http://www.iskettlemanstillopen.com/
+</code></pre><br/>
+<h3>CNAME для Heroku или Github</h3><br/>
+<p>Взгляните на скриншот выше. На второй строке там <code>CNAME</code>. В этом случае <code>www.iskettlemanstillopen.com</code> указывает на приложение, запущенное на Heroku. </p><br/>
+<pre><code>$ heroku domains
+=== warm-journey-3906 Domain Names
+warm-journey-3906.herokuapp.com
+www.iskettlemanstillopen.com
+</code></pre><br/>
+<p>С Github похожая история, но там нужно создать специальный файл в корне репозитория, и назвать его <code>CNAME</code>. См. <a href="https://help.github.com/articles/setting-up-a-custom-domain-with-pages">документацию</a>.</p><br/>
+<h3>Wildcards</h3><br/>
+<p>Большинство DNS-серверов поддерживают шаблоны (wildcards). Например, есть wildcard <code>CNAME</code> для <code>*.web01.bugsplat.info</code> указывает на <code>web01.bugsplat.info</code>. Тогда любой хост на <code>web01</code> будет указывать на <code>web01.bugsplat.info</code> и не нужно создавать новые записи:</p><br/>
+<pre><code>$ dig randomapp.web01.bugsplat.info
+
+;; QUESTION SECTION:
+;randomapp.web01.bugsplat.info. IN  A
+
+;; ANSWER SECTION:
+randomapp.web01.bugsplat.info. 300 IN CNAME web01.bugsplat.info.
+web01.bugsplat.info.    15  IN  A   192.241.250.244
+</code></pre><br/>
+<h3>Заключение</h3><br/>
+<p>Надеюсь, теперь у вас есть базовое понимание DNS. Все стандарты описаны в документах:</p><br/>
+<ul>
+<li><a href="http://www.ietf.org/rfc/rfc1034.txt">RFC 1034: Domain Names — Concepts and Facilities</a></li>
+<li><a href="http://www.ietf.org/rfc/rfc1035.txt">RFC 1035: Domain Names — Implementation and Specification</a></li>
+</ul><br/>
+<p>Есть еще пара интересных RFC, в том числе <a href="http://www.ietf.org/rfc/rfc4034.txt">4034</a>, который описывает стандарт <code>DNSSEC</code> и <a href="http://www.ietf.org/rfc/rfc5321.txt">5321</a>, который описывает взаимосвязь DNS и email. Их интересно почитать для общего развития.</p></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bdns%5D" class="tm-tags-list__link">dns</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B4%D0%BE%D0%BC%D0%B5%D0%BD%5D" class="tm-tags-list__link">домен</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%81%D0%B5%D1%82%D1%8C%5D" class="tm-tags-list__link">сеть</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D0%BD%D0%B5%D1%82%5D" class="tm-tags-list__link">интернет</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B0%D0%B4%D0%BC%D0%B8%D0%BD%D0%B8%D1%81%D1%82%D1%80%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%5D" class="tm-tags-list__link">администрирование</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/dns/" class="tm-hubs-list__link">
+    DNS
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 52: ↑48 и ↓4</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 52: ↑48 и ↓4" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+44</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">376K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    878
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/freetonik/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/0a4/1df/bde/0a41dfbdea8e3b55e381271d12f59b0c.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 830 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    626
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Рахим Давлеткалиев</span> <a href="https://habr.com/ru/users/freetonik/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @freetonik
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <div class="tm-article-author__user-contacts"><a href="https://rakh.im" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Сайт
+    </a><a href="https://twitter.com/freetonik" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Twitter
+    </a><a href="https://github.com/freetonik/" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Github
+    </a><a href="https://instagram.com/freetonik/" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Instagram
+    </a></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/303446/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 34 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner8615" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner8616" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/303446/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/303446/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"303446":{"id":"303446","timePublished":"2016-06-16T10:59:49+00:00","isCorporative":false,"lang":"ru","titleHtml":"Давайте уже разберемся в DNS","leadData":{"textHtml":"\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002Fad4\u002F769\u002F2a4\u002Fad47692a477040ffbad91a23211b5c63.jpg\" alt=\"image\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cem\u003EВнимательный читатель найдет на этой картинке IPv6\u003C\u002Fem\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЛюди часто озадачены доменами. \u003Cem\u003EПочему мой сайт не работает? Почему эта хрень поломана, ничего не помогает, я просто хочу, чтобы это работало!\u003C\u002Fem\u003E Обычно, вопрошающий или не знает про DNS, или не понимает фундаментальных идей. Для многих DNS — страшная и непонятная штука. Эта статья — попытка развеять такой страх. DNS — это \u003Cem\u003Eпросто\u003C\u002Fem\u003E, если понять несколько базовых концепций.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EЧто такое DNS\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cem\u003EDNS\u003C\u002Fem\u003E расшифровывается как \u003Cem\u003EDomain Name System\u003C\u002Fem\u003E. Это глобальное распределенное хранилище ключей и значений. Сервера по всему миру могут предоставить вам значение по ключу, а если им неизвестен ключ, то они попросят помощи у другого сервера.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВот и все. Правда. Вы или ваш браузер запрашивает значение для ключа \u003Ccode\u003Ewww.example.com\u003C\u002Fcode\u003E, и получает в ответ \u003Ccode\u003E1.2.3.4\u003C\u002Fcode\u003E.\u003C\u002Fp\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"translation","data":{"originalAuthorName":"Pete Keen","originalUrl":"https:\u002F\u002Fwww.petekeen.net\u002Fdns-the-good-parts"}}],"author":{"scoreStats":{"score":626,"votesCount":830},"rating":0,"relatedData":null,"contacts":[{"title":"Сайт","url":"https:\u002F\u002Frakh.im","value":"https:\u002F\u002Frakh.im"},{"title":"Twitter","url":"https:\u002F\u002Ftwitter.com\u002Ffreetonik","value":"freetonik"},{"title":"Github","url":"https:\u002F\u002Fgithub.com\u002Ffreetonik\u002F","value":"freetonik"},{"title":"Instagram","url":"https:\u002F\u002Finstagram.com\u002Ffreetonik\u002F","value":"freetonik"}],"authorContacts":[{"title":"Сайт","url":"https:\u002F\u002Frakh.im","value":"https:\u002F\u002Frakh.im"},{"title":"Twitter","url":"https:\u002F\u002Ftwitter.com\u002Ffreetonik","value":"freetonik"},{"title":"Github","url":"https:\u002F\u002Fgithub.com\u002Ffreetonik\u002F","value":"freetonik"},{"title":"Instagram","url":"https:\u002F\u002Finstagram.com\u002Ffreetonik\u002F","value":"freetonik"}],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"14191","alias":"freetonik","fullname":"Рахим Давлеткалиев","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F0a4\u002F1df\u002Fbde\u002F0a41dfbdea8e3b55e381271d12f59b0c.jpg","speciality":null},"statistics":{"commentsCount":34,"favoritesCount":878,"readingCount":376061,"score":44,"votesCount":52},"hubs":[{"relatedData":null,"id":"17708","alias":"dns","type":"collective","title":"DNS","titleHtml":"DNS","isProfiled":true}],"flows":[{"id":"6","alias":"admin","title":"Администрирование"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Ffiles\u002Fad4\u002F769\u002F2a4\u002Fad47692a477040ffbad91a23211b5c63.jpg\" alt=\"image\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002Fad4\u002F769\u002F2a4\u002Fad47692a477040ffbad91a23211b5c63.jpg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cem\u003EВнимательный читатель найдет на этой картинке IPv6\u003C\u002Fem\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЛюди часто озадачены доменами. \u003Cem\u003EПочему мой сайт не работает? Почему эта хрень поломана, ничего не помогает, я просто хочу, чтобы это работало!\u003C\u002Fem\u003E Обычно, вопрошающий или не знает про DNS, или не понимает фундаментальных идей. Для многих DNS — страшная и непонятная штука. Эта статья — попытка развеять такой страх. DNS — это \u003Cem\u003Eпросто\u003C\u002Fem\u003E, если понять несколько базовых концепций.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EЧто такое DNS\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cem\u003EDNS\u003C\u002Fem\u003E расшифровывается как \u003Cem\u003EDomain Name System\u003C\u002Fem\u003E. Это глобальное распределенное хранилище ключей и значений. Сервера по всему миру могут предоставить вам значение по ключу, а если им неизвестен ключ, то они попросят помощи у другого сервера.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВот и все. Правда. Вы или ваш браузер запрашивает значение для ключа \u003Ccode\u003Ewww.example.com\u003C\u002Fcode\u003E, и получает в ответ \u003Ccode\u003E1.2.3.4\u003C\u002Fcode\u003E.\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EБазовые штуки\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EБольшой плюс DNS в том, что это публичная услуга, и можно потыкать в сервера если хочется разобраться. Давайте попробуем. У меня есть домен \u003Ccode\u003Epetekeen.net\u003C\u002Fcode\u003E, который хостится на машине \u003Ccode\u003Eweb01.bugsplat.info\u003C\u002Fcode\u003E. Команды, используемые ниже, можно запустить из командной строки OS X (\u003Cem\u003Eой, то есть macOS, — прим. пер.\u003C\u002Fem\u003E).\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДавайте взглянем на маппинг между именем и адресом:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E$ dig web01.bugsplat.info\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКоманда \u003Ccode\u003Edig\u003C\u002Fcode\u003E это такой швейцарский армейский нож для DNS-запросов. Крутой, многофункциональный инструмент. Вот первая часть ответа:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E; &lt;&lt;\u003E\u003E DiG 9.7.6-P1 &lt;&lt;\u003E\u003E web01.bugsplat.info\n;; global options: +cmd\n;; Got answer:\n;; -\u003E\u003EHEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 51539\n;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЗдесь есть только одна интересная деталь: информация о самом запросе. Говорится, что мы запросили запись и получили ровно один ответ. Вот:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E;; QUESTION SECTION:\n;web01.bugsplat.info.       IN  A\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ccode\u003Edig\u003C\u002Fcode\u003E по-умолчанию запрашивает \u003Ccode\u003EA\u003C\u002Fcode\u003E-записи. \u003Ccode\u003EA\u003C\u002Fcode\u003E это \u003Cem\u003Eaddress\u003C\u002Fem\u003E (адрес), и это один из фундаментальных видов записей в DNS. \u003Ccode\u003EA\u003C\u002Fcode\u003E содержит один \u003Ccode\u003EIPv4\u003C\u002Fcode\u003E-адрес. Есть эквивалент для \u003Ccode\u003EIPv6\u003C\u002Fcode\u003E-адресов —  \u003Ccode\u003EAAAA\u003C\u002Fcode\u003E. Давайте взглянем на ответ:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E;; ANSWER SECTION:\nweb01.bugsplat.info.    300 IN  A   192.241.250.244\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТут говорится, что у хоста \u003Ccode\u003Eweb01.bugsplat.info.\u003C\u002Fcode\u003E есть один адрес \u003Ccode\u003EA\u003C\u002Fcode\u003E: \u003Ccode\u003E192.241.250.244\u003C\u002Fcode\u003E. Число \u003Ccode\u003E300\u003C\u002Fcode\u003E это \u003Ccode\u003ETTL\u003C\u002Fcode\u003E, или \u003Cem\u003Etime to live\u003C\u002Fem\u003E (время жизни). Столько секунд можно держать значение в кэше до повторной проверки. Слово \u003Ccode\u003EIN\u003C\u002Fcode\u003E означает \u003Ccode\u003EInternet\u003C\u002Fcode\u003E. Так сложилось исторически, это нужно для разделения типов сетей. Подробнее об этом можно почитать в документе \u003Ca href=\"https:\u002F\u002Fwww.iana.org\u002Fassignments\u002Fdns-parameters\u002Fdns-parameters.xhtml#dns-parameters-2\"\u003EIANA's DNS Parameters\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОставшаяся часть ответа описывает сам ответ:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E;; Query time: 20 msec\n;; SERVER: 192.168.1.1#53(192.168.1.1)\n;; WHEN: Fri Jul 19 20:01:16 2013\n;; MSG SIZE  rcvd: 56\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ частности, здесь говорится, как долго сервер откликался, какой у сервера IP-адрес (\u003Ccode\u003E192.168.1.1\u003C\u002Fcode\u003E), на какой порт стучался \u003Ccode\u003Edig\u003C\u002Fcode\u003E  (\u003Ccode\u003E53\u003C\u002Fcode\u003E, DNS-порт по-умолчанию), когда запрос был завершен и сколько байтов было в ответе.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКак видите, при обычном DNS-запросе происходит куча всего. \u003Ca href=\"https:\u002F\u002Fhabrahabr.ru\u002Fcompany\u002Fhtmlacademy\u002Fblog\u002F254825\u002F\"\u003EКаждый раз\u003C\u002Fa\u003E, когда вы открываете веб-страницу, браузер делает десятки таких запросов, в том числе для загрузки всех внешних ресурсов вроде картинок и скриптов. Каждый ресурс отвечает за минимум один новый DNS-запрос, и если бы DNS не был рассчитан на сильное кэширование, то трафика генерировалось бы очень много.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНо в этом примере не видно, что DNS-сервер \u003Ccode\u003E192.168.1.1\u003C\u002Fcode\u003E связался с кучей других серверов чтобы ответить на простой вопрос: «куда указывает адрес \u003Ccode\u003Eweb01.bugsplat.info\u003C\u002Fcode\u003E?». Давайте запустим трейс чтобы узнать о всей возможной цепочке, которую пришлось бы пройти \u003Ccode\u003Edig\u003C\u002Fcode\u003E'у, если бы информация не был закэширована:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E$ dig +trace web01.bugsplat.info\n\n; &lt;&lt;\u003E\u003E DiG 9.7.6-P1 &lt;&lt;\u003E\u003E +trace web01.bugsplat.info\n;; global options: +cmd\n.           137375  IN  NS  l.root-servers.net.\n.           137375  IN  NS  m.root-servers.net.\n.           137375  IN  NS  a.root-servers.net.\n.           137375  IN  NS  b.root-servers.net.\n.           137375  IN  NS  c.root-servers.net.\n.           137375  IN  NS  d.root-servers.net.\n.           137375  IN  NS  e.root-servers.net.\n.           137375  IN  NS  f.root-servers.net.\n.           137375  IN  NS  g.root-servers.net.\n.           137375  IN  NS  h.root-servers.net.\n.           137375  IN  NS  i.root-servers.net.\n.           137375  IN  NS  j.root-servers.net.\n.           137375  IN  NS  k.root-servers.net.\n;; Received 512 bytes from 192.168.1.1#53(192.168.1.1) in 189 ms\n\ninfo.           172800  IN  NS  c0.info.afilias-nst.info.\ninfo.           172800  IN  NS  a2.info.afilias-nst.info.\ninfo.           172800  IN  NS  d0.info.afilias-nst.org.\ninfo.           172800  IN  NS  b2.info.afilias-nst.org.\ninfo.           172800  IN  NS  b0.info.afilias-nst.org.\ninfo.           172800  IN  NS  a0.info.afilias-nst.info.\n;; Received 443 bytes from 192.5.5.241#53(192.5.5.241) in 1224 ms\n\nbugsplat.info.      86400   IN  NS  ns-1356.awsdns-41.org.\nbugsplat.info.      86400   IN  NS  ns-212.awsdns-26.com.\nbugsplat.info.      86400   IN  NS  ns-1580.awsdns-05.co.uk.\nbugsplat.info.      86400   IN  NS  ns-911.awsdns-49.net.\n;; Received 180 bytes from 199.254.48.1#53(199.254.48.1) in 239 ms\n\nweb01.bugsplat.info.    300 IN  A   192.241.250.244\nbugsplat.info.      172800  IN  NS  ns-1356.awsdns-41.org.\nbugsplat.info.      172800  IN  NS  ns-1580.awsdns-05.co.uk.\nbugsplat.info.      172800  IN  NS  ns-212.awsdns-26.com.\nbugsplat.info.      172800  IN  NS  ns-911.awsdns-49.net.\n;; Received 196 bytes from 205.251.195.143#53(205.251.195.143) in 15 ms\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИнформация выводится в иерархической последовательности. Помните как \u003Ccode\u003Edig\u003C\u002Fcode\u003E вставил точку \u003Ccode\u003E.\u003C\u002Fcode\u003E после хоста, \u003Ccode\u003Eweb01.bugsplat.info\u003C\u002Fcode\u003E? Так вот, точка \u003Ccode\u003E.\u003C\u002Fcode\u003E это важная деталь, и она означает корень иерархии. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКорневые DNS-сервера обслуживаются различными компаниями и государствами по всему миру. Изначально их было мало, но интернет рос, и сейчас их 13 штук. Но у каждого из серверов есть десятки или сотни физических машин, которые прячутся за одним IP.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИтак, в самом верху трейса находятся корневые сервера, каждый определен с помощью \u003Ccode\u003ENS-\u003C\u002Fcode\u003Eзаписи. \u003Ccode\u003ENS\u003C\u002Fcode\u003E-запись связывает доменное имя (в данном случае, корневой домен) с DNS-сервером. Когда вы регистрируете доменное имя у регистратора типа Namecheap или Godaddy, они создают \u003Ccode\u003ENS\u003C\u002Fcode\u003E-записи для вас.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ следующем блоке видно, как \u003Ccode\u003Edig\u003C\u002Fcode\u003E выбрал случайный корневой сервер, и запросил у него \u003Ccode\u003EA\u003C\u002Fcode\u003E-запись для \u003Ccode\u003Eweb01.bugsplat.info\u003C\u002Fcode\u003E. Видно только IP-адрес корневого сервера (\u003Ccode\u003E192.5.5.241\u003C\u002Fcode\u003E). Так какой именно корневой сервер это был? Давайте узнаем!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E$ dig -x 192.5.5.241\n\n; &lt;&lt;\u003E\u003E DiG 9.8.3-P1 &lt;&lt;\u003E\u003E -x 192.5.5.241\n;; global options: +cmd\n;; Got answer:\n;; -\u003E\u003EHEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 2862\n;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0\n\n;; QUESTION SECTION:\n;241.5.5.192.in-addr.arpa.  IN  PTR\n\n;; ANSWER SECTION:\n241.5.5.192.in-addr.arpa. 3261  IN  PTR f.root-servers.net.\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EФлаг \u003Ccode\u003E-x\u003C\u002Fcode\u003E заставляет \u003Ccode\u003Edig\u003C\u002Fcode\u003E провести обратный поиск по IP-адресу. DNS отвечает записью \u003Ccode\u003EPTR\u003C\u002Fcode\u003E, которая соединяет IP и хост, в данном случае — \u003Ccode\u003Ef.root-servers.net\u003C\u002Fcode\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВозвращаясь к нашему начальному запросу: корневой сервер \u003Ccode\u003EF\u003C\u002Fcode\u003E вернул другой набор \u003Ccode\u003ENS\u003C\u002Fcode\u003E-серверов. Он отвечает за домен верхнего уровня \u003Ccode\u003Einfo\u003C\u002Fcode\u003E. \u003Ccode\u003Edig\u003C\u002Fcode\u003E запрашивает у одного из этих серверов запись \u003Ccode\u003EA\u003C\u002Fcode\u003E для \u003Ccode\u003Eweb01.bugsplat.info\u003C\u002Fcode\u003E, и получает в ответ еще один набор \u003Ccode\u003ENS\u003C\u002Fcode\u003E-серверов, и потом запрашивает у \u003Cem\u003Eодного из этих\u003C\u002Fem\u003E серверов запись \u003Ccode\u003EA\u003C\u002Fcode\u003E для \u003Ccode\u003Eweb01.bugsplat.info.\u003C\u002Fcode\u003E. И, наконец, получает ответ!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EУф! Сгенерировалось бы много трафика, но почти все эти записи были надолго закэшированы каждым сервером в цепочке. Ваш компьютер тоже кэширует эти данные, как и ваш браузер. Чаще всего DNS-запросы никогда не доходят до корневых серверов, потому что их IP-адреса почти никогда не изменяются (\u003Cem\u003E«Наверно все таки речь идет о большом TTL для записей в их базе. Если у DNS сервера IP адрес вообще ни разу не изменялся, то это не означает, что его база навечно закеширована»\u003C\u002Fem\u003E — прим. от  \u003Ca href=\"https:\u002F\u002Fhabrahabr.ru\u002Fusers\u002Frrrav\u002F\" class=\"user_link\"\u003Errrav\u003C\u002Fa\u003E). Домены верхнего уровня \u003Ccode\u003Ecom\u003C\u002Fcode\u003E, \u003Ccode\u003Enet\u003C\u002Fcode\u003E, \u003Ccode\u003Eorg\u003C\u002Fcode\u003E, и т.д. тоже обычно сильно закэшированы.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EДругие типы\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕсть еще несколько типов, о которых стоит знать. Первый это \u003Ccode\u003EMX\u003C\u002Fcode\u003E. Он соединяет доменное имя с одним или несколькими почтовыми серверами. Электронная почта настолько важна, что у нее есть свой тип DNS-записи. Вот значения \u003Ccode\u003EMX\u003C\u002Fcode\u003E для \u003Ccode\u003Epetekeen.net\u003C\u002Fcode\u003E:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E$ dig petekeen.net mx\n\n; &lt;&lt;\u003E\u003E DiG 9.7.6-P1 &lt;&lt;\u003E\u003E petekeen.net mx\n;; global options: +cmd\n;; Got answer:\n;; -\u003E\u003EHEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 18765\n;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 0\n\n;; QUESTION SECTION:\n;petekeen.net.          IN  MX\n\n;; ANSWER SECTION:\npetekeen.net.       86400   IN  MX  60 web01.bugsplat.info.\n\n;; Query time: 272 msec\n;; SERVER: 192.168.1.1#53(192.168.1.1)\n;; WHEN: Fri Jul 19 20:33:43 2013\n;; MSG SIZE  rcvd: 93\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЗаметьте, что \u003Ccode\u003EMX\u003C\u002Fcode\u003E-запись указывает на имя, а не на IP-адрес.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕще один тип, который вам скорее всего знаком, это \u003Ccode\u003ECNAME\u003C\u002Fcode\u003E. Расшифровываетя как \u003Cem\u003ECanonical Name\u003C\u002Fem\u003E (каноническое имя). Он связывает одно имя с другим. Давайте посмотрим на ответ:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E$ dig www.petekeen.net\n\n; &lt;&lt;\u003E\u003E DiG 9.7.6-P1 &lt;&lt;\u003E\u003E www.petekeen.net\n;; global options: +cmd\n;; Got answer:\n;; -\u003E\u003EHEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 16785\n;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 0\n\n;; QUESTION SECTION:\n;www.petekeen.net.      IN  A\n\n;; ANSWER SECTION:\nwww.petekeen.net.   86400   IN  CNAME   web01.bugsplat.info.\nweb01.bugsplat.info.    300 IN  A   192.241.250.244\n\n;; Query time: 63 msec\n;; SERVER: 192.168.1.1#53(192.168.1.1)\n;; WHEN: Fri Jul 19 20:36:58 2013\n;; MSG SIZE  rcvd: 86\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСразу видно, что мы получили два ответа. Первый говорит, что \u003Ccode\u003Ewww.petekeen.net\u003C\u002Fcode\u003E указывает на \u003Ccode\u003Eweb01.bugsplat.info\u003C\u002Fcode\u003E. Второй возвращает запись \u003Ccode\u003EA\u003C\u002Fcode\u003E для того сервера. Можно считать, что \u003Ccode\u003ECNAME\u003C\u002Fcode\u003E это псевдоним (или алиас) для другого сервера.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EЧто не так с CNAME\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЗаписи \u003Ccode\u003ECNAME\u003C\u002Fcode\u003E очень полезны, но есть важный момент: если есть \u003Ccode\u003ECNAME\u003C\u002Fcode\u003E с каким-то именем, то нельзя создать другую запись с таким же именем. Ни \u003Ccode\u003EMX\u003C\u002Fcode\u003E, ни \u003Ccode\u003EA\u003C\u002Fcode\u003E, ни \u003Ccode\u003ENS\u003C\u002Fcode\u003E, ничего. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПричина в том, что DNS производит замену таким образом, что все записи того места, куда указывает \u003Ccode\u003ECNAME\u003C\u002Fcode\u003E, также валидны для \u003Ccode\u003ECNAME\u003C\u002Fcode\u003E. В нашем примере, записи у \u003Ccode\u003Ewww.petekeen.net\u003C\u002Fcode\u003E и \u003Ccode\u003Eweb01.bugsplat.info\u003C\u002Fcode\u003E будут совпадать.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПоэтому нельзя делать \u003Ccode\u003ECNAME\u003C\u002Fcode\u003E на корневом домене вроде \u003Ccode\u003Epetekeen.net\u003C\u002Fcode\u003E, потому что обычно там нужны другие записи, например, \u003Ccode\u003EMX\u003C\u002Fcode\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EЗапросы к другим серверам\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДавайте представим, что конфигурация DNS испорчена. Вам кажется, что вы исправили проблему, но не хотите ждать когда обновится кэш чтобы удостовериться. С помощью \u003Ccode\u003Edig\u003C\u002Fcode\u003E можно сделать запрос к публичному DNS-серверу вместо своего дефолтного, вот так:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E$ dig www.petekeen.net @8.8.8.8\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСимвол \u003Ccode\u003E@\u003C\u002Fcode\u003E с IP-адресом или хостом заставляет \u003Ccode\u003Edig\u003C\u002Fcode\u003E прозводить запрос к указанному серверу через порт по-умолчанию. Можно использовать \u003Ca href=\"https:\u002F\u002Fdevelopers.google.com\u002Fspeed\u002Fpublic-dns\u002F\"\u003Eпубличный DNS-сервер Гугла\u003C\u002Fa\u003E или \u003Ca href=\"http:\u002F\u002Fwww.tummy.com\u002Farticles\u002Ffamous-dns-server\u002F\"\u003Eпочти-публичный-сервер Level 3\u003C\u002Fa\u003E по адресу \u003Ccode\u003E4.2.2.2\u003C\u002Fcode\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EТипичные ситуации\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДавайте рассмотрим типичные ситуации, знакомые многим веб-разработчикам.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch5\u003EРедирект домена на www\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЧасто нужно сделать редирект домена \u003Ccode\u003Eiskettlemanstillopen.com\u003C\u002Fcode\u003E на \u003Ccode\u003Ewww.iskettlemanstillopen.com\u003C\u002Fcode\u003E. Регистраторы типа Namecheap или DNSimple называют это \u003Cem\u003EURL Redirect\u003C\u002Fem\u003E. Вот пример из админки Namecheap:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F216\u002Fcb3\u002Fe70\u002F216cb3e7014044c58a6e0b8ec01eb4d7.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F216\u002Fcb3\u002Fe70\u002F216cb3e7014044c58a6e0b8ec01eb4d7.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСимвол \u003Ccode\u003E@\u003C\u002Fcode\u003E означает корневой домен \u003Ccode\u003Eiskettlemanstillopen.com\u003C\u002Fcode\u003E. Давайте посмотрим на запись \u003Ccode\u003EA\u003C\u002Fcode\u003E у этого домена:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E$ dig iskettlemanstillopen.com\n;; QUESTION SECTION:\n;iskettlemanstillopen.com.  IN  A\n\n;; ANSWER SECTION:\niskettlemanstillopen.com. 500   IN  A   192.64.119.118\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЭтот IP принадлежит Namecheap'у, и там крутится маленький веб-сервер, который просто делает перенаправление на уровне HTTP на адрес \u003Ccode\u003Ehttp:\u002F\u002Fwww.iskettlemanstillopen.com\u003C\u002Fcode\u003E:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E$ curl -I iskettlemanstillopen.com\ncurl -I iskettlemanstillopen.com\nHTTP\u002F1.1 302 Moved Temporarily\nServer: nginx\nDate: Fri, 19 Jul 2013 23:53:21 GMT\nContent-Type: text\u002Fhtml\nConnection: keep-alive\nContent-Length: 154\nLocation: http:\u002F\u002Fwww.iskettlemanstillopen.com\u002F\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003ECNAME для Heroku или Github\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВзгляните на скриншот выше. На второй строке там \u003Ccode\u003ECNAME\u003C\u002Fcode\u003E. В этом случае \u003Ccode\u003Ewww.iskettlemanstillopen.com\u003C\u002Fcode\u003E указывает на приложение, запущенное на Heroku. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E$ heroku domains\n=== warm-journey-3906 Domain Names\nwarm-journey-3906.herokuapp.com\nwww.iskettlemanstillopen.com\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EС Github похожая история, но там нужно создать специальный файл в корне репозитория, и назвать его \u003Ccode\u003ECNAME\u003C\u002Fcode\u003E. См. \u003Ca href=\"https:\u002F\u002Fhelp.github.com\u002Farticles\u002Fsetting-up-a-custom-domain-with-pages\"\u003Eдокументацию\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EWildcards\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EБольшинство DNS-серверов поддерживают шаблоны (wildcards). Например, есть wildcard \u003Ccode\u003ECNAME\u003C\u002Fcode\u003E для \u003Ccode\u003E*.web01.bugsplat.info\u003C\u002Fcode\u003E указывает на \u003Ccode\u003Eweb01.bugsplat.info\u003C\u002Fcode\u003E. Тогда любой хост на \u003Ccode\u003Eweb01\u003C\u002Fcode\u003E будет указывать на \u003Ccode\u003Eweb01.bugsplat.info\u003C\u002Fcode\u003E и не нужно создавать новые записи:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003E$ dig randomapp.web01.bugsplat.info\n\n;; QUESTION SECTION:\n;randomapp.web01.bugsplat.info. IN  A\n\n;; ANSWER SECTION:\nrandomapp.web01.bugsplat.info. 300 IN CNAME web01.bugsplat.info.\nweb01.bugsplat.info.    15  IN  A   192.241.250.244\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EЗаключение\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНадеюсь, теперь у вас есть базовое понимание DNS. Все стандарты описаны в документах:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"http:\u002F\u002Fwww.ietf.org\u002Frfc\u002Frfc1034.txt\"\u003ERFC 1034: Domain Names — Concepts and Facilities\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"http:\u002F\u002Fwww.ietf.org\u002Frfc\u002Frfc1035.txt\"\u003ERFC 1035: Domain Names — Implementation and Specification\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕсть еще пара интересных RFC, в том числе \u003Ca href=\"http:\u002F\u002Fwww.ietf.org\u002Frfc\u002Frfc4034.txt\"\u003E4034\u003C\u002Fa\u003E, который описывает стандарт \u003Ccode\u003EDNSSEC\u003C\u002Fcode\u003E и \u003Ca href=\"http:\u002F\u002Fwww.ietf.org\u002Frfc\u002Frfc5321.txt\"\u003E5321\u003C\u002Fa\u003E, который описывает взаимосвязь DNS и email. Их интересно почитать для общего развития.\u003C\u002Fp\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"dns"},{"titleHtml":"домен"},{"titleHtml":"сеть"},{"titleHtml":"интернет"},{"titleHtml":"администрирование"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F303446\u002Ff50dc4ea7fb09aa256f8b4e95ff40b78\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F303446\u002Ff50dc4ea7fb09aa256f8b4e95ff40b78\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F303446\\\u002F\"},\"headline\":\"Давайте уже разберемся в DNS\",\"datePublished\":\"2016-06-16T13:59:49+03:00\",\"dateModified\":\"2016-06-17T15:13:10+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Рахим Давлеткалиев\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Внимательный читатель найдет на этой картинке IPv6 Люди часто озадачены доменами. Почему мой сайт не работает? Почему эта хрень поломана, ничего не помогает, я...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F303446\\\u002F#post-content-body\",\"about\":[\"h_dns\",\"f_admin\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F303446\\\u002Ff50dc4ea7fb09aa256f8b4e95ff40b78\\\u002F\"]}","metaDescription":"Внимательный читатель найдет на этой картинке IPv6\r\nЛюди часто озадачены доменами. Почему мой сайт не работает? Почему эта хрень поломана, ничего не помогает, я просто хочу, чтобы это работало!...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":"dns"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

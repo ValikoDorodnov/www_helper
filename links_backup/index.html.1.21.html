@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<!--[if IE 7]>
+<html class="ie ie7" lang="ru-RU"
+	prefix="og: https://ogp.me/ns#" >
+<![endif]-->
+<!--[if IE 8]>
+<html class="ie ie8" lang="ru-RU"
+	prefix="og: https://ogp.me/ns#" >
+<![endif]-->
+<!--[if !(IE 7) | !(IE 8)  ]><!-->
+<html lang="ru-RU"
+	prefix="og: https://ogp.me/ns#" >
+<!--<![endif]-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="profile" href="http://gmpg.org/xfn/11">
+<link rel="pingback" href="https://rtfm.co.ua/xmlrpc.php" />
+<!--[if lt IE 9]>
+<script src="https://rtfm.co.ua/wp-content/themes/iconic-one/js/html5.js" type="text/javascript"></script>
+<![endif]-->
+<title>What is: что такое symlink, hard link и inode в Linux?</title>
+
+		<!-- All in One SEO 4.1.7 -->
+		<meta name="description" content="В Linux hardlink - &quot;жёсткая ссылка&quot;. По сути - является тем же файлом, на который ссылается, в отличии от symlink-а - &quot;мягкой ссылки&quot;. Проще всего это объяснить используя inode - &quot;индексный дескриптор&quot;. inode inode - это объект файловой системы, содержащий информацию о владельце/группе, которым принадлежит файл или каталог, его права доступа к нему, его размер," />
+		<meta name="robots" content="max-image-preview:large" />
+		<meta name="google-site-verification" content="SrWbBy1hkU5nSEGucgSlaWc6zFDYIAL3ih6KZR-vzdU" />
+		<meta name="keywords" content="filesystem,inode,linux,unix" />
+		<link rel="canonical" href="index.html.1.21.html" />
+		<meta property="og:locale" content="ru_RU" />
+		<meta property="og:site_name" content="RTFM: Linux, DevOps и системное администрирование | DevOps-инжиниринг и системное администрирование. Случаи из практики." />
+		<meta property="og:type" content="article" />
+		<meta property="og:title" content="What is: что такое symlink, hard link и inode в Linux?" />
+		<meta property="og:description" content="В Linux hardlink - &quot;жёсткая ссылка&quot;. По сути - является тем же файлом, на который ссылается, в отличии от symlink-а - &quot;мягкой ссылки&quot;. Проще всего это объяснить используя inode - &quot;индексный дескриптор&quot;. inode inode - это объект файловой системы, содержащий информацию о владельце/группе, которым принадлежит файл или каталог, его права доступа к нему, его размер," />
+		<meta property="og:url" content="https://rtfm.co.ua/unix-chto-takoe-symlink-hardlink-i-inode/" />
+		<meta property="article:published_time" content="2013-08-13T10:09:33+00:00" />
+		<meta property="article:modified_time" content="2019-03-03T19:21:06+00:00" />
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:title" content="What is: что такое symlink, hard link и inode в Linux?" />
+		<meta name="twitter:description" content="В Linux hardlink - &quot;жёсткая ссылка&quot;. По сути - является тем же файлом, на который ссылается, в отличии от symlink-а - &quot;мягкой ссылки&quot;. Проще всего это объяснить используя inode - &quot;индексный дескриптор&quot;. inode inode - это объект файловой системы, содержащий информацию о владельце/группе, которым принадлежит файл или каталог, его права доступа к нему, его размер," />
+		<script type="application/ld+json" class="aioseo-schema">
+			{"@context":"https:\/\/schema.org","@graph":[{"@type":"WebSite","@id":"https:\/\/rtfm.co.ua\/#website","url":"https:\/\/rtfm.co.ua\/","name":"RTFM: Linux, DevOps \u0438 \u0441\u0438\u0441\u0442\u0435\u043c\u043d\u043e\u0435 \u0430\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435","description":"DevOps-\u0438\u043d\u0436\u0438\u043d\u0438\u0440\u0438\u043d\u0433 \u0438 \u0441\u0438\u0441\u0442\u0435\u043c\u043d\u043e\u0435 \u0430\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435. \u0421\u043b\u0443\u0447\u0430\u0438 \u0438\u0437 \u043f\u0440\u0430\u043a\u0442\u0438\u043a\u0438.","inLanguage":"ru-RU","publisher":{"@id":"https:\/\/rtfm.co.ua\/#person"}},{"@type":"Person","@id":"https:\/\/rtfm.co.ua\/#person","name":"setevoy","image":{"@type":"ImageObject","@id":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/#personImage","url":"https:\/\/secure.gravatar.com\/avatar\/3e83c57a6c8a455b27ac8df7ef64a2e2?s=96&d=mm&r=g","width":96,"height":96,"caption":"setevoy"}},{"@type":"BreadcrumbList","@id":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/#breadcrumblist","itemListElement":[{"@type":"ListItem","@id":"https:\/\/rtfm.co.ua\/#listItem","position":1,"item":{"@type":"WebPage","@id":"https:\/\/rtfm.co.ua\/","name":"\u0413\u043b\u0430\u0432\u043d\u0430\u044f","description":"DevOps-engineering and system administration. Cases from practice.","url":"https:\/\/rtfm.co.ua\/"},"nextItem":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/#listItem"},{"@type":"ListItem","@id":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/#listItem","position":2,"item":{"@type":"WebPage","@id":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/","name":"What is: \u0447\u0442\u043e \u0442\u0430\u043a\u043e\u0435 symlink, hard link \u0438 inode \u0432 Linux?","description":"\u0412 Linux hardlink - \"\u0436\u0451\u0441\u0442\u043a\u0430\u044f \u0441\u0441\u044b\u043b\u043a\u0430\". \u041f\u043e \u0441\u0443\u0442\u0438 - \u044f\u0432\u043b\u044f\u0435\u0442\u0441\u044f \u0442\u0435\u043c \u0436\u0435 \u0444\u0430\u0439\u043b\u043e\u043c, \u043d\u0430 \u043a\u043e\u0442\u043e\u0440\u044b\u0439 \u0441\u0441\u044b\u043b\u0430\u0435\u0442\u0441\u044f, \u0432 \u043e\u0442\u043b\u0438\u0447\u0438\u0438 \u043e\u0442 symlink-\u0430 - \"\u043c\u044f\u0433\u043a\u043e\u0439 \u0441\u0441\u044b\u043b\u043a\u0438\". \u041f\u0440\u043e\u0449\u0435 \u0432\u0441\u0435\u0433\u043e \u044d\u0442\u043e \u043e\u0431\u044a\u044f\u0441\u043d\u0438\u0442\u044c \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u044f inode - \"\u0438\u043d\u0434\u0435\u043a\u0441\u043d\u044b\u0439 \u0434\u0435\u0441\u043a\u0440\u0438\u043f\u0442\u043e\u0440\". inode inode - \u044d\u0442\u043e \u043e\u0431\u044a\u0435\u043a\u0442 \u0444\u0430\u0439\u043b\u043e\u0432\u043e\u0439 \u0441\u0438\u0441\u0442\u0435\u043c\u044b, \u0441\u043e\u0434\u0435\u0440\u0436\u0430\u0449\u0438\u0439 \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u044e \u043e \u0432\u043b\u0430\u0434\u0435\u043b\u044c\u0446\u0435\/\u0433\u0440\u0443\u043f\u043f\u0435, \u043a\u043e\u0442\u043e\u0440\u044b\u043c \u043f\u0440\u0438\u043d\u0430\u0434\u043b\u0435\u0436\u0438\u0442 \u0444\u0430\u0439\u043b \u0438\u043b\u0438 \u043a\u0430\u0442\u0430\u043b\u043e\u0433, \u0435\u0433\u043e \u043f\u0440\u0430\u0432\u0430 \u0434\u043e\u0441\u0442\u0443\u043f\u0430 \u043a \u043d\u0435\u043c\u0443, \u0435\u0433\u043e \u0440\u0430\u0437\u043c\u0435\u0440,","url":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/"},"previousItem":"https:\/\/rtfm.co.ua\/#listItem"}]},{"@type":"Person","@id":"https:\/\/rtfm.co.ua\/author\/setevoy\/#author","url":"https:\/\/rtfm.co.ua\/author\/setevoy\/","name":"setevoy","image":{"@type":"ImageObject","@id":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/#authorImage","url":"https:\/\/secure.gravatar.com\/avatar\/3e83c57a6c8a455b27ac8df7ef64a2e2?s=96&d=mm&r=g","width":96,"height":96,"caption":"setevoy"}},{"@type":"WebPage","@id":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/#webpage","url":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/","name":"What is: \u0447\u0442\u043e \u0442\u0430\u043a\u043e\u0435 symlink, hard link \u0438 inode \u0432 Linux?","description":"\u0412 Linux hardlink - \"\u0436\u0451\u0441\u0442\u043a\u0430\u044f \u0441\u0441\u044b\u043b\u043a\u0430\". \u041f\u043e \u0441\u0443\u0442\u0438 - \u044f\u0432\u043b\u044f\u0435\u0442\u0441\u044f \u0442\u0435\u043c \u0436\u0435 \u0444\u0430\u0439\u043b\u043e\u043c, \u043d\u0430 \u043a\u043e\u0442\u043e\u0440\u044b\u0439 \u0441\u0441\u044b\u043b\u0430\u0435\u0442\u0441\u044f, \u0432 \u043e\u0442\u043b\u0438\u0447\u0438\u0438 \u043e\u0442 symlink-\u0430 - \"\u043c\u044f\u0433\u043a\u043e\u0439 \u0441\u0441\u044b\u043b\u043a\u0438\". \u041f\u0440\u043e\u0449\u0435 \u0432\u0441\u0435\u0433\u043e \u044d\u0442\u043e \u043e\u0431\u044a\u044f\u0441\u043d\u0438\u0442\u044c \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u044f inode - \"\u0438\u043d\u0434\u0435\u043a\u0441\u043d\u044b\u0439 \u0434\u0435\u0441\u043a\u0440\u0438\u043f\u0442\u043e\u0440\". inode inode - \u044d\u0442\u043e \u043e\u0431\u044a\u0435\u043a\u0442 \u0444\u0430\u0439\u043b\u043e\u0432\u043e\u0439 \u0441\u0438\u0441\u0442\u0435\u043c\u044b, \u0441\u043e\u0434\u0435\u0440\u0436\u0430\u0449\u0438\u0439 \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u044e \u043e \u0432\u043b\u0430\u0434\u0435\u043b\u044c\u0446\u0435\/\u0433\u0440\u0443\u043f\u043f\u0435, \u043a\u043e\u0442\u043e\u0440\u044b\u043c \u043f\u0440\u0438\u043d\u0430\u0434\u043b\u0435\u0436\u0438\u0442 \u0444\u0430\u0439\u043b \u0438\u043b\u0438 \u043a\u0430\u0442\u0430\u043b\u043e\u0433, \u0435\u0433\u043e \u043f\u0440\u0430\u0432\u0430 \u0434\u043e\u0441\u0442\u0443\u043f\u0430 \u043a \u043d\u0435\u043c\u0443, \u0435\u0433\u043e \u0440\u0430\u0437\u043c\u0435\u0440,","inLanguage":"ru-RU","isPartOf":{"@id":"https:\/\/rtfm.co.ua\/#website"},"breadcrumb":{"@id":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/#breadcrumblist"},"author":"https:\/\/rtfm.co.ua\/author\/setevoy\/#author","creator":"https:\/\/rtfm.co.ua\/author\/setevoy\/#author","image":{"@type":"ImageObject","@id":"https:\/\/rtfm.co.ua\/#mainImage","url":"https:\/\/rtfm.co.ua\/wp-content\/uploads\/2016\/01\/What-is-it-e1452250201867.jpg","width":130,"height":110},"primaryImageOfPage":{"@id":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/#mainImage"},"datePublished":"2013-08-13T10:09:33+03:00","dateModified":"2019-03-03T19:21:06+03:00"},{"@type":"Article","@id":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/#article","name":"What is: \u0447\u0442\u043e \u0442\u0430\u043a\u043e\u0435 symlink, hard link \u0438 inode \u0432 Linux?","description":"\u0412 Linux hardlink - \"\u0436\u0451\u0441\u0442\u043a\u0430\u044f \u0441\u0441\u044b\u043b\u043a\u0430\". \u041f\u043e \u0441\u0443\u0442\u0438 - \u044f\u0432\u043b\u044f\u0435\u0442\u0441\u044f \u0442\u0435\u043c \u0436\u0435 \u0444\u0430\u0439\u043b\u043e\u043c, \u043d\u0430 \u043a\u043e\u0442\u043e\u0440\u044b\u0439 \u0441\u0441\u044b\u043b\u0430\u0435\u0442\u0441\u044f, \u0432 \u043e\u0442\u043b\u0438\u0447\u0438\u0438 \u043e\u0442 symlink-\u0430 - \"\u043c\u044f\u0433\u043a\u043e\u0439 \u0441\u0441\u044b\u043b\u043a\u0438\". \u041f\u0440\u043e\u0449\u0435 \u0432\u0441\u0435\u0433\u043e \u044d\u0442\u043e \u043e\u0431\u044a\u044f\u0441\u043d\u0438\u0442\u044c \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u044f inode - \"\u0438\u043d\u0434\u0435\u043a\u0441\u043d\u044b\u0439 \u0434\u0435\u0441\u043a\u0440\u0438\u043f\u0442\u043e\u0440\". inode inode - \u044d\u0442\u043e \u043e\u0431\u044a\u0435\u043a\u0442 \u0444\u0430\u0439\u043b\u043e\u0432\u043e\u0439 \u0441\u0438\u0441\u0442\u0435\u043c\u044b, \u0441\u043e\u0434\u0435\u0440\u0436\u0430\u0449\u0438\u0439 \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u044e \u043e \u0432\u043b\u0430\u0434\u0435\u043b\u044c\u0446\u0435\/\u0433\u0440\u0443\u043f\u043f\u0435, \u043a\u043e\u0442\u043e\u0440\u044b\u043c \u043f\u0440\u0438\u043d\u0430\u0434\u043b\u0435\u0436\u0438\u0442 \u0444\u0430\u0439\u043b \u0438\u043b\u0438 \u043a\u0430\u0442\u0430\u043b\u043e\u0433, \u0435\u0433\u043e \u043f\u0440\u0430\u0432\u0430 \u0434\u043e\u0441\u0442\u0443\u043f\u0430 \u043a \u043d\u0435\u043c\u0443, \u0435\u0433\u043e \u0440\u0430\u0437\u043c\u0435\u0440,","inLanguage":"ru-RU","headline":"What is: \u0447\u0442\u043e \u0442\u0430\u043a\u043e\u0435 symlink, hard link \u0438 inode \u0432 Linux?","author":{"@id":"https:\/\/rtfm.co.ua\/author\/setevoy\/#author"},"publisher":{"@id":"https:\/\/rtfm.co.ua\/#person"},"datePublished":"2013-08-13T10:09:33+03:00","dateModified":"2019-03-03T19:21:06+03:00","commentCount":7,"articleSection":"Operating systems, UNIX\/Linux, What is?, \u041f\u0440\u043e\u0431\u043b\u0435\u043c\u044b \u0438 \u0440\u0435\u0448\u0435\u043d\u0438\u044f, filesystem, inode, Linux, unix, \u0420\u0443\u0441\u0441\u043a\u0438\u0439, pll_5c7bf5eab771b","mainEntityOfPage":{"@id":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/#webpage"},"isPartOf":{"@id":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/#webpage"},"image":{"@type":"ImageObject","@id":"https:\/\/rtfm.co.ua\/#articleImage","url":"https:\/\/rtfm.co.ua\/wp-content\/uploads\/2016\/01\/What-is-it-e1452250201867.jpg","width":130,"height":110}}]}
+		</script>
+		<script type="text/javascript" >
+			window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+			ga('create', "UA-27245806-1", 'auto');
+			ga('send', 'pageview');
+		</script>
+		<script async src="https://www.google-analytics.com/analytics.js"></script>
+		<!-- All in One SEO -->
+
+<link rel="alternate" href="index.html.1.21.html" hreflang="ru" />
+<link rel="alternate" href="https://rtfm.co.ua/en/what-is-hard-link-symlink-and-inode-in-linux/" hreflang="en" />
+<link rel='dns-prefetch' href='https://www.googletagmanager.com/' />
+<link rel='dns-prefetch' href='https://fonts.googleapis.com/' />
+<link rel='dns-prefetch' href='https://secure.rating-widget.com/' />
+<link rel='dns-prefetch' href='https://s.w.org/' />
+<link rel="alternate" type="application/rss+xml" title="RTFM: Linux, DevOps и системное администрирование &raquo; Лента" href="https://rtfm.co.ua/feed/" />
+<link rel="alternate" type="application/rss+xml" title="RTFM: Linux, DevOps и системное администрирование &raquo; Лента комментариев" href="https://rtfm.co.ua/comments/feed/" />
+
+<script>
+var MP3jPLAYLISTS = [];
+var MP3jPLAYERS = [];
+</script>
+<link rel="alternate" type="application/rss+xml" title="RTFM: Linux, DevOps и системное администрирование &raquo; Лента комментариев к &laquo;What is: что такое symlink, hard link и inode в Linux?&raquo;" href="https://rtfm.co.ua/unix-chto-takoe-symlink-hardlink-i-inode/feed/" />
+<meta property="og:image" content="https://rtfm.co.ua/wp-content/plugins/share-me//assets/css/images/logo_big.png"/><script type="text/javascript">
+window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/13.1.0\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/13.1.0\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/rtfm.co.ua\/wp-includes\/js\/wp-emoji-release.min.js?ver=8b07f6f297a77df468773520940a5318"}};
+/*! This file is auto-generated */
+!function(e,a,t){var n,r,o,i=a.createElement("canvas"),p=i.getContext&&i.getContext("2d");function s(e,t){var a=String.fromCharCode;p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,e),0,0);e=i.toDataURL();return p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,t),0,0),e===i.toDataURL()}function c(e){var t=a.createElement("script");t.src=e,t.defer=t.type="text/javascript",a.getElementsByTagName("head")[0].appendChild(t)}for(o=Array("flag","emoji"),t.supports={everything:!0,everythingExceptFlag:!0},r=0;r<o.length;r++)t.supports[o[r]]=function(e){if(!p||!p.fillText)return!1;switch(p.textBaseline="top",p.font="600 32px Arial",e){case"flag":return s([127987,65039,8205,9895,65039],[127987,65039,8203,9895,65039])?!1:!s([55356,56826,55356,56819],[55356,56826,8203,55356,56819])&&!s([55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447],[55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447]);case"emoji":return!s([10084,65039,8205,55357,56613],[10084,65039,8203,55357,56613])}return!1}(o[r]),t.supports.everything=t.supports.everything&&t.supports[o[r]],"flag"!==o[r]&&(t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&t.supports[o[r]]);t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&!t.supports.flag,t.DOMReady=!1,t.readyCallback=function(){t.DOMReady=!0},t.supports.everything||(n=function(){t.readyCallback()},a.addEventListener?(a.addEventListener("DOMContentLoaded",n,!1),e.addEventListener("load",n,!1)):(e.attachEvent("onload",n),a.attachEvent("onreadystatechange",function(){"complete"===a.readyState&&t.readyCallback()})),(n=t.source||{}).concatemoji?c(n.concatemoji):n.wpemoji&&n.twemoji&&(c(n.twemoji),c(n.wpemoji)))}(window,document,window._wpemojiSettings);
+</script>
+<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 0.07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+	<style id='global-styles-inline-css' type='text/css'>
+body{--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--duotone--dark-grayscale: url('index.html.1.21.html');--wp--preset--duotone--grayscale: url('index.html.1.21.html');--wp--preset--duotone--purple-yellow: url('index.html.1.21.html');--wp--preset--duotone--blue-red: url('index.html.1.21.html');--wp--preset--duotone--midnight: url('index.html.1.21.html');--wp--preset--duotone--magenta-yellow: url('index.html.1.21.html');--wp--preset--duotone--purple-green: url('index.html.1.21.html');--wp--preset--duotone--blue-orange: url('index.html.1.21.html');--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+</style>
+<link rel='stylesheet' id='crazyplayer-main-css'  href='https://rtfm.co.ua/wp-content/plugins/crazyplayer/assets/css/crazyplayer.min.css?ver=1.0' type='text/css' media='all' />
+<link rel='stylesheet' id='github-embed-css'  href='https://rtfm.co.ua/wp-content/plugins/github-embed/css/github-embed.css?ver=8b07f6f297a77df468773520940a5318' type='text/css' media='all' />
+<link rel='stylesheet' id='thumbs_rating_styles-css'  href='https://rtfm.co.ua/wp-content/plugins/link-library/upvote-downvote/css/style.css?ver=1.0.0' type='text/css' media='all' />
+<link rel='stylesheet' id='rw-site-rating-css'  href='https://rtfm.co.ua/wp-content/plugins/rating-widget/resources/css/site-rating.css?ver=3.1.3' type='text/css' media='all' />
+<link rel='stylesheet' id='sm_style-css'  href='https://rtfm.co.ua/wp-content/plugins/share-me/assets/css/style.css?ver=8b07f6f297a77df468773520940a5318' type='text/css' media='all' />
+<link rel='stylesheet' id='social-widget-css'  href='https://rtfm.co.ua/wp-content/plugins/social-media-widget/social_widget.css?ver=8b07f6f297a77df468773520940a5318' type='text/css' media='all' />
+<link rel='stylesheet' id='accordioncssfree-css'  href='https://rtfm.co.ua/wp-content/plugins/sp-faq/assets/css/jquery.accordion.css?ver=3.6.3' type='text/css' media='all' />
+<link rel='stylesheet' id='wp-polls-css'  href='https://rtfm.co.ua/wp-content/plugins/wp-polls/polls-css.css?ver=2.75.6' type='text/css' media='all' />
+<style id='wp-polls-inline-css' type='text/css'>
+.wp-polls .pollbar {
+	margin: 1px;
+	font-size: 6px;
+	line-height: 8px;
+	height: 8px;
+	background-image: url('https://rtfm.co.ua/wp-content/plugins/wp-polls/images/default/pollbg.gif');
+	border: 1px solid #c8c8c8;
+}
+
+</style>
+<link rel='stylesheet' id='wpt-twitter-feed-css'  href='https://rtfm.co.ua/wp-content/plugins/wp-to-twitter/css/twitter-feed.css?ver=8b07f6f297a77df468773520940a5318' type='text/css' media='all' />
+<link rel='stylesheet' id='ez-icomoon-css'  href='https://rtfm.co.ua/wp-content/plugins/easy-table-of-contents/vendor/icomoon/style.min.css?ver=2.0.17' type='text/css' media='all' />
+<link rel='stylesheet' id='ez-toc-css'  href='https://rtfm.co.ua/wp-content/plugins/easy-table-of-contents/assets/css/screen.min.css?ver=2.0.17' type='text/css' media='all' />
+<style id='ez-toc-inline-css' type='text/css'>
+div#ez-toc-container p.ez-toc-title {font-size: 120%;}div#ez-toc-container p.ez-toc-title {font-weight: 500;}div#ez-toc-container ul li {font-size: 95%;}div#ez-toc-container {background: #fff;border: 1px solid #ddd;width: 400px;}div#ez-toc-container p.ez-toc-title {color: #333399;}div#ez-toc-container ul.ez-toc-list a {color: #428bca;}div#ez-toc-container ul.ez-toc-list a:hover {color: #2a6496;}div#ez-toc-container ul.ez-toc-list a:visited {color: #428bca;}
+</style>
+<link rel='stylesheet' id='iconic-one-css'  href='https://rtfm.co.ua/wp-content/themes/iconic-one/style.css?ver=8b07f6f297a77df468773520940a5318' type='text/css' media='all' />
+<link rel='stylesheet' id='child-style-css'  href='https://rtfm.co.ua/wp-content/themes/iconic-one-child/style.css?ver=8b07f6f297a77df468773520940a5318' type='text/css' media='all' />
+<link rel='stylesheet' id='themonic-fonts-css'  href='https://fonts.googleapis.com/css?family=Ubuntu%3A400%2C700&#038;subset=latin%2Clatin-ext' type='text/css' media='all' />
+<link rel='stylesheet' id='themonic-style-css'  href='https://rtfm.co.ua/wp-content/themes/iconic-one-child/style.css?ver=2.4' type='text/css' media='all' />
+<link rel='stylesheet' id='custom-style-css'  href='https://rtfm.co.ua/wp-content/themes/iconic-one/custom.css?ver=8b07f6f297a77df468773520940a5318' type='text/css' media='all' />
+<!--[if lt IE 9]>
+<link rel='stylesheet' id='themonic-ie-css'  href='https://rtfm.co.ua/wp-content/themes/iconic-one/css/ie.css?ver=20130305' type='text/css' media='all' />
+<![endif]-->
+<link rel='stylesheet' id='wpdreams-asl-basic-css'  href='https://rtfm.co.ua/wp-content/plugins/ajax-search-lite/css/style.basic.css?ver=4.9.5' type='text/css' media='all' />
+<link rel='stylesheet' id='wpdreams-ajaxsearchlite-css'  href='https://rtfm.co.ua/wp-content/plugins/ajax-search-lite/css/style-simple-grey.css?ver=4.9.5' type='text/css' media='all' />
+<link rel='stylesheet' id='rw_toprated-css'  href='https://secure.rating-widget.com/css/wordpress/toprated.css?ck=Y2022M03D01&#038;ver=3.1.3' type='text/css' media='all' />
+<link rel='stylesheet' id='rw_recommendations-css'  href='https://secure.rating-widget.com/css/widget/recommendations.css?ck=Y2022M03D01&#038;ver=3.1.3' type='text/css' media='all' />
+<link rel='stylesheet' id='tablepress-default-css'  href='https://rtfm.co.ua/wp-content/plugins/tablepress/css/default.min.css?ver=1.14' type='text/css' media='all' />
+<link rel='stylesheet' id='qtip2-css'  href='https://rtfm.co.ua/wp-content/plugins/text-hover/assets/jquery.qtip.min.css?ver=3.0.3' type='text/css' media='all' />
+<link rel='stylesheet' id='text-hover-css'  href='https://rtfm.co.ua/wp-content/plugins/text-hover/assets/text-hover.css?ver=4.1' type='text/css' media='all' />
+<link rel='stylesheet' id='enlighterjs-css'  href='https://rtfm.co.ua/wp-content/plugins/enlighter/cache/enlighterjs.min.css?ver=IPRG9C4M+WGYc5a' type='text/css' media='all' />
+<link rel='stylesheet' id='simterm-showyourtermscss-css'  href='https://rtfm.co.ua/wp-content/plugins/simterm/css/show-your-terms.min.css?ver=20160705' type='text/css' media='all' />
+<link rel='stylesheet' id='simterm-extracss-css'  href='https://rtfm.co.ua/wp-content/plugins/simterm/css/simterm.css?ver=20160705' type='text/css' media='all' />
+<link rel='stylesheet' id='mp3-jplayer-css'  href='https://rtfm.co.ua/wp-content/plugins/mp3-jplayer/css/light.css?ver=2.7.3' type='text/css' media='all' />
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/crazyplayer/assets/js/crazyplayer.min.js?ver=8b07f6f297a77df468773520940a5318' id='crazyplayer-main-js-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-includes/js/jquery/jquery.min.js?ver=3.6.0' id='jquery-core-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.3.2' id='jquery-migrate-js'></script>
+<script type='text/javascript' id='jquery-js-after'>
+jQuery(document).ready(function() {
+	jQuery(".5ea4cde56f2f0649022d2334d16f8121").click(function() {
+		jQuery.post(
+			"https://rtfm.co.ua/wp-admin/admin-ajax.php", {
+				"action": "quick_adsense_onpost_ad_click",
+				"quick_adsense_onpost_ad_index": jQuery(this).attr("data-index"),
+				"quick_adsense_nonce": "f663831c56",
+			}, function(response) { }
+		);
+	});
+});
+</script>
+<script type='text/javascript' id='thumbs_rating_scripts-js-extra'>
+/* <![CDATA[ */
+var thumbs_rating_ajax = {"ajax_url":"https:\/\/rtfm.co.ua\/wp-admin\/admin-ajax.php","nonce":"8d604de949"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/link-library/upvote-downvote/js/general.js?ver=4.0.1' id='thumbs_rating_scripts-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/share-me/assets/js/scripts.js?ver=8b07f6f297a77df468773520940a5318' id='sm_script-js'></script>
+
+<!-- Google Analytics snippet added by Site Kit -->
+<script type='text/javascript' src='https://www.googletagmanager.com/gtag/js?id=UA-27245806-1' id='google_gtagjs-js' async></script>
+<script type='text/javascript' id='google_gtagjs-js-after'>
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}
+gtag('set', 'linker', {"domains":["rtfm.co.ua"]} );
+gtag("js", new Date());
+gtag("set", "developer_id.dZTNiMT", true);
+gtag("config", "UA-27245806-1", {"anonymize_ip":true});
+</script>
+
+<!-- End Google Analytics snippet added by Site Kit -->
+<link rel="https://api.w.org/" href="https://rtfm.co.ua/wp-json/" /><link rel="alternate" type="application/json" href="https://rtfm.co.ua/wp-json/wp/v2/posts/3143" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://rtfm.co.ua/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://rtfm.co.ua/wp-includes/wlwmanifest.xml" /> 
+
+<link rel='shortlink' href='https://rtfm.co.ua/?p=3143' />
+<link rel="alternate" type="application/json+oembed" href="https://rtfm.co.ua/wp-json/oembed/1.0/embed?url=https%3A%2F%2Frtfm.co.ua%2Funix-chto-takoe-symlink-hardlink-i-inode%2F" />
+<link rel="alternate" type="text/xml+oembed" href="https://rtfm.co.ua/wp-json/oembed/1.0/embed?url=https%3A%2F%2Frtfm.co.ua%2Funix-chto-takoe-symlink-hardlink-i-inode%2F&#038;format=xml" />
+<meta name="generator" content="Site Kit by Google 1.68.0" /><style id='LinkLibraryStyle' type='text/css'>
+.linktable {margin-top: 15px;}
+
+.linktable a {text-decoration:none}
+
+a.featured {
+    font-weight: bold;
+}
+
+table.linklisttable {
+	width:100%; 
+	border-width: 0px 0px 0px 0px;
+	border-spacing: 5px;
+	/* border-style: outset outset outset outset;
+	border-color: gray gray gray gray; */
+	border-collapse: separate;
+}
+table.linklisttable th {
+	border-width: 1px 1px 1px 1px;
+	padding: 3px 3px 3px 3px;
+	background-color: #f4f5f3;
+	/* border-style: none none none none;
+	border-color: gray gray gray gray;
+	-moz-border-radius: 3px 3px 3px 3px; */
+}
+table.linklisttable td {
+	border-width: 1px 1px 1px 1px;
+	padding: 3px 3px 3px 3px;
+	background-color: #dee1d8;
+	/* border-style: dotted dotted dotted dotted;
+	border-color: gray gray gray gray;
+	-moz-border-radius: 3px 3px 3px 3px; */
+}
+
+.linklistcatname{
+	font-family: arial;
+	font-size: 16px;
+	font-weight: bold;
+	border: 0;
+	padding-bottom: 10px;
+	padding-top: 10px;
+}
+
+.linklistcatnamedesc{
+	font-family: arial;
+	font-size: 12px;
+	font-weight: normal;
+	border: 0;
+	padding-bottom: 10px;
+	padding-top: 10px;
+}
+
+
+.linklistcolumnheader{
+	font-weight: bold;	
+}
+
+div.rsscontent{color: #333333; font-family: "Helvetica Neue",Arial,Helvetica,sans-serif;font-size: 11px;line-height: 1.25em;
+vertical-align: baseline;letter-spacing: normal;word-spacing: normal;font-weight: normal;font-style: normal;font-variant: normal;text-transform: none;
+text-decoration: none;text-align: left;text-indent: 0px;max-width:500px;}
+
+#ll_rss_results { border-style:solid;border-width:1px;margin-left:10px;margin-top:10px;padding-top:3px;background-color:#f4f5f3;}
+.rsstitle{font-weight:400;font-size:0.8em;color:#33352C;font-family:Georgia,"Times New Roman",Times,serif;}
+.rsstitle a{color:#33352C}
+
+#ll_rss_results img {
+    max-width: 400px; /* Adjust this value according to your content area size*/
+    height: auto;
+}
+
+.rsselements {float: right;}
+
+.highlight_word {background-color: #FFFF00}
+
+.previouspage {float:left;margin-top:10px;font-weight:bold}
+
+.nextpage {float: right;margin-top:10px;font-weight:bold}
+
+.resulttitle {padding-top:10px;}
+
+.catdropdown { width: 300px; }
+
+#llsearch {padding-top:10px;}
+
+.lladdlink {
+	margin-top: 16px;
+}
+
+.lladdlink #lladdlinktitle {
+	font-weight: bold;
+}
+
+.lladdlink table {
+	margin-top: 5px;
+	margin-bottom: 8px;
+	border: 0;
+	border-spacing: 0;
+	border-collapse: collapse;
+}
+
+.lladdlink table td {
+	border: 0;
+	height: 30px;
+}
+
+.lladdlink table th {
+	border: 0;
+	text-align: left;
+	font-weight: normal;
+	width: 400px;
+}
+
+.lladdlink input[type="text"] {
+	width: 300px;
+}
+
+.lladdlink select {
+	width: 300px;
+}
+
+.llmessage {
+	margin: 8px;
+	border: 1px solid #ddd;
+	background-color: #ff0;
+}
+
+.pageselector {
+	margin-top: 20px;
+	text-align: center;
+}
+
+.selectedpage {
+	margin: 0px 4px 0px 4px;
+	border: 1px solid #000;
+	padding: 7px;
+	background-color: #f4f5f3;
+}
+
+.unselectedpage {
+	margin: 0px 4px 0px 4px;
+	border: 1px solid #000;
+	padding: 7px;
+	background-color: #dee1d8;
+}
+
+.previousnextactive {
+	margin: 0px 4px 0px 4px;
+	border: 1px solid #000;
+	padding: 7px;
+	background-color: #dee1d8;
+}
+
+.previousnextinactive {
+	margin: 0px 4px 0px 4px;
+	border: 1px solid #000;
+	padding: 7px;
+	background-color: #dddddd;
+	color: #cccccc;
+}
+
+.LinksInCat {
+    display:none;
+}
+
+.allcatalphafilterlinkedletter, .catalphafilterlinkedletter, .catalphafilteremptyletter, .catalphafilterselectedletter, .allcatalphafilterselectedletter {
+	width: 16px;
+	height: 30px;
+	float:left;
+	margin-right: 6px;
+	text-align: center;
+}
+
+.allcatalphafilterlinkedletter, .allcatalphafilterselectedletter {
+	width: 40px;
+}
+
+.catalphafilterlinkedletter {
+	background-color: #aaa;
+	color: #444;
+}
+
+.catalphafilteremptyletter {
+	background-color: #ddd;
+	color: #fff;
+}
+
+.catalphafilterselectedletter {
+	background-color: #558C89;
+	color: #fff;
+}
+
+.catalphafilter {
+	padding-bottom: 30px;
+}</style>
+<style type="text/css">
+.sfs-subscriber-count, .sfs-count, .sfs-count span, .sfs-stats { -webkit-box-sizing: initial; -moz-box-sizing: initial; box-sizing: initial; }
+.sfs-subscriber-count { width: 88px; overflow: hidden; height: 26px; color: #424242; font: 9px Verdana, Geneva, sans-serif; letter-spacing: 1px; }
+.sfs-count { width: 86px; height: 17px; line-height: 17px; margin: 0 auto; background: #ccc; border: 1px solid #909090; border-top-color: #fff; border-left-color: #fff; }
+.sfs-count span { display: inline-block; height: 11px; line-height: 12px; margin: 2px 1px 2px 2px; padding: 0 2px 0 3px; background: #e4e4e4; border: 1px solid #a2a2a2; border-bottom-color: #fff; border-right-color: #fff; }
+.sfs-stats { font-size: 6px; line-height: 6px; margin: 1px 0 0 1px; word-spacing: 2px; text-align: center; text-transform: uppercase; }
+</style>
+    <script type="text/javascript">
+        function nxsPostToFav(obj){ obj.preventDefault;
+            var k = obj.target.split("-"); var nt = k[0]; var ii = k[1];  var pid = k[2];
+            var data = {  action:'nxs_snap_aj', nxsact: 'manPost', nt:nt, id: pid, nid: ii, et_load_builder_modules:1, _wpnonce: '7bf568b80f'};
+            jQuery('#nxsFavNoticeCnt').html('<p> Posting... </p>'); jQuery('#nxsFavNotice').modal({ fadeDuration: 50 });
+            jQuery.post('https://rtfm.co.ua/wp-admin/admin-ajax.php', data, function(response) { if (response=='') response = 'Message Posted';
+                jQuery('#nxsFavNoticeCnt').html('<p> ' + response + '</p>' +'<input type="button"  onclick="jQuery.modal.close();" class="bClose" value="Close" />');
+            });
+        }
+    </script>	<link type="text/css" rel="stylesheet" href="https://rtfm.co.ua/wp-content/plugins/syntax-highlighter-with-add-button-in-editor/styles/shCoreDefault.css" />
+    <script type="text/javascript">
+	window._wp_rp_static_base_url = 'https://wprp.zemanta.com/static/';
+	window._wp_rp_wp_ajax_url = "https://rtfm.co.ua/wp-admin/admin-ajax.php";
+	window._wp_rp_plugin_version = '3.6.4';
+	window._wp_rp_post_id = '3143';
+	window._wp_rp_num_rel_posts = '5';
+	window._wp_rp_thumbnails = false;
+	window._wp_rp_post_title = 'What+is%3A+%D1%87%D1%82%D0%BE+%D1%82%D0%B0%D0%BA%D0%BE%D0%B5+symlink%2C+hard+link+%D0%B8+inode+%D0%B2+Linux%3F';
+	window._wp_rp_post_tags = ['linux', 'filesystem', 'unix', 'inode', '%D0%9F%D1%80%D0%BE%D0%B1%D0%BB%D0%B5%D0%BC%D1%8B+%D0%B8+%D1%80%D0%B5%D1%88%D0%B5%D0%BD', 'unix%2Flinux', 'what+is%3F', 'operating+systems', 'ls', 'access', 'em', 'modif', 'linux', '13', 'hard', 'root', 'link', 'alt', '1'];
+	window._wp_rp_promoted_content = true;
+</script>
+    
+    <meta name="yandex-verification" content="2670f8b03addbe8b" />
+
+
+<!-- Google AdSense snippet added by Site Kit -->
+<meta name="google-adsense-platform-account" content="ca-host-pub-2644536267352236">
+<meta name="google-adsense-platform-domain" content="sitekit.withgoogle.com">
+<!-- End Google AdSense snippet added by Site Kit -->
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+				<link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap" />
+				<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap" media="all" />
+				<style type="text/css" media="screen">body{position:relative}#dynamic-to-top{display:none;overflow:hidden;width:auto;z-index:90;position:fixed;bottom:20px;left:20px;top:auto;right:auto;font-family:sans-serif;font-size:1em;color:#fff;text-decoration:none;text-shadow:0 1px 0 #333;font-weight:bold;padding:17px 40px;border:1px solid #a39d9d;background:#16A1E7;-webkit-background-origin:border;-moz-background-origin:border;-icab-background-origin:border;-khtml-background-origin:border;-o-background-origin:border;background-origin:border;-webkit-background-clip:padding-box;-moz-background-clip:padding-box;-icab-background-clip:padding-box;-khtml-background-clip:padding-box;-o-background-clip:padding-box;background-clip:padding-box;-webkit-box-shadow:0 1px 3px rgba( 0, 0, 0, 0.4 ), inset 0 0 0 1px rgba( 0, 0, 0, 0.2 ), inset 0 1px 0 rgba( 255, 255, 255, .4 ), inset 0 10px 10px rgba( 255, 255, 255, .1 );-ms-box-shadow:0 1px 3px rgba( 0, 0, 0, 0.4 ), inset 0 0 0 1px rgba( 0, 0, 0, 0.2 ), inset 0 1px 0 rgba( 255, 255, 255, .4 ), inset 0 10px 10px rgba( 255, 255, 255, .1 );-moz-box-shadow:0 1px 3px rgba( 0, 0, 0, 0.4 ), inset 0 0 0 1px rgba( 0, 0, 0, 0.2 ), inset 0 1px 0 rgba( 255, 255, 255, .4 ), inset 0 10px 10px rgba( 255, 255, 255, .1 );-o-box-shadow:0 1px 3px rgba( 0, 0, 0, 0.4 ), inset 0 0 0 1px rgba( 0, 0, 0, 0.2 ), inset 0 1px 0 rgba( 255, 255, 255, .4 ), inset 0 10px 10px rgba( 255, 255, 255, .1 );-khtml-box-shadow:0 1px 3px rgba( 0, 0, 0, 0.4 ), inset 0 0 0 1px rgba( 0, 0, 0, 0.2 ), inset 0 1px 0 rgba( 255, 255, 255, .4 ), inset 0 10px 10px rgba( 255, 255, 255, .1 );-icab-box-shadow:0 1px 3px rgba( 0, 0, 0, 0.4 ), inset 0 0 0 1px rgba( 0, 0, 0, 0.2 ), inset 0 1px 0 rgba( 255, 255, 255, .4 ), inset 0 10px 10px rgba( 255, 255, 255, .1 );box-shadow:0 1px 3px rgba( 0, 0, 0, 0.4 ), inset 0 0 0 1px rgba( 0, 0, 0, 0.2 ), inset 0 1px 0 rgba( 255, 255, 255, .4 ), inset 0 10px 10px rgba( 255, 255, 255, .1 );-webkit-border-radius:30px;-moz-border-radius:30px;-icab-border-radius:30px;-khtml-border-radius:30px;border-radius:30px}#dynamic-to-top:hover{background:#4d9762;background:#16A1E7 -webkit-gradient( linear, 0% 0%, 0% 100%, from( rgba( 255, 255, 255, .2 ) ), to( rgba( 0, 0, 0, 0 ) ) );background:#16A1E7 -webkit-linear-gradient( top, rgba( 255, 255, 255, .2 ), rgba( 0, 0, 0, 0 ) );background:#16A1E7 -khtml-linear-gradient( top, rgba( 255, 255, 255, .2 ), rgba( 0, 0, 0, 0 ) );background:#16A1E7 -moz-linear-gradient( top, rgba( 255, 255, 255, .2 ), rgba( 0, 0, 0, 0 ) );background:#16A1E7 -o-linear-gradient( top, rgba( 255, 255, 255, .2 ), rgba( 0, 0, 0, 0 ) );background:#16A1E7 -ms-linear-gradient( top, rgba( 255, 255, 255, .2 ), rgba( 0, 0, 0, 0 ) );background:#16A1E7 -icab-linear-gradient( top, rgba( 255, 255, 255, .2 ), rgba( 0, 0, 0, 0 ) );background:#16A1E7 linear-gradient( top, rgba( 255, 255, 255, .2 ), rgba( 0, 0, 0, 0 ) );cursor:pointer}#dynamic-to-top:active{background:#16A1E7;background:#16A1E7 -webkit-gradient( linear, 0% 0%, 0% 100%, from( rgba( 0, 0, 0, .3 ) ), to( rgba( 0, 0, 0, 0 ) ) );background:#16A1E7 -webkit-linear-gradient( top, rgba( 0, 0, 0, .1 ), rgba( 0, 0, 0, 0 ) );background:#16A1E7 -moz-linear-gradient( top, rgba( 0, 0, 0, .1 ), rgba( 0, 0, 0, 0 ) );background:#16A1E7 -khtml-linear-gradient( top, rgba( 0, 0, 0, .1 ), rgba( 0, 0, 0, 0 ) );background:#16A1E7 -o-linear-gradient( top, rgba( 0, 0, 0, .1 ), rgba( 0, 0, 0, 0 ) );background:#16A1E7 -ms-linear-gradient( top, rgba( 0, 0, 0, .1 ), rgba( 0, 0, 0, 0 ) );background:#16A1E7 -icab-linear-gradient( top, rgba( 0, 0, 0, .1 ), rgba( 0, 0, 0, 0 ) );background:#16A1E7 linear-gradient( top, rgba( 0, 0, 0, .1 ), rgba( 0, 0, 0, 0 ) )}#dynamic-to-top,#dynamic-to-top:active,#dynamic-to-top:focus,#dynamic-to-top:hover{outline:none}#dynamic-to-top span{display:block;overflow:hidden;width:14px;height:12px;background:url( https://rtfm.co.ua/wp-content/plugins/dynamic-to-top/css/images/up.png )no-repeat center center}</style><style type="text/css">.broken_link, a.broken_link {
+	text-decoration: line-through;
+}</style>                <style>
+                    
+					@font-face {
+						font-family: 'aslsicons2';
+						src: url('https://rtfm.co.ua/wp-content/plugins/ajax-search-lite/css/fonts/icons2.eot');
+						src: url('https://rtfm.co.ua/wp-content/plugins/ajax-search-lite/css/fonts/icons2.eot?#iefix') format('embedded-opentype'),
+							 url('https://rtfm.co.ua/wp-content/plugins/ajax-search-lite/css/fonts/icons2.woff2') format('woff2'),
+							 url('https://rtfm.co.ua/wp-content/plugins/ajax-search-lite/css/fonts/icons2.woff') format('woff'),
+							 url('https://rtfm.co.ua/wp-content/plugins/ajax-search-lite/css/fonts/icons2.ttf') format('truetype'),
+							 url('https://rtfm.co.ua/wp-content/plugins/ajax-search-lite/css/fonts/icons2.svg#icons') format('svg');
+						font-weight: normal;
+						font-style: normal;
+					}
+					div[id*='ajaxsearchlitesettings'].searchsettings .asl_option_inner label {
+						font-size: 0px !important;
+						color: rgba(0, 0, 0, 0);
+					}
+					div[id*='ajaxsearchlitesettings'].searchsettings .asl_option_inner label:after {
+						font-size: 11px !important;
+						position: absolute;
+						top: 0;
+						left: 0;
+						z-index: 1;
+					}
+					div[id*='ajaxsearchlite'].wpdreams_asl_container {
+						width: 100%;
+						margin: 0px 0px 0px 0px;
+					}
+					div[id*='ajaxsearchliteres'].wpdreams_asl_results div.resdrg span.highlighted {
+						font-weight: bold;
+						color: rgba(217, 49, 43, 1);
+						background-color: rgba(238, 238, 238, 1);
+					}
+					div[id*='ajaxsearchliteres'].wpdreams_asl_results .results div.asl_image {
+						width: 70px;
+						height: 70px;
+						background-size: cover;
+						background-repeat: no-repeat;
+					}
+					div.asl_r .results {
+						max-height: none;
+					}
+				
+						div.asl_r.asl_w.vertical .results .item::after {
+							display: block;
+							position: absolute;
+							bottom: 0;
+							content: '';
+							height: 1px;
+							width: 100%;
+							background: #D8D8D8;
+						}
+						div.asl_r.asl_w.vertical .results .item.asl_last_item::after {
+							display: none;
+						}
+					                </style>
+                			<script type="text/javascript">
+                if ( typeof _ASL !== "undefined" && _ASL !== null && typeof _ASL.initialize !== "undefined" ) {
+					_ASL.initialize();
+				}
+            </script>
+            <style id="sccss">/* Enter Your Custom CSS Here */
+
+/*
+.widget-area .widget a {
+        color: #000000;
+        font-size: 98%;
+}
+*/</style><!-- ## NXS/OG ## --><!-- ## NXSOGTAGS ## --><!-- ## NXS/OG ## -->
+</head>
+<body class="post-template-default single single-post postid-3143 single-format-standard custom-font-enabled single-author">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;" ><defs><filter id="wp-duotone-dark-grayscale"><feColorMatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 " /><feComponentTransfer color-interpolation-filters="sRGB" ><feFuncR type="table" tableValues="0 0.49803921568627" /><feFuncG type="table" tableValues="0 0.49803921568627" /><feFuncB type="table" tableValues="0 0.49803921568627" /><feFuncA type="table" tableValues="1 1" /></feComponentTransfer><feComposite in2="SourceGraphic" operator="in" /></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;" ><defs><filter id="wp-duotone-grayscale"><feColorMatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 " /><feComponentTransfer color-interpolation-filters="sRGB" ><feFuncR type="table" tableValues="0 1" /><feFuncG type="table" tableValues="0 1" /><feFuncB type="table" tableValues="0 1" /><feFuncA type="table" tableValues="1 1" /></feComponentTransfer><feComposite in2="SourceGraphic" operator="in" /></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;" ><defs><filter id="wp-duotone-purple-yellow"><feColorMatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 " /><feComponentTransfer color-interpolation-filters="sRGB" ><feFuncR type="table" tableValues="0.54901960784314 0.98823529411765" /><feFuncG type="table" tableValues="0 1" /><feFuncB type="table" tableValues="0.71764705882353 0.25490196078431" /><feFuncA type="table" tableValues="1 1" /></feComponentTransfer><feComposite in2="SourceGraphic" operator="in" /></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;" ><defs><filter id="wp-duotone-blue-red"><feColorMatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 " /><feComponentTransfer color-interpolation-filters="sRGB" ><feFuncR type="table" tableValues="0 1" /><feFuncG type="table" tableValues="0 0.27843137254902" /><feFuncB type="table" tableValues="0.5921568627451 0.27843137254902" /><feFuncA type="table" tableValues="1 1" /></feComponentTransfer><feComposite in2="SourceGraphic" operator="in" /></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;" ><defs><filter id="wp-duotone-midnight"><feColorMatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 " /><feComponentTransfer color-interpolation-filters="sRGB" ><feFuncR type="table" tableValues="0 0" /><feFuncG type="table" tableValues="0 0.64705882352941" /><feFuncB type="table" tableValues="0 1" /><feFuncA type="table" tableValues="1 1" /></feComponentTransfer><feComposite in2="SourceGraphic" operator="in" /></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;" ><defs><filter id="wp-duotone-magenta-yellow"><feColorMatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 " /><feComponentTransfer color-interpolation-filters="sRGB" ><feFuncR type="table" tableValues="0.78039215686275 1" /><feFuncG type="table" tableValues="0 0.94901960784314" /><feFuncB type="table" tableValues="0.35294117647059 0.47058823529412" /><feFuncA type="table" tableValues="1 1" /></feComponentTransfer><feComposite in2="SourceGraphic" operator="in" /></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;" ><defs><filter id="wp-duotone-purple-green"><feColorMatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 " /><feComponentTransfer color-interpolation-filters="sRGB" ><feFuncR type="table" tableValues="0.65098039215686 0.40392156862745" /><feFuncG type="table" tableValues="0 1" /><feFuncB type="table" tableValues="0.44705882352941 0.4" /><feFuncA type="table" tableValues="1 1" /></feComponentTransfer><feComposite in2="SourceGraphic" operator="in" /></filter></defs></svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0" width="0" height="0" focusable="false" role="none" style="visibility: hidden; position: absolute; left: -9999px; overflow: hidden;" ><defs><filter id="wp-duotone-blue-orange"><feColorMatrix color-interpolation-filters="sRGB" type="matrix" values=" .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 .299 .587 .114 0 0 " /><feComponentTransfer color-interpolation-filters="sRGB" ><feFuncR type="table" tableValues="0.098039215686275 1" /><feFuncG type="table" tableValues="0 0.66274509803922" /><feFuncB type="table" tableValues="0.84705882352941 0.41960784313725" /><feFuncA type="table" tableValues="1 1" /></feComponentTransfer><feComposite in2="SourceGraphic" operator="in" /></filter></defs></svg><div id="page" class="site">
+	<header id="masthead" class="site-header" role="banner">
+					<div class="io-title-description">
+			<a href="https://rtfm.co.ua/" title="RTFM: Linux, DevOps и системное администрирование" rel="home">RTFM: Linux, DevOps и системное администрирование</a>
+				<br .../> 
+								 <a class="site-description">DevOps-инжиниринг и системное администрирование. Случаи из практики.</a>
+						</div>
+			
+		
+		<nav id="site-navigation" class="themonic-nav" role="navigation">
+			<a class="assistive-text" href="index.html.1.21.html#main" title="Перейти к содержимому">Перейти к содержимому</a>
+			<ul id="menu-top" class="nav-menu"><li id="menu-item-18842" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-18842"><a href="https://rtfm.co.ua/">Home</a></li>
+<li id="menu-item-24610" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-24610"><a href="https://rtfm.co.ua/f-a-q/">FAQ</a></li>
+<li id="menu-item-18841" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18841"><a href="https://rtfm.co.ua/books-translations/">Переводы</a></li>
+<li id="menu-item-22376" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-22376"><a href="https://rtfm.co.ua/knigi/">Книги</a></li>
+<li id="menu-item-20260" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-20260"><a href="https://rtfm.co.ua/ssylki/">Ссылки</a></li>
+<li id="menu-item-18845" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18845"><a href="https://rtfm.co.ua/about/">About</a></li>
+<li id="menu-item-18846" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18846"><a href="https://rtfm.co.ua/karta-sajta/">Карта сайта</a></li>
+<li id="menu-item-19023-en" class="lang-item lang-item-1273 lang-item-en lang-item-first menu-item menu-item-type-custom menu-item-object-custom menu-item-19023-en"><a href="https://rtfm.co.ua/en/what-is-hard-link-symlink-and-inode-in-linux/" hreflang="en-US" lang="en-US"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAMAAABBPP0LAAAAmVBMVEViZsViZMJiYrf9gnL8eWrlYkjgYkjZYkj8/PujwPybvPz4+PetraBEgfo+fvo3efkydfkqcvj8Y2T8UlL8Q0P8MzP9k4Hz8/Lu7u4DdPj9/VrKysI9fPoDc/EAZ7z7IiLHYkjp6ekCcOTk5OIASbfY/v21takAJrT5Dg6sYkjc3Nn94t2RkYD+y8KeYkjs/v7l5fz0dF22YkjWvcOLAAAAgElEQVR4AR2KNULFQBgGZ5J13KGGKvc/Cw1uPe62eb9+Jr1EUBFHSgxxjP2Eca6AfUSfVlUfBvm1Ui1bqafctqMndNkXpb01h5TLx4b6TIXgwOCHfjv+/Pz+5vPRw7txGWT2h6yO0/GaYltIp5PT1dEpLNPL/SdWjYjAAZtvRPgHJX4Xio+DSrkAAAAASUVORK5CYII=" alt="English" width="16" height="11" style="width: 16px; height: 11px;" /><span style="margin-left:0.3em;">English</span></a></li>
+</ul>		</nav><!-- #site-navigation -->
+		<div class="clear"></div>
+	</header><!-- #masthead -->
+
+	<div id="main" class="wrapper">	<div id="primary" class="site-content">
+		<div id="content" role="main">
+
+			
+				
+	<article id="post-3143" class="post-3143 post type-post status-publish format-standard has-post-thumbnail hentry category-operating-systems-ru category-linux-ru category-what-is-ru category-troubleshooting-ru tag-filesystem tag-inode tag-linux tag-unix">
+				<header class="entry-header">
+						<h1 class="entry-title">What is: что такое symlink, hard link и inode в Linux?</h1>
+									
+		<div class="below-title-meta">
+		<div class="adt">
+		Автор:        <span class="vcard author">
+			<span class="fn"><a href="https://rtfm.co.ua/author/setevoy/" title="Записи setevoy" rel="author">setevoy</a></span>
+        </span>
+        <span class="meta-sep">|</span> 
+				
+				<span class="date updated">08/13/2013</span>
+				 
+        </div>
+		<div class="adt-comment">
+		<a class="link-comments" href="index.html.1.21.html#comments"><span class="dsq-postid" data-dsqidentifier="3143 http://rtfm.co.ua/?p=3143">7 комментариев</span></a> 
+        </div>       
+		</div><!-- below title meta end -->
+			
+						
+		</header><!-- .entry-header -->
+
+							<div class="entry-content">
+												<table class="rw-rating-table rw-ltr rw-center rw-no-labels"><tr><td><nobr>&nbsp;</nobr></td><td><div class="rw-center"><div class="rw-ui-container rw-class-blog-post rw-urid-31440" data-img="https://rtfm.co.ua/wp-content/uploads/2016/01/What-is-it-e1452250201867.jpg"></div></div></td></tr></table><p><img class="alignleft size-full wp-image-9113" src="https://rtfm.co.ua/wp-content/uploads/2016/01/What-is-it-e1452250201867.jpg" alt="" width="130" height="110" />В Linux <code>hardlink</code> &#8211; &#8220;жёсткая ссылка&#8221;. По сути &#8211; является тем же файлом, на который ссылается, в отличии от <code>symlink</code>-а &#8211; &#8220;мягкой ссылки&#8221;.</p>
+<p>Проще всего это объяснить используя <code>inode</code> &#8211; &#8220;<em>индексный дескриптор</em>&#8220;.</p>
+<div id="ez-toc-container" class="ez-toc-v2_0_17 counter-hierarchy counter-decimal">
+<div class="ez-toc-title-container">
+<p class="ez-toc-title">Содержание</p>
+<span class="ez-toc-title-toggle"><a class="ez-toc-pull-right ez-toc-btn ez-toc-btn-xs ez-toc-btn-default ez-toc-toggle" style="display: none;"><i class="ez-toc-glyphicon ez-toc-icon-toggle"></i></a></span></div>
+<nav><ul class="ez-toc-list ez-toc-list-level-1"><li class="ez-toc-page-1 ez-toc-heading-level-3"><a class="ez-toc-link ez-toc-heading-1" href="index.html.1.21.html#inode" title="inode">inode</a><ul class="ez-toc-list-level-4"><li class="ez-toc-heading-level-4"><a class="ez-toc-link ez-toc-heading-2" href="index.html.1.21.html#Inodes_%D0%B8_%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B0_No_Space_Left_on_Device" title="Inodes и ошибка “No Space Left on Device”">Inodes и ошибка “No Space Left on Device”</a></li></ul></li><li class="ez-toc-page-1 ez-toc-heading-level-3"><a class="ez-toc-link ez-toc-heading-3" href="index.html.1.21.html#Hard_link" title="Hard link">Hard link</a></li><li class="ez-toc-page-1 ez-toc-heading-level-3"><a class="ez-toc-link ez-toc-heading-4" href="index.html.1.21.html#Symlink" title="Symlink">Symlink</a></li><li class="ez-toc-page-1 ez-toc-heading-level-3"><a class="ez-toc-link ez-toc-heading-5" href="index.html.1.21.html#Hard_link_vs_symlink_-_%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%B2%D1%8B%D0%B5_%D1%80%D0%B0%D0%B7%D0%BB%D0%B8%D1%87%D0%B8%D1%8F" title="Hard link vs symlink – ключевые различия">Hard link vs symlink – ключевые различия</a><ul class="ez-toc-list-level-4"><li class="ez-toc-heading-level-4"><a class="ez-toc-link ez-toc-heading-6" href="index.html.1.21.html#%D0%A3%D0%B4%D0%B0%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5_%D1%81%D1%81%D1%8B%D0%BB%D0%BE%D0%BA" title="Удаление ссылок">Удаление ссылок</a></li></ul></li></ul></nav></div>
+<h3><span class="ez-toc-section" id="inode"></span><span style="color: #333399;">inode</span><span class="ez-toc-section-end"></span></h3>
+<p><code>inode</code> &#8211; это объект файловой системы, содержащий информацию о владельце/группе, которым принадлежит файл или каталог, его права доступа к нему, его размер, тип файла, <code>timestamp</code>-ы отражающие время модификации индексного дескриптора (<em><code>ctime, changing time</code></em>), время модификации содержимого файла (<em><code>mtime, modification time</code></em>) и время последнего доступа к файлу (<em><code>atime, access time</code></em>) и счётчик для учёта количества жёстких ссылок на файл. Каждый <code>inode</code> имеет собственный номер, который присваевается ему файловой системой в момент её создания (форматирования).</p>
+<p>Для примера возьмём описание файлов, где с помощью ключа <code><code></code></code><em>-i</em> команды <code>ls</code> вместо  отобразим их &#8220;номер&#8221; <code>inode</code>:</p>
+<div class="showyourterms light noanimate" data-title="Terminal">
+<div class="command" data-action="command" data-delay="400" data-speed="100">ls&nbsp;-lih&nbsp;|&nbsp;grep&nbsp;file</div><div class="line" data-delay="10" data-speed="100">475949&nbsp;-rw-r--r--&nbsp;&nbsp;1&nbsp;root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setevoy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0B&nbsp;Aug&nbsp;13&nbsp;11:51&nbsp;file1</div><div class="line" data-delay="10" data-speed="100">475950&nbsp;-rw-r--r--&nbsp;&nbsp;1&nbsp;root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setevoy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0B&nbsp;Aug&nbsp;13&nbsp;11:51&nbsp;file2</div><div class="line" data-delay="10000" data-speed="100">475951&nbsp;-rw-r--r--&nbsp;&nbsp;1&nbsp;root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setevoy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0B&nbsp;Aug&nbsp;13&nbsp;11:51&nbsp;file3</div>   </div>
+<p>Первая колонка как раз и отображает номер <code>inode</code>. Далее указываются права доступа, счётчик <code>hardlink</code>-ов на этот файл, права доступа и тип файла, пользователь, группа, размер, дата последней модификации файла и последним &#8211; его имя.</p>
+<h4><span class="ez-toc-section" id="Inodes_%D0%B8_%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B0_No_Space_Left_on_Device"></span><span style="color: #333399;">Inodes и ошибка “No Space Left on Device”</span><span class="ez-toc-section-end"></span></h4>
+<p>Немного не по общей теме поста, но полезно знать.</p>
+<p>Иногда может возникнуть &#8220;странная&#8221; ситуация: с одной стороны &#8211; <code>df</code> или <code>du</code> будут говорить, что свободное место на диске есть, а с другой стороны операционная система будет уверждать, что “<em>No Space Left on Device</em>”.</p>
+<p>Одна из вероятных причин как раз явлется полное использование пула inode, выделенных для раздела на жёстком диске, т.к. кол-во inode фиксировано и задаётся во время создания таблицы раздела.</p>
+<p>Проверить общее, занятое и доступное количество inode можно с помощью <code>df</code> и опции <code>-i</code>:</p>
+<div class="showyourterms light noanimate" data-title="Terminal">
+<div class="command" data-action="command" data-delay="400" data-speed="100">df&nbsp;-i&nbsp;/dev/sdb4</div><div class="line" data-delay="10" data-speed="100">Filesystem      Inodes IUsed   IFree IUse% Mounted on</div><div class="line" data-delay="10000" data-speed="100">dev            2042653   523&nbsp;2042130    1%&nbsp;/dev</div>   </div>
+<p>Тут для раздела <code>/dev/sdb4</code> создано <em>2.042.653</em> inode, и это же является ограничением на количество файлов и директорий, которые можно будет создать на этом разделе (но есть ещё ограничения самой файловой системы, см <a href="https://rtfm.co.ua/linux-fajlovye-sistemy-kratkij-obzor-i-sravnenie/" target="_blank" rel="noopener noreferrer">Linux: файловые системы — краткий обзор и сравнение</a>).</p>
+<h3><span class="ez-toc-section" id="Hard_link"></span><span style="color: #333399;">Hard link</span><span class="ez-toc-section-end"></span></h3>
+<p>Вернёмся к рассмотрению того, что же такое <code>hardlink</code>.</p>
+<p>По сути, &#8220;жесткая&#8221; ссылка &#8211; это тот же самый файл, на который идёт такая &#8220;ссылка&#8221;. Что бы продемонстрировать это &#8211; создадим такую ссылку при помощи команды <code>ln</code>. Синтаксис команды:</p>
+<div class="showyourterms light noanimate" data-title="Terminal">
+<div class="command" data-action="command" data-delay="10000" data-speed="100">ln&nbsp;целевой_файл&nbsp;файл_ссылка</div>   </div>
+<p>Пример &#8211; создадим файл-ссылку с именем <em><code>hardlink1</code></em>, которая будет указывать на уже существующий файл <code><code></code></code><em>file1</em>:</p>
+<div class="showyourterms light noanimate" data-title="Terminal">
+<div class="command" data-action="command" data-delay="10000" data-speed="100">ln&nbsp;file1&nbsp;hardlink1</div>   </div>
+<p>Что бы убедиться, что по сути оба файла являются одним и тем же объектом файловой системы &#8211; сравним их <code>inode</code>-номер, в данном случае &#8211; это номер <em>475949</em>:</p>
+<div class="showyourterms light noanimate" data-title="Terminal">
+<div class="command" data-action="command" data-delay="400" data-speed="100">ls&nbsp;-lih&nbsp;|&nbsp;grep&nbsp;475949</div><div class="line" data-delay="10" data-speed="100">475949&nbsp;-rw-r--r--&nbsp;&nbsp;2&nbsp;root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setevoy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0B&nbsp;Aug&nbsp;13&nbsp;11:51&nbsp;file1</div><div class="line" data-delay="10000" data-speed="100">475949&nbsp;-rw-r--r--&nbsp;&nbsp;2&nbsp;root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setevoy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0B&nbsp;Aug&nbsp;13&nbsp;11:51&nbsp;hardlink1</div>   </div>
+<p>Как видим &#8211; оба файла с разными именами, но имеют общий <code>inode</code>. Добавим ещё одну ссылку &#8211; и посмотрим на счётчик жестких ссылок:</p>
+<div class="showyourterms light noanimate" data-title="Terminal">
+<div class="command" data-action="command" data-delay="400" data-speed="100">ln&nbsp;file1&nbsp;hardlink2</div><div class="command" data-action="command" data-delay="400" data-speed="100">ls&nbsp;-lih&nbsp;|&nbsp;grep&nbsp;475949</div><div class="line" data-delay="10" data-speed="100">475949&nbsp;-rw-r--r--&nbsp;&nbsp;3&nbsp;root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setevoy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0B&nbsp;Aug&nbsp;13&nbsp;11:51&nbsp;file1</div><div class="line" data-delay="10" data-speed="100">475949&nbsp;-rw-r--r--&nbsp;&nbsp;3&nbsp;root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setevoy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0B&nbsp;Aug&nbsp;13&nbsp;11:51&nbsp;hardlink1</div><div class="line" data-delay="10000" data-speed="100">475949&nbsp;-rw-r--r--&nbsp;&nbsp;3&nbsp;root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setevoy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0B&nbsp;Aug&nbsp;13&nbsp;11:51&nbsp;hardlink2</div>   </div>
+<p>Счётчик вместо 2 теперь отображает 3.</p>
+<p>Правильнее было бы называть его не &#8220;счётчик ссылок&#8221; &#8211; а &#8220;счётчик имён файла&#8221;, так как по сути один файл хранится с разными именами.</p>
+<h3><span class="ez-toc-section" id="Symlink"></span><span style="color: #333399;">Symlink</span><span class="ez-toc-section-end"></span></h3>
+<p>Перейдём к <code>symlink</code>-ам. Создаётся такая ссылка с помощью той же команды <code>ln</code> но с ключём <em><code>-s</code></em>:</p>
+<div class="showyourterms light noanimate" data-title="Terminal">
+<div class="command" data-action="command" data-delay="10000" data-speed="100">ln&nbsp;-s&nbsp;file1&nbsp;symlink1</div>   </div>
+<p>Мы создаём новый (!) объект файловой системы с именем <em><code>symlink1</code></em>, который указывает на уже существующий файл <em><code>file1</code></em>:</p>
+<div class="showyourterms light noanimate" data-title="Terminal">
+<div class="command" data-action="command" data-delay="400" data-speed="100">ls&nbsp;-lih&nbsp;|&nbsp;grep&nbsp;sym</div><div class="line" data-delay="10000" data-speed="100">475948&nbsp;lrwxr-xr-x&nbsp;&nbsp;1&nbsp;root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setevoy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5B&nbsp;Aug&nbsp;13&nbsp;12:02&nbsp;symlink1&nbsp;-&gt;&nbsp;file1</div>   </div>
+<p>Обратите внимание на тип (или атрибут), указанный буквой <em><code>l</code></em> перед правами доступа к файлу &#8211; в данном случае он указывает на то, что этот файл является символической ссылкой на другой файл. То же самое отображается и в его имени &#8211; <em><code>symlink1 -&gt; file1</code></em>.</p>
+<p>Основные типы файлов, которые отображаются командой ls:</p>
+<ul>
+<li><code>-</code>: обычный файл</li>
+<li><code>d</code>: каталог</li>
+<li><code>l</code>: символическая ссылка</li>
+<li><code>s</code>: сокет</li>
+</ul>
+<p>Теперь &#8211; сравним <code>inode</code>-номера обоих файлов:</p>
+<div class="showyourterms light noanimate" data-title="Terminal">
+<div class="command" data-action="command" data-delay="400" data-speed="100">ls&nbsp;-li</div><div class="line" data-delay="10" data-speed="100">...</div><div class="line" data-delay="10" data-speed="100">475949&nbsp;-rw-r--r--&nbsp;&nbsp;3&nbsp;root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setevoy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;Aug&nbsp;13&nbsp;11:51&nbsp;file1</div><div class="line" data-delay="10" data-speed="100">...</div><div class="line" data-delay="10" data-speed="100">475949&nbsp;-rw-r--r--&nbsp;&nbsp;3&nbsp;root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setevoy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;Aug&nbsp;13&nbsp;11:51&nbsp;hardlink1</div><div class="line" data-delay="10" data-speed="100">475949&nbsp;-rw-r--r--&nbsp;&nbsp;3&nbsp;root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setevoy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;Aug&nbsp;13&nbsp;11:51&nbsp;hardlink2</div><div class="line" data-delay="10" data-speed="100">...</div><div class="line" data-delay="10000" data-speed="100">475948&nbsp;lrwxr-xr-x&nbsp;&nbsp;1&nbsp;root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setevoy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;Aug&nbsp;13&nbsp;12:02&nbsp;symlink1&nbsp;-&gt;&nbsp;file1</div>   </div>
+<p>Номера отличаются, так как для файловой системы это уже два независимых файла.</p>
+<h3><span class="ez-toc-section" id="Hard_link_vs_symlink_-_%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%B2%D1%8B%D0%B5_%D1%80%D0%B0%D0%B7%D0%BB%D0%B8%D1%87%D0%B8%D1%8F"></span><span style="color: #333399;">Hard link vs symlink – ключевые различия</span><span class="ez-toc-section-end"></span></h3>
+<p>Тепреь кратко рассмотрим основные раззличия при работе с жёсткими и &#8220;мягкими&#8221; ссылками:</p>
+<ul>
+<li><code>hardlink</code> не может указывать на файл в другой файловой системе (так как <code>inode</code> может принадлежать только одной ФС), а <code>symlink</code> &#8211; может.</li>
+<li>рри редактировании файла-ссылки в случае с <code>hardlink</code>-ом &#8211; изменятся оба файла, так как это один и тот же объект, а в случае с <code>symlink</code>-а  &#8211; можно изменять его имя, атрибуты, направить его на другой файл и при этом оригинальный файл не будет затронут (но учтите, что если вы откроете файл симлинка для редактирования &#8211; то измените оригинальный файл, т.к. по сути вы откроете для редактирования именно его)</li>
+<li>жёсткая ссылка не может указывать на на каталог (см. причины <a href="https://rtfm.co.ua/goto/https://askubuntu.com/a/525129/314659" target="_blank" rel="noopener noreferrer" class="broken_link">тут&gt;&gt;&gt;</a>)</li>
+</ul>
+<h4><span class="ez-toc-section" id="%D0%A3%D0%B4%D0%B0%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5_%D1%81%D1%81%D1%8B%D0%BB%D0%BE%D0%BA"></span><span style="color: #333399;">Удаление ссылок</span><span class="ez-toc-section-end"></span></h4>
+<p>При удалении <code>hardlink</code>-а &#8211; файл будет существовать до тех пор, пока есть хотя бы 1 <code>hardlink</code> на него, но может &#8220;менять каталог размещения&#8221;, если был удалён &#8220;исходный&#8221; файл, но остался файл-<code>hardlink</code> в другом месте. При удалении же файла, на который указывает <code>symlink</code> &#8211; файл-ссылка просто станет нерабочим.</p>
+<p>Например &#8211; удалим файл <em><code>file1</code></em>, на который у нас есть символическая ссылка <em><code>symlink1</code></em>:</p>
+<div class="showyourterms light noanimate" data-title="Terminal">
+<div class="command" data-action="command" data-delay="10000" data-speed="100">rm&nbsp;file1</div>   </div>
+<p>При этом сам файл симлинка остался:</p>
+<div class="showyourterms light noanimate" data-title="Terminal">
+<div class="command" data-action="command" data-delay="400" data-speed="100">ls&nbsp;-la&nbsp;|&nbsp;grep&nbsp;file1</div><div class="line" data-delay="10000" data-speed="100">lrwxr-xr-x&nbsp;&nbsp;&nbsp;1&nbsp;root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setevoy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;Aug&nbsp;13&nbsp;12:02&nbsp;symlink1&nbsp;-&gt;&nbsp;file1</div>   </div>
+<p>Но при попытке получить информацию о <em><code>file1</code></em> &#8211; получим сообщение об ошибке:</p>
+<div class="showyourterms light noanimate" data-title="Terminal">
+<div class="command" data-action="command" data-delay="400" data-speed="100">file&nbsp;file1</div><div class="line" data-delay="400" data-speed="100">file1:&nbsp;cannot&nbsp;open&nbsp;`file1'&nbsp;(No&nbsp;such&nbsp;file&nbsp;or&nbsp;directory)</div><div class="command" data-action="command" data-delay="400" data-speed="100">file&nbsp;symlink1</div><div class="line" data-delay="10000" data-speed="100">symlink1:&nbsp;broken&nbsp;symbolic&nbsp;link&nbsp;to&nbsp;`file1'</div>   </div>
+<p>В целом &#8211; на этом всё.</p>
+<div class="5ea4cde56f2f0649022d2334d16f8121" data-index="2" style="float: none; margin:10px 0 10px 0; text-align:center;">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- rtfm-fixed-after-post -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-2478728774963370"
+     data-ad-slot="9277693216"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</div>
+
+<div style="font-size: 0px; height: 0px; line-height: 0px; margin: 0; padding: 0; clear: both;"></div><div id='share-me'><ul class='share-right'><li><a href="http://www.facebook.com/sharer.php?u=https://rtfm.co.ua/unix-chto-takoe-symlink-hardlink-i-inode/&t=What+is%3A+%D1%87%D1%82%D0%BE+%D1%82%D0%B0%D0%BA%D0%BE%D0%B5+symlink%2C+hard+link+%D0%B8+inode+%D0%B2+Linux%3F" alt="Share on Facebook" title="Share on Facebook"   onclick="return smWindowpop(this.href,545,433)"><img alt = "" src = "https://rtfm.co.ua/wp-content/plugins/share-me//assets/images/cercle/facebook.png"  height="32px"  width="32px"></a></li><li><a href="http://twitter.com/share?text=What+is%3A+%D1%87%D1%82%D0%BE+%D1%82%D0%B0%D0%BA%D0%BE%D0%B5+symlink%2C+hard+link+%D0%B8+inode+%D0%B2+Linux%3F-&url=https://rtfm.co.ua/unix-chto-takoe-symlink-hardlink-i-inode/&via=RTFM: Linux, DevOps и системное администрирование" alt="Tweet This Post" title="Tweet This Post"  onclick="return smWindowpop(this.href,545,433)"><img alt = "" src = "https://rtfm.co.ua/wp-content/plugins/share-me//assets/images/cercle/twitter.png"  height="32px"  width="32px"></a></li><li><a href="https://plusone.google.com/_/+1/confirm?hl=fr-FR&url=https://rtfm.co.ua/unix-chto-takoe-symlink-hardlink-i-inode/" alt="Share on Google+" title="Share on Google+"  target="_blank" onclick="return smWindowpop(this.href,545,433)"><img alt = "" src = "https://rtfm.co.ua/wp-content/plugins/share-me//assets/images/cercle/googleplus.png"  height="32px"  width="32px"></a></li><li><a href="http://www.tumblr.com/share/photo?source=https%3A%2F%2Frtfm.co.ua%2Fwp-content%2Fuploads%2F2016%2F01%2FWhat-is-it-e1452250201867.jpg&caption=What+is%3A+%D1%87%D1%82%D0%BE+%D1%82%D0%B0%D0%BA%D0%BE%D0%B5+symlink%2C+hard+link+%D0%B8+inode+%D0%B2+Linux%3F&clickthru=https%3A%2F%2Frtfm.co.ua%2Funix-chto-takoe-symlink-hardlink-i-inode%2F" title="Share on Tumblr"  onclick="return smWindowpop(this.href,545,433)"> <img alt = "" src = "https://rtfm.co.ua/wp-content/plugins/share-me//assets/images/cercle/tumblr.png"  height="32px"  width="32px"></a></li><li><a href="http://www.linkedin.com/shareArticle?mini=true&url=https://rtfm.co.ua/unix-chto-takoe-symlink-hardlink-i-inode/&title=What+is%3A+%D1%87%D1%82%D0%BE+%D1%82%D0%B0%D0%BA%D0%BE%D0%B5+symlink%2C+hard+link+%D0%B8+inode+%D0%B2+Linux%3F&source=RTFM: Linux, DevOps и системное администрирование" onclick="return smWindowpop(this.href, 545,433)"><img alt = "" src = "https://rtfm.co.ua/wp-content/plugins/share-me//assets/images/cercle/linkedin.png"  height="32px"  width="32px"></a></li></ul></div><br/>
+<div class="wp_rp_wrap  wp_rp_plain" id="wp_rp_first"><div class="wp_rp_content"><h3 class="related_post_title">Similar posts</h3><ul class="related_post wp_rp"><li data-position="0" data-poid="in-20147" data-post-type="none" ><small class="wp_rp_publish_date">03/23/2019</small> <a href="https://rtfm.co.ua/what-is-chroot-sistemnyj-vyzov-i-utilita-v-linux/" class="wp_rp_title">What is: chroot &#8211; системный вызов и утилита в Linux</a><small class="wp_rp_comments_count"> (0)</small><br /></li><li data-position="1" data-poid="in-18294" data-post-type="none" ><small class="wp_rp_publish_date">10/20/2018</small> <a href="https://rtfm.co.ua/linux-uvelichenie-razmera-razdela-bez-lvm-s-soxraneniem-dannyx-na-ext4/" class="wp_rp_title">Linux: увеличение размера раздела без LVM с сохранением данных на ext4</a><small class="wp_rp_comments_count"> (0)</small><br /></li><li data-position="2" data-poid="in-12183" data-post-type="none" ><small class="wp_rp_publish_date">03/06/2017</small> <a href="https://rtfm.co.ua/azure-pochemu-nikogda/" class="wp_rp_title">[UPD 25] Azure: почему никогда</a><small class="wp_rp_comments_count"> (5)</small><br /></li><li data-position="3" data-poid="in-10139" data-post-type="none" ><small class="wp_rp_publish_date">02/17/2016</small> <a href="https://rtfm.co.ua/linux-strace-otslezhivaem-vypolnenie-processa/" class="wp_rp_title">Linux: strace &#8211; отслеживаем выполнение процесса</a><small class="wp_rp_comments_count"> (0)</small><br /></li><li data-position="4" data-poid="in-8189" data-post-type="none" ><small class="wp_rp_publish_date">10/06/2015</small> <a href="https://rtfm.co.ua/linux-fajlovye-sistemy-kratkij-obzor-i-sravnenie/" class="wp_rp_title">Linux: файловые системы &#8211; краткий обзор и сравнение</a><small class="wp_rp_comments_count"> (4)</small><br /></li></ul></div></div>											</div><!-- .entry-content -->
+		
+	<footer class="entry-meta">
+					<span>Раздел: <a href="https://rtfm.co.ua/category/operating-systems-ru/" rel="category tag">Operating systems</a> <a href="https://rtfm.co.ua/category/operating-systems-ru/linux-ru/" rel="category tag">UNIX/Linux</a> <a href="https://rtfm.co.ua/category/what-is-ru/" rel="category tag">What is?</a> <a href="https://rtfm.co.ua/category/troubleshooting-ru/" rel="category tag">Проблемы и решения</a></span>
+								<span>Метки: <a href="https://rtfm.co.ua/tag/filesystem/" rel="tag">filesystem</a>, <a href="https://rtfm.co.ua/tag/inode/" rel="tag">inode</a>, <a href="https://rtfm.co.ua/tag/linux/" rel="tag">Linux</a>, <a href="https://rtfm.co.ua/tag/unix/" rel="tag">unix</a></span>
+			
+           						</footer><!-- .entry-meta -->
+	</article><!-- #post -->
+				<nav class="nav-single">
+
+					<!-- views -->
+					<div class="postmeta">Tags: <a href="https://rtfm.co.ua/tag/filesystem/" rel="tag">filesystem</a>, <a href="https://rtfm.co.ua/tag/inode/" rel="tag">inode</a>, <a href="https://rtfm.co.ua/tag/linux/" rel="tag">Linux</a>, <a href="https://rtfm.co.ua/tag/unix/" rel="tag">unix</a><br /><img src="https://rtfm.co.ua/wp-content/pics/ye.jpg" />57&nbsp;073 views</div>
+					<!-- #views -->
+
+					<div class="assistive-text">Навигация по записям</div>
+					<span class="nav-previous"><a href="https://rtfm.co.ua/teg-pre-i-perenos-strok/" rel="prev"><span class="meta-nav">&larr;</span> Тег pre и перенос строк</a></span>
+					<span class="nav-next"><a href="https://rtfm.co.ua/freebsd-cant-locate-dbi-pm-in-inc/" rel="next">FreeBSD: Can&#039;t locate DBI.pm in @INC <span class="meta-nav">&rarr;</span></a></span>
+				</nav><!-- .nav-single -->
+
+				
+<div id="disqus_thread"></div>
+
+			
+		</div><!-- #content -->
+	</div><!-- #primary -->
+
+
+			<div id="secondary" class="widget-area" role="complementary">
+			<aside id="polylang-2" class="widget widget_polylang"><ul>
+	<li class="lang-item lang-item-1273 lang-item-en lang-item-first"><a  lang="en-US" hreflang="en-US" href="https://rtfm.co.ua/en/what-is-hard-link-symlink-and-inode-in-linux/"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAALCAMAAABBPP0LAAAAmVBMVEViZsViZMJiYrf9gnL8eWrlYkjgYkjZYkj8/PujwPybvPz4+PetraBEgfo+fvo3efkydfkqcvj8Y2T8UlL8Q0P8MzP9k4Hz8/Lu7u4DdPj9/VrKysI9fPoDc/EAZ7z7IiLHYkjp6ekCcOTk5OIASbfY/v21takAJrT5Dg6sYkjc3Nn94t2RkYD+y8KeYkjs/v7l5fz0dF22YkjWvcOLAAAAgElEQVR4AR2KNULFQBgGZ5J13KGGKvc/Cw1uPe62eb9+Jr1EUBFHSgxxjP2Eca6AfUSfVlUfBvm1Ui1bqafctqMndNkXpb01h5TLx4b6TIXgwOCHfjv+/Pz+5vPRw7txGWT2h6yO0/GaYltIp5PT1dEpLNPL/SdWjYjAAZtvRPgHJX4Xio+DSrkAAAAASUVORK5CYII=" alt="English" width="16" height="11" style="width: 16px; height: 11px;" /><span style="margin-left:0.3em;">English</span></a></li>
+</ul>
+</aside><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- rtfm-text-widget-fixed-300-250-ru -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:300px;height:250px"
+     data-ad-client="ca-pub-2478728774963370"
+     data-ad-slot="5739111688"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script><aside id="search-2" class="widget widget_search"><div id='ajaxsearchlite1' class="wpdreams_asl_container asl_w asl_m asl_m_1">
+<div class="probox">
+
+    
+    <div class='promagnifier'>
+                <div class='innericon'>
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="22" height="22" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
+                <path d="M460.355,421.59L353.844,315.078c20.041-27.553,31.885-61.437,31.885-98.037
+                    C385.729,124.934,310.793,50,218.686,50C126.58,50,51.645,124.934,51.645,217.041c0,92.106,74.936,167.041,167.041,167.041
+                    c34.912,0,67.352-10.773,94.184-29.158L419.945,462L460.355,421.59z M100.631,217.041c0-65.096,52.959-118.056,118.055-118.056
+                    c65.098,0,118.057,52.959,118.057,118.056c0,65.096-52.959,118.056-118.057,118.056C153.59,335.097,100.631,282.137,100.631,217.041
+                    z"/>
+            </svg>
+        </div>
+    </div>
+
+    
+    
+    <div class='prosettings' style='display:none;' data-opened=0>
+                <div class='innericon'>
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="22" height="22" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
+                <polygon transform = "rotate(90 256 256)" points="142.332,104.886 197.48,50 402.5,256 197.48,462 142.332,407.113 292.727,256 "/>
+            </svg>
+        </div>
+    </div>
+
+    
+    
+    <div class='proinput'>
+        <form autocomplete="off" aria-label='Ajax search form'>
+            <input aria-label='Search input' type='search' class='orig' name='phrase' placeholder='Search here..' value='' autocomplete="off"/>
+            <input aria-label='Autocomplete input, do not use this' type='text' class='autocomplete' name='phrase' value='' autocomplete="off"/>
+            <input type='submit' value="Start search" style='width:0; height: 0; visibility: hidden;'>
+        </form>
+    </div>
+
+    
+    
+    <div class='proloading'>
+
+        <div class="asl_loader"><div class="asl_loader-inner asl_simple-circle"></div></div>
+
+            </div>
+
+            <div class='proclose'>
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+                 y="0px"
+                 width="12" height="12" viewBox="0 0 512 512" enable-background="new 0 0 512 512"
+                 xml:space="preserve">
+            <polygon points="438.393,374.595 319.757,255.977 438.378,137.348 374.595,73.607 255.995,192.225 137.375,73.622 73.607,137.352 192.246,255.983 73.622,374.625 137.352,438.393 256.002,319.734 374.652,438.378 "/>
+        </svg>
+        </div>
+    
+    
+</div>
+</div>
+
+
+<div id='ajaxsearchlitesettings1' class="searchsettings wpdreams_asl_settings asl_w asl_s asl_s_1">
+    <form name='options' autocomplete='off'>
+
+        
+        
+		<div class="asl_option_inner hiddend">
+			<input type='hidden' name='qtranslate_lang' id='qtranslate_lang1'
+				   value='0'/>
+		</div>
+
+		
+					<div class="asl_option_inner hiddend">
+				<input type='hidden' name='polylang_lang'
+					   value='ru'/>
+			</div>
+		
+        <fieldset class="asl_sett_scroll">
+            <legend style="display: none;">Generic selectors</legend>
+            <div class="asl_option">
+                <div class="asl_option_inner">
+                    <input type="checkbox" value="exact" id="set_exactonly1"
+                           title="Exact matches only"
+                           name="asl_gen[]" />
+                    <label for="set_exactonly1">Exact matches only</label>
+                </div>
+                <div class="asl_option_label">
+                    Exact matches only                </div>
+            </div>
+            <div class="asl_option">
+                <div class="asl_option_inner">
+                    <input type="checkbox" value="title" id="set_intitle1"
+                           title="Search in title"
+                           name="asl_gen[]"  checked="checked"/>
+                    <label for="set_intitle1">Search in title</label>
+                </div>
+                <div class="asl_option_label">
+                    Search in title                </div>
+            </div>
+            <div class="asl_option">
+                <div class="asl_option_inner">
+                    <input type="checkbox" value="content" id="set_incontent1"
+                           title="Search in content"
+                           name="asl_gen[]"  checked="checked"/>
+                    <label for="set_incontent1">Search in content</label>
+                </div>
+                <div class="asl_option_label">
+                    Search in content                </div>
+            </div>
+            <div class="asl_option_inner hiddend">
+                <input type="checkbox" value="excerpt" id="set_inexcerpt1"
+                       title="Search in excerpt"
+                       name="asl_gen[]"  checked="checked"/>
+                <label for="set_inexcerpt1">Search in excerpt</label>
+            </div>
+		</fieldset>
+		<fieldset class="asl_sett_scroll">
+            				<div class="asl_option_inner hiddend">
+					<input type="checkbox" value="post"
+						   id="1customset_11"
+						   title="Hidden option, ignore please"
+						   name="customset[]" checked="checked"/>
+					<label for="1customset_11">Hidden</label>
+				</div>
+				<div class="asl_option_label hiddend"></div>
+
+								<div class="asl_option_inner hiddend">
+					<input type="checkbox" value="page"
+						   id="1customset_12"
+						   title="Hidden option, ignore please"
+						   name="customset[]" checked="checked"/>
+					<label for="1customset_12">Hidden</label>
+				</div>
+				<div class="asl_option_label hiddend"></div>
+
+				        </fieldset>
+            </form>
+</div>
+
+<div id='ajaxsearchliteres1' class='vertical wpdreams_asl_results asl_w asl_r asl_r_1'>
+
+    
+    <div class="results">
+
+        
+            <div class="resdrg">
+            </div>
+
+        
+    </div>
+
+    
+                    <p class='showmore'>
+            <a>More results...</a>
+        </p>
+        
+</div>
+
+    <div id="asl_hidden_data">
+        <svg style="position:absolute" height="0" width="0">
+            <filter id="aslblur">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="4"/>
+            </filter>
+        </svg>
+        <svg style="position:absolute" height="0" width="0">
+            <filter id="no_aslblur"></filter>
+        </svg>
+
+    </div>
+
+<div class="asl_init_data wpdreams_asl_data_ct" style="display:none !important;" id="asl_init_id_1" data-asldata="ew0KICAgICAgICAiaG9tZXVybCI6ICJodHRwczovL3J0Zm0uY28udWEvIiwNCiAgICAgICAgInJlc3VsdHN0eXBlIjogInZlcnRpY2FsIiwNCiAgICAicmVzdWx0c3Bvc2l0aW9uIjogImhvdmVyIiwNCiAgICAiaXRlbXNjb3VudCI6IDQsDQogICAgImltYWdld2lkdGgiOiA3MCwNCiAgICAiaW1hZ2VoZWlnaHQiOiA3MCwNCiAgICAicmVzdWx0aXRlbWhlaWdodCI6ICI3MHB4IiwNCiAgICAic2hvd2F1dGhvciI6IDAsDQogICAgInNob3dkYXRlIjogMSwNCiAgICAic2hvd2Rlc2NyaXB0aW9uIjogMSwNCiAgICAiY2hhcmNvdW50IjogIDAsDQogICAgImRlZmF1bHRJbWFnZSI6ICJodHRwczovL3J0Zm0uY28udWEvd3AtY29udGVudC9wbHVnaW5zL2FqYXgtc2VhcmNoLWxpdGUvaW1nL2RlZmF1bHQuanBnIiwNCiAgICAiaGlnaGxpZ2h0IjogMSwNCiAgICAiaGlnaGxpZ2h0d2hvbGV3b3JkcyI6IDAsDQoJInNpbmdsZUhpZ2hsaWdodCI6IDAsDQogICAgInNjcm9sbFRvUmVzdWx0cyI6IDAsDQogICAgInJlc3VsdGFyZWFjbGlja2FibGUiOiAxLA0KICAgICJhdXRvY29tcGxldGUiOiB7DQogICAgICAgICJlbmFibGVkIiA6IDEsDQogICAgICAgICJsYW5nIiA6ICJlbiINCiAgICB9LA0KCSJtb2JpbGUiOiB7DQoJCSJtZW51X3NlbGVjdG9yIjogIiNtZW51LXRvZ2dsZSINCgl9LA0KICAgICJ0cmlnZ2Vyb250eXBlIjogMSwNCiAgICAidHJpZ2dlcl9vbl9jbGljayI6IDAsDQogICAgInRyaWdnZXJfb25fZmFjZXRfY2hhbmdlIjogMSwNCiAgICAic2V0dGluZ3NpbWFnZXBvcyI6ICJyaWdodCIsDQogICAgImhyZXN1bHRhbmltYXRpb24iOiAiZngtbm9uZSIsDQogICAgInZyZXN1bHRhbmltYXRpb24iOiAiZngtbm9uZSIsDQogICAgImhyZXN1bHRoaWRlZGVzYyI6ICIxIiwNCiAgICAicHJlc2NvbnRhaW5lcmhlaWdodCI6ICI0MDBweCIsDQogICAgInBzaG93c3VidGl0bGUiOiAiMCIsDQogICAgInBzaG93ZGVzYyI6ICIxIiwNCiAgICAiY2xvc2VPbkRvY0NsaWNrIjogMSwNCiAgICAiaWlmTm9JbWFnZSI6ICJkZXNjcmlwdGlvbiIsDQogICAgImlpUm93cyI6IDIsDQogICAgImlpdGVtc1dpZHRoIjogMjAwLA0KICAgICJpaXRlbXNIZWlnaHQiOiAyMDAsDQogICAgImlpc2hvd092ZXJsYXkiOiAxLA0KICAgICJpaWJsdXJPdmVybGF5IjogMSwNCiAgICAiaWloaWRlQ29udGVudCI6IDEsDQogICAgImlpYW5pbWF0aW9uIjogIjEiLA0KICAgICJhbmFseXRpY3MiOiAiMCIsDQogICAgImFuYWx5dGljc1N0cmluZyI6ICIiLA0KICAgICJyZWRpcmVjdG9uY2xpY2siOiAxLA0KICAgICJyZWRpcmVjdENsaWNrVG8iOiAicmVzdWx0c19wYWdlIiwNCiAgICAicmVkaXJlY3RDbGlja0xvYyI6ICJzYW1lIiwNCiAgICAicmVkaXJlY3Rfb25fZW50ZXIiOiAxLA0KICAgICJyZWRpcmVjdEVudGVyVG8iOiAicmVzdWx0c19wYWdlIiwNCiAgICAicmVkaXJlY3RFbnRlckxvYyI6ICJzYW1lIiwNCiAgICAicmVkaXJlY3RfdXJsIjogIj9zPXtwaHJhc2V9IiwNCiAgICAib3ZlcnJpZGV3cGRlZmF1bHQiOiAwLA0KICAgICJvdmVycmlkZV9tZXRob2QiOiAiZ2V0Ig0KfQ0K"></div>
+</aside><aside id="custom_html-2" class="widget_text widget widget_custom_html"><div class="textwidget custom-html-widget"><script>
+  (function() {
+    var cx = '002649963230055469602:qe1halekq5u';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search></div></aside><aside id="social-widget-2" class="widget Social_Widget"><div class="socialmedia-buttons smw_left"><a href="https://www.facebook.com/rtfmua/" rel="nofollow" target="_blank"><img width="30" height="30" src="https://rtfm.co.ua/wp-content/plugins/social-media-widget/images/default/32/facebook.png" 
+				alt="Follow Us on Facebook" 
+				title="Follow Us on Facebook" style="opacity: 0.8; -moz-opacity: 0.8;" class="fade" /></a><a href="https://twitter.com/rtfm_ua" rel="nofollow" target="_blank"><img width="30" height="30" src="https://rtfm.co.ua/wp-content/plugins/social-media-widget/images/default/32/twitter.png" 
+				alt="Follow Us on Twitter" 
+				title="Follow Us on Twitter" style="opacity: 0.8; -moz-opacity: 0.8;" class="fade" /></a><a href="https://vk.com/rtfmua" rel="nofollow" target="_blank"><img width="30" height="30" src="https://rtfm.co.ua/wp-content/plugins/social-media-widget/images/default/32/vk.png" 
+				alt="Follow Us on VK" 
+				title="Follow Us on VK" style="opacity: 0.8; -moz-opacity: 0.8;" class="fade" /></a><a href="https://github.com/setevoy2/rtfm" rel="nofollow" target="_blank"><img width="30" height="30" src="https://rtfm.co.ua/wp-content/plugins/social-media-widget/images/default/32/github.png" 
+				alt="Follow Us on Github" 
+				title="Follow Us on Github" style="opacity: 0.8; -moz-opacity: 0.8;" class="fade" /></a><a href="https://rtfm.co.ua/feed" rel="nofollow" target="_blank"><img width="30" height="30" src="https://rtfm.co.ua/wp-content/plugins/social-media-widget/images/default/32/rss.png" 
+				alt="Follow Us on RSS" 
+				title="Follow Us on RSS" style="opacity: 0.8; -moz-opacity: 0.8;" class="fade" /></a><a href="https://dev.to/setevoy" rel="nofollow" target="_blank"><img width="30" height="30" src="https://d2fltix0v2e0sb.cloudfront.net/dev-badge.svg" 
+				alt="Follow Us on Dev.to" 
+				title="Follow Us on Dev.to" style="opacity: 0.8; -moz-opacity: 0.8;" class="fade" /></a><a href="https://t.me/rtfmcoua" rel="nofollow" target="_blank"><img width="30" height="30" src="https://rtfm.co.ua/uploads/telegram_logo.jpeg" 
+				alt="Follow Us on Telegram" 
+				title="Follow Us on Telegram" style="opacity: 0.8; -moz-opacity: 0.8;" class="fade" /></a></div></aside><aside id="wp_related_posts_widget" class="widget widget_wp_related_posts">
+<div class="wp_rp_wrap  wp_rp_plain" ><div class="wp_rp_content"><p class="widget-title">Similar posts</p><ul class="related_post wp_rp"><li data-position="0" data-poid="in-20147" data-post-type="none" ><small class="wp_rp_publish_date">03/23/2019</small> <a href="https://rtfm.co.ua/what-is-chroot-sistemnyj-vyzov-i-utilita-v-linux/" class="wp_rp_title">What is: chroot &#8211; системный вызов и утилита в Linux</a><small class="wp_rp_comments_count"> (0)</small><br /></li><li data-position="1" data-poid="in-18294" data-post-type="none" ><small class="wp_rp_publish_date">10/20/2018</small> <a href="https://rtfm.co.ua/linux-uvelichenie-razmera-razdela-bez-lvm-s-soxraneniem-dannyx-na-ext4/" class="wp_rp_title">Linux: увеличение размера раздела без LVM с сохранением данных на ext4</a><small class="wp_rp_comments_count"> (0)</small><br /></li><li data-position="2" data-poid="in-12183" data-post-type="none" ><small class="wp_rp_publish_date">03/06/2017</small> <a href="https://rtfm.co.ua/azure-pochemu-nikogda/" class="wp_rp_title">[UPD 25] Azure: почему никогда</a><small class="wp_rp_comments_count"> (5)</small><br /></li><li data-position="3" data-poid="in-10139" data-post-type="none" ><small class="wp_rp_publish_date">02/17/2016</small> <a href="https://rtfm.co.ua/linux-strace-otslezhivaem-vypolnenie-processa/" class="wp_rp_title">Linux: strace &#8211; отслеживаем выполнение процесса</a><small class="wp_rp_comments_count"> (0)</small><br /></li><li data-position="4" data-poid="in-8189" data-post-type="none" ><small class="wp_rp_publish_date">10/06/2015</small> <a href="https://rtfm.co.ua/linux-fajlovye-sistemy-kratkij-obzor-i-sravnenie/" class="wp_rp_title">Linux: файловые системы &#8211; краткий обзор и сравнение</a><small class="wp_rp_comments_count"> (4)</small><br /></li></ul></div></div>
+</aside><aside id="nav_menu-2" class="widget widget_nav_menu"><p class="widget-title">DevOops</p><div class="menu-devoops-ru-container"><ul id="menu-devoops-ru" class="menu"><li id="menu-item-9600" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-9600"><a title="Continuous Integration tools — Atlassian Bamboo, Teamcity, Jenkins etc." href="https://rtfm.co.ua/category/ci-cd-ru/">CI/CD</a>
+<ul class="sub-menu">
+	<li id="menu-item-9670" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9670"><a title="Continuous Integration сервер Jenkins" href="https://rtfm.co.ua/category/ci-cd-ru/jenkins-ru/">Jenkins</a></li>
+	<li id="menu-item-9603" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9603"><a title="Continuous Integration сервер Atlassian Bamboo" href="https://rtfm.co.ua/category/ci-cd-ru/bamboo-ru/">Bamboo</a></li>
+	<li id="menu-item-9606" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9606"><a title="Continuous Integration сервер TeamCity" href="https://rtfm.co.ua/category/ci-cd-ru/teamcity-ru/">TeamCity</a></li>
+	<li id="menu-item-11595" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-11595"><a href="https://rtfm.co.ua/category/ci-cd-ru/travis-ru/">Travis</a></li>
+	<li id="menu-item-9612" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9612"><a title="Система непрерывной доставки и развёртывания Go CD" href="https://rtfm.co.ua/category/configuration-orchestration-ru/go_cd-ru/">GoCD</a></li>
+	<li id="menu-item-26003" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-26003"><a href="https://rtfm.co.ua/category/ci-cd-ru/argocd/">ArgoCD</a></li>
+</ul>
+</li>
+<li id="menu-item-9703" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-9703"><a title="Вопросы, касающиеся работы с CMS (Configuration Manament System &#8211; система управления конфигурациями) &#8211; Puppet, Ansible, Chef" href="https://rtfm.co.ua/category/configuration-orchestration-ru/">Configuration/Orchestration</a>
+<ul class="sub-menu">
+	<li id="menu-item-9706" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9706"><a title="Configuration Management System Ansible — описание, настройка, примеры" href="https://rtfm.co.ua/category/configuration-orchestration-ru/ansible-ru/">Ansible</a></li>
+	<li id="menu-item-9709" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9709"><a title="Configuration Management System Chef — описание, настройка, примеры" href="https://rtfm.co.ua/category/configuration-orchestration-ru/chef-ru/">Chef</a></li>
+	<li id="menu-item-9710" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9710"><a title="Configuration Management System Puppet — описание, настройка, примеры" href="https://rtfm.co.ua/category/configuration-orchestration-ru/puppet-ru/">Puppet</a></li>
+	<li id="menu-item-9702" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9702"><a title="Система непрерывной доставки и развёртывания Terraform" href="https://rtfm.co.ua/category/configuration-orchestration-ru/terraform-ru/">Terraform</a></li>
+	<li id="menu-item-19663" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-19663"><a href="https://rtfm.co.ua/category/configuration-orchestration-ru/aws-cloudformation-ru/">AWS CloudFormation</a></li>
+</ul>
+</li>
+<li id="menu-item-9899" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-9899"><a title="Примеры работы с Version Control System &#8211; Системами Контроля Версиями, такими как SVN, Git, Mercurial и другие." href="https://rtfm.co.ua/category/vcs-svn-git-ru/">Version Control System</a>
+<ul class="sub-menu">
+	<li id="menu-item-9898" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9898"><a title="Примеры работы с Version Control System &#8211; Системой Контроля Версиями Git" href="https://rtfm.co.ua/category/vcs-svn-git-ru/git-ru/">Git</a></li>
+	<li id="menu-item-9900" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9900"><a title="Примеры работы с Version Control System &#8211; Системой Контроля Версиями SVN" href="https://rtfm.co.ua/category/vcs-svn-git-ru/svn-ru/">SVN</a></li>
+</ul>
+</li>
+<li id="menu-item-9699" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-9699"><a title="Инструменты для сборки и компиляции проектов на различных языках программирования" href="https://rtfm.co.ua/category/build_tools_ru/">Build tools</a>
+<ul class="sub-menu">
+	<li id="menu-item-12852" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-12852"><a href="https://rtfm.co.ua/category/build_tools_ru/packer-ru/">Packer</a></li>
+	<li id="menu-item-9701" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9701"><a title="Платформа сборки проекта Apache Maven" href="https://rtfm.co.ua/category/build_tools_ru/apache-maven-ru/">Apache Maven</a></li>
+	<li id="menu-item-9704" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9704"><a title="Платформа сборки проекта Apache Maven" href="https://rtfm.co.ua/category/build_tools_ru/msbuild-ru/">MSBuild</a></li>
+</ul>
+</li>
+<li id="menu-item-9541" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9541"><a title="Установка и использвание системы управления проектами Jira и вики Confluence" href="https://rtfm.co.ua/category/jira-ru/">Jira/Confluence</a></li>
+<li id="menu-item-11875" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-11875"><a href="https://rtfm.co.ua/category/setups-ru/">Setups</a></li>
+</ul></div></aside><aside id="nav_menu-3" class="widget widget_nav_menu"><p class="widget-title">Operating systems</p><div class="menu-operating-systems-ru-container"><ul id="menu-operating-systems-ru" class="menu"><li id="menu-item-9582" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-has-children menu-item-9582"><a title="Вопросы, касающиеся работы операционных систем GNU/Linux" href="https://rtfm.co.ua/category/operating-systems-ru/linux-ru/">Linux</a>
+<ul class="sub-menu">
+	<li id="menu-item-11687" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-11687"><a href="https://rtfm.co.ua/category/operating-systems-ru/linux-ru/arch_linux-ru/">Arch Linux</a></li>
+	<li id="menu-item-9592" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9592"><a title="Вопросы, касающиеся работы операционной системы Debian" href="https://rtfm.co.ua/category/operating-systems-ru/linux-ru/debian-ru/">Debian</a></li>
+	<li id="menu-item-9855" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9855"><a title="Вопросы, касающиеся работы операционной системы CentOS" href="https://rtfm.co.ua/category/operating-systems-ru/linux-ru/centos-ru/">CentOS</a></li>
+	<li id="menu-item-9585" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9585"><a title="Вопросы, касающиеся работы операционной системы Ubuntu" href="https://rtfm.co.ua/category/operating-systems-ru/linux-ru/ubuntu-ru/">Ubuntu</a></li>
+	<li id="menu-item-11881" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-11881"><a href="https://rtfm.co.ua/category/operating-systems-ru/linux-ru/suse-ru/">SUSE</a></li>
+</ul>
+</li>
+<li id="menu-item-9856" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9856"><a title="Вопросы, касающиеся работы операционной системы FreeBSD" href="https://rtfm.co.ua/category/operating-systems-ru/linux-ru/bsd-ru/">*BSD</a></li>
+<li id="menu-item-9540" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9540"><a title="Вопросы, касающиеся работы операционной системы OS X" href="https://rtfm.co.ua/category/operating-systems-ru/linux-ru/macos-ru/">macOS</a></li>
+<li id="menu-item-9538" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9538"><a title="Вопросы, касающиеся работы операционной системы Windows" href="https://rtfm.co.ua/category/operating-systems-ru/windows-ru/">Windows</a></li>
+</ul></div></aside><aside id="nav_menu-4" class="widget widget_nav_menu"><p class="widget-title">main()</p><div class="menu-main-ru-container"><ul id="menu-main-ru" class="menu"><li id="menu-item-9572" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9572"><a title="Вопросы, касаюшиеся установки и настройки различных приложений." href="https://rtfm.co.ua/category/howtos-ru/">HOWTO&#8217;s</a></li>
+<li id="menu-item-10489" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-10489"><a href="https://rtfm.co.ua/category/what-is-ru/">What is?</a></li>
+<li id="menu-item-9587" class="menu-item menu-item-type-taxonomy menu-item-object-category current-post-ancestor current-menu-parent current-post-parent menu-item-9587"><a title="Описания различных проблем и способы их решения" href="https://rtfm.co.ua/category/troubleshooting-ru/">Troubleshooting</a></li>
+<li id="menu-item-9848" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-9848"><a title="Всё, связанное с виртуализацией &#8211; VMware, VCloud, ESX(i), VirtualBox и другие системы" href="https://rtfm.co.ua/category/virtualization-ru/">Virtualization</a>
+<ul class="sub-menu">
+	<li id="menu-item-9864" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9864"><a title="Работа с Amazon Web Services &#8211; EC2, Route53, S3, VPC etc." href="https://rtfm.co.ua/category/virtualization-ru/amazon-web-services-ru/">AWS</a></li>
+	<li id="menu-item-9908" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9908"><a title="Azure — облачные решения от Microsoft" href="https://rtfm.co.ua/category/virtualization-ru/azure-ru/">Azure</a></li>
+	<li id="menu-item-9865" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9865"><a title="Вопросы, касающиеся установки, настройки и работы Docker" href="https://rtfm.co.ua/category/virtualization-ru/docker-ru/">Docker</a></li>
+	<li id="menu-item-22378" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-22378"><a href="https://rtfm.co.ua/category/virtualization-ru/kubernetes-ru/">Kubernetes</a></li>
+	<li id="menu-item-9866" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9866"><a title="Вопросы, касающиеся установки, настройки и работы Vagrant" href="https://rtfm.co.ua/category/virtualization-ru/vagrant-ru/">Vagrant</a></li>
+	<li id="menu-item-9907" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9907"><a title="Настройка и управление системой виртуализации VirtualBox" href="https://rtfm.co.ua/category/virtualization-ru/virtualbox-ru/">VirtualBox</a></li>
+	<li id="menu-item-9880" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9880"><a title="VMware vCloud Suite и vSphere ESXi Hypervisor" href="https://rtfm.co.ua/category/virtualization-ru/vmware_vcloud_vsphere-ru/">VMware</a></li>
+</ul>
+</li>
+<li id="menu-item-9640" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-9640"><a title="Настройка, администрирвание HTTP/S серверов и сервлетов" href="https://rtfm.co.ua/category/http_servers-ru/">Web servers</a>
+<ul class="sub-menu">
+	<li id="menu-item-9649" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9649"><a title="Установка и настройка web-сервера NGINX" href="https://rtfm.co.ua/category/http_servers-ru/nginx-3-ru/">NGINX</a></li>
+	<li id="menu-item-9643" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9643"><a title="Установка и настройка web-сервера Apache" href="https://rtfm.co.ua/category/http_servers-ru/apache-http-server-ru/">Apache HTTP Server</a></li>
+	<li id="menu-item-9646" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9646"><a title="Установка и настройка контейнера сервлетов Apache Tomcat" href="https://rtfm.co.ua/category/http_servers-ru/apache-tomcat-ru/">Apache Tomcat</a></li>
+</ul>
+</li>
+<li id="menu-item-9624" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-9624"><a title="RDBMS/NoSQL сервера" href="https://rtfm.co.ua/category/rdbms_nosql-ru/">Databases</a>
+<ul class="sub-menu">
+	<li id="menu-item-9629" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9629"><a title="Установка и настройка серверов баз данных MySQL и MariaDB" href="https://rtfm.co.ua/category/rdbms_nosql-ru/mysql-mariadb-ru/">MySQL/MariaDB</a></li>
+	<li id="menu-item-16207" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-16207"><a href="https://rtfm.co.ua/category/rdbms_nosql-ru/postgresql-ru/">PostgreSQL</a></li>
+	<li id="menu-item-9626" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9626"><a title="Установка, настройка, управление NoSQL сервера баз данных Apache Cassandra" href="https://rtfm.co.ua/category/rdbms_nosql-ru/apache_cassandra-ru/">Apache Cassandra</a></li>
+	<li id="menu-item-21484" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-21484"><a href="https://rtfm.co.ua/category/rdbms_nosql-ru/redis-ru/">Redis</a></li>
+	<li id="menu-item-12223" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-12223"><a href="https://rtfm.co.ua/category/rdbms_nosql-ru/mssql-ru/">MSSQL</a></li>
+	<li id="menu-item-9722" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9722"><a title="Lightweight Directory Access Protocol &#8211; легковесный протокол для доступа к службе каталога" href="https://rtfm.co.ua/category/rdbms_nosql-ru/ldap-ru/">LDAP/OpenLDAP</a></li>
+</ul>
+</li>
+<li id="menu-item-9678" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-9678"><a title="Мониторинг серверов, сетей и оборудования" href="https://rtfm.co.ua/category/monitoring-ru/">Monitoring</a>
+<ul class="sub-menu">
+	<li id="menu-item-15093" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-15093"><a href="https://rtfm.co.ua/category/monitoring-ru/prometheus-ru/">Prometheus</a></li>
+	<li id="menu-item-17750" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-17750"><a href="https://rtfm.co.ua/category/monitoring-ru/grafana-ru/">Grafana</a>
+	<ul class="sub-menu">
+		<li id="menu-item-18954" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-18954"><a href="https://rtfm.co.ua/category/monitoring-ru/loki-ru/">Loki</a></li>
+	</ul>
+</li>
+	<li id="menu-item-9680" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9680"><a title="Вопросы, касающиеся настройки и работы системы мониторинга Nagios" href="https://rtfm.co.ua/category/monitoring-ru/nagios-ru/">Nagios</a></li>
+	<li id="menu-item-9682" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9682"><a title="Вопросы, касающиеся настройки и работы системы мониторинга Zabbix" href="https://rtfm.co.ua/category/monitoring-ru/zabbix-ru/">Zabbix</a></li>
+</ul>
+</li>
+<li id="menu-item-9663" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-9663"><a title="Вопросы, касающиеся работы почтовых серверов Dovecot, Postfix, Exim, Sendmail etc" href="https://rtfm.co.ua/category/mail-servers-ri/">Email</a>
+<ul class="sub-menu">
+	<li id="menu-item-9669" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9669"><a title="SMTP сервер Exim" href="https://rtfm.co.ua/category/mail-servers-ri/exim-ru/">Exim</a></li>
+	<li id="menu-item-9667" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9667"><a title="POP3/IMAP сервер Dovecot" href="https://rtfm.co.ua/category/mail-servers-ri/dovecot-ru/">Dovecot</a></li>
+	<li id="menu-item-9672" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9672"><a title="SMTP сервер Postfix" href="https://rtfm.co.ua/category/mail-servers-ri/postfix-ru/">Postfix</a></li>
+	<li id="menu-item-9674" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9674"><a title="SpamAssassin &#8211; анти-спам система" href="https://rtfm.co.ua/category/mail-servers-ri/antispam-ru/">SpamAssassin</a></li>
+</ul>
+</li>
+<li id="menu-item-9887" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-9887"><a title="Безопасность ОС и стеевая безопасность" href="https://rtfm.co.ua/category/security-ru/">Security</a>
+<ul class="sub-menu">
+	<li id="menu-item-22367" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-22367"><a href="https://rtfm.co.ua/category/security-ru/sso/">SSO</a></li>
+	<li id="menu-item-9846" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9846"><a title="Вопросы, касающиеся шифрования SSH/SSl/TLS" href="https://rtfm.co.ua/category/security-ru/sshssltls-ru/">SSH/SSL/TLS</a></li>
+</ul>
+</li>
+<li id="menu-item-9427" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-9427"><a title="Вопросы, касающиеся работы сетей, интернета, различного программного обеспечения и устройств, связанных с сетями." href="https://rtfm.co.ua/category/networking-ru/">Networking</a>
+<ul class="sub-menu">
+	<li id="menu-item-10313" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-10313"><a href="https://rtfm.co.ua/category/networking-ru/bind-ru/">DNS/BIND</a></li>
+	<li id="menu-item-9542" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9542"><a href="https://rtfm.co.ua/category/networking-ru/openvpn-ru/">OpenVPN</a></li>
+</ul>
+</li>
+<li id="menu-item-9684" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-9684"><a title="CMS (Content Managment System) и web-фреймворки" href="https://rtfm.co.ua/category/cmsweb-frameworks-ru/">Content Management Systems</a>
+<ul class="sub-menu">
+	<li id="menu-item-9686" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9686"><a title="Вопросы, касающиеся разработки веб-приложений с использованием фреймворка Django" href="https://rtfm.co.ua/category/cmsweb-frameworks-ru/django-ru/">Django</a></li>
+	<li id="menu-item-9723" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9723"><a title="AEM: Adobe Experience Manager — настройка, управление." href="https://rtfm.co.ua/category/cmsweb-frameworks-ru/aem-ru/">AEM</a></li>
+	<li id="menu-item-9688" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9688"><a title="Вопросы, касающиеся работы и настройки CMS WordPress" href="https://rtfm.co.ua/category/cmsweb-frameworks-ru/wordpress-ru/">WordPress</a></li>
+</ul>
+</li>
+<li id="menu-item-9429" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9429"><a title="Вопросы, касающиеся использования различных системных утилит и прочего программного обеспечения – описания, их использование." href="https://rtfm.co.ua/category/utilities-ru/">GNU/Linux utils</a></li>
+<li id="menu-item-9568" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9568"><a title="Вопросы, касающиеся аппаратного обеспечения серверов и рабочих станций" href="https://rtfm.co.ua/category/hardware-ru/">Hardware</a></li>
+<li id="menu-item-14404" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-14404"><a href="https://rtfm.co.ua/category/other-ru/">Разное</a>
+<ul class="sub-menu">
+	<li id="menu-item-20218" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-20218"><a href="https://rtfm.co.ua/category/english-ru/">English</a></li>
+</ul>
+</li>
+</ul></div></aside><aside id="nav_menu-5" class="widget widget_nav_menu"><p class="widget-title">Scripting/coding</p><div class="menu-scripting-coding-ru-container"><ul id="menu-scripting-coding-ru" class="menu"><li id="menu-item-9590" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9590"><a title="Написание скриптов на shell/BASH " href="https://rtfm.co.ua/category/scripting_and_coding-ru/bash_scripts-ru/">bash</a></li>
+<li id="menu-item-9602" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9602"><a title="Программирование и другие вопросы по Python" href="https://rtfm.co.ua/category/scripting_and_coding-ru/python-ru/">Python</a></li>
+<li id="menu-item-9564" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9564"><a title="Программирование на C/C++" href="https://rtfm.co.ua/category/scripting_and_coding-ru/cc-ru/">C/C++</a></li>
+<li id="menu-item-18852" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-18852"><a href="https://rtfm.co.ua/category/scripting_and_coding-ru/go-ru/">Golang</a></li>
+<li id="menu-item-16319" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-16319"><a href="https://rtfm.co.ua/category/scripting_and_coding-ru/groovy-ru/">Groovy</a></li>
+<li id="menu-item-9599" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9599"><a title="Программирование и другие вопросы по PHP" href="https://rtfm.co.ua/category/scripting_and_coding-ru/php-ru/">PHP</a></li>
+<li id="menu-item-9567" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-9567"><a title="Программирование и другие вопросы по Java" href="https://rtfm.co.ua/category/scripting_and_coding-ru/java-ru/">Java</a></li>
+<li id="menu-item-16320" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-16320"><a href="https://rtfm.co.ua/category/scripting_and_coding-ru/powershell-ru/">PowerShell</a></li>
+</ul></div></aside>					<b class="rw-ui-recommendations" data-id="52"></b>
+					<script type="text/javascript">
+						var _rwq = _rwq || [];
+						_rwq.push(['_setRecommendations', {"id":52,"title":{"label":"Top Rated","show":true,"before":"<p class=\"widget-title\">","after":"<\/p>"},"options":{"align":"vertical","direction":"ltr","html":{"before":"<aside id=\"ratingwidgetplugin_topratedwidget-2\" class=\"widget rw_top_rated\">","after":"<\/aside>"}},"site":{"id":"216072","domain":"rtfm.co.ua","type":"WordPress"},"itemGroups":[{"type":"posts","title":null,"showTitle":false,"style":"compact_thumbs","options":{"title":{"maxLen":30},"thumb":{"width":50,"height":40}},"items":[{"site":{"id":"216072","domain":"rtfm.co.ua"},"page":{"externalID":14269,"url":"https:\/\/rtfm.co.ua\/c-sokety-i-primer-modeli-client-server\/","title":"C: \u0441\u043e\u043a\u0435\u0442\u044b \u0438 \u043f\u0440\u0438\u043c\u0435\u0440 \u043c\u043e\u0434\u0435\u043b\u0438 clie...","img":"https:\/\/secure.rating-widget.com\/apps\/thumb\/?src=https%3A%2F%2Frtfm.co.ua%2Fwp-content%2Fuploads%2F2014%2F10%2FC_logo.png&w=50&h=40&zc=1"},"rating":{"localID":"142700","options":{"rclass":"blog-post"}}},{"site":{"id":"216072","domain":"rtfm.co.ua"},"page":{"externalID":972,"url":"https:\/\/rtfm.co.ua\/mysql-commands\/","title":"MySQL\/MariaDB: \u043d\u0430\u0438\u0431\u043e\u043b\u0435\u0435 \u0438\u0441\u043f\u043e\u043b\u044c...","img":"https:\/\/secure.rating-widget.com\/apps\/thumb\/?src=https%3A%2F%2Frtfm.co.ua%2Fwp-content%2Fuploads%2F2012%2F01%2Fmysqllogo.gif&w=50&h=40&zc=1"},"rating":{"localID":"9730","options":{"rclass":"blog-post"}}},{"site":{"id":"216072","domain":"rtfm.co.ua"},"page":{"externalID":13324,"url":"https:\/\/rtfm.co.ua\/arch-ustanovka-s-lvm-openbox-tint2\/","title":"Arch: \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0430 \u0441 LVM + Openbo...","img":"https:\/\/secure.rating-widget.com\/apps\/thumb\/?src=https%3A%2F%2Frtfm.co.ua%2Fwp-content%2Fuploads%2F2016%2F04%2Farchlinux_logo-e1572096576161.png&w=50&h=40&zc=1"},"rating":{"localID":"133250","options":{"rclass":"blog-post"}}},{"site":{"id":"216072","domain":"rtfm.co.ua"},"page":{"externalID":5280,"url":"https:\/\/rtfm.co.ua\/python-zachem-nuzhen-if-__name__-__main__\/","title":"Python: \u0437\u0430\u0447\u0435\u043c \u043d\u0443\u0436\u0435\u043d if __name_...","img":"https:\/\/secure.rating-widget.com\/apps\/thumb\/?src=https%3A%2F%2Frtfm.co.ua%2Fwp-content%2Fuploads%2F2013%2F02%2Fpython_logo.jpg&w=50&h=40&zc=1"},"rating":{"localID":"52810","options":{"rclass":"blog-post"}}},{"site":{"id":"216072","domain":"rtfm.co.ua"},"page":{"externalID":2456,"url":"https:\/\/rtfm.co.ua\/python-izuchenie-s-nulya-sintaksis\/","title":"Python: \u0438\u0437\u0443\u0447\u0435\u043d\u0438\u0435 \u0441 \u043d\u0443\u043b\u044f # 1. \u0421...","img":"https:\/\/secure.rating-widget.com\/apps\/thumb\/?src=http%3A%2F%2Frtfm.co.ua%2Fwp-content%2Fuploads%2F2013%2F02%2Fpython_logo.jpg&w=50&h=40&zc=1"},"rating":{"localID":"24570","options":{"rclass":"blog-post"}}}]}]}]);
+					</script>
+				<aside id="views-2" class="widget widget_views"><p class="widget-title">Самое читаемое</p><ul>
+<li><a href="https://rtfm.co.ua/centos-ustanovka-nastrojka-zabbix-agent-i-dobavlenie-novogo-xosta-v-monitoring/"  title="CentOS: установка, настройка Zabbix-agent и добавление нового хоста в мониторинг">CentOS: установка, настройка Zabbix-agent и добавление нового хоста в мониторинг</a> - 506&nbsp;823 views</li><li><a href="https://rtfm.co.ua/mysql-commands/"  title="MySQL/MariaDB: наиболее используемые команды, примеры">MySQL/MariaDB: наиболее используемые команды, примеры</a> - 286&nbsp;978 views</li><li><a href="https://rtfm.co.ua/bash-opisanie-ciklov-for-while-until-i-primery-ispolzovaniya/"  title="BASH: описание циклов for, while, until и примеры использования">BASH: описание циклов for, while, until и примеры использования</a> - 150&nbsp;255 views</li><li><a href="https://rtfm.co.ua/komanda-find-i-eyo-opcii-v-primerax/"  title="Команда find и её опции в примерах">Команда find и её опции в примерах</a> - 137&nbsp;559 views</li><li><a href="https://rtfm.co.ua/karta-sajta/"  title="Карта сайта">Карта сайта</a> - 113&nbsp;794 views</li></ul>
+</aside><aside id="calendar-2" class="widget widget_calendar"><p class="widget-title">Архив месяца</p><div id="calendar_wrap" class="calendar_wrap"><table id="wp-calendar" class="wp-calendar-table">
+		<caption>Март 2022</caption>
+		<thead>
+		<tr>
+		<th scope="col" title="Понедельник">Пн</th>
+		<th scope="col" title="Вторник">Вт</th>
+		<th scope="col" title="Среда">Ср</th>
+		<th scope="col" title="Четверг">Чт</th>
+		<th scope="col" title="Пятница">Пт</th>
+		<th scope="col" title="Суббота">Сб</th>
+		<th scope="col" title="Воскресенье">Вс</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+		<td colspan="1" class="pad">&nbsp;</td><td id="today">1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td>
+	</tr>
+	<tr>
+		<td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td>
+	</tr>
+	<tr>
+		<td>14</td><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td>
+	</tr>
+	<tr>
+		<td>21</td><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td>
+	</tr>
+	<tr>
+		<td>28</td><td>29</td><td>30</td><td>31</td>
+		<td class="pad" colspan="3">&nbsp;</td>
+	</tr>
+	</tbody>
+	</table><nav aria-label="Предыдущий и следующий месяцы" class="wp-calendar-nav">
+		<span class="wp-calendar-nav-prev"><a href="https://rtfm.co.ua/2022/01/">&laquo; Янв</a></span>
+		<span class="pad">&nbsp;</span>
+		<span class="wp-calendar-nav-next">&nbsp;</span>
+		</nav></div></aside><aside id="archives-2" class="widget widget_archive"><p class="widget-title">Архивы по годам</p>		<label class="screen-reader-text" for="archives-dropdown-2">Архивы по годам</label>
+		<select id="archives-dropdown-2" name="archive-dropdown">
+			
+			<option value="">Выберите месяц</option>
+				<option value='https://rtfm.co.ua/2022/01/'> Январь 2022 &nbsp;(1)</option>
+	<option value='https://rtfm.co.ua/2021/12/'> Декабрь 2021 &nbsp;(3)</option>
+	<option value='https://rtfm.co.ua/2021/11/'> Ноябрь 2021 &nbsp;(8)</option>
+	<option value='https://rtfm.co.ua/2021/10/'> Октябрь 2021 &nbsp;(4)</option>
+	<option value='https://rtfm.co.ua/2021/09/'> Сентябрь 2021 &nbsp;(5)</option>
+	<option value='https://rtfm.co.ua/2021/08/'> Август 2021 &nbsp;(5)</option>
+	<option value='https://rtfm.co.ua/2021/07/'> Июль 2021 &nbsp;(6)</option>
+	<option value='https://rtfm.co.ua/2021/06/'> Июнь 2021 &nbsp;(6)</option>
+	<option value='https://rtfm.co.ua/2021/05/'> Май 2021 &nbsp;(6)</option>
+	<option value='https://rtfm.co.ua/2021/04/'> Апрель 2021 &nbsp;(11)</option>
+	<option value='https://rtfm.co.ua/2021/03/'> Март 2021 &nbsp;(8)</option>
+	<option value='https://rtfm.co.ua/2021/02/'> Февраль 2021 &nbsp;(6)</option>
+	<option value='https://rtfm.co.ua/2021/01/'> Январь 2021 &nbsp;(1)</option>
+	<option value='https://rtfm.co.ua/2020/12/'> Декабрь 2020 &nbsp;(1)</option>
+	<option value='https://rtfm.co.ua/2020/11/'> Ноябрь 2020 &nbsp;(9)</option>
+	<option value='https://rtfm.co.ua/2020/10/'> Октябрь 2020 &nbsp;(9)</option>
+	<option value='https://rtfm.co.ua/2020/09/'> Сентябрь 2020 &nbsp;(4)</option>
+	<option value='https://rtfm.co.ua/2020/08/'> Август 2020 &nbsp;(8)</option>
+	<option value='https://rtfm.co.ua/2020/07/'> Июль 2020 &nbsp;(4)</option>
+	<option value='https://rtfm.co.ua/2020/06/'> Июнь 2020 &nbsp;(3)</option>
+	<option value='https://rtfm.co.ua/2020/05/'> Май 2020 &nbsp;(5)</option>
+	<option value='https://rtfm.co.ua/2020/04/'> Апрель 2020 &nbsp;(9)</option>
+	<option value='https://rtfm.co.ua/2020/03/'> Март 2020 &nbsp;(8)</option>
+	<option value='https://rtfm.co.ua/2020/02/'> Февраль 2020 &nbsp;(9)</option>
+	<option value='https://rtfm.co.ua/2020/01/'> Январь 2020 &nbsp;(2)</option>
+	<option value='https://rtfm.co.ua/2019/12/'> Декабрь 2019 &nbsp;(9)</option>
+	<option value='https://rtfm.co.ua/2019/11/'> Ноябрь 2019 &nbsp;(9)</option>
+	<option value='https://rtfm.co.ua/2019/10/'> Октябрь 2019 &nbsp;(11)</option>
+	<option value='https://rtfm.co.ua/2019/09/'> Сентябрь 2019 &nbsp;(11)</option>
+	<option value='https://rtfm.co.ua/2019/08/'> Август 2019 &nbsp;(10)</option>
+	<option value='https://rtfm.co.ua/2019/07/'> Июль 2019 &nbsp;(2)</option>
+	<option value='https://rtfm.co.ua/2019/06/'> Июнь 2019 &nbsp;(4)</option>
+	<option value='https://rtfm.co.ua/2019/05/'> Май 2019 &nbsp;(9)</option>
+	<option value='https://rtfm.co.ua/2019/04/'> Апрель 2019 &nbsp;(13)</option>
+	<option value='https://rtfm.co.ua/2019/03/'> Март 2019 &nbsp;(32)</option>
+	<option value='https://rtfm.co.ua/2019/02/'> Февраль 2019 &nbsp;(20)</option>
+	<option value='https://rtfm.co.ua/2019/01/'> Январь 2019 &nbsp;(10)</option>
+	<option value='https://rtfm.co.ua/2018/12/'> Декабрь 2018 &nbsp;(9)</option>
+	<option value='https://rtfm.co.ua/2018/11/'> Ноябрь 2018 &nbsp;(12)</option>
+	<option value='https://rtfm.co.ua/2018/10/'> Октябрь 2018 &nbsp;(15)</option>
+	<option value='https://rtfm.co.ua/2018/09/'> Сентябрь 2018 &nbsp;(12)</option>
+	<option value='https://rtfm.co.ua/2018/08/'> Август 2018 &nbsp;(14)</option>
+	<option value='https://rtfm.co.ua/2018/07/'> Июль 2018 &nbsp;(17)</option>
+	<option value='https://rtfm.co.ua/2018/06/'> Июнь 2018 &nbsp;(18)</option>
+	<option value='https://rtfm.co.ua/2018/05/'> Май 2018 &nbsp;(21)</option>
+	<option value='https://rtfm.co.ua/2018/04/'> Апрель 2018 &nbsp;(6)</option>
+	<option value='https://rtfm.co.ua/2018/03/'> Март 2018 &nbsp;(18)</option>
+	<option value='https://rtfm.co.ua/2018/02/'> Февраль 2018 &nbsp;(7)</option>
+	<option value='https://rtfm.co.ua/2018/01/'> Январь 2018 &nbsp;(13)</option>
+	<option value='https://rtfm.co.ua/2017/12/'> Декабрь 2017 &nbsp;(14)</option>
+	<option value='https://rtfm.co.ua/2017/11/'> Ноябрь 2017 &nbsp;(6)</option>
+	<option value='https://rtfm.co.ua/2017/10/'> Октябрь 2017 &nbsp;(24)</option>
+	<option value='https://rtfm.co.ua/2017/09/'> Сентябрь 2017 &nbsp;(13)</option>
+	<option value='https://rtfm.co.ua/2017/08/'> Август 2017 &nbsp;(15)</option>
+	<option value='https://rtfm.co.ua/2017/07/'> Июль 2017 &nbsp;(11)</option>
+	<option value='https://rtfm.co.ua/2017/06/'> Июнь 2017 &nbsp;(11)</option>
+	<option value='https://rtfm.co.ua/2017/05/'> Май 2017 &nbsp;(11)</option>
+	<option value='https://rtfm.co.ua/2017/04/'> Апрель 2017 &nbsp;(7)</option>
+	<option value='https://rtfm.co.ua/2017/03/'> Март 2017 &nbsp;(18)</option>
+	<option value='https://rtfm.co.ua/2017/02/'> Февраль 2017 &nbsp;(13)</option>
+	<option value='https://rtfm.co.ua/2017/01/'> Январь 2017 &nbsp;(14)</option>
+	<option value='https://rtfm.co.ua/2016/12/'> Декабрь 2016 &nbsp;(12)</option>
+	<option value='https://rtfm.co.ua/2016/11/'> Ноябрь 2016 &nbsp;(15)</option>
+	<option value='https://rtfm.co.ua/2016/10/'> Октябрь 2016 &nbsp;(13)</option>
+	<option value='https://rtfm.co.ua/2016/09/'> Сентябрь 2016 &nbsp;(21)</option>
+	<option value='https://rtfm.co.ua/2016/08/'> Август 2016 &nbsp;(19)</option>
+	<option value='https://rtfm.co.ua/2016/07/'> Июль 2016 &nbsp;(14)</option>
+	<option value='https://rtfm.co.ua/2016/06/'> Июнь 2016 &nbsp;(8)</option>
+	<option value='https://rtfm.co.ua/2016/05/'> Май 2016 &nbsp;(24)</option>
+	<option value='https://rtfm.co.ua/2016/04/'> Апрель 2016 &nbsp;(15)</option>
+	<option value='https://rtfm.co.ua/2016/03/'> Март 2016 &nbsp;(19)</option>
+	<option value='https://rtfm.co.ua/2016/02/'> Февраль 2016 &nbsp;(21)</option>
+	<option value='https://rtfm.co.ua/2016/01/'> Январь 2016 &nbsp;(19)</option>
+	<option value='https://rtfm.co.ua/2015/12/'> Декабрь 2015 &nbsp;(17)</option>
+	<option value='https://rtfm.co.ua/2015/11/'> Ноябрь 2015 &nbsp;(17)</option>
+	<option value='https://rtfm.co.ua/2015/10/'> Октябрь 2015 &nbsp;(14)</option>
+	<option value='https://rtfm.co.ua/2015/09/'> Сентябрь 2015 &nbsp;(13)</option>
+	<option value='https://rtfm.co.ua/2015/08/'> Август 2015 &nbsp;(1)</option>
+	<option value='https://rtfm.co.ua/2015/07/'> Июль 2015 &nbsp;(20)</option>
+	<option value='https://rtfm.co.ua/2015/06/'> Июнь 2015 &nbsp;(23)</option>
+	<option value='https://rtfm.co.ua/2015/05/'> Май 2015 &nbsp;(26)</option>
+	<option value='https://rtfm.co.ua/2015/04/'> Апрель 2015 &nbsp;(28)</option>
+	<option value='https://rtfm.co.ua/2015/03/'> Март 2015 &nbsp;(30)</option>
+	<option value='https://rtfm.co.ua/2015/02/'> Февраль 2015 &nbsp;(26)</option>
+	<option value='https://rtfm.co.ua/2015/01/'> Январь 2015 &nbsp;(24)</option>
+	<option value='https://rtfm.co.ua/2014/12/'> Декабрь 2014 &nbsp;(31)</option>
+	<option value='https://rtfm.co.ua/2014/11/'> Ноябрь 2014 &nbsp;(21)</option>
+	<option value='https://rtfm.co.ua/2014/10/'> Октябрь 2014 &nbsp;(28)</option>
+	<option value='https://rtfm.co.ua/2014/09/'> Сентябрь 2014 &nbsp;(23)</option>
+	<option value='https://rtfm.co.ua/2014/08/'> Август 2014 &nbsp;(31)</option>
+	<option value='https://rtfm.co.ua/2014/07/'> Июль 2014 &nbsp;(23)</option>
+	<option value='https://rtfm.co.ua/2014/06/'> Июнь 2014 &nbsp;(11)</option>
+	<option value='https://rtfm.co.ua/2014/05/'> Май 2014 &nbsp;(14)</option>
+	<option value='https://rtfm.co.ua/2014/04/'> Апрель 2014 &nbsp;(8)</option>
+	<option value='https://rtfm.co.ua/2014/03/'> Март 2014 &nbsp;(11)</option>
+	<option value='https://rtfm.co.ua/2014/02/'> Февраль 2014 &nbsp;(11)</option>
+	<option value='https://rtfm.co.ua/2014/01/'> Январь 2014 &nbsp;(11)</option>
+	<option value='https://rtfm.co.ua/2013/12/'> Декабрь 2013 &nbsp;(12)</option>
+	<option value='https://rtfm.co.ua/2013/11/'> Ноябрь 2013 &nbsp;(23)</option>
+	<option value='https://rtfm.co.ua/2013/10/'> Октябрь 2013 &nbsp;(20)</option>
+	<option value='https://rtfm.co.ua/2013/09/'> Сентябрь 2013 &nbsp;(30)</option>
+	<option value='https://rtfm.co.ua/2013/08/'> Август 2013 &nbsp;(20)</option>
+	<option value='https://rtfm.co.ua/2013/07/'> Июль 2013 &nbsp;(6)</option>
+	<option value='https://rtfm.co.ua/2013/06/'> Июнь 2013 &nbsp;(9)</option>
+	<option value='https://rtfm.co.ua/2013/05/'> Май 2013 &nbsp;(5)</option>
+	<option value='https://rtfm.co.ua/2013/04/'> Апрель 2013 &nbsp;(13)</option>
+	<option value='https://rtfm.co.ua/2013/03/'> Март 2013 &nbsp;(22)</option>
+	<option value='https://rtfm.co.ua/2013/02/'> Февраль 2013 &nbsp;(36)</option>
+	<option value='https://rtfm.co.ua/2013/01/'> Январь 2013 &nbsp;(10)</option>
+	<option value='https://rtfm.co.ua/2012/12/'> Декабрь 2012 &nbsp;(4)</option>
+	<option value='https://rtfm.co.ua/2012/11/'> Ноябрь 2012 &nbsp;(8)</option>
+	<option value='https://rtfm.co.ua/2012/10/'> Октябрь 2012 &nbsp;(13)</option>
+	<option value='https://rtfm.co.ua/2012/09/'> Сентябрь 2012 &nbsp;(29)</option>
+	<option value='https://rtfm.co.ua/2012/08/'> Август 2012 &nbsp;(24)</option>
+	<option value='https://rtfm.co.ua/2012/07/'> Июль 2012 &nbsp;(18)</option>
+	<option value='https://rtfm.co.ua/2012/06/'> Июнь 2012 &nbsp;(2)</option>
+	<option value='https://rtfm.co.ua/2012/05/'> Май 2012 &nbsp;(4)</option>
+	<option value='https://rtfm.co.ua/2012/03/'> Март 2012 &nbsp;(5)</option>
+	<option value='https://rtfm.co.ua/2012/02/'> Февраль 2012 &nbsp;(5)</option>
+	<option value='https://rtfm.co.ua/2012/01/'> Январь 2012 &nbsp;(25)</option>
+	<option value='https://rtfm.co.ua/2011/12/'> Декабрь 2011 &nbsp;(15)</option>
+	<option value='https://rtfm.co.ua/2011/11/'> Ноябрь 2011 &nbsp;(6)</option>
+	<option value='https://rtfm.co.ua/2011/08/'> Август 2011 &nbsp;(13)</option>
+
+		</select>
+
+<script type="text/javascript">
+/* <![CDATA[ */
+(function() {
+	var dropdown = document.getElementById( "archives-dropdown-2" );
+	function onSelectChange() {
+		if ( dropdown.options[ dropdown.selectedIndex ].value !== '' ) {
+			document.location.href = this.options[ this.selectedIndex ].value;
+		}
+	}
+	dropdown.onchange = onSelectChange;
+})();
+/* ]]> */
+</script>
+			</aside><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- rtfm-sidebar-after-menu-responsive -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-2478728774963370"
+     data-ad-slot="3130450208"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>		</div><!-- #secondary -->
+		</div><!-- #main .wrapper -->
+	<footer id="colophon" role="contentinfo">
+		<div class="site-info">
+		<div class="footercopy"></div>
+		<div class="footercredit"></div>
+
+        <!-- counters -->
+        <div class="clear">
+        <div align="right">
+
+        <!-- Yandex.Metrika informer -->
+        <a href="https://metrika.yandex.ua/stat/?id=9396328&amp;from=informer"
+        target="_blank" rel="nofollow"><img src="https://informer.yandex.ru/informer/9396328/3_0_CCE5FFFF_CCE5FFFF_0_pageviews"
+        style="width:88px; height:31px; border:0;" alt="Яндекс.Метрика" title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)" class="ym-advanced-informer" data-cid="9396328" data-lang="ru" /></a>
+        <!-- /Yandex.Metrika informer -->
+
+        <!-- Yandex.Metrika counter -->
+        <script type="text/javascript" >
+            (function (d, w, c) {
+                (w[c] = w[c] || []).push(function() {
+                    try {
+                        w.yaCounter9396328 = new Ya.Metrika({
+                            id:9396328,
+                            clickmap:true,
+                            trackLinks:true,
+                            accurateTrackBounce:true
+                        });
+                    } catch(e) { }
+                });
+
+                var n = d.getElementsByTagName("script")[0],
+                    s = d.createElement("script"),
+                    f = function () { n.parentNode.insertBefore(s, n); };
+                s.type = "text/javascript";
+                s.async = true;
+                s.src = "https://mc.yandex.ru/metrika/watch.js";
+
+                if (w.opera == "[object Opera]") {
+                    d.addEventListener("DOMContentLoaded", f, false);
+                } else { f(); }
+            })(document, window, "yandex_metrika_callbacks");
+        </script>
+        <noscript><div><img src="https://mc.yandex.ru/watch/9396328" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+        <!-- /Yandex.Metrika counter -->
+
+        <!-- HotLog -->
+        <span id="hotlog_counter"></span>
+        <span id="hotlog_dyn"></span>
+        <script type="text/javascript">
+        var hot_s = document.createElement('script');
+        hot_s.type = 'text/javascript'; hot_s.async = true;
+        hot_s.src = 'https://js.hotlog.ru/dcounter/2192054.js';
+        hot_d = document.getElementById('hotlog_dyn');
+        hot_d.appendChild(hot_s);
+        </script>
+        <noscript>
+        <a href="https://click.hotlog.ru/?2192054" target="_blank"><img
+        src="https://hit40.hotlog.ru/cgi-bin/hotlog/count?s=2192054&amp;im=605" border="0"
+        alt="HotLog"></a>
+        </noscript>
+        <!-- /HotLog -->
+
+        </div>
+        </div>
+        <!-- #counters -->
+
+		<div class="clear"></div>
+		</div><!-- .site-info -->
+		</footer><!-- #colophon -->
+		<div class="site-wordpress">
+				<a href="http://themonic.com/iconic-one/">Iconic One</a> Theme | Powered by <a href="http://wordpress.org">Wordpress</a>
+				</div><!-- .site-info -->
+				<div class="clear"></div>
+</div><!-- #page -->
+
+					<!-- This site's ratings are powered by RatingWidget plugin v3.1.3 (Free version) - https://rating-widget.com/wordpress-plugin/ -->
+					<div class="rw-js-container">
+												<script type="text/javascript">
+							var defaultRateCallbacks = {};
+
+							// Initialize ratings.
+							function RW_Async_Init() {
+								RW.init({uid: "bb9557a3c72293264c517766afab5913", huid: "216072",
+									source: "wordpress",
+									options: {
+																	},
+								identifyBy: "laccount"
+							});
+														var options = {"urid":"3","advanced":{"font":{"hover":{"color":"#000"},"bold":false,"italic":false,"color":"#000000","size":"12px","type":"inherit"},"star":{"stars":5},"nero":{"text":{"like":{"empty":"{{rating.likes}}","rated":"{{rating.likes}}"},"dislike":{"empty":"{{rating.dislikes}}","rated":"{{rating.dislikes}}"}},"showDislike":true,"showLike":true},"layout":{"align":{"hor":"right","ver":"middle"},"dir":"ltr","lineHeight":"16px"},"text":{"rateAwful":"Awful","ratePoor":"Poor","rateAverage":"Average","rateGood":"Good","rateExcellent":"Excellent","rateThis":"Rate this","like":"Like","dislike":"Dislike","vote":"Vote","votes":"Votes","thanks":"Thank You","outOf":"out of","weRecommend":"We Recommend"},"css":{"container":""}},"rclass":"blog-post","theme":"star_crystal_penguin","isDummy":false,"type":"star","boost":{"votes":0,"rate":5},"imgUrl":{"ltr":"","rtl":""},"mobile":{"optimized":true,"showTrigger":true},"label":{"text":{"star":{"empty":"{{text.rateThis}}","normal":"{{text.rateThis}} ({{rating.votes}} {{text.votes}})","rated":"{{rating.votes}} {{text.votes}}"},"nero":{"empty":"{{text.rateThis}}","normal":"{{text.rateThis}}","rated":"{{rating.votes}} {{text.votes}}"}},"background":"#FFFFFF"},"uarid":0,"lng":"en","url":"","img":"","title":"","size":"small","style":"crystal_penguin","readOnly":false,"sync":true,"forceSync":false,"reVote":true,"frequency":-1,"showInfo":true,"showTooltip":true,"showAverage":true,"showReport":true,"showRecommendations":false,"hideRecommendations":false,"showSponsored":false,"showLoader":true,"beforeRate":null,"afterRate":null};
+														
+							RW.initClass("blog-post", options);
+							RW.initRating("31440", {title: "What is: \u0447\u0442\u043e \u0442\u0430\u043a\u043e\u0435 symlink, hard link \u0438 inode \u0432 Linux?", url: "https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/"});RW.initRating("35320", {title: "CentOS: \u0443\u0441\u0442\u0430\u043d\u043e\u0432\u043a\u0430, \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430 Zabbix-agent \u0438 \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u043d\u043e\u0432\u043e\u0433\u043e \u0445\u043e\u0441\u0442\u0430 \u0432 \u043c\u043e\u043d\u0438\u0442\u043e\u0440\u0438\u043d\u0433", url: "https:\/\/rtfm.co.ua\/centos-ustanovka-nastrojka-zabbix-agent-i-dobavlenie-novogo-xosta-v-monitoring\/"});RW.initRating("38340", {title: "BASH: \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u0435 \u0446\u0438\u043a\u043b\u043e\u0432 for, while, until \u0438 \u043f\u0440\u0438\u043c\u0435\u0440\u044b \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f", url: "https:\/\/rtfm.co.ua\/bash-opisanie-ciklov-for-while-until-i-primery-ispolzovaniya\/"});RW.initRating("10320", {title: "\u041a\u043e\u043c\u0430\u043d\u0434\u0430 find \u0438 \u0435\u0451 \u043e\u043f\u0446\u0438\u0438 \u0432 \u043f\u0440\u0438\u043c\u0435\u0440\u0430\u0445", url: "https:\/\/rtfm.co.ua\/komanda-find-i-eyo-opcii-v-primerax\/"});RW.initRating("1750", {title: "\u041a\u0430\u0440\u0442\u0430 \u0441\u0430\u0439\u0442\u0430", url: "https:\/\/rtfm.co.ua\/karta-sajta\/"});							RW.render(function () {
+								(function ($) {
+									$('.rw-rating-table:not(.rw-no-labels):not(.rw-comment-admin-rating)').each(function () {
+										var ratingTable = $(this);
+
+										// Find the current width before floating left or right to
+										// keep the ratings aligned
+										var col1 = ratingTable.find('td:first');
+										var widthCol1 = col1.width();
+										ratingTable.find('td:first-child').width(widthCol1);
+
+										if (ratingTable.hasClass('rw-rtl')) {
+											ratingTable.find('td').css({float: 'right'});
+										} else {
+											ratingTable.find('td').css({float: 'left'});
+										}
+									});
+								})(jQuery);
+							}, false);
+							}
+
+							RW_Advanced_Options = {
+								blockFlash: !(false)
+							};
+
+							// Append RW JS lib.
+							if (typeof(RW) == "undefined") {
+								(function () {
+									var rw = document.createElement("script");
+									rw.type = "text/javascript";
+									rw.async = true;
+									rw.src = "https://secure.rating-widget.com/js/external.min.js?ck=Y2022M03D01?wp=3.1.3";
+									var s = document.getElementsByTagName("script")[0];
+									s.parentNode.insertBefore(rw, s);
+								})();
+							}
+						</script>
+					</div>
+					<!-- / RatingWidget plugin -->
+					<div style="display: none;" id="nxsFavNotice"><div id="nxsFavNoticeCnt">Posting....</div></div>    <script type="text/javascript" src="https://rtfm.co.ua/wp-content/plugins/syntax-highlighter-with-add-button-in-editor/scripts/shCore.js"></script>
+    <script type="text/javascript" src="https://rtfm.co.ua/wp-content/plugins/syntax-highlighter-with-add-button-in-editor/scripts/shAutoloader.js"></script>
+    <script type="text/javascript">
+    function path()
+    {
+      var args = arguments,
+          result = []
+          ;
+      for(var i = 0; i < args.length; i++)
+          result.push(args[i].replace('@', 'https://rtfm.co.ua/wp-content/plugins/syntax-highlighter-with-add-button-in-editor/scripts/'));
+      return result
+    };
+    SyntaxHighlighter.autoloader.apply(null, path(
+      'applescript            @shBrushAppleScript.js',
+      'actionscript3 as3      @shBrushAS3.js',
+      'bash shell             @shBrushBash.js',
+      'coldfusion cf          @shBrushColdFusion.js',
+      'cpp c                  @shBrushCpp.js',
+      'c# c-sharp csharp      @shBrushCSharp.js',
+      'css                    @shBrushCss.js',
+      'delphi pascal          @shBrushDelphi.js',
+      'diff patch pas         @shBrushDiff.js',
+      'erl erlang             @shBrushErlang.js',
+      'groovy                 @shBrushGroovy.js',
+      'java                   @shBrushJava.js',
+      'jfx javafx             @shBrushJavaFX.js',
+      'js jscript javascript  @shBrushJScript.js',
+      'perl pl                @shBrushPerl.js',
+      'php                    @shBrushPhp.js',
+      'text plain             @shBrushPlain.js',
+      'ps                     @shBrushPowerShell.js',
+      'py python              @shBrushPython.js',
+      'ruby rails ror rb      @shBrushRuby.js',
+      'sass scss              @shBrushSass.js',
+      'scala                  @shBrushScala.js',
+      'sql                    @shBrushSql.js',
+      'vb vbnet               @shBrushVb.js',
+      'xml xhtml xslt html    @shBrushXml.js',
+      'other                  @shBrushOther.js'
+    ));
+    SyntaxHighlighter.defaults['auto-links'] = true;
+    SyntaxHighlighter.defaults['collapse'] = false;
+    SyntaxHighlighter.defaults['first-line'] = 1;
+    SyntaxHighlighter.defaults['gutter'] = true;
+    SyntaxHighlighter.defaults['smart-tabs'] = true;
+    SyntaxHighlighter.defaults['tab-size'] = 4;
+    SyntaxHighlighter.defaults['toolbar'] = true;
+    SyntaxHighlighter.config.tagName = "pre";
+	SyntaxHighlighter.config.clipboardSwf = 'https://rtfm.co.ua/wp-content/plugins/syntax-highlighter-with-add-button-in-editor/scripts/clipboard.swf';
+    SyntaxHighlighter.all();
+    </script>
+    <link rel='stylesheet' id='modal-css'  href='https://rtfm.co.ua/wp-content/plugins/social-networks-auto-poster-facebook-twitter-g/js-css/jquery.modal.min.css?ver=4.3.25' type='text/css' media='all' />
+<script type='text/javascript' id='disqus_count-js-extra'>
+/* <![CDATA[ */
+var countVars = {"disqusShortname":"rtfm-ua"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/disqus-comment-system/public/js/comment_count.js?ver=3.0.22' id='disqus_count-js'></script>
+<script type='text/javascript' id='disqus_embed-js-extra'>
+/* <![CDATA[ */
+var embedVars = {"disqusConfig":{"integration":"wordpress 3.0.22"},"disqusIdentifier":"3143 http:\/\/rtfm.co.ua\/?p=3143","disqusShortname":"rtfm-ua","disqusTitle":"What is: \u0447\u0442\u043e \u0442\u0430\u043a\u043e\u0435 symlink, hard link \u0438 inode \u0432 Linux?","disqusUrl":"https:\/\/rtfm.co.ua\/unix-chto-takoe-symlink-hardlink-i-inode\/","postId":"3143"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/disqus-comment-system/public/js/comment_embed.js?ver=3.0.22' id='disqus_embed-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/sp-faq/assets/js/jquery.accordion.js?ver=3.6.3' id='accordionjsfree-js'></script>
+<script type='text/javascript' id='wp-polls-js-extra'>
+/* <![CDATA[ */
+var pollsL10n = {"ajax_url":"https:\/\/rtfm.co.ua\/wp-admin\/admin-ajax.php","text_wait":"\u0412\u0430\u0448 \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u0439 \u0437\u0430\u043f\u0440\u043e\u0441 \u0435\u0449\u0435 \u043e\u0431\u0440\u0430\u0431\u0430\u0442\u044b\u0432\u0430\u0435\u0442\u0441\u044f. \u041f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430 \u043f\u043e\u0434\u043e\u0436\u0434\u0438\u0442\u0435 ...","text_valid":"\u041f\u043e\u0436\u0430\u043b\u0443\u0439\u0441\u0442\u0430 \u043a\u043e\u0440\u0440\u0435\u043a\u0442\u043d\u043e \u0432\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u043e\u0442\u0432\u0435\u0442.","text_multiple":"\u041c\u0430\u043a\u0441\u0438\u043c\u0430\u043b\u044c\u043d\u043e \u0434\u043e\u043f\u0443\u0441\u0442\u0438\u043c\u043e\u0435 \u0447\u0438\u0441\u043b\u043e \u0432\u0430\u0440\u0438\u0430\u043d\u0442\u043e\u0432:","show_loading":"1","show_fading":"1"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/wp-polls/polls-js.js?ver=2.75.6' id='wp-polls-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-includes/js/comment-reply.min.js?ver=8b07f6f297a77df468773520940a5318' id='comment-reply-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/themes/iconic-one/js/selectnav.js?ver=1.0' id='themonic-mobile-navigation-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-includes/js/dist/vendor/regenerator-runtime.min.js?ver=0.13.9' id='regenerator-runtime-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-includes/js/dist/vendor/wp-polyfill.min.js?ver=3.15.0' id='wp-polyfill-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-includes/js/dist/hooks.min.js?ver=1e58c8c5a32b2e97491080c5b10dc71c' id='wp-hooks-js'></script>
+<script type='text/javascript' id='wpdreams-ajaxsearchlite-js-before'>
+window.ASL = typeof window.ASL !== 'undefined' ? window.ASL : {}; window.ASL.wp_rocket_exception = "DOMContentLoaded"; window.ASL.ajaxurl = "https:\/\/rtfm.co.ua\/wp-admin\/admin-ajax.php"; window.ASL.backend_ajaxurl = "https:\/\/rtfm.co.ua\/wp-admin\/admin-ajax.php"; window.ASL.js_scope = "jQuery"; window.ASL.detect_ajax = 0; window.ASL.scrollbar = true; window.ASL.js_retain_popstate = 0; window.ASL.version = 4750; window.ASL.min_script_src = ["https:\/\/rtfm.co.ua\/wp-content\/plugins\/ajax-search-lite\/js\/min\/jquery.ajaxsearchlite.min.js"]; window.ASL.highlight = {"enabled":false,"data":[]}; window.ASL.fix_duplicates = 1; window.ASL.analytics = {"method":0,"tracking_id":"","string":"?ajax_search={asl_term}","event":{"focus":{"active":1,"action":"focus","category":"ASL","label":"Input focus","value":"1"},"search_start":{"active":0,"action":"search_start","category":"ASL","label":"Phrase: {phrase}","value":"1"},"search_end":{"active":1,"action":"search_end","category":"ASL","label":"{phrase} | {results_count}","value":"1"},"magnifier":{"active":1,"action":"magnifier","category":"ASL","label":"Magnifier clicked","value":"1"},"return":{"active":1,"action":"return","category":"ASL","label":"Return button pressed","value":"1"},"facet_change":{"active":0,"action":"facet_change","category":"ASL","label":"{option_label} | {option_value}","value":"1"},"result_click":{"active":1,"action":"result_click","category":"ASL","label":"{result_title} | {result_url}","value":"1"}}};
+</script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/ajax-search-lite/js/min/jquery.ajaxsearchlite.min.js?ver=4.9.5' id='wpdreams-ajaxsearchlite-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/dynamic-to-top/js/libs/jquery.easing.js?ver=1.3' id='jquery-easing-js'></script>
+<script type='text/javascript' id='dynamic-to-top-js-extra'>
+/* <![CDATA[ */
+var mv_dynamic_to_top = {"text":"To Top","version":"0","min":"300","speed":"500","easing":"easeInExpo","margin":"20"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/dynamic-to-top/js/dynamic.to.top.min.js?ver=3.5' id='dynamic-to-top-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/text-hover/assets/jquery.qtip.min.js?ver=3.0.3' id='qtip2-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/text-hover/assets/text-hover.js?ver=4.1' id='text-hover-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/enlighter/cache/enlighterjs.min.js?ver=IPRG9C4M+WGYc5a' id='enlighterjs-js'></script>
+<script type='text/javascript' id='enlighterjs-js-after'>
+!function(e,n){if("undefined"!=typeof EnlighterJS){var o={"selectors":{"block":"pre.EnlighterJSRAW","inline":"code.EnlighterJSRAW"},"options":{"indent":2,"ampersandCleanup":true,"linehover":true,"rawcodeDbclick":true,"textOverflow":"break","linenumbers":true,"theme":"eclipse","language":"generic","retainCssClasses":false,"collapse":false,"toolbarOuter":"","toolbarTop":"{BTN_RAW}{BTN_COPY}{BTN_WINDOW}{BTN_WEBSITE}","toolbarBottom":""}};(e.EnlighterJSINIT=function(){EnlighterJS.init(o.selectors.block,o.selectors.inline,o.options)})()}else{(n&&(n.error||n.log)||function(){})("Error: EnlighterJS resources not loaded yet!")}}(window,console);
+</script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/simterm/js/show-your-terms.min.js?ver=20160705' id='simterm-showyourterms-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/simterm/js/simterm.js?ver=20160705' id='simterm-launcher-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/social-networks-auto-poster-facebook-twitter-g/js-css/jquery.modal.min.js?ver=4.3.25' id='modal-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/easy-table-of-contents/vendor/smooth-scroll/jquery.smooth-scroll.min.js?ver=2.2.0' id='jquery-smooth-scroll-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/easy-table-of-contents/vendor/js-cookie/js.cookie.min.js?ver=2.2.1' id='js-cookie-js'></script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/easy-table-of-contents/vendor/sticky-kit/jquery.sticky-kit.min.js?ver=1.9.2' id='jquery-sticky-kit-js'></script>
+<script type='text/javascript' id='ez-toc-js-js-extra'>
+/* <![CDATA[ */
+var ezTOC = {"smooth_scroll":"1","visibility_hide_by_default":"","width":"400px","scroll_offset":"30"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://rtfm.co.ua/wp-content/plugins/easy-table-of-contents/assets/js/front.min.js?ver=2.0.17-1616834307' id='ez-toc-js-js'></script>
+</body>
+</html>

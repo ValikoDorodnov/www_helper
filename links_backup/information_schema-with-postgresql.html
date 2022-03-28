@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Generic meta tags -->
+  
+  <meta name="description" content="A place for thoughts, ideas, tutorials and bookmarks. My brain can only hold so much, you know." />
+    
+
+  
+  <meta name="keywords" content="postgres,sql,information_schema" />
+  
+
+  
+  <meta http-equiv="date" content="Sunday, 10  2016 00:00:00 GMT" />
+    
+
+  <meta name="robots" content="INDEX,FOLLOW" />
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      information_schema with PostgreSQL &middot; Cogs and Levers
+    
+  </title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://tuttlem.github.io/public/css/poole.css">
+  <link rel="stylesheet" href="https://tuttlem.github.io/public/css/syntax.css">
+  <link rel="stylesheet" href="https://tuttlem.github.io/public/css/lanyon.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://tuttlem.github.io/public/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="https://tuttlem.github.io/public/favicon.ico">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://tuttlem.github.io/atom.xml">
+</head>
+
+
+  <body>
+
+    <!-- Target for toggling the sidebar `.sidebar-checkbox` is for regular
+     styles, `#sidebar-checkbox` for behavior. -->
+<input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+<!-- Toggleable sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-item">
+    <p>A place for thoughts, ideas, tutorials and bookmarks. My brain can only hold so much, you know.</p>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="sidebar-nav-item" href="https://tuttlem.github.io/">Home</a>
+
+    
+
+    
+    
+      
+        
+      
+    
+      
+        
+          <a class="sidebar-nav-item" href="https://tuttlem.github.io/allposts">All Posts</a>
+        
+      
+    
+      
+    
+      
+    
+      
+        
+          <a class="sidebar-nav-item" href="https://tuttlem.github.io/pubkey">My Public Key</a>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+
+    <a class="sidebar-nav-item" href="https://github.com/tuttlem/tuttlem.github.io">GitHub</a>
+  </nav>
+
+  <div class="sidebar-item">
+    <p>
+      &copy; 2022. All rights reserved.
+    </p>
+  </div>
+</div>
+
+
+    <!-- Wrap is the content to shift when toggling the sidebar. We wrap the
+         content to avoid any CSS collisions with our real content. -->
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+          <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+          <h3 class="masthead-title">
+            <a href="https://tuttlem.github.io/" title="Home">Cogs and Levers</a>
+            <small>A blog full of technical stuff</small>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+        <div class="post">
+  <h1 class="post-title">information_schema with PostgreSQL</h1>
+  <span class="post-date">10 Jan 2016</span>
+  <p>The <code class="language-plaintext highlighter-rouge">information_schema</code> in PostgreSQL holds a lot of really handy views with information about the current database. Very useful in investigation and discovery scenarios.</p>
+
+<p>In today’s post, we’ll go through the tables that sit in this schema and how they can help. The <code class="language-plaintext highlighter-rouge">information_schema</code> documentation can be found <a href="http://www.postgresql.org/docs/current/static/information-schema.html">here</a> and is what this article has been based on.</p>
+
+<h2 id="meta-and-context">Meta and Context</h2>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="c1">-- get the current database name</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">information_schema_catalog_name</span><span class="p">;</span>
+
+<span class="c1">-- what are the roles does the current user have that the admin option for?</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">administrable_role_authorizations</span><span class="p">;</span>
+
+<span class="c1">-- what roles are applicabl to the current user?</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">applicable_roles</span><span class="p">;</span>
+
+<span class="c1">-- attributes on composite data types that the current user has access to</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">attributes</span><span class="p">;</span></code></pre></figure>
+
+<h2 id="server">Server</h2>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="c1">-- available character sets</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">character_sets</span><span class="p">;</span>
+
+<span class="c1">-- list all collations available to this database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">collations</span><span class="p">;</span>
+
+<span class="c1">-- lists the available character sets that apply to the collations</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">collation_character_set_applicability</span><span class="p">;</span>
+
+<span class="c1">-- list all of the options defined for foreign-data wrappers</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">foreign_data_wrapper_options</span><span class="p">;</span>
+
+<span class="c1">-- list all foreign-data wrappers defined in the database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">foreign_data_wrappers</span><span class="p">;</span>
+
+<span class="c1">-- lists all of the options defined for foreign servers in this database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">foreign_server_options</span>
+
+<span class="c1">-- lists all of the standard sql features supported</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">sql_features</span><span class="p">;</span>
+
+<span class="c1">-- lists features that are implementation defined</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">sql_implementation_info</span><span class="p">;</span>
+
+<span class="c1">-- lists all of the sql languages supported</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">sql_languages</span><span class="p">;</span>
+
+<span class="c1">-- lists all of the sql defined feature packages are supported</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">sql_packages</span><span class="p">;</span>
+
+<span class="c1">-- lists all of the supported parts of the sql standard</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">sql_parts</span><span class="p">;</span>
+
+<span class="c1">-- lists the size limits in the database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">sql_sizing</span><span class="p">;</span>
+
+<span class="c1">-- lists sizing profile information</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">sql_sizing_profiles</span><span class="p">;</span>
+
+<span class="c1">-- lists all of the foreign servers defined in this database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">foreign_servers</span><span class="p">;</span>
+
+<span class="c1">-- lists all of the options defined for foreign tables in this database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">foreign_table_options</span><span class="p">;</span>
+
+<span class="c1">-- lists all of the foreign tables </span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">foreign_tables</span><span class="p">;</span>
+
+<span class="c1">-- list all settings for user mappings</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">user_mapping_options</span><span class="p">;</span>
+
+<span class="c1">-- list all user mappings </span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">user_mappings</span><span class="p">;</span></code></pre></figure>
+
+<h2 id="catalog">Catalog</h2>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="c1">-- list all check constraints</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">check_constraints</span><span class="p">;</span>
+
+<span class="c1">-- lists all of the parameters to functions in the database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="k">parameters</span><span class="p">;</span>
+
+<span class="c1">-- lists all foreign keys in the database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">referential_constraints</span><span class="p">;</span>
+
+<span class="c1">-- lists all of the functions in the database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">routines</span><span class="p">;</span>
+
+<span class="c1">-- lists all of the sequences</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">sequences</span><span class="p">;</span>
+
+<span class="c1">-- lists all constraints from tables in this database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">table_constraints</span><span class="p">;</span>
+
+<span class="c1">-- list all tables</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">tables</span><span class="p">;</span>
+
+<span class="c1">-- list all triggers</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">triggers</span><span class="p">;</span>
+
+<span class="c1">-- list all composite types</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">user_defined_types</span><span class="p">;</span>
+
+<span class="c1">-- lists all views in the database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">views</span><span class="p">;</span>
+
+<span class="c1">-- list all transforms (9.5 ONLY)</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="k">transforms</span><span class="p">;</span></code></pre></figure>
+
+<h2 id="security-and-privileges">Security and Privileges</h2>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="c1">-- list all columns and their priviledges</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">column_privileges</span><span class="p">;</span>
+
+<span class="c1">-- lists all privileges on columns</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">role_column_grants</span><span class="p">;</span>
+
+<span class="c1">-- lists all privileges on functions</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">role_routine_grants</span><span class="p">;</span>
+
+<span class="c1">-- lists all privileges on tables</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">role_table_grants</span><span class="p">;</span>
+
+<span class="c1">-- lists all privileges on udfs</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">role_udt_grants</span><span class="p">;</span>
+
+<span class="c1">-- lists all privileges on various objects </span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">role_usage_grants</span><span class="p">;</span>
+
+<span class="c1">-- lists all privileges on functions</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">routine_privileges</span><span class="p">;</span>
+
+<span class="c1">-- lists all of the table privileges </span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">table_privileges</span><span class="p">;</span>
+
+<span class="c1">-- list all udt privileges</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">udt_privileges</span><span class="p">;</span>
+
+<span class="c1">-- list privileges on various objects</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">usage_privileges</span><span class="p">;</span>
+
+<span class="c1">-- list all data types that the user has access to</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">data_type_privileges</span><span class="p">;</span>
+
+<span class="c1">-- list all enabled roles</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">enabled_roles</span><span class="p">;</span></code></pre></figure>
+
+<h2 id="explore">Explore</h2>
+
+<figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="c1">-- list all routines that are used by a check constraint</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">check_constraint_routine_usage</span><span class="p">;</span>
+
+<span class="c1">-- list columns using a domain defined inside of this database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">column_domain_usage</span><span class="p">;</span>
+
+<span class="c1">-- list all columns that use types owned by the current user</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">column_udt_usage</span><span class="p">;</span>
+
+<span class="c1">-- list all columns used by constraints</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">constraint_column_usage</span><span class="p">;</span>
+
+<span class="c1">-- list all tables used by constraints</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">constraint_table_usage</span><span class="p">;</span>
+
+<span class="c1">-- list all domains based on data types owned by the current user</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">domain_udt_usage</span><span class="p">;</span>
+
+<span class="c1">-- lists all columns in the database restricted by primary,unique, foreign or check constraint</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">key_column_usage</span><span class="p">;</span>
+
+<span class="c1">-- list all columns that are used in views</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">view_column_usage</span><span class="p">;</span>
+
+<span class="c1">-- list all routines that are used in views</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">view_routine_usage</span><span class="p">;</span>
+
+<span class="c1">-- lists all tables that are used in views</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">view_table_usage</span><span class="p">;</span>
+
+<span class="c1">-- list all of the columns in the database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">columns</span><span class="p">;</span>
+
+<span class="c1">-- list all triggers that specify update columns</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">triggered_update_columns</span><span class="p">;</span>
+
+<span class="c1">-- list options for any foreign table columns</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">column_options</span><span class="p">;</span>
+
+<span class="c1">-- list all constraints that belong to domains in the current database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">domain_constraints</span><span class="p">;</span>
+
+<span class="c1">-- list all domains defined in the database</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">domains</span>
+
+<span class="c1">-- list all of the data types inside of array elements</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">element_types</span><span class="p">;</span>
+
+<span class="c1">-- lists all of the schemas </span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">schemata</span><span class="p">;</span></code></pre></figure>
+
+
+</div>
+
+<div class="related">
+  <h2>Related Posts</h2>
+  <ul class="related-posts">
+    
+      <li>
+        <h3>
+          <a href="https://tuttlem.github.io/2022/02/15/shell-tricks.html">
+            Shell Tricks
+            <small>15 Feb 2022</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="https://tuttlem.github.io/2020/12/27/mutual-tls-(mtls).html">
+            Mutual TLS (mTLS)
+            <small>27 Dec 2020</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="https://tuttlem.github.io/2020/12/22/find-the-listening-process-for-a-port.html">
+            Find the listening process for a port
+            <small>22 Dec 2020</small>
+          </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-51930868-1', 'tuttlem.github.io');
+      ga('send', 'pageview');
+
+    </script>
+
+  </body>
+</html>

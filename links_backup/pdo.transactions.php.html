@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>PHP: Транзакции и автоматическая фиксация изменений - Manual </title>
+
+ <link rel="shortcut icon" href="https://www.php.net/favicon.ico">
+ <link rel="search" type="application/opensearchdescription+xml" href="http://php.net/phpnetimprovedsearch.src" title="Add PHP.net search">
+ <link rel="alternate" type="application/atom+xml" href="https://www.php.net/releases/feed.php" title="PHP Release feed">
+ <link rel="alternate" type="application/atom+xml" href="https://www.php.net/feed.atom" title="PHP: Hypertext Preprocessor">
+
+ <link rel="canonical" href="pdo.transactions.php.html">
+ <link rel="shorturl" href="pdo.transactions.php.html">
+ <link rel="alternate" href="pdo.transactions.php.html" hreflang="x-default">
+
+ <link rel="contents" href="https://www.php.net/manual/ru/index.php">
+ <link rel="index" href="https://www.php.net/manual/ru/book.pdo.php">
+ <link rel="prev" href="https://www.php.net/manual/ru/pdo.connections.php">
+ <link rel="next" href="https://www.php.net/manual/ru/pdo.prepared-statements.php">
+
+ <link rel="alternate" href="https://www.php.net/manual/en/pdo.transactions.php" hreflang="en">
+ <link rel="alternate" href="https://www.php.net/manual/pt_BR/pdo.transactions.php" hreflang="pt_BR">
+ <link rel="alternate" href="https://www.php.net/manual/zh/pdo.transactions.php" hreflang="zh">
+ <link rel="alternate" href="https://www.php.net/manual/fr/pdo.transactions.php" hreflang="fr">
+ <link rel="alternate" href="https://www.php.net/manual/de/pdo.transactions.php" hreflang="de">
+ <link rel="alternate" href="https://www.php.net/manual/ja/pdo.transactions.php" hreflang="ja">
+ <link rel="alternate" href="pdo.transactions.php.html" hreflang="ru">
+ <link rel="alternate" href="https://www.php.net/manual/es/pdo.transactions.php" hreflang="es">
+ <link rel="alternate" href="https://www.php.net/manual/tr/pdo.transactions.php" hreflang="tr">
+
+<link rel="stylesheet" type="text/css" href="https://www.php.net/cached.php?t=1639034403&amp;f=/fonts/Fira/fira.css" media="screen">
+<link rel="stylesheet" type="text/css" href="https://www.php.net/cached.php?t=1539765004&amp;f=/fonts/Font-Awesome/css/fontello.css" media="screen">
+<link rel="stylesheet" type="text/css" href="https://www.php.net/cached.php?t=1606338002&amp;f=/styles/theme-base.css" media="screen">
+<link rel="stylesheet" type="text/css" href="https://www.php.net/cached.php?t=1627831203&amp;f=/styles/theme-medium.css" media="screen">
+
+ <!--[if lte IE 7]>
+ <link rel="stylesheet" type="text/css" href="https://www.php.net/styles/workarounds.ie7.css" media="screen">
+ <![endif]-->
+
+ <!--[if lte IE 8]>
+ <script>
+  window.brokenIE = true;
+ </script>
+ <![endif]-->
+
+ <!--[if lte IE 9]>
+ <link rel="stylesheet" type="text/css" href="https://www.php.net/styles/workarounds.ie9.css" media="screen">
+ <![endif]-->
+
+ <!--[if IE]>
+ <script src="https://www.php.net/js/ext/html5.js"></script>
+ <![endif]-->
+
+ <base href="">
+
+
+</head>
+<body class="docs ">
+
+<nav id="head-nav" class="navbar navbar-fixed-top">
+  <div class="navbar-inner clearfix">
+    <a href="https://www.php.net/" class="brand"><img src="https://www.php.net/images/logos/php-logo.svg" width="48" height="24" alt="php"></a>
+    <div id="mainmenu-toggle-overlay"></div>
+    <input type="checkbox" id="mainmenu-toggle">
+    <ul class="nav">
+      <li class=""><a href="https://www.php.net/downloads">Downloads</a></li>
+      <li class="active"><a href="https://www.php.net/docs.php">Documentation</a></li>
+      <li class=""><a href="https://www.php.net/get-involved" >Get Involved</a></li>
+      <li class=""><a href="https://www.php.net/support">Help</a></li>
+      <li class="">
+        <a href="https://www.php.net/releases/8.1/index.php">
+          <img src="https://www.php.net/images/php8/logo_php8_1.svg" alt="php8.1" height="22" width="60">
+        </a>
+      </li>
+    </ul>
+    <form class="navbar-search" id="topsearch" action="https://www.php.net/search.php">
+      <input type="hidden" name="show" value="quickref">
+      <input type="search" name="pattern" class="search-query" placeholder="Search" accesskey="s">
+    </form>
+  </div>
+  <div id="flash-message"></div>
+</nav>
+<nav id="trick"><div><dl>
+<dt><a href='https://www.php.net/manual/en/getting-started.php'>Getting Started</a></dt>
+	<dd><a href='https://www.php.net/manual/en/introduction.php'>Introduction</a></dd>
+	<dd><a href='https://www.php.net/manual/en/tutorial.php'>A simple tutorial</a></dd>
+<dt><a href='https://www.php.net/manual/en/langref.php'>Language Reference</a></dt>
+	<dd><a href='https://www.php.net/manual/en/language.basic-syntax.php'>Basic syntax</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.types.php'>Types</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.variables.php'>Variables</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.constants.php'>Constants</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.expressions.php'>Expressions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.operators.php'>Operators</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.control-structures.php'>Control Structures</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.functions.php'>Functions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.oop5.php'>Classes and Objects</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.namespaces.php'>Namespaces</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.enumerations.php'>Enumerations</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.errors.php'>Errors</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.exceptions.php'>Exceptions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.fibers.php'>Fibers</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.generators.php'>Generators</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.attributes.php'>Attributes</a></dd>
+	<dd><a href='https://www.php.net/manual/en/language.references.php'>References Explained</a></dd>
+	<dd><a href='https://www.php.net/manual/en/reserved.variables.php'>Predefined Variables</a></dd>
+	<dd><a href='https://www.php.net/manual/en/reserved.exceptions.php'>Predefined Exceptions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/reserved.interfaces.php'>Predefined Interfaces and Classes</a></dd>
+	<dd><a href='https://www.php.net/manual/en/context.php'>Context options and parameters</a></dd>
+	<dd><a href='https://www.php.net/manual/en/wrappers.php'>Supported Protocols and Wrappers</a></dd>
+</dl>
+<dl>
+<dt><a href='https://www.php.net/manual/en/security.php'>Security</a></dt>
+	<dd><a href='https://www.php.net/manual/en/security.intro.php'>Introduction</a></dd>
+	<dd><a href='https://www.php.net/manual/en/security.general.php'>General considerations</a></dd>
+	<dd><a href='https://www.php.net/manual/en/security.cgi-bin.php'>Installed as CGI binary</a></dd>
+	<dd><a href='https://www.php.net/manual/en/security.apache.php'>Installed as an Apache module</a></dd>
+	<dd><a href='https://www.php.net/manual/en/security.sessions.php'>Session Security</a></dd>
+	<dd><a href='https://www.php.net/manual/en/security.filesystem.php'>Filesystem Security</a></dd>
+	<dd><a href='https://www.php.net/manual/en/security.database.php'>Database Security</a></dd>
+	<dd><a href='https://www.php.net/manual/en/security.errors.php'>Error Reporting</a></dd>
+	<dd><a href='https://www.php.net/manual/en/security.variables.php'>User Submitted Data</a></dd>
+	<dd><a href='https://www.php.net/manual/en/security.hiding.php'>Hiding PHP</a></dd>
+	<dd><a href='https://www.php.net/manual/en/security.current.php'>Keeping Current</a></dd>
+<dt><a href='https://www.php.net/manual/en/features.php'>Features</a></dt>
+	<dd><a href='https://www.php.net/manual/en/features.http-auth.php'>HTTP authentication with PHP</a></dd>
+	<dd><a href='https://www.php.net/manual/en/features.cookies.php'>Cookies</a></dd>
+	<dd><a href='https://www.php.net/manual/en/features.sessions.php'>Sessions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/features.xforms.php'>Dealing with XForms</a></dd>
+	<dd><a href='https://www.php.net/manual/en/features.file-upload.php'>Handling file uploads</a></dd>
+	<dd><a href='https://www.php.net/manual/en/features.remote-files.php'>Using remote files</a></dd>
+	<dd><a href='https://www.php.net/manual/en/features.connection-handling.php'>Connection handling</a></dd>
+	<dd><a href='https://www.php.net/manual/en/features.persistent-connections.php'>Persistent Database Connections</a></dd>
+	<dd><a href='https://www.php.net/manual/en/features.commandline.php'>Command line usage</a></dd>
+	<dd><a href='https://www.php.net/manual/en/features.gc.php'>Garbage Collection</a></dd>
+	<dd><a href='https://www.php.net/manual/en/features.dtrace.php'>DTrace Dynamic Tracing</a></dd>
+</dl>
+<dl>
+<dt><a href='https://www.php.net/manual/en/funcref.php'>Function Reference</a></dt>
+	<dd><a href='https://www.php.net/manual/en/refs.basic.php.php'>Affecting PHP's Behaviour</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.utilspec.audio.php'>Audio Formats Manipulation</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.remote.auth.php'>Authentication Services</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.utilspec.cmdline.php'>Command Line Specific Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.compression.php'>Compression and Archive Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.crypto.php'>Cryptography Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.database.php'>Database Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.calendar.php'>Date and Time Related Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.fileprocess.file.php'>File System Related Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.international.php'>Human Language and Character Encoding Support</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.utilspec.image.php'>Image Processing and Generation</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.remote.mail.php'>Mail Related Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.math.php'>Mathematical Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.utilspec.nontext.php'>Non-Text MIME Output</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.fileprocess.process.php'>Process Control Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.basic.other.php'>Other Basic Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.remote.other.php'>Other Services</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.search.php'>Search Engine Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.utilspec.server.php'>Server Specific Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.basic.session.php'>Session Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.basic.text.php'>Text Processing</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.basic.vartype.php'>Variable and Type Related Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.webservice.php'>Web Services</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.utilspec.windows.php'>Windows Only Extensions</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.xml.php'>XML Manipulation</a></dd>
+	<dd><a href='https://www.php.net/manual/en/refs.ui.php'>GUI Extensions</a></dd>
+</dl>
+<dl>
+<dt>Keyboard Shortcuts</dt><dt>?</dt>
+<dd>This help</dd>
+<dt>j</dt>
+<dd>Next menu item</dd>
+<dt>k</dt>
+<dd>Previous menu item</dd>
+<dt>g p</dt>
+<dd>Previous man page</dd>
+<dt>g n</dt>
+<dd>Next man page</dd>
+<dt>G</dt>
+<dd>Scroll to bottom</dd>
+<dt>g g</dt>
+<dd>Scroll to top</dd>
+<dt>g h</dt>
+<dd>Goto homepage</dd>
+<dt>g s</dt>
+<dd>Goto search<br>(current page)</dd>
+<dt>/</dt>
+<dd>Focus search box</dd>
+</dl></div></nav>
+<div id="goto">
+    <div class="search">
+         <div class="text"></div>
+         <div class="results"><ul></ul></div>
+   </div>
+</div>
+
+  <div id="breadcrumbs" class="clearfix">
+    <div id="breadcrumbs-inner">
+          <div class="next">
+        <a href="https://www.php.net/manual/ru/pdo.prepared-statements.php">
+          Подготовленные запросы и хранимые процедуры &raquo;
+        </a>
+      </div>
+              <div class="prev">
+        <a href="https://www.php.net/manual/ru/pdo.connections.php">
+          &laquo; Подключения и управление подключениями        </a>
+      </div>
+          <ul>
+            <li><a href='https://www.php.net/manual/ru/index.php'>Руководство по PHP</a></li>      <li><a href='https://www.php.net/manual/ru/funcref.php'>Справочник функций</a></li>      <li><a href='https://www.php.net/manual/ru/refs.database.php'>Модули для работы с базами данных</a></li>      <li><a href='https://www.php.net/manual/ru/refs.database.abstract.php'>Уровни абстракции</a></li>      <li><a href='https://www.php.net/manual/ru/book.pdo.php'>PDO</a></li>      </ul>
+    </div>
+  </div>
+
+
+
+
+<div id="layout" class="clearfix">
+  <section id="layout-content">
+  <div class="page-tools">
+    <div class="change-language">
+      <form action="https://www.php.net/manual/change.php" method="get" id="changelang" name="changelang">
+        <fieldset>
+          <label for="changelang-langs">Change language:</label>
+          <select onchange="document.changelang.submit()" name="page" id="changelang-langs">
+            <option value='en/pdo.transactions.php'>English</option>
+            <option value='pt_BR/pdo.transactions.php'>Brazilian Portuguese</option>
+            <option value='zh/pdo.transactions.php'>Chinese (Simplified)</option>
+            <option value='fr/pdo.transactions.php'>French</option>
+            <option value='de/pdo.transactions.php'>German</option>
+            <option value='ja/pdo.transactions.php'>Japanese</option>
+            <option value='ru/pdo.transactions.php' selected="selected">Russian</option>
+            <option value='es/pdo.transactions.php'>Spanish</option>
+            <option value='tr/pdo.transactions.php'>Turkish</option>
+            <option value="help-translate.php">Other</option>
+          </select>
+        </fieldset>
+      </form>
+    </div>
+    <div class="edit-bug">
+      <a href="https://github.com/php/doc-ru/blob/master/reference/pdo/transactions.xml">Submit a Pull Request</a>
+      <a href="https://github.com/php/doc-ru/issues/new?body=From%20manual%20page:%20https:%2F%2Fphp.net%2Fpdo.transactions%0A%0A---">Report a Bug</a>
+    </div>
+  </div><div id="pdo.transactions" class="chapter">
+ <h1>Транзакции и автоматическая фиксация изменений</h1>
+
+ <p class="para">
+  Теперь вы знаете, как подключаться к базам данных посредством PDO. Но перед
+  тем как выполнять запросы, вам необходимо понять, как PDO управляет
+  транзакциями. Если вы прежде не сталкивались с транзакциями, они обладают
+  четырьмя главными свойствами, это Атомарность, Согласованность, Изолированность
+  и Долговечность (ACID). Говоря простым языком, любые действия, совершенные в
+  рамках транзакции, гарантированно будут выполнены безопасно для базы данных, и
+  на них не повлияют другие подключения к этой базе, даже если эти действия
+  совершаются в несколько этапов. Транзакционные операции можно отменять по
+  запросу (если транзакция ещё не зафиксирована), что упрощает обработку
+  ошибок в скриптах.
+ </p>
+ <p class="para">
+  Механизм транзакций реализован путём &quot;временного сохранения&quot; всех изменений и
+  дальнейшего применения этих изменений, как единого целого. Это позволяет
+  добиться резкого увеличения эффективности подобных изменений. Другими словами,
+  транзакции могут сделать ваши скрипты более быстрыми и потенциально более стабильными
+  (но для этого необходимо корректно использовать этот механизм).
+ </p>
+ <p class="para">
+  К сожалению, не все базы данных поддерживают транзакции, поэтому PDO
+  при создании подключения работает в режиме так называемой &quot;автоматической
+  фиксации&quot;. Режим автофиксации означает, что каждый запрос к базе данных, который
+  вы выполняете, неявно заключается в транзакцию, если СУБД их поддерживает.
+  Если база данных не поддерживает этот механизм, запрос обрабатывается без
+  транзакции. Чтобы явно обозначить начало транзакции, вы должны использовать
+  метод <span class="function"><a href="https://www.php.net/manual/ru/pdo.begintransaction.php" class="function">PDO::beginTransaction()</a></span>. Если драйвер не
+  поддерживает механизм транзакций, будет выброшено исключение PDOException
+  (вне зависимости от выбранного способа обработки ошибок: подобные ситуации -
+  это всегда серьёзная недоработка). После того, как вы совершите транзакцию, вы можете
+  зафиксировать её методом <span class="function"><a href="https://www.php.net/manual/ru/pdo.commit.php" class="function">PDO::commit()</a></span> или откатить методом
+  <span class="function"><a href="https://www.php.net/manual/ru/pdo.rollback.php" class="function">PDO::rollBack()</a></span>, в зависимости от того, успешно выполнен ваш
+  код внутри транзакции или нет.
+ </p>
+ <div class="warning"><strong class="warning">Внимание</strong>
+  <p class="para">
+   PDO проверяет возможность использования транзакций только на уровне драйвера.
+   Если по каким-то причинам механизм транзакций недоступен, но сервер баз данных
+   принял запрос на открытие транзакции,
+   <span class="methodname"><a href="https://www.php.net/manual/ru/pdo.begintransaction.php" class="methodname">PDO::beginTransaction()</a></span> вернёт <strong><code>true</code></strong> без ошибок.
+  </p>
+  <p class="para">
+   В качестве примера может быть попытка использования транзакций в таблицах
+   MyISAM базы данных MySQL.
+  </p>
+ </div>
+ <p class="para">
+  При завершении работы скрипта или при закрытии соединения, PDO автоматически
+  откатывает все незавершённые транзакции. Это делается, чтобы предотвратить
+  нарушения целостности базы данных в случаях, когда скрипт неожиданно прерывает
+  работу. Если вы явно не зафиксировали изменения, предполагается, что что-то
+  пошло не так. Поэтому откат изменений - наиболее безопасный выход из ситуации.
+ </p>
+ <div class="warning"><strong class="warning">Внимание</strong>
+  <p class="para">
+   Изменения будут откачены автоматически, только если транзакция открыта методом
+   <span class="function"><a href="https://www.php.net/manual/ru/pdo.begintransaction.php" class="function">PDO::beginTransaction()</a></span>. Если транзакцию открыть вручную в
+   тексте запроса, PDO об этом никак не узнает, и, соответственно, не сможет принять
+   мер, если произойдёт что-то плохое.
+  </p>
+ </div>
+ <p class="para">
+  <div class="example" id="example-1000"><p><strong>Пример #1 Выполнение пакета изменений в рамках транзакции</strong></p>
+   <div class="example-contents"><p>
+    В следующем примере предположим, что мы создаём несколько записей для нового
+    сотрудника с номером ID 23. Помимо ввода основной информации необходимо
+    записать его зарплату. Довольно просто сделать два отдельных обновления таблиц,
+    однако путём заключения этих запросов в рамки
+    <span class="function"><a href="https://www.php.net/manual/ru/pdo.begintransaction.php" class="function">PDO::beginTransaction()</a></span> и
+    <span class="function"><a href="https://www.php.net/manual/ru/pdo.commit.php" class="function">PDO::commit()</a></span> мы сможем гарантировать, что никто не увидит
+    этих изменений, пока все они не будут завершены. Если что-то пойдёт не так,
+    catch-блок откатит все изменения с начала транзакции и напечатает сообщение об
+    ошибке.
+   </p></div>
+   <div class="example-contents">
+<div class="phpcode"><code><span style="color: #000000">
+<span style="color: #0000BB">&lt;?php<br /></span><span style="color: #007700">try&nbsp;{<br />&nbsp;&nbsp;</span><span style="color: #0000BB">$dbh&nbsp;</span><span style="color: #007700">=&nbsp;new&nbsp;</span><span style="color: #0000BB">PDO</span><span style="color: #007700">(</span><span style="color: #DD0000">'odbc:SAMPLE'</span><span style="color: #007700">,&nbsp;</span><span style="color: #DD0000">'db2inst1'</span><span style="color: #007700">,&nbsp;</span><span style="color: #DD0000">'ibmdb2'</span><span style="color: #007700">,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;array(</span><span style="color: #0000BB">PDO</span><span style="color: #007700">::</span><span style="color: #0000BB">ATTR_PERSISTENT&nbsp;</span><span style="color: #007700">=&gt;&nbsp;</span><span style="color: #0000BB">true</span><span style="color: #007700">));<br />&nbsp;&nbsp;echo&nbsp;</span><span style="color: #DD0000">"Подключились\n"</span><span style="color: #007700">;<br />}&nbsp;catch&nbsp;(</span><span style="color: #0000BB">Exception&nbsp;$e</span><span style="color: #007700">)&nbsp;{<br />&nbsp;&nbsp;die(</span><span style="color: #DD0000">"Не&nbsp;удалось&nbsp;подключиться:&nbsp;"&nbsp;</span><span style="color: #007700">.&nbsp;</span><span style="color: #0000BB">$e</span><span style="color: #007700">-&gt;</span><span style="color: #0000BB">getMessage</span><span style="color: #007700">());<br />}<br /><br />try&nbsp;{<br />&nbsp;&nbsp;</span><span style="color: #0000BB">$dbh</span><span style="color: #007700">-&gt;</span><span style="color: #0000BB">setAttribute</span><span style="color: #007700">(</span><span style="color: #0000BB">PDO</span><span style="color: #007700">::</span><span style="color: #0000BB">ATTR_ERRMODE</span><span style="color: #007700">,&nbsp;</span><span style="color: #0000BB">PDO</span><span style="color: #007700">::</span><span style="color: #0000BB">ERRMODE_EXCEPTION</span><span style="color: #007700">);<br /><br />&nbsp;&nbsp;</span><span style="color: #0000BB">$dbh</span><span style="color: #007700">-&gt;</span><span style="color: #0000BB">beginTransaction</span><span style="color: #007700">();<br />&nbsp;&nbsp;</span><span style="color: #0000BB">$dbh</span><span style="color: #007700">-&gt;</span><span style="color: #0000BB">exec</span><span style="color: #007700">(</span><span style="color: #DD0000">"insert&nbsp;into&nbsp;staff&nbsp;(id,&nbsp;first,&nbsp;last)&nbsp;values&nbsp;(23,&nbsp;'Joe',&nbsp;'Bloggs')"</span><span style="color: #007700">);<br />&nbsp;&nbsp;</span><span style="color: #0000BB">$dbh</span><span style="color: #007700">-&gt;</span><span style="color: #0000BB">exec</span><span style="color: #007700">(</span><span style="color: #DD0000">"insert&nbsp;into&nbsp;salarychange&nbsp;(id,&nbsp;amount,&nbsp;changedate)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;values&nbsp;(23,&nbsp;50000,&nbsp;NOW())"</span><span style="color: #007700">);<br />&nbsp;&nbsp;</span><span style="color: #0000BB">$dbh</span><span style="color: #007700">-&gt;</span><span style="color: #0000BB">commit</span><span style="color: #007700">();<br /><br />}&nbsp;catch&nbsp;(</span><span style="color: #0000BB">Exception&nbsp;$e</span><span style="color: #007700">)&nbsp;{<br />&nbsp;&nbsp;</span><span style="color: #0000BB">$dbh</span><span style="color: #007700">-&gt;</span><span style="color: #0000BB">rollBack</span><span style="color: #007700">();<br />&nbsp;&nbsp;echo&nbsp;</span><span style="color: #DD0000">"Ошибка:&nbsp;"&nbsp;</span><span style="color: #007700">.&nbsp;</span><span style="color: #0000BB">$e</span><span style="color: #007700">-&gt;</span><span style="color: #0000BB">getMessage</span><span style="color: #007700">();<br />}<br /></span><span style="color: #0000BB">?&gt;</span>
+</span>
+</code></div>
+   </div>
+
+  </div>
+ </p>
+ <p class="para">
+  Вы никак не ограничены в количестве запросов в рамках транзакции; вы также
+  можете выполнять сложные запросы, чтобы извлечь данные, а затем использовать
+  их для создания других запросов на обновление и извлечение данных; если
+  транзакция активна, вы можете быть уверены, что никто не сможет изменить ваши
+  данные, пока вы с ними работаете. За дополнительной информацией о транзакциях
+  обращайтесь к документации к вашему серверу баз данных.
+ </p>
+</div>
+
+<section id="usernotes">
+ <div class="head">
+  <span class="action"><a href="https://www.php.net/manual/add-note.php?sect=pdo.transactions&amp;redirect=https://www.php.net/manual/ru/pdo.transactions.php"><img src='https://www.php.net/images/notes-add@2x.png' alt='add a note' width='12' height='12'> <small>add a note</small></a></span>
+  <h3 class="title">User Contributed Notes <span class="count">2 notes</span></h3>
+ </div><div id="allnotes">
+  <div class="note" id="110483">  <div class="votes">
+    <div id="Vu110483">
+    <a href="https://www.php.net/manual/vote-note.php?id=110483&amp;page=pdo.transactions&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+    </div>
+    <div id="Vd110483">
+    <a href="https://www.php.net/manual/vote-note.php?id=110483&amp;page=pdo.transactions&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+    </div>
+    <div class="tally" id="V110483" title="50% like this...">
+    2
+    </div>
+  </div>
+  <a href="pdo.transactions.php.html#110483" class="name">
+  <strong class="user"><em>pasamio at gmail dot com</em></strong></a><a class="genanchor" href="pdo.transactions.php.html#110483"> &para;</a><div class="date" title="2012-10-26 07:25"><strong>9 years ago</strong></div>
+  <div class="text" id="Hcom110483">
+<div class="phpcode"><code><span class="html">
+Typically data definition language clauses (DDL) will trigger the database engine to automatically commit:<br /><a href="http://dev.mysql.com/doc/refman/5.0/en/implicit-commit.html" rel="nofollow" target="_blank">http://dev.mysql.com/doc/refman/5.0/en/implicit-commit.html</a><br /><br />Many other databases (e.g. Oracle) will implicitly commit before and after running DDL statements.</span>
+</code></div>
+  </div>
+ </div>
+  <div class="note" id="122037">  <div class="votes">
+    <div id="Vu122037">
+    <a href="https://www.php.net/manual/vote-note.php?id=122037&amp;page=pdo.transactions&amp;vote=up" title="Vote up!" class="usernotes-voteu">up</a>
+    </div>
+    <div id="Vd122037">
+    <a href="https://www.php.net/manual/vote-note.php?id=122037&amp;page=pdo.transactions&amp;vote=down" title="Vote down!" class="usernotes-voted">down</a>
+    </div>
+    <div class="tally" id="V122037" title="51% like this...">
+    1
+    </div>
+  </div>
+  <a href="pdo.transactions.php.html#122037" class="name">
+  <strong class="user"><em>harl at gmail dot com</em></strong></a><a class="genanchor" href="pdo.transactions.php.html#122037"> &para;</a><div class="date" title="2017-12-18 03:11"><strong>4 years ago</strong></div>
+  <div class="text" id="Hcom122037">
+<div class="phpcode"><code><span class="html">
+Some DBMSs allow DDL (table creation/alteration) within transactions, some do not. Asking "Does my DBMS allow DDL within transactions without forcing a commit?" gives the following example answers:<br /><br />CUBRID: Yes<br />DB2 UDB: Yes<br />Firebird: Yes<br />Informix: Yes<br />MySQL: No<br />Oracle: No (although schema upgrades can be rolled out using "edition-based redefinition")<br />PostgreSQL: Yes<br />SQLite: Yes<br />SQL Server: Sometimes, depending on isolation level, type of command, etc.<br />Sybase: Yes</span>
+</code></div>
+  </div>
+ </div></div>
+
+ <div class="foot"><a href="https://www.php.net/manual/add-note.php?sect=pdo.transactions&amp;redirect=https://www.php.net/manual/ru/pdo.transactions.php"><img src='https://www.php.net/images/notes-add@2x.png' alt='add a note' width='12' height='12'> <small>add a note</small></a></div>
+</section>    </section><!-- layout-content -->
+        <aside class='layout-menu'>
+
+        <ul class='parent-menu-list'>
+                                    <li>
+                <a href="https://www.php.net/manual/ru/book.pdo.php">PDO</a>
+
+                                    <ul class='child-menu-list'>
+
+                                                <li class="">
+                            <a href="https://www.php.net/manual/ru/intro.pdo.php" title="Введение">Введение</a>
+                        </li>
+                                                <li class="">
+                            <a href="https://www.php.net/manual/ru/pdo.setup.php" title="Установка и настройка">Установка и настройка</a>
+                        </li>
+                                                <li class="">
+                            <a href="https://www.php.net/manual/ru/pdo.constants.php" title="Предопределённые константы">Предопределённые константы</a>
+                        </li>
+                                                <li class="">
+                            <a href="https://www.php.net/manual/ru/pdo.connections.php" title="Подключения и управление подключениями">Подключения и управление подключениями</a>
+                        </li>
+                                                <li class="current">
+                            <a href="pdo.transactions.php.html" title="Транзакции и автоматическая фиксация изменений">Транзакции и автоматическая фиксация изменений</a>
+                        </li>
+                                                <li class="">
+                            <a href="https://www.php.net/manual/ru/pdo.prepared-statements.php" title="Подготовленные запросы и хранимые процедуры">Подготовленные запросы и хранимые процедуры</a>
+                        </li>
+                                                <li class="">
+                            <a href="https://www.php.net/manual/ru/pdo.error-handling.php" title="Ошибки и их обработка">Ошибки и их обработка</a>
+                        </li>
+                                                <li class="">
+                            <a href="https://www.php.net/manual/ru/pdo.lobs.php" title="Большие объекты (LOB)">Большие объекты (LOB)</a>
+                        </li>
+                                                <li class="">
+                            <a href="https://www.php.net/manual/ru/class.pdo.php" title="PDO">PDO</a>
+                        </li>
+                                                <li class="">
+                            <a href="https://www.php.net/manual/ru/class.pdostatement.php" title="PDOStatement">PDOStatement</a>
+                        </li>
+                                                <li class="">
+                            <a href="https://www.php.net/manual/ru/class.pdoexception.php" title="PDOException">PDOException</a>
+                        </li>
+                                                <li class="">
+                            <a href="https://www.php.net/manual/ru/pdo.drivers.php" title="Драйверы PDO">Драйверы PDO</a>
+                        </li>
+                        
+                    </ul>
+                
+            </li>
+                        
+                    </ul>
+    </aside>
+
+
+  </div><!-- layout -->
+
+  <footer>
+    <div class="container footer-content">
+      <div class="row-fluid">
+      <ul class="footmenu">
+        <li><a href="https://www.php.net/copyright.php">Copyright &copy; 2001-2022 The PHP Group</a></li>
+        <li><a href="https://www.php.net/my.php">My PHP.net</a></li>
+        <li><a href="https://www.php.net/contact.php">Contact</a></li>
+        <li><a href="https://www.php.net/sites.php">Other PHP.net sites</a></li>
+        <li><a href="https://www.php.net/privacy.php">Privacy policy</a></li>
+        <li><a href="https://github.com/php/web-php/blob/master/manual%2Fru%2Fpdo.transactions.php">View Source</a></li>
+      </ul>
+      </div>
+    </div>
+  </footer>
+
+    
+ <!-- External and third party libraries. -->
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" integrity="sha384-aBL3Lzi6c9LNDGvpHkZrrm3ZVsIwohDD7CDozL0pk8FwCrfmV7H9w8j3L7ikEv6h" crossorigin="anonymous"></script>
+<script src="https://www.php.net/cached.php?t=1421837618&amp;f=/js/ext/modernizr.js"></script>
+<script src="https://www.php.net/cached.php?t=1421837618&amp;f=/js/ext/hogan-2.0.0.min.js"></script>
+<script src="https://www.php.net/cached.php?t=1421837618&amp;f=/js/ext/typeahead.min.js"></script>
+<script src="https://www.php.net/cached.php?t=1421837618&amp;f=/js/ext/mousetrap.min.js"></script>
+<script src="https://www.php.net/cached.php?t=1421837618&amp;f=/js/search.js"></script>
+<script src="https://www.php.net/cached.php?t=1637324403&amp;f=/js/common.js"></script>
+
+<a id="toTop" href="javascript:;"><span id="toTopHover"></span><img width="40" height="40" alt="To Top" src="https://www.php.net/images/to-top@2x.png"></a>
+
+</body>
+</html>

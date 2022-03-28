@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Практические советы, примеры и туннели SSH / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/435546\/"},"headline":"Практические советы, примеры и туннели SSH","datePublished":"2019-01-09T16:44:50+03:00","dateModified":"2019-01-09T17:15:30+03:00","author":{"@type":"Person","name":"Анатолий Ализар"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Практические примеры SSH, которые выведут на новый уровень ваши навыки удалённого системного администратора. Команды и советы помогут не только использовать SSH...","url":"https:\/\/habr.com\/ru\/post\/435546\/#post-content-body","about":["h_infosecurity","h_soft","f_develop","f_popsci"],"image":["https:\/\/habrastorage.org\/webt\/oz\/pn\/4x\/ozpn4xuna3odpakxmdgnlwqxwto.jpeg","https:\/\/habrastorage.org\/getpro\/habr\/post_images\/daa\/f8b\/545\/daaf8b54515ce6eee864c8416d41eef9.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Практические советы, примеры и туннели SSH" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Практические советы, примеры и туннели SSH" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Практические советы, примеры и туннели SSH" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Практические примеры SSH, которые выведут на новый уровень ваши навыки удалённого системного администратора. Команды и советы помогут не только использовать SSH, но и более грамотно перемещаться по..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Практические примеры SSH, которые выведут на новый уровень ваши навыки удалённого системного администратора. Команды и советы помогут не только использовать SSH, но и более грамотно перемещаться по..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Практические примеры SSH, которые выведут на новый уровень ваши навыки удалённого системного администратора. Команды и советы помогут не только использовать SSH, но и более грамотно перемещаться по..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Практические примеры SSH, которые выведут на новый уровень ваши навыки удалённого системного администратора. Команды и советы помогут не только использовать SSH, но и более грамотно перемещаться по..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Практические примеры SSH, которые выведут на новый уровень ваши навыки удалённого системного администратора. Команды и советы помогут не только использовать SSH, но и более грамотно перемещаться по..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/435546/df08b09c92c53052cc7dedd8f1f2f5ef/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/435546/df08b09c92c53052cc7dedd8f1f2f5ef/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/435546/df08b09c92c53052cc7dedd8f1f2f5ef/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/435546/df08b09c92c53052cc7dedd8f1f2f5ef/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/435546/df08b09c92c53052cc7dedd8f1f2f5ef/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="435546" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2019-01-09T13:44:50.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/435546/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="SSH, VPN, socks-прокси, Torsocks, OSSEC">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/435546/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.111.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/435546/df08b09c92c53052cc7dedd8f1f2f5ef/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/m1rko/" title="m1rko" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/4ec/bd0/85d/4ecbd085d692835a931d03174ff19539.png" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/m1rko/" class="tm-user-info__username">
+      m1rko
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2019-01-09T13:44:50.000Z" title="2019-01-09, 16:44">9  января  2019 в 16:44</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Практические советы, примеры и туннели SSH</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/infosecurity/" class="tm-article-snippet__hubs-item-link"><span>Информационная безопасность</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/soft/" class="tm-article-snippet__hubs-item-link"><span>Софт</span> <!----></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-translation"><span>
+        Перевод
+      </span></div><div class="tm-article-snippet__label tm-article-snippet__label_variant-tutorial"><span>
+        Tutorial
+      </span></div></div> <!----> <!----></div></div> <div class="tm-article-presenter__origin"><a href="https://hackertarget.com/ssh-examples-tunnels/" target="_blank" class="tm-article-presenter__origin-link">
+                Автор оригинала:
+                <span>
+                  Hacker Target
+                </span></a></div> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><div style="text-align:center;"><img src="https://habrastorage.org/r/w780q1/webt/oz/pn/4x/ozpn4xuna3odpakxmdgnlwqxwto.jpeg" data-src="https://habrastorage.org/webt/oz/pn/4x/ozpn4xuna3odpakxmdgnlwqxwto.jpeg" data-blurred="true"/></div><br/>
+Практические примеры <a href="https://en.wikipedia.org/wiki/Secure_Shell">SSH</a>, которые выведут на новый уровень ваши навыки удалённого системного администратора. Команды и советы помогут не только использовать <code>SSH</code>, но и более грамотно перемещаться по сети.<br/>
+<br/>
+Знание нескольких трюков <code>ssh</code> полезно любому системному администратору, сетевому инженеру или специалисту по безопасности.<br/>
+<a name="habracut"></a><br/>
+<h3>Практические примеры SSH</h3><br/>
+<ol>
+<li><a href="index.html.1.111.html#1">SSH socks-прокси</a></li>
+<li><a href="index.html.1.111.html#2">Туннель SSH (переадресация портов)</a></li>
+<li><a href="index.html.1.111.html#3">SSH-туннель на третий хост</a></li>
+<li><a href="index.html.1.111.html#4">Обратный SSH-туннель</a></li>
+<li><a href="index.html.1.111.html#5">Обратный прокси SSH</a></li>
+<li><a href="index.html.1.111.html#6">Установка VPN по SSH</a></li>
+<li><a href="index.html.1.111.html#7">Копирование ключа SSH (ssh-copy-id)</a></li>
+<li><a href="index.html.1.111.html#8">Удалённое выполнение команд (неинтерактивно)</a></li>
+<li><a href="index.html.1.111.html#9">Удалённый перехват пакетов и просмотр в Wireshark</a></li>
+<li><a href="index.html.1.111.html#10">Копирование локальной папки на удалённый сервер по SSH</a></li>
+<li><a href="index.html.1.111.html#11">Удалённые приложения GUI с переадресацией SSH X11</a></li>
+<li><a href="index.html.1.111.html#12">Удалённое копирование файлов с помощью rsync и SSH</a></li>
+<li><a href="index.html.1.111.html#13">SSH через сеть Tor</a></li>
+<li><a href="index.html.1.111.html#14">SSH к инстансу EC2</a></li>
+<li><a href="index.html.1.111.html#15">Редактирование текстовых файлов с помощью VIM через ssh/scp</a></li>
+<li><a href="index.html.1.111.html#16">Монтирование удалённого SSH как локальной папки с SSHFS</a></li>
+<li><a href="index.html.1.111.html#17">Мультиплексирование SSH с помощью ControlPath</a></li>
+<li><a href="index.html.1.111.html#18">Потоковое видео по SSH с помощью VLC и SFTP</a></li>
+<li><a href="index.html.1.111.html#19">Двухфакторная аутентификация</a></li>
+<li><a href="index.html.1.111.html#20">Прыжки по хостам с SSH и -J</a></li>
+<li><a href="index.html.1.111.html#21">Блокировка попыток брутфорса SSH с помощью iptables</a></li>
+<li><a href="index.html.1.111.html#22">SSH Escape для изменения переадресации портов</a></li>
+</ol><br/>
+<h1>Сначала основы</h1><br/>
+<h4>Разбор командной строки SSH</h4><br/>
+В следующем примере используются обычные параметры, часто встречающиеся при подключении к удалённому серверу <code>SSH</code>.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ ssh -v -p 22 -C neo@remoteserver</code></pre><br/>
+<ul>
+<li><code>-v</code>: вывод отладочной информации особенно полезен при анализе проблем аутентификации. Можно использовать несколько раз для вывода дополнительной информации.</li>
+<li><code>- p 22</code>: <b>порт для подключения</b> к удалённому серверу SSH. 22 не обязательно указывать, потому что это значение по умолчанию, но если протокол на каком-то другом порту, то указываем его с помощью параметра <code>-p</code>. Порт прослушивания указывается в файле <code>sshd_config</code> в формате <code>Port 2222</code>.</li>
+<li><code>-C</code>: сжатие для соединения. Если у вас медленный канал или вы просматриваете много текста, это может ускорить связь.</li>
+<li><code>neo@</code>: строка перед символом @ обозначает имя пользователя для аутентификации на удалённом сервере. Если не указать его, то по умолчанию будет использоваться имя пользователя учётной записи, в которую вы вошли в данный момент (~$ whoami). Пользователя также можно указать параметром <code>-l</code>.</li>
+<li><code>remoteserver</code>: имя хоста, к которому подключается <code>ssh</code>, это может быть полное доменное имя, IP-адрес или любой хост в локальном файле hosts. Для подключения к хосту, который поддерживает и IPv4, и IPv6, можно добавить в командную строку параметр <code>-4</code> или <code>-6</code> для правильного резолвинга.</li>
+</ul><br/>
+Все вышеперечисленные параметры являются необязательными, кроме <code>remoteserver</code>.<br/>
+<br/>
+<h4>Использование файла конфигурации</h4><br/>
+Хотя многие знакомы с файлом <code>sshd_config</code>, есть ещё файл конфигурации клиента для команды <code>ssh</code>. Значение по умолчанию <code>~/.ssh/config</code>, но его можно определить как параметр для опции <code>-F</code>.<br/>
+<br/>
+<pre><code class="bash">Host *
+     Port 2222
+
+Host remoteserver
+     HostName remoteserver.thematrix.io
+     User neo
+     Port 2112
+     IdentityFile /home/test/.ssh/remoteserver.private_key</code></pre><br/>
+В приведённом выше примерном файле конфигурации ssh две записи хоста. Первая обозначает все хосты, для всех применяется параметр конфигурации Port 2222. Вторая говорит, что для хоста <b>remoteserver</b> следует использовать другое имя пользователя, порт, FQDN и IdentityFile.<br/>
+<br/>
+Файл конфигурации может сэкономить много времени на ввод символов, позволяя автоматически применять продвинутую конфигурацию при подключении к конкретным хостам.<br/>
+<br/>
+<h4>Копирование файлов по SSH с помощью SCP</h4><br/>
+SSH-клиент поставляется с двумя другими очень удобными инструментами для копирования файлов по <b>зашифрованному ssh-соединению</b>. Ниже см. пример стандартного использования команд scp и sftp. Обратите внимание, что многие параметры для ssh применяются и в этих командах.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ scp mypic.png neo@remoteserver:/media/data/mypic_2.png</code></pre><br/>
+В этом примере файл <b>mypic.png</b> скопирован на <b>remoteserver</b> в папку <b>/media/data</b> и переименован в <b>mypic_2.png</b>.<br/>
+<br/>
+Не забывайте о разнице в параметре порта. На этом попадаются многие, кто запускает <code>scp</code> из командной строки. Здесь параметр порта <code>-P</code>, а не <code>-p</code>, как в ssh-клиенте! Вы забудете, но не волнуйтесь, все забывают.<br/>
+<br/>
+Для тех, кто знаком с консольным <code>ftp</code>, многие из команд похожи в <code>sftp</code>. Вы можете сделать <b>push</b>, <b>put</b> и <b>ls</b>, как сердце пожелает.<br/>
+<br/>
+<pre><code class="bash">sftp neo@remoteserver</code></pre><br/>
+<h1>Практические примеры</h1><br/>
+Во многих из этих примеров можно достичь результата разными методами. Как и во всех наших <a href="https://hackertarget.com/research/#tutorial">учебниках</a> и примерах, предпочтение отдаётся практическим примерам, которые просто делают своё дело.<br/>
+<br/>
+<a name="1"></a><h3>1. SSH socks-прокси</h3><br/>
+Функция SSH Proxy под номером 1 по уважительной причине. Она более мощная, чем многие предполагают, и даёт вам доступ к любой системе, к которой имеет доступ удалённый сервер, используя практически любое приложение. Клиент ssh может туннелировать трафик через прокси-сервер SOCKS одной простой командой. Важно понимать, что трафик к удалённым системам будет исходить от удалённого сервера, так будет указано в логах веб-сервера.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ ssh -D 8888 user@remoteserver
+
+localhost:~$ netstat -pan | grep 8888
+tcp        0      0 127.0.0.1:8888       0.0.0.0:*               LISTEN      23880/ssh</code></pre><br/>
+Здесь мы запускаем socks-прокси на TCP-порту 8888, вторая команда проверяет, что порт активен в режиме прослушивания. 127.0.0.1 указывает, что служба работает только на localhost. Мы можем применить немного другую команду для прослушивания всех интерфейсов, включая ethernet или wifi, это позволит другим приложениям (браузерам и т д.) в нашей сети подключаться к прокси-сервису через ssh socks-прокси.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ ssh -D 0.0.0.0:8888 user@remoteserver</code></pre><br/>
+Теперь можем настроить браузер для подключения к socks-прокси. В Firefox выберите <b>Настройки | Основные | Параметры сети</b>. Укажите IP-адрес и порт для подключения.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/daa/f8b/545/daaf8b54515ce6eee864c8416d41eef9.png" data-src="https://habrastorage.org/getpro/habr/post_images/daa/f8b/545/daaf8b54515ce6eee864c8416d41eef9.png"/><br/>
+<br/>
+Обратите внимание на опцию в нижней части формы, чтобы DNS-запросы браузера тоже шли через прокси SOCKS. Если используете прокси-сервер для шифрования веб-трафика в локальной сети, то наверняка захотите выбрать эту опцию, чтобы DNS-запросы туннелировались через SSH-соединение.<br/>
+<br/>
+<h4>Активация socks-прокси в Chrome</h4><br/>
+Запуск Chrome с определёнными параметрами командной строки активирует socks-прокси, а также туннелирование DNS-запросов из браузера. Доверяй, но проверяй. Используйте <a href="https://hackertarget.com/tcpdump-examples/">tcpdump</a> для проверки, что DNS-запросы больше не видны.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ google-chrome --proxy-server="socks5://192.168.1.10:8888"</code></pre><br/>
+<h4>Использование других приложений с прокси</h4><br/>
+Имейте в виду, что многие другие приложения тоже могут использовать socks-прокси. Веб-браузер просто самое популярное из них. У некоторых приложений есть параметры конфигурации для активации прокси-сервера. Другим нужно немного помочь вспомогательной программой. Например, <a href="https://github.com/haad/proxychains">proxychains</a> позволяет запустить через socks-прокси Microsoft RDP и др.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ proxychains rdesktop $RemoteWindowsServer</code></pre><br/>
+Параметры конфигурации socks-прокси задаются в файле конфигурации proxychains.<br/>
+<br/>
+<blockquote>Подсказка: если используете удалённый рабочий стол из Linux на Windows? Попробуйте клиент <a href="https://github.com/FreeRDP/FreeRDP">FreeRDP</a>. Это более современная реализация, чем <code>rdesktop</code>, с гораздо более плавным взаимодействием.</blockquote><br/>
+<h4>Вариант использования SSH через socks-прокси</h4><br/>
+Вы сидите в кафе или гостинице — и вынуждены использовать довольно ненадёжный WiFi. С ноутбука локально запускаем ssh-прокси и устанавливаем ssh-туннель в домашнюю сеть на локальный Rasberry Pi. Используя браузер или другие приложения, настроенные для socks-прокси, мы можем получить доступ к любым сетевым службам в нашей домашней сети или выйти в интернет через домашнее подключение. Всё между вашим ноутбуком и домашним сервером (через Wi-Fi и интернет до дома) зашифровано в туннеле SSH.<br/>
+<br/>
+<a name="2"></a><h3>2. Туннель SSH (переадресация портов)</h3><br/>
+В простейшей форме SSH-туннель просто открывает порт в вашей локальной системе, который подключается к другому порту на другом конце туннеля.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ ssh  -L 9999:127.0.0.1:80 user@remoteserver</code></pre><br/>
+Разберём параметр <code>-L</code>. Его можно представить как локальную сторону прослушивания. Таким образом, в примере выше порт 9999 прослушивается на стороне localhost и переадресуется через порт 80 на remoteserver. Обратите внимание, что 127.0.0.1 относится к localhost на удалённом сервере!<br/>
+<br/>
+Поднимемся на ступеньку. В следующем примере порты прослушивания связываются с другими узлами локальной сети.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ ssh  -L 0.0.0.0:9999:127.0.0.1:80 user@remoteserver</code></pre><br/>
+В этих примерах мы подключаемся к порту на веб-сервере, но это может быть прокси-сервер или любая другая служба TCP.<br/>
+<br/>
+<a name="3"></a><h3>3. SSH-туннель на сторонний хост</h3><br/>
+Мы можем использовать те же параметры для подключения туннеля с удалённого сервера к другой службе, запущенной на третьей системе.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ ssh  -L 0.0.0.0:9999:10.10.10.10:80 user@remoteserver</code></pre><br/>
+В данном примере мы перенаправляем туннель от remoteserver к веб-серверу, работающему на 10.10.10.10. Трафик с remoteserver к 10.10.10.10 <b>уже не в SSH-туннеле</b>. Веб-сервер на 10.10.10.10 будет считать remoteserver источником веб-запросов.<br/>
+<br/>
+<a name="4"></a><h3>4. Обратный SSH-туннель</h3><br/>
+Здесь настроим прослушивающий порт на удалённом сервере, который будет подключаться обратно к локальному порту на нашем localhost (или другой системе).<br/>
+<br/>
+<pre><code class="bash">localhost:~$ ssh -v -R 0.0.0.0:1999:127.0.0.1:902 192.168.1.100 user@remoteserver</code></pre><br/>
+В этой SSH-сессии устанавливается соединение с порта 1999 на remoteserver к порту 902 на нашем локальном клиенте.<br/>
+<br/>
+<a name="5"></a><h3>5. Обратный прокси SSH</h3><br/>
+В этом случае мы устанавливаем socks-прокси на нашем ssh-соединении, однако прокси слушает на удалённом конце сервера. Подключения к этому удалённому прокси теперь появляются из туннеля как трафик с нашего localhost.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ ssh -v -R 0.0.0.0:1999 192.168.1.100 user@remoteserver</code></pre><br/>
+<h4>Устранение проблем с удалёнными SSH-туннелями</h4><br/>
+Если у вас возникли проблемы с работой удалённых опций SSH, проверьте с помощью <code>netstat</code>, к каким ещё интерфейсам подключён порт прослушивания. Хотя мы в примерах указали 0.0.0.0, но если значение <b>GatewayPorts</b> в <b>sshd_config</b> установлено в значение <b>no</b>, то листенер будет привязан только к localhost (127.0.0.1).<br/>
+<br/>
+<blockquote><h4>Предупреждение безопасности</h4><br/>
+Обратите внимание, что при открытии туннелей и socks-прокси внутренние сетевые ресурсы могут быть доступны ненадёжным сетям (например, интернету!). Это может быть серьёзной угрозой безопасности, поэтому убедитесь, что вы понимаете, что представляет собой слушатель и к чему у него есть доступ.</blockquote><br/>
+<a name="6"></a><h3>6. Установка VPN по SSH</h3><br/>
+Общий термин среди спецов по методам атаки (пентестеры и проч.) — это «точка опоры в сети». После установления соединения в одной системе эта система становится шлюзом для дальнейшего доступа к сети. Точка опоры, которая позволяет двигаться вширь.<br/>
+<br/>
+Для такой точки опоры мы можем использовать SSH-прокси и <b>proxychains</b>, однако есть некоторые ограничения. Например, не получится работать напрямую с сокетами, поэтому мы не сможем сканировать порты внутри сети через <a href="https://hackertarget.com/nmap-online-port-scanner/">Nmap</a> <code>SYN</code>.<br/>
+<br/>
+Используя этот более продвинутый вариант VPN, подключение снижается до <b>уровня 3</b>. Затем мы можем просто направить трафик через туннель, используя стандартную сетевую маршрутизацию.<br/>
+<br/>
+Метод использует <code>ssh</code>, <code>iptables</code>, <code>tun interfaces</code> и маршрутизацию.<br/>
+<br/>
+Сначала нужно задать эти параметры в <code>sshd_config</code>. Поскольку мы вносим изменения в интерфейсы и удалённой, и клиентской системы, нам <b>нужны права root с обеих сторон</b>.<br/>
+<br/>
+<pre><code class="bash">PermitRootLogin yes
+PermitTunnel yes</code></pre><br/>
+Затем установим ssh-соединение, используя параметр, который запрашивает инициализацию tun-устройств.<br/>
+<br/>
+<pre><code class="bash">localhost:~# ssh -v -w any root@remoteserver</code></pre><br/>
+Теперь у нас должно быть устройство tun при показе интерфейсов (<code># ip a</code>). Следующий шаг добавит IP-адреса к туннельным интерфейсам.<br/>
+<br/>
+Сторона клиента SSH:<br/>
+<br/>
+<pre><code class="bash">localhost:~# ip addr add 10.10.10.2/32 peer 10.10.10.10 dev tun0
+localhost:~# ip tun0 up</code></pre><br/>
+Сторона сервера SSH:<br/>
+<br/>
+<pre><code class="bash">remoteserver:~# ip addr add 10.10.10.10/32 peer 10.10.10.2 dev tun0
+remoteserver:~# ip tun0 up</code></pre><br/>
+Теперь у нас прямой маршрут к другому хосту (<code>route -n</code> и <code>ping 10.10.10.10</code>).<br/>
+<br/>
+Можно маршрутизировать любую подсеть через хост на другой стороне.<br/>
+<br/>
+<pre><code class="bash">localhost:~# route add -net 10.10.10.0 netmask 255.255.255.0 dev tun0</code></pre><br/>
+На удалённой стороне необходимо включить <code>ip_forward</code> и <code>iptables</code>.<br/>
+<br/>
+<pre><code class="bash">remoteserver:~# echo 1 > /proc/sys/net/ipv4/ip_forward
+remoteserver:~# iptables -t nat -A POSTROUTING -s 10.10.10.2 -o enp7s0 -j MASQUERADE</code></pre><br/>
+Бум! <b>VPN через туннель SSH на сетевом уровне 3</b>. Вот это уже победа.<br/>
+<br/>
+Если возникают какие-то проблемы, используйте <a href="https://hackertarget.com/tcpdump-examples/">tcpdump</a> и <code>ping</code>, чтобы установить причину. Поскольку мы играем на уровне 3, то наши пакеты icmp пойдут через этот туннель.<br/>
+<br/>
+<a name="7"></a><h3>7. Копирование ключа SSH (ssh-copy-id)</h3><br/>
+Тут есть несколько способов, но эта команда экономит время, чтобы не копировать файлы вручную. Она просто копирует ~/.ssh/id_rsa.pub (или ключ по умолчанию) с вашей системы в <code>~/.ssh/authorized_keys</code> на удалённом сервере.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ ssh-copy-id user@remoteserver</code></pre><br/>
+<a name="8"></a><h3>8. Удалённое выполнение команд (неинтерактивно)</h3><br/>
+Команду <code>ssh</code> можно связать с другими командам для обычного удобного интерфейса. Просто добавьте команду, которую хотите запустить на удалённом хосте, в качестве последнего параметра в кавычках.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ ssh remoteserver "cat /var/log/nginx/access.log" | grep badstuff.php</code></pre><br/>
+В данном примере <code>grep</code> выполняется на локальной системе после того, как лог скачался по ssh-каналу. Если файл большой, удобнее запустить <code>grep</code> на удалённой стороне, просто заключив обе команды в двойные кавычки.<br/>
+<br/>
+Другой пример выполняет ту же самую функцию, что и <code>ssh-copy-id</code> из примера 7.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ cat ~/.ssh/id_rsa.pub | ssh remoteserver 'cat >> .ssh/authorized_keys'</code></pre><br/>
+<a name="9"></a><h3>9. Удалённый перехват пакетов и просмотр в Wireshark</h3><br/>
+Я взял один из наших <a href="https://hackertarget.com/tcpdump-examples/">примеров по tcpdump</a>. Используйте его для удалённого перехвата пакетов с выдачей результата непосредственно в GUI локального Wireshark.<br/>
+<br/>
+<pre><code class="bash">:~$ ssh root@remoteserver 'tcpdump -c 1000 -nn -w - not port 22' | wireshark -k -i -</code></pre><br/>
+<a name="10"></a><h3>10. Копирование локальной папки на удалённый сервер по SSH</h3><br/>
+Красивый трюк, который сжимает папку с помощью <code>bzip2</code> (это параметр -j в команде <code>tar</code>), а затем извлекает поток <code>bzip2</code> на другой стороне, создавая на удалённом сервере дубликат папки.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ tar -cvj /datafolder | ssh remoteserver "tar -xj -C /datafolder"</code></pre><br/>
+<a name="11"></a><h3>11. Удалённые приложения GUI с переадресацией SSH X11</h3><br/>
+Если на клиенте и удалённом сервере установлены «иксы», то можно удалённо выполнить команду GUI, с окном на вашем локальном рабочем столе. Эта функция существует давным давно, но по-прежнему очень полезна. Запустите удалённый веб-браузер или даже консоль VMWawre Workstation, как я делаю в этом примере.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ ssh -X remoteserver vmware</code></pre><br/>
+Требуется строка <code>X11Forwarding yes</code> в файле <code>sshd_config</code>.<br/>
+<br/>
+<a name="12"></a><h3>12. Удалённое копирование файлов с помощью rsync и SSH</h3><br/>
+<code>rsync</code> во многом удобнее <code>scp</code>, если требуется периодическое резервное копирование каталога, большого количества файлов или очень больших файлов. Здесь есть функция восстановления после сбоя передачи и копирования только изменённых файлов, что сохраняет трафик и время.<br/>
+<br/>
+В этом примере используется сжатие <code>gzip</code> (-z) и режим архивирования (-a), который включает рекурсивное копирование.<br/>
+<br/>
+<pre><code class="bash">:~$ rsync -az /home/testuser/data remoteserver:backup/</code></pre><br/>
+<a name="13"></a><h3>13. SSH через сеть Tor</h3><br/>
+Анонимная сеть Tor может туннелировать SSH-трафик с помощью команды <code>torsocks</code>. Следующая команда прокинет ssh-прокси через Tor.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ torsocks ssh myuntracableuser@remoteserver</code></pre><br/>
+<a href="https://github.com/dgoulet/torsocks">Torsocks</a> будет использовать для прокси порт 9050 на localhost. Как всегда при использовании Tor необходимо серьёзно проверять, какой трафик туннелируется и другие проблемы операционной безопасности (opsec). <b>Куда идут ваши DNS-запросы?</b><br/>
+<br/>
+<a name="14"></a><h3>14. SSH к инстансу EC2</h3><br/>
+Для подключения к инстансу EC2 необходим закрытый ключ. Скачайте его (расширение .pem) из панели управления Amazon EC2 и измените разрешения (<code>chmod 400 my-ec2-ssh-key.pem</code>). Храните ключ в надёжном месте или поместите его в свою папку <code>~/.ssh/</code>.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ ssh -i ~/.ssh/my-ec2-key.pem ubuntu@my-ec2-public</code></pre><br/>
+Параметр <b>-i</b> просто указывает ssh-клиенту использовать этот ключ. Файл <code>~/.ssh/config</code> идеально подходит для автоматической настройки использования ключа при подключении к хосту ec2.<br/>
+<br/>
+<pre><code class="bash">Host my-ec2-public
+   Hostname ec2???.compute-1.amazonaws.com
+   User ubuntu
+   IdentityFile ~/.ssh/my-ec2-key.pem</code></pre><br/>
+<a name="15"></a><h3>15. Редактирование текстовых файлов с помощью VIM через ssh/scp</h3><br/>
+Для всех любителей <code>vim</code> этот совет сэкономит немного времени. С помощью <code>vim</code> файлы редактируются по scp одной командой. Этот метод просто создаёт файл локально в <code>/tmp</code>, а затем копирует его обратно, как только мы его сохранили из <code>vim</code>.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ vim scp://user@remoteserver//etc/hosts</code></pre><br/>
+Примечание: формат немного отличается от обычного <code>scp</code>. После хоста у нас двойной <code>//</code>. Это ссылка на абсолютный путь. Один слэш будет означать путь относительно домашней папки <code>users</code>.<br/>
+<br/>
+<pre><code class="bash">**warning** (netrw) cannot determine method (format: protocol://[user@]hostname[:port]/[path])</code></pre><br/>
+Если увидите такую ошибку, дважды проверьте формат команды. Обычно это означает синтаксическую ошибку.<br/>
+<br/>
+<a name="16"></a><h3>16. Монтирование удалённого SSH как локальной папки с SSHFS</h3><br/>
+При помощи <code>sshfs</code> — клиента файловой системы <code>ssh</code> — мы можем подключить локальный каталог к удалённому местоположению со всеми взаимодействиями файлов в зашифрованном сеансе <code>ssh</code>.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ apt install sshfs</code></pre><br/>
+На Ubuntu и Debian установим пакет <code>sshfs</code>, а затем просто приимонтируем удалённое расположение к нашей системе.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ sshfs user@remoteserver:/media/data ~/data/</code></pre><br/>
+<a name="17"></a><h3>17. Мультиплексирование SSH с помощью ControlPath</h3><br/>
+По умолчанию при наличии существующего подключения к удалённому серверу с помощью <code>ssh</code> второе подключение с помощью <code>ssh</code> или <code>scp</code> устанавливает новый сеанс с дополнительной аутентификацией. Опция <code>ControlPath</code> позволяет использовать существующий сеанс для всех последующих соединений. Это значительно ускорит процесс: эффект заметен даже в локальной сети, а тем более при подключении к удалённым ресурсам.<br/>
+<br/>
+<pre><code class="bash">Host remoteserver
+        HostName remoteserver.example.org
+        ControlMaster auto
+        ControlPath ~/.ssh/control/%r@%h:%p
+        ControlPersist 10m</code></pre><br/>
+ControlPath указывает сокет для проверки новыми соединениями на предмет наличия активной сессии <code>ssh</code>. Последняя опция означает, что даже после выхода из консоли существующий сеанс останется открытым 10 минут, так что в течение этого времени вы сможете повторно подключиться по существующему сокету. Для дополнительной информации смотрите справку <code>ssh_config man</code>.<br/>
+<br/>
+<a name="18"></a><h3>18. Потоковое видео по SSH с помощью VLC и SFTP</h3><br/>
+Даже давние пользователи <code>ssh</code> и <code>vlc</code> (Video Lan Client) не всегда знают об этой удобной опции, когда очень нужно посмотреть видео по сети. В настройках <b>File | Open Network Stream</b> программы <code>vlc</code> можно ввести местоположение как <code>sftp://</code>. Если требуется пароль, появится запрос.<br/>
+<br/>
+<pre><code class="bash">sftp://remoteserver//media/uploads/myvideo.mkv</code></pre><br/>
+<a name="19"></a><h3>19. Двухфакторная аутентификация</h3><br/>
+Такая же двухфакторная аутентификация, как у вашего банковского счёта или учётной записи Google, применима к сервису SSH.<br/>
+<br/>
+Конечно, <code>ssh</code> изначально имеет функцию двухфакторной аутентификации, под которой подразумеваются пароль и ключ SSH. Преимущество аппаратного токена или приложения Google Authenticator заключается в том, что это обычно другое физическое устройство.<br/>
+<br/>
+См. наше 8-минутное руководство по <a href="https://hackertarget.com/ssh-two-factor-google-authenticator/">использованию Google Authenticator и SSH</a>.<br/>
+<br/>
+<a name="20"></a><h3>20. Прыжки по хостам с ssh и -J</h3><br/>
+Если из-за сегментации сети приходится переходить через несколько хостов ssh, чтобы добраться до конечной сети назначения, вам сэкономит время ярлык -J.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ ssh -J host1,host2,host3 user@host4.internal</code></pre><br/>
+Здесь главное понимать, что это не аналогично команде <code>ssh host1</code>, затем <code>user@host1:~$ ssh host2</code> и т. д. Параметр -J хитро использует переадресацию, чтобы localhost устанавливал сеанс со следующим хостом в цепочке. Таким образом, в приведённом выше примере наш localhost аутентифицируется на host4. То есть используются наши ключи localhost, а сеанс от localhost до host4 полностью зашифрован.<br/>
+<br/>
+Для такой возможности в <code>ssh_config</code> укажите опцию конфигурации <b>ProxyJump</b>. Если регулярно приходится переходить через несколько хостов, то автоматизация через конфиг сэкономит массу времени.<br/>
+<br/>
+<a name="21"></a><h3>21. Блокировка попыток брутфорса SSH с помощью iptables</h3><br/>
+Любой, кто управлял сервисом SSH и просматривал логи, знает о количестве попыток брутфорса, которые происходят каждый час каждый день. Быстрый способ уменьшить шум в логах — перенести SSH на нестандартный порт. Внесите изменения в файл <code>sshd_config</code> с помощью параметра конфигурации <b>Port##</b>.<br/>
+<br/>
+С помощью <code>iptables</code> тоже можно легко блокировать попытки подключения к порту по достижении определённого порога. Простой способ сделать это — использовать <a href="https://hackertarget.com/enable-ossec-active-response/">OSSEC</a>, поскольку он не только блокирует SSH, но выполняет кучу других мер по обнаружению вторжений на базе имени хоста (HIDS).<br/>
+<br/>
+<a name="22"></a><h3>22. SSH Escape для изменения переадресации портов</h3><br/>
+И наш последний пример <code>ssh</code> предназначен для изменения переадресации портов на лету в рамках существующего сеанса <code>ssh</code>. Представьте такой сценарий. Вы глубоко в сети; возможно, прыгнули через полдюжины хостов и вам нужен локальный порт на рабочей станции, который перенаправлен на Microsoft SMB старой системы Windows 2003 (кто-нибудь помнит ms08-67?).<br/>
+<br/>
+Нажав <code>enter</code>, попробуйте ввести в консоли <code>~C</code>. Это управляющая последовательность в сессии, позволяющая вносить изменения в существующее соединение.<br/>
+<br/>
+<pre><code class="bash">localhost:~$ ~C
+ssh> -h
+Commands:
+      -L[bind_address:]port:host:hostport    Request local forward
+      -R[bind_address:]port:host:hostport    Request remote forward
+      -D[bind_address:]port                  Request dynamic forward
+      -KL[bind_address:]port                 Cancel local forward
+      -KR[bind_address:]port                 Cancel remote forward
+      -KD[bind_address:]port                 Cancel dynamic forward
+ssh> -L 1445:remote-win2k3:445
+Forwarding port.</code></pre><br/>
+Здесь вы можете увидеть, что мы переадресовали наш локальный порт 1445 на хост Windows 2003, который нашли во внутренней сети. Теперь просто запустите <code>msfconsole</code>, и можно идти дальше (предполагая, что вы планируете использовать этот хост).<br/>
+<br/>
+<h1>Завершение</h1><br/>
+Эти примеры, советы и команды <code>ssh</code> должны дать отправную точку; дополнительная информация о каждой из команд и возможностей доступна на справочных страницах (<code>man ssh</code>, <code>man ssh_config</code>, <code>man sshd_config</code>).<br/>
+<br/>
+Меня всегда очаровывала возможность обращаться к системам и выполнять команды в любой точке мира. Развивая свои навыки по работе с инструментами вроде <code>ssh</code> вы станете более эффективным в любой игре, в какую играете.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BSSH%5D" class="tm-tags-list__link">SSH</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BVPN%5D" class="tm-tags-list__link">VPN</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bsocks-%D0%BF%D1%80%D0%BE%D0%BA%D1%81%D0%B8%5D" class="tm-tags-list__link">socks-прокси</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BTorsocks%5D" class="tm-tags-list__link">Torsocks</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BOSSEC%5D" class="tm-tags-list__link">OSSEC</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/infosecurity/" class="tm-hubs-list__link">
+    Информационная безопасность
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/soft/" class="tm-hubs-list__link">
+    Софт
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 69: ↑66 и ↓3</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 69: ↑66 и ↓3" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+63</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">123K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    939
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/m1rko/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/4ec/bd0/85d/4ecbd085d692835a931d03174ff19539.png" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 1515 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    1243
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Анатолий Ализар</span> <a href="https://habr.com/ru/users/m1rko/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @m1rko
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">автор, переводчик, редактор</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/435546/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 30 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner3417" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner3418" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/specialist_po_informacionnoj_bezopasnosti" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Специалист по информационной безопасности
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        59
+    вакансий
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/435546/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/435546/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"435546":{"id":"435546","timePublished":"2019-01-09T13:44:50+00:00","isCorporative":false,"lang":"ru","titleHtml":"Практические советы, примеры и туннели SSH","leadData":{"textHtml":"\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Foz\u002Fpn\u002F4x\u002Fozpn4xuna3odpakxmdgnlwqxwto.jpeg\"\u003E\u003C\u002Fdiv\u003E\u003Cbr\u003E\r\nПрактические примеры \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FSecure_Shell\"\u003ESSH\u003C\u002Fa\u003E, которые выведут на новый уровень ваши навыки удалённого системного администратора. Команды и советы помогут не только использовать \u003Ccode\u003ESSH\u003C\u002Fcode\u003E, но и более грамотно перемещаться по сети.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nЗнание нескольких трюков \u003Ccode\u003Essh\u003C\u002Fcode\u003E полезно любому системному администратору, сетевому инженеру или специалисту по безопасности.\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"translation","data":{"originalAuthorName":"Hacker Target","originalUrl":"https:\u002F\u002Fhackertarget.com\u002Fssh-examples-tunnels\u002F"}},{"type":"tutorial","data":null}],"author":{"scoreStats":{"score":1243,"votesCount":1515},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1371978","alias":"m1rko","fullname":"Анатолий Ализар","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F4ec\u002Fbd0\u002F85d\u002F4ecbd085d692835a931d03174ff19539.png","speciality":"автор, переводчик, редактор"},"statistics":{"commentsCount":30,"favoritesCount":939,"readingCount":122751,"score":63,"votesCount":69},"hubs":[{"relatedData":null,"id":"50","alias":"infosecurity","type":"collective","title":"Информационная безопасность","titleHtml":"Информационная безопасность","isProfiled":true},{"relatedData":null,"id":"21918","alias":"soft","type":"collective","title":"Софт","titleHtml":"Софт","isProfiled":false}],"flows":[{"id":"1","alias":"develop","title":"Разработка"},{"id":"7","alias":"popsci","title":"Научпоп"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Foz\u002Fpn\u002F4x\u002Fozpn4xuna3odpakxmdgnlwqxwto.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Foz\u002Fpn\u002F4x\u002Fozpn4xuna3odpakxmdgnlwqxwto.jpeg\" data-blurred=\"true\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nПрактические примеры \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FSecure_Shell\"\u003ESSH\u003C\u002Fa\u003E, которые выведут на новый уровень ваши навыки удалённого системного администратора. Команды и советы помогут не только использовать \u003Ccode\u003ESSH\u003C\u002Fcode\u003E, но и более грамотно перемещаться по сети.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗнание нескольких трюков \u003Ccode\u003Essh\u003C\u002Fcode\u003E полезно любому системному администратору, сетевому инженеру или специалисту по безопасности.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EПрактические примеры SSH\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E\u003Ca href=\"#1\"\u003ESSH socks-прокси\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#2\"\u003EТуннель SSH (переадресация портов)\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#3\"\u003ESSH-туннель на третий хост\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#4\"\u003EОбратный SSH-туннель\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#5\"\u003EОбратный прокси SSH\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#6\"\u003EУстановка VPN по SSH\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#7\"\u003EКопирование ключа SSH (ssh-copy-id)\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#8\"\u003EУдалённое выполнение команд (неинтерактивно)\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#9\"\u003EУдалённый перехват пакетов и просмотр в Wireshark\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#10\"\u003EКопирование локальной папки на удалённый сервер по SSH\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#11\"\u003EУдалённые приложения GUI с переадресацией SSH X11\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#12\"\u003EУдалённое копирование файлов с помощью rsync и SSH\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#13\"\u003ESSH через сеть Tor\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#14\"\u003ESSH к инстансу EC2\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#15\"\u003EРедактирование текстовых файлов с помощью VIM через ssh\u002Fscp\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#16\"\u003EМонтирование удалённого SSH как локальной папки с SSHFS\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#17\"\u003EМультиплексирование SSH с помощью ControlPath\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#18\"\u003EПотоковое видео по SSH с помощью VLC и SFTP\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#19\"\u003EДвухфакторная аутентификация\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#20\"\u003EПрыжки по хостам с SSH и -J\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#21\"\u003EБлокировка попыток брутфорса SSH с помощью iptables\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"#22\"\u003ESSH Escape для изменения переадресации портов\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1\u003EСначала основы\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EРазбор командной строки SSH\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВ следующем примере используются обычные параметры, часто встречающиеся при подключении к удалённому серверу \u003Ccode\u003ESSH\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ ssh -v -p 22 -C neo@remoteserver\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ccode\u003E-v\u003C\u002Fcode\u003E: вывод отладочной информации особенно полезен при анализе проблем аутентификации. Можно использовать несколько раз для вывода дополнительной информации.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E- p 22\u003C\u002Fcode\u003E: \u003Cb\u003Eпорт для подключения\u003C\u002Fb\u003E к удалённому серверу SSH. 22 не обязательно указывать, потому что это значение по умолчанию, но если протокол на каком-то другом порту, то указываем его с помощью параметра \u003Ccode\u003E-p\u003C\u002Fcode\u003E. Порт прослушивания указывается в файле \u003Ccode\u003Esshd_config\u003C\u002Fcode\u003E в формате \u003Ccode\u003EPort 2222\u003C\u002Fcode\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003E-C\u003C\u002Fcode\u003E: сжатие для соединения. Если у вас медленный канал или вы просматриваете много текста, это может ускорить связь.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Eneo@\u003C\u002Fcode\u003E: строка перед символом @ обозначает имя пользователя для аутентификации на удалённом сервере. Если не указать его, то по умолчанию будет использоваться имя пользователя учётной записи, в которую вы вошли в данный момент (~$ whoami). Пользователя также можно указать параметром \u003Ccode\u003E-l\u003C\u002Fcode\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ccode\u003Eremoteserver\u003C\u002Fcode\u003E: имя хоста, к которому подключается \u003Ccode\u003Essh\u003C\u002Fcode\u003E, это может быть полное доменное имя, IP-адрес или любой хост в локальном файле hosts. Для подключения к хосту, который поддерживает и IPv4, и IPv6, можно добавить в командную строку параметр \u003Ccode\u003E-4\u003C\u002Fcode\u003E или \u003Ccode\u003E-6\u003C\u002Fcode\u003E для правильного резолвинга.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nВсе вышеперечисленные параметры являются необязательными, кроме \u003Ccode\u003Eremoteserver\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EИспользование файла конфигурации\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nХотя многие знакомы с файлом \u003Ccode\u003Esshd_config\u003C\u002Fcode\u003E, есть ещё файл конфигурации клиента для команды \u003Ccode\u003Essh\u003C\u002Fcode\u003E. Значение по умолчанию \u003Ccode\u003E~\u002F.ssh\u002Fconfig\u003C\u002Fcode\u003E, но его можно определить как параметр для опции \u003Ccode\u003E-F\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003EHost *\n     Port 2222\n\nHost remoteserver\n     HostName remoteserver.thematrix.io\n     User neo\n     Port 2112\n     IdentityFile \u002Fhome\u002Ftest\u002F.ssh\u002Fremoteserver.private_key\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ приведённом выше примерном файле конфигурации ssh две записи хоста. Первая обозначает все хосты, для всех применяется параметр конфигурации Port 2222. Вторая говорит, что для хоста \u003Cb\u003Eremoteserver\u003C\u002Fb\u003E следует использовать другое имя пользователя, порт, FQDN и IdentityFile.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nФайл конфигурации может сэкономить много времени на ввод символов, позволяя автоматически применять продвинутую конфигурацию при подключении к конкретным хостам.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EКопирование файлов по SSH с помощью SCP\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nSSH-клиент поставляется с двумя другими очень удобными инструментами для копирования файлов по \u003Cb\u003Eзашифрованному ssh-соединению\u003C\u002Fb\u003E. Ниже см. пример стандартного использования команд scp и sftp. Обратите внимание, что многие параметры для ssh применяются и в этих командах.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ scp mypic.png neo@remoteserver:\u002Fmedia\u002Fdata\u002Fmypic_2.png\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ этом примере файл \u003Cb\u003Emypic.png\u003C\u002Fb\u003E скопирован на \u003Cb\u003Eremoteserver\u003C\u002Fb\u003E в папку \u003Cb\u003E\u002Fmedia\u002Fdata\u003C\u002Fb\u003E и переименован в \u003Cb\u003Emypic_2.png\u003C\u002Fb\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНе забывайте о разнице в параметре порта. На этом попадаются многие, кто запускает \u003Ccode\u003Escp\u003C\u002Fcode\u003E из командной строки. Здесь параметр порта \u003Ccode\u003E-P\u003C\u002Fcode\u003E, а не \u003Ccode\u003E-p\u003C\u002Fcode\u003E, как в ssh-клиенте! Вы забудете, но не волнуйтесь, все забывают.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля тех, кто знаком с консольным \u003Ccode\u003Eftp\u003C\u002Fcode\u003E, многие из команд похожи в \u003Ccode\u003Esftp\u003C\u002Fcode\u003E. Вы можете сделать \u003Cb\u003Epush\u003C\u002Fb\u003E, \u003Cb\u003Eput\u003C\u002Fb\u003E и \u003Cb\u003Els\u003C\u002Fb\u003E, как сердце пожелает.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Esftp neo@remoteserver\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1\u003EПрактические примеры\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\nВо многих из этих примеров можно достичь результата разными методами. Как и во всех наших \u003Ca href=\"https:\u002F\u002Fhackertarget.com\u002Fresearch\u002F#tutorial\"\u003Eучебниках\u003C\u002Fa\u003E и примерах, предпочтение отдаётся практическим примерам, которые просто делают своё дело.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"1\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E1. SSH socks-прокси\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nФункция SSH Proxy под номером 1 по уважительной причине. Она более мощная, чем многие предполагают, и даёт вам доступ к любой системе, к которой имеет доступ удалённый сервер, используя практически любое приложение. Клиент ssh может туннелировать трафик через прокси-сервер SOCKS одной простой командой. Важно понимать, что трафик к удалённым системам будет исходить от удалённого сервера, так будет указано в логах веб-сервера.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ ssh -D 8888 user@remoteserver\n\nlocalhost:~$ netstat -pan | grep 8888\ntcp        0      0 127.0.0.1:8888       0.0.0.0:*               LISTEN      23880\u002Fssh\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗдесь мы запускаем socks-прокси на TCP-порту 8888, вторая команда проверяет, что порт активен в режиме прослушивания. 127.0.0.1 указывает, что служба работает только на localhost. Мы можем применить немного другую команду для прослушивания всех интерфейсов, включая ethernet или wifi, это позволит другим приложениям (браузерам и т д.) в нашей сети подключаться к прокси-сервису через ssh socks-прокси.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ ssh -D 0.0.0.0:8888 user@remoteserver\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТеперь можем настроить браузер для подключения к socks-прокси. В Firefox выберите \u003Cb\u003EНастройки | Основные | Параметры сети\u003C\u002Fb\u003E. Укажите IP-адрес и порт для подключения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fdaa\u002Ff8b\u002F545\u002Fdaaf8b54515ce6eee864c8416d41eef9.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fdaa\u002Ff8b\u002F545\u002Fdaaf8b54515ce6eee864c8416d41eef9.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОбратите внимание на опцию в нижней части формы, чтобы DNS-запросы браузера тоже шли через прокси SOCKS. Если используете прокси-сервер для шифрования веб-трафика в локальной сети, то наверняка захотите выбрать эту опцию, чтобы DNS-запросы туннелировались через SSH-соединение.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EАктивация socks-прокси в Chrome\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nЗапуск Chrome с определёнными параметрами командной строки активирует socks-прокси, а также туннелирование DNS-запросов из браузера. Доверяй, но проверяй. Используйте \u003Ca href=\"https:\u002F\u002Fhackertarget.com\u002Ftcpdump-examples\u002F\"\u003Etcpdump\u003C\u002Fa\u003E для проверки, что DNS-запросы больше не видны.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ google-chrome --proxy-server=\"socks5:\u002F\u002F192.168.1.10:8888\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EИспользование других приложений с прокси\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nИмейте в виду, что многие другие приложения тоже могут использовать socks-прокси. Веб-браузер просто самое популярное из них. У некоторых приложений есть параметры конфигурации для активации прокси-сервера. Другим нужно немного помочь вспомогательной программой. Например, \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fhaad\u002Fproxychains\"\u003Eproxychains\u003C\u002Fa\u003E позволяет запустить через socks-прокси Microsoft RDP и др.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ proxychains rdesktop $RemoteWindowsServer\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПараметры конфигурации socks-прокси задаются в файле конфигурации proxychains.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EПодсказка: если используете удалённый рабочий стол из Linux на Windows? Попробуйте клиент \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FFreeRDP\u002FFreeRDP\"\u003EFreeRDP\u003C\u002Fa\u003E. Это более современная реализация, чем \u003Ccode\u003Erdesktop\u003C\u002Fcode\u003E, с гораздо более плавным взаимодействием.\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EВариант использования SSH через socks-прокси\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВы сидите в кафе или гостинице — и вынуждены использовать довольно ненадёжный WiFi. С ноутбука локально запускаем ssh-прокси и устанавливаем ssh-туннель в домашнюю сеть на локальный Rasberry Pi. Используя браузер или другие приложения, настроенные для socks-прокси, мы можем получить доступ к любым сетевым службам в нашей домашней сети или выйти в интернет через домашнее подключение. Всё между вашим ноутбуком и домашним сервером (через Wi-Fi и интернет до дома) зашифровано в туннеле SSH.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"2\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E2. Туннель SSH (переадресация портов)\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВ простейшей форме SSH-туннель просто открывает порт в вашей локальной системе, который подключается к другому порту на другом конце туннеля.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ ssh  -L 9999:127.0.0.1:80 user@remoteserver\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nРазберём параметр \u003Ccode\u003E-L\u003C\u002Fcode\u003E. Его можно представить как локальную сторону прослушивания. Таким образом, в примере выше порт 9999 прослушивается на стороне localhost и переадресуется через порт 80 на remoteserver. Обратите внимание, что 127.0.0.1 относится к localhost на удалённом сервере!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоднимемся на ступеньку. В следующем примере порты прослушивания связываются с другими узлами локальной сети.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ ssh  -L 0.0.0.0:9999:127.0.0.1:80 user@remoteserver\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ этих примерах мы подключаемся к порту на веб-сервере, но это может быть прокси-сервер или любая другая служба TCP.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"3\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E3. SSH-туннель на сторонний хост\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nМы можем использовать те же параметры для подключения туннеля с удалённого сервера к другой службе, запущенной на третьей системе.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ ssh  -L 0.0.0.0:9999:10.10.10.10:80 user@remoteserver\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ данном примере мы перенаправляем туннель от remoteserver к веб-серверу, работающему на 10.10.10.10. Трафик с remoteserver к 10.10.10.10 \u003Cb\u003Eуже не в SSH-туннеле\u003C\u002Fb\u003E. Веб-сервер на 10.10.10.10 будет считать remoteserver источником веб-запросов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"4\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E4. Обратный SSH-туннель\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЗдесь настроим прослушивающий порт на удалённом сервере, который будет подключаться обратно к локальному порту на нашем localhost (или другой системе).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ ssh -v -R 0.0.0.0:1999:127.0.0.1:902 192.168.1.100 user@remoteserver\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ этой SSH-сессии устанавливается соединение с порта 1999 на remoteserver к порту 902 на нашем локальном клиенте.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"5\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E5. Обратный прокси SSH\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nВ этом случае мы устанавливаем socks-прокси на нашем ssh-соединении, однако прокси слушает на удалённом конце сервера. Подключения к этому удалённому прокси теперь появляются из туннеля как трафик с нашего localhost.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ ssh -v -R 0.0.0.0:1999 192.168.1.100 user@remoteserver\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EУстранение проблем с удалёнными SSH-туннелями\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nЕсли у вас возникли проблемы с работой удалённых опций SSH, проверьте с помощью \u003Ccode\u003Enetstat\u003C\u002Fcode\u003E, к каким ещё интерфейсам подключён порт прослушивания. Хотя мы в примерах указали 0.0.0.0, но если значение \u003Cb\u003EGatewayPorts\u003C\u002Fb\u003E в \u003Cb\u003Esshd_config\u003C\u002Fb\u003E установлено в значение \u003Cb\u003Eno\u003C\u002Fb\u003E, то листенер будет привязан только к localhost (127.0.0.1).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Ch4\u003EПредупреждение безопасности\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nОбратите внимание, что при открытии туннелей и socks-прокси внутренние сетевые ресурсы могут быть доступны ненадёжным сетям (например, интернету!). Это может быть серьёзной угрозой безопасности, поэтому убедитесь, что вы понимаете, что представляет собой слушатель и к чему у него есть доступ.\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"6\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E6. Установка VPN по SSH\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nОбщий термин среди спецов по методам атаки (пентестеры и проч.) — это «точка опоры в сети». После установления соединения в одной системе эта система становится шлюзом для дальнейшего доступа к сети. Точка опоры, которая позволяет двигаться вширь.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля такой точки опоры мы можем использовать SSH-прокси и \u003Cb\u003Eproxychains\u003C\u002Fb\u003E, однако есть некоторые ограничения. Например, не получится работать напрямую с сокетами, поэтому мы не сможем сканировать порты внутри сети через \u003Ca href=\"https:\u002F\u002Fhackertarget.com\u002Fnmap-online-port-scanner\u002F\"\u003ENmap\u003C\u002Fa\u003E \u003Ccode\u003ESYN\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИспользуя этот более продвинутый вариант VPN, подключение снижается до \u003Cb\u003Eуровня 3\u003C\u002Fb\u003E. Затем мы можем просто направить трафик через туннель, используя стандартную сетевую маршрутизацию.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМетод использует \u003Ccode\u003Essh\u003C\u002Fcode\u003E, \u003Ccode\u003Eiptables\u003C\u002Fcode\u003E, \u003Ccode\u003Etun interfaces\u003C\u002Fcode\u003E и маршрутизацию.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСначала нужно задать эти параметры в \u003Ccode\u003Esshd_config\u003C\u002Fcode\u003E. Поскольку мы вносим изменения в интерфейсы и удалённой, и клиентской системы, нам \u003Cb\u003Eнужны права root с обеих сторон\u003C\u002Fb\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003EPermitRootLogin yes\nPermitTunnel yes\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗатем установим ssh-соединение, используя параметр, который запрашивает инициализацию tun-устройств.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~# ssh -v -w any root@remoteserver\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТеперь у нас должно быть устройство tun при показе интерфейсов (\u003Ccode\u003E# ip a\u003C\u002Fcode\u003E). Следующий шаг добавит IP-адреса к туннельным интерфейсам.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСторона клиента SSH:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~# ip addr add 10.10.10.2\u002F32 peer 10.10.10.10 dev tun0\nlocalhost:~# ip tun0 up\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nСторона сервера SSH:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Eremoteserver:~# ip addr add 10.10.10.10\u002F32 peer 10.10.10.2 dev tun0\nremoteserver:~# ip tun0 up\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТеперь у нас прямой маршрут к другому хосту (\u003Ccode\u003Eroute -n\u003C\u002Fcode\u003E и \u003Ccode\u003Eping 10.10.10.10\u003C\u002Fcode\u003E).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМожно маршрутизировать любую подсеть через хост на другой стороне.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~# route add -net 10.10.10.0 netmask 255.255.255.0 dev tun0\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nНа удалённой стороне необходимо включить \u003Ccode\u003Eip_forward\u003C\u002Fcode\u003E и \u003Ccode\u003Eiptables\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Eremoteserver:~# echo 1 \u003E \u002Fproc\u002Fsys\u002Fnet\u002Fipv4\u002Fip_forward\nremoteserver:~# iptables -t nat -A POSTROUTING -s 10.10.10.2 -o enp7s0 -j MASQUERADE\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nБум! \u003Cb\u003EVPN через туннель SSH на сетевом уровне 3\u003C\u002Fb\u003E. Вот это уже победа.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли возникают какие-то проблемы, используйте \u003Ca href=\"https:\u002F\u002Fhackertarget.com\u002Ftcpdump-examples\u002F\"\u003Etcpdump\u003C\u002Fa\u003E и \u003Ccode\u003Eping\u003C\u002Fcode\u003E, чтобы установить причину. Поскольку мы играем на уровне 3, то наши пакеты icmp пойдут через этот туннель.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"7\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E7. Копирование ключа SSH (ssh-copy-id)\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nТут есть несколько способов, но эта команда экономит время, чтобы не копировать файлы вручную. Она просто копирует ~\u002F.ssh\u002Fid_rsa.pub (или ключ по умолчанию) с вашей системы в \u003Ccode\u003E~\u002F.ssh\u002Fauthorized_keys\u003C\u002Fcode\u003E на удалённом сервере.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ ssh-copy-id user@remoteserver\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"8\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E8. Удалённое выполнение команд (неинтерактивно)\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nКоманду \u003Ccode\u003Essh\u003C\u002Fcode\u003E можно связать с другими командам для обычного удобного интерфейса. Просто добавьте команду, которую хотите запустить на удалённом хосте, в качестве последнего параметра в кавычках.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ ssh remoteserver \"cat \u002Fvar\u002Flog\u002Fnginx\u002Faccess.log\" | grep badstuff.php\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ данном примере \u003Ccode\u003Egrep\u003C\u002Fcode\u003E выполняется на локальной системе после того, как лог скачался по ssh-каналу. Если файл большой, удобнее запустить \u003Ccode\u003Egrep\u003C\u002Fcode\u003E на удалённой стороне, просто заключив обе команды в двойные кавычки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДругой пример выполняет ту же самую функцию, что и \u003Ccode\u003Essh-copy-id\u003C\u002Fcode\u003E из примера 7.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ cat ~\u002F.ssh\u002Fid_rsa.pub | ssh remoteserver 'cat \u003E\u003E .ssh\u002Fauthorized_keys'\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"9\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E9. Удалённый перехват пакетов и просмотр в Wireshark\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЯ взял один из наших \u003Ca href=\"https:\u002F\u002Fhackertarget.com\u002Ftcpdump-examples\u002F\"\u003Eпримеров по tcpdump\u003C\u002Fa\u003E. Используйте его для удалённого перехвата пакетов с выдачей результата непосредственно в GUI локального Wireshark.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E:~$ ssh root@remoteserver 'tcpdump -c 1000 -nn -w - not port 22' | wireshark -k -i -\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"10\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E10. Копирование локальной папки на удалённый сервер по SSH\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nКрасивый трюк, который сжимает папку с помощью \u003Ccode\u003Ebzip2\u003C\u002Fcode\u003E (это параметр -j в команде \u003Ccode\u003Etar\u003C\u002Fcode\u003E), а затем извлекает поток \u003Ccode\u003Ebzip2\u003C\u002Fcode\u003E на другой стороне, создавая на удалённом сервере дубликат папки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ tar -cvj \u002Fdatafolder | ssh remoteserver \"tar -xj -C \u002Fdatafolder\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"11\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E11. Удалённые приложения GUI с переадресацией SSH X11\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЕсли на клиенте и удалённом сервере установлены «иксы», то можно удалённо выполнить команду GUI, с окном на вашем локальном рабочем столе. Эта функция существует давным давно, но по-прежнему очень полезна. Запустите удалённый веб-браузер или даже консоль VMWawre Workstation, как я делаю в этом примере.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ ssh -X remoteserver vmware\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТребуется строка \u003Ccode\u003EX11Forwarding yes\u003C\u002Fcode\u003E в файле \u003Ccode\u003Esshd_config\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"12\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E12. Удалённое копирование файлов с помощью rsync и SSH\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Ersync\u003C\u002Fcode\u003E во многом удобнее \u003Ccode\u003Escp\u003C\u002Fcode\u003E, если требуется периодическое резервное копирование каталога, большого количества файлов или очень больших файлов. Здесь есть функция восстановления после сбоя передачи и копирования только изменённых файлов, что сохраняет трафик и время.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ этом примере используется сжатие \u003Ccode\u003Egzip\u003C\u002Fcode\u003E (-z) и режим архивирования (-a), который включает рекурсивное копирование.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E:~$ rsync -az \u002Fhome\u002Ftestuser\u002Fdata remoteserver:backup\u002F\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"13\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E13. SSH через сеть Tor\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nАнонимная сеть Tor может туннелировать SSH-трафик с помощью команды \u003Ccode\u003Etorsocks\u003C\u002Fcode\u003E. Следующая команда прокинет ssh-прокси через Tor.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ torsocks ssh myuntracableuser@remoteserver\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fdgoulet\u002Ftorsocks\"\u003ETorsocks\u003C\u002Fa\u003E будет использовать для прокси порт 9050 на localhost. Как всегда при использовании Tor необходимо серьёзно проверять, какой трафик туннелируется и другие проблемы операционной безопасности (opsec). \u003Cb\u003EКуда идут ваши DNS-запросы?\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"14\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E14. SSH к инстансу EC2\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nДля подключения к инстансу EC2 необходим закрытый ключ. Скачайте его (расширение .pem) из панели управления Amazon EC2 и измените разрешения (\u003Ccode\u003Echmod 400 my-ec2-ssh-key.pem\u003C\u002Fcode\u003E). Храните ключ в надёжном месте или поместите его в свою папку \u003Ccode\u003E~\u002F.ssh\u002F\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ ssh -i ~\u002F.ssh\u002Fmy-ec2-key.pem ubuntu@my-ec2-public\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПараметр \u003Cb\u003E-i\u003C\u002Fb\u003E просто указывает ssh-клиенту использовать этот ключ. Файл \u003Ccode\u003E~\u002F.ssh\u002Fconfig\u003C\u002Fcode\u003E идеально подходит для автоматической настройки использования ключа при подключении к хосту ec2.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003EHost my-ec2-public\n   Hostname ec2???.compute-1.amazonaws.com\n   User ubuntu\n   IdentityFile ~\u002F.ssh\u002Fmy-ec2-key.pem\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"15\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E15. Редактирование текстовых файлов с помощью VIM через ssh\u002Fscp\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nДля всех любителей \u003Ccode\u003Evim\u003C\u002Fcode\u003E этот совет сэкономит немного времени. С помощью \u003Ccode\u003Evim\u003C\u002Fcode\u003E файлы редактируются по scp одной командой. Этот метод просто создаёт файл локально в \u003Ccode\u003E\u002Ftmp\u003C\u002Fcode\u003E, а затем копирует его обратно, как только мы его сохранили из \u003Ccode\u003Evim\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ vim scp:\u002F\u002Fuser@remoteserver\u002F\u002Fetc\u002Fhosts\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПримечание: формат немного отличается от обычного \u003Ccode\u003Escp\u003C\u002Fcode\u003E. После хоста у нас двойной \u003Ccode\u003E\u002F\u002F\u003C\u002Fcode\u003E. Это ссылка на абсолютный путь. Один слэш будет означать путь относительно домашней папки \u003Ccode\u003Eusers\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003E**warning** (netrw) cannot determine method (format: protocol:\u002F\u002F[user@]hostname[:port]\u002F[path])\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЕсли увидите такую ошибку, дважды проверьте формат команды. Обычно это означает синтаксическую ошибку.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"16\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E16. Монтирование удалённого SSH как локальной папки с SSHFS\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nПри помощи \u003Ccode\u003Esshfs\u003C\u002Fcode\u003E — клиента файловой системы \u003Ccode\u003Essh\u003C\u002Fcode\u003E — мы можем подключить локальный каталог к удалённому местоположению со всеми взаимодействиями файлов в зашифрованном сеансе \u003Ccode\u003Essh\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ apt install sshfs\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nНа Ubuntu и Debian установим пакет \u003Ccode\u003Esshfs\u003C\u002Fcode\u003E, а затем просто приимонтируем удалённое расположение к нашей системе.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ sshfs user@remoteserver:\u002Fmedia\u002Fdata ~\u002Fdata\u002F\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"17\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E17. Мультиплексирование SSH с помощью ControlPath\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nПо умолчанию при наличии существующего подключения к удалённому серверу с помощью \u003Ccode\u003Essh\u003C\u002Fcode\u003E второе подключение с помощью \u003Ccode\u003Essh\u003C\u002Fcode\u003E или \u003Ccode\u003Escp\u003C\u002Fcode\u003E устанавливает новый сеанс с дополнительной аутентификацией. Опция \u003Ccode\u003EControlPath\u003C\u002Fcode\u003E позволяет использовать существующий сеанс для всех последующих соединений. Это значительно ускорит процесс: эффект заметен даже в локальной сети, а тем более при подключении к удалённым ресурсам.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003EHost remoteserver\n        HostName remoteserver.example.org\n        ControlMaster auto\n        ControlPath ~\u002F.ssh\u002Fcontrol\u002F%r@%h:%p\n        ControlPersist 10m\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nControlPath указывает сокет для проверки новыми соединениями на предмет наличия активной сессии \u003Ccode\u003Essh\u003C\u002Fcode\u003E. Последняя опция означает, что даже после выхода из консоли существующий сеанс останется открытым 10 минут, так что в течение этого времени вы сможете повторно подключиться по существующему сокету. Для дополнительной информации смотрите справку \u003Ccode\u003Essh_config man\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"18\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E18. Потоковое видео по SSH с помощью VLC и SFTP\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nДаже давние пользователи \u003Ccode\u003Essh\u003C\u002Fcode\u003E и \u003Ccode\u003Evlc\u003C\u002Fcode\u003E (Video Lan Client) не всегда знают об этой удобной опции, когда очень нужно посмотреть видео по сети. В настройках \u003Cb\u003EFile | Open Network Stream\u003C\u002Fb\u003E программы \u003Ccode\u003Evlc\u003C\u002Fcode\u003E можно ввести местоположение как \u003Ccode\u003Esftp:\u002F\u002F\u003C\u002Fcode\u003E. Если требуется пароль, появится запрос.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Esftp:\u002F\u002Fremoteserver\u002F\u002Fmedia\u002Fuploads\u002Fmyvideo.mkv\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ca name=\"19\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E19. Двухфакторная аутентификация\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nТакая же двухфакторная аутентификация, как у вашего банковского счёта или учётной записи Google, применима к сервису SSH.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКонечно, \u003Ccode\u003Essh\u003C\u002Fcode\u003E изначально имеет функцию двухфакторной аутентификации, под которой подразумеваются пароль и ключ SSH. Преимущество аппаратного токена или приложения Google Authenticator заключается в том, что это обычно другое физическое устройство.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСм. наше 8-минутное руководство по \u003Ca href=\"https:\u002F\u002Fhackertarget.com\u002Fssh-two-factor-google-authenticator\u002F\"\u003Eиспользованию Google Authenticator и SSH\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"20\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E20. Прыжки по хостам с ssh и -J\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЕсли из-за сегментации сети приходится переходить через несколько хостов ssh, чтобы добраться до конечной сети назначения, вам сэкономит время ярлык -J.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ ssh -J host1,host2,host3 user@host4.internal\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗдесь главное понимать, что это не аналогично команде \u003Ccode\u003Essh host1\u003C\u002Fcode\u003E, затем \u003Ccode\u003Euser@host1:~$ ssh host2\u003C\u002Fcode\u003E и т. д. Параметр -J хитро использует переадресацию, чтобы localhost устанавливал сеанс со следующим хостом в цепочке. Таким образом, в приведённом выше примере наш localhost аутентифицируется на host4. То есть используются наши ключи localhost, а сеанс от localhost до host4 полностью зашифрован.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля такой возможности в \u003Ccode\u003Essh_config\u003C\u002Fcode\u003E укажите опцию конфигурации \u003Cb\u003EProxyJump\u003C\u002Fb\u003E. Если регулярно приходится переходить через несколько хостов, то автоматизация через конфиг сэкономит массу времени.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"21\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E21. Блокировка попыток брутфорса SSH с помощью iptables\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЛюбой, кто управлял сервисом SSH и просматривал логи, знает о количестве попыток брутфорса, которые происходят каждый час каждый день. Быстрый способ уменьшить шум в логах — перенести SSH на нестандартный порт. Внесите изменения в файл \u003Ccode\u003Esshd_config\u003C\u002Fcode\u003E с помощью параметра конфигурации \u003Cb\u003EPort##\u003C\u002Fb\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nС помощью \u003Ccode\u003Eiptables\u003C\u002Fcode\u003E тоже можно легко блокировать попытки подключения к порту по достижении определённого порога. Простой способ сделать это — использовать \u003Ca href=\"https:\u002F\u002Fhackertarget.com\u002Fenable-ossec-active-response\u002F\"\u003EOSSEC\u003C\u002Fa\u003E, поскольку он не только блокирует SSH, но выполняет кучу других мер по обнаружению вторжений на базе имени хоста (HIDS).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"22\"\u003E\u003C\u002Fa\u003E\u003Ch3\u003E22. SSH Escape для изменения переадресации портов\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nИ наш последний пример \u003Ccode\u003Essh\u003C\u002Fcode\u003E предназначен для изменения переадресации портов на лету в рамках существующего сеанса \u003Ccode\u003Essh\u003C\u002Fcode\u003E. Представьте такой сценарий. Вы глубоко в сети; возможно, прыгнули через полдюжины хостов и вам нужен локальный порт на рабочей станции, который перенаправлен на Microsoft SMB старой системы Windows 2003 (кто-нибудь помнит ms08-67?).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНажав \u003Ccode\u003Eenter\u003C\u002Fcode\u003E, попробуйте ввести в консоли \u003Ccode\u003E~C\u003C\u002Fcode\u003E. Это управляющая последовательность в сессии, позволяющая вносить изменения в существующее соединение.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Elocalhost:~$ ~C\nssh\u003E -h\nCommands:\n      -L[bind_address:]port:host:hostport    Request local forward\n      -R[bind_address:]port:host:hostport    Request remote forward\n      -D[bind_address:]port                  Request dynamic forward\n      -KL[bind_address:]port                 Cancel local forward\n      -KR[bind_address:]port                 Cancel remote forward\n      -KD[bind_address:]port                 Cancel dynamic forward\nssh\u003E -L 1445:remote-win2k3:445\nForwarding port.\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗдесь вы можете увидеть, что мы переадресовали наш локальный порт 1445 на хост Windows 2003, который нашли во внутренней сети. Теперь просто запустите \u003Ccode\u003Emsfconsole\u003C\u002Fcode\u003E, и можно идти дальше (предполагая, что вы планируете использовать этот хост).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch1\u003EЗавершение\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\nЭти примеры, советы и команды \u003Ccode\u003Essh\u003C\u002Fcode\u003E должны дать отправную точку; дополнительная информация о каждой из команд и возможностей доступна на справочных страницах (\u003Ccode\u003Eman ssh\u003C\u002Fcode\u003E, \u003Ccode\u003Eman ssh_config\u003C\u002Fcode\u003E, \u003Ccode\u003Eman sshd_config\u003C\u002Fcode\u003E).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМеня всегда очаровывала возможность обращаться к системам и выполнять команды в любой точке мира. Развивая свои навыки по работе с инструментами вроде \u003Ccode\u003Essh\u003C\u002Fcode\u003E вы станете более эффективным в любой игре, в какую играете.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"SSH"},{"titleHtml":"VPN"},{"titleHtml":"socks-прокси"},{"titleHtml":"Torsocks"},{"titleHtml":"OSSEC"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F435546\u002Fdf08b09c92c53052cc7dedd8f1f2f5ef\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F435546\u002Fdf08b09c92c53052cc7dedd8f1f2f5ef\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F435546\\\u002F\"},\"headline\":\"Практические советы, примеры и туннели SSH\",\"datePublished\":\"2019-01-09T16:44:50+03:00\",\"dateModified\":\"2019-01-09T17:15:30+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Анатолий Ализар\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Практические примеры SSH, которые выведут на новый уровень ваши навыки удалённого системного администратора. Команды и советы помогут не только использовать SSH...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F435546\\\u002F#post-content-body\",\"about\":[\"h_infosecurity\",\"h_soft\",\"f_develop\",\"f_popsci\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Foz\\\u002Fpn\\\u002F4x\\\u002Fozpn4xuna3odpakxmdgnlwqxwto.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fgetpro\\\u002Fhabr\\\u002Fpost_images\\\u002Fdaa\\\u002Ff8b\\\u002F545\\\u002Fdaaf8b54515ce6eee864c8416d41eef9.png\"]}","metaDescription":"Практические примеры SSH, которые выведут на новый уровень ваши навыки удалённого системного администратора. Команды и советы помогут не только использовать SSH, но и более грамотно перемещаться по...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"Специалист по информационной безопасности","vacanciesCount":59,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fspecialist_po_informacionnoj_bezopasnosti","itemHubs":["infosecurity"]}],"hubs":"infosecurity,soft"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

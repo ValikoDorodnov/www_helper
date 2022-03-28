@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9650849142271502" crossorigin="anonymous"></script>
+<link rel="icon" href="https://largescalejs.ru/favicon.png">
+<link rel="stylesheet" href="https://largescalejs.ru/assets/css/main.css">
+<link rel="stylesheet" href="https://largescalejs.ru/assets/css/pygments.css">
+<title>Глава 8. Модули CommonJS&nbsp;— «Паттерны для масштабируемых JavaScript-приложений»</title>
+</head>
+<body>
+<div class="wrapper">
+<header class="page-header">
+<h4><small><a href="https://largescalejs.ru/" class="ignore-visited">«Паттерны для масштабируемых JavaScript-приложений»</a> от Эдди Османи</small></h4>
+<h1 class="page-header__title"><a class="page-header__title-link" href="index.html.1.214.html">Глава 8. Модули CommonJS</a></h1>
+</header>
+<div style="margin:35px 0 30px">
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9650849142271502" data-ad-slot="6294295879" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script> (adsbygoogle=window.adsbygoogle||[]).push({}); </script>
+</div>
+
+<div class="content">
+<p>Возможно, вы что-то слышали о <a href="http://commonjs.org">CommonJS</a> за последние пару лет. CommonJS&nbsp;— это
+добровольная рабочая группа, которая проектирует, прототипирует и стандартизирует
+различные JavaScript API. На сегодняшний день они ратифицировали стандарты для
+модулей и пакетов&nbsp;— CommonJS определяют простой API для написания модулей,
+которые могут быть использованы в браузере с помощью тега <code>&lt;script&gt;</code>, как
+с синхронной, так и с асинхронной загрузкой. Реализация паттерна «модуль»
+с помощью CommonJS выглядит очень просто, и я нахожу это уверенным шагом на пути
+к модульной системе, предложенной в ES Harmony (следующей версии JavaScript).</p>
+<p>В структурном плане, CommonJS-модуль представляет собой готовый к переиспользованию
+фрагмент JavaScript-кода, который экспортирует специальные объекты, доступные
+для использования в любом зависимом коде. CommonJS все чаще используется как
+стандартный формат JavaScript-модулей. Существует большое количество хороших
+уроков по написанию CommonJS-модулей, но обычно они описывают две главных идеи:
+объект <code>exports</code>, содержащий то, что модуль хочет сделать доступным для других
+частей системы, и функцию <code>require</code>, которая используется одними модулями для
+импорта объекта <code>exports</code> из других.</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="cm">/*</span>
+<span class="cm">Пример обеспечения совместимости между AMD и обычным CommonJS с помощью</span>
+<span class="cm">создания обертки над последним:</span>
+<span class="cm">*/</span>
+<span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">define</span><span class="p">)</span> <span class="p">{</span>
+<span class="nx">define</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">require</span><span class="p">,</span><span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
+<span class="c1">// module contents</span>
+<span class="kd">var</span> <span class="nx">dep1</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;dep1&quot;</span><span class="p">);</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">someExportedFunction</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{…};</span>
+<span class="c1">//…</span>
+<span class="p">});</span>
+<span class="p">})(</span><span class="k">typeof</span> <span class="nx">define</span><span class="o">==</span><span class="s2">&quot;function&quot;</span><span class="o">?</span><span class="nx">define</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">factory</span><span class="p">){</span><span class="nx">factory</span><span class="p">(</span><span class="nx">require</span><span class="p">,</span><span class="nx">exports</span><span class="p">)});</span>
+</code></pre></div>
+<p>Есть много хороших JavaScript-библиотек, для загрузки модулей в формате
+<strong>CommonJS</strong>, но моим личным предпочтением является RequireJS. Полный учебник
+по RequireJS выходит за рамки этого руководства, но я могу порекомендовать вам
+почитать <a href="http://msdn.microsoft.com/en-us/scriptjunkie/ff943568">пост Джеймса Брука «ScriptJunkie»</a>. Кроме того, я знаю многих людей,
+которые предпочитают Yabble.</p>
+
+<p>Из коробки, RequireJS уже содержит методы для простого создания статичных
+модулей с обертками. Благодаря этим методам становится действительно легко
+создавать модули с поддержкой асинхронной загрузки. RequireJS может легко
+загружать модули и их зависимости, выполняя тело модуля, сразу, как только это
+становится возможным.</p>
+<p>Некоторые разработчики утверждают, что CommonJS-модули недостаточно удобны
+для применения в браузере, потому как без определенной помощи со стороны сервера,
+их нельзя загрузить с помощью тега <code>script</code>. Давайте представим, что есть некая
+библиотека для кодирования изображений в виде ASCII-изображений, которая
+экспортирует функцию <code>encodeToASCII</code>. Модуль использующий эту библиотеку
+будет выглядеть примерно так:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">encodeToASCII</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;encoder&quot;</span><span class="p">).</span><span class="nx">encodeToASCII</span><span class="p">;</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">encodeSomeSource</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="c1">// Обработка изображения, затем вызов encodeToASCII</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Этот код не будет работать с тегом <code>script</code>. Ему необходим определенный контекст.
+Я имею в виду наш метод <code>encodeToASCII</code>, который ссылается на несуществующие
+в контексте <code>window</code> методы <code>require</code> и <code>exports</code>. В такой ситуации нам пришлось
+бы писать <code>require</code> и <code>exports</code> для каждого отдельного модуля. Эту проблему
+легко решают клиентские библиотеки, которые загружают скрипты через XHR-запросы,
+а затем выполняют <code>eval()</code>.</p>
+
+<p>Попробуем переписать этот модуль, используя RequireJS:</p>
+<div class="highlight"><pre><code class="javascript"><span class="nx">define</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">require</span><span class="p">,</span> <span class="nx">exports</span><span class="p">,</span> <span class="nx">module</span><span class="p">)</span> <span class="p">{</span>
+<span class="kd">var</span> <span class="nx">encodeToASCII</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;encoder&quot;</span><span class="p">).</span><span class="nx">encodeToASCII</span><span class="p">;</span>
+<span class="nx">exports</span><span class="p">.</span><span class="nx">encodeSomeSource</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+<span class="c1">// Обработка изображения, затем вызов encodeToASCII</span>
+<span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Для разработчиков, которые хотят пойти дальше простого использования JavaScript
+в своих проектах, CommonJS модули&nbsp;— прекрасная возможность начать движение в эту
+сторону, но придется потратить немного времени и познакомиться поближе с этим
+форматом. Все, что я рассказал&nbsp;— это только верхушка айсберга. К счастью,
+CommonJS wiki и SitePen содержат много материалов, которые помогут вам глубже
+разобраться в устройстве CommonJS-модулей.</p>
+
+<p class="message"><strong>Ссылки по теме:</strong><br>
+<a href="http://wiki.commonjs.org/wiki/Modules">Спецификации CommonJS-модулей</a><br>
+<a href="http://dailyjs.com/2010/10/18/modules/">Алекс Янг - Прояснение CommonJS-модулей</a><br>
+<a href="http://requirejs.org/docs/commonjs.html#packages">Заметки о CommonJS- и RequireJS-модулях</a></p>
+
+<div style="margin:40px 0">
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9650849142271502" data-ad-slot="6294295879" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script> (adsbygoogle=window.adsbygoogle||[]).push({}); </script>
+</div>
+<p class="message"><strong>Рекомендуем почитать:</strong><br>
+<a href="https://largescalejs.ru/go/labirint">Книги по JavaScript на ЛАБИРИНТ</a><br><br>
+<strong>Рекомендуем курс:</strong><br>
+<a href="https://largescalejs.ru/go/udemy-fundamental-js">Фундаментальный JavaScript. С практикой и проектами</a><br>
+</p>
+<div class="prevnext">
+<div class="prevnext__previous">
+<small><span class="prevnext__previous-arrow">←</span><a rel="prev" href="https://largescalejs.ru/object-literal-notation/">Глава 7. Литеральная нотация объектов</a></small>
+</div>
+<div class="prevnext__next">
+<small><span class="prevnext__next-arrow">→</span><a rel="next" href="https://largescalejs.ru/the-facade-pattern/">Глава 9. Паттерн «Фасад»</a></small>
+</div>
+</div>
+</div>
+<div class="footer">
+<p>Перевод: <a class="ignore-visited" href="http://shuvalov.info" target="_blank">Антон Шувалов</a>.
+Помощь в переводе: <a class="ignore-visited" href="https://twitter.com/iamstarkov" target="_blank">Владимир Старков</a>, Рахим Давлеткалиев.
+<a class="ignore-visited" href="https://github.com/shuvalov-anton/largescaleJS_ru/graphs/contributors" target="_blank">Все участники</a>.</p>
+<p class="license">Содержимое доступно по лицензии <a class="ignore-visited" rel="license" href="https://creativecommons.org/licenses/by/4.0/deed.en_US" target="_blank">CC BY 4.0</a></p>
+</div>
+</div>
+<script>
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
+ym(85598698,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/85598698" style="position:absolute;left:-9999px" alt=""></div></noscript>
+</body>
+</html>

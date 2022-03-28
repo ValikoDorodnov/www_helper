@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Liveprof покажет, когда и почему менялась производительность вашего PHP-приложения / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/badoo\/blog\/436364\/"},"headline":"Liveprof покажет, когда и почему менялась производительность вашего PHP-приложения","datePublished":"2019-01-29T16:01:01+03:00","dateModified":"2020-05-13T15:10:20+03:00","author":{"@type":"Person","name":"Timur Shagiakhmetov"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Привет, Хабр! Меня зовут Тимур Шагиахметов, я PHP-разработчик в Badoo.   Производительность приложения &mdash; один из важнейших критериев качества работы программис...","url":"https:\/\/habr.com\/ru\/company\/badoo\/blog\/436364\/#post-content-body","about":["c_badoo","h_hi","h_webdev","h_php","h_programming","f_develop"],"image":["https:\/\/habrastorage.org\/webt\/sm\/5p\/or\/sm5porzvybv5m_8ngvmgicgmeui.jpeg","https:\/\/habrastorage.org\/webt\/ip\/cw\/vi\/ipcwviocimg7kjon1memwwziho8.png","https:\/\/habrastorage.org\/webt\/zq\/yw\/pl\/zqywplc0eibbdxdotsr3f0bed_o.png","https:\/\/habrastorage.org\/webt\/qj\/-d\/6b\/qj-d6bj1095huwhvqmzdwim1g6k.png","https:\/\/habrastorage.org\/webt\/-6\/ag\/u4\/-6agu45zuu1qs77tckpkngabjwq.png","https:\/\/habrastorage.org\/webt\/nj\/g-\/f_\/njg-f_48jsuo8mcmlxuq1ukxj_4.png","https:\/\/habrastorage.org\/webt\/vp\/lp\/xr\/vplpxry-gjd-lq774gg3ji9cooo.png","https:\/\/habrastorage.org\/webt\/rv\/mc\/dd\/rvmcddru-ay4x9cb45xsvey_tka.png","https:\/\/habrastorage.org\/webt\/-6\/0b\/3s\/-60b3svwq_rg9z7wbzmzmpriapc.png","https:\/\/habrastorage.org\/webt\/hq\/du\/lv\/hqdulvav1asbj9nczgowuk1mvak.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Liveprof покажет, когда и почему менялась производительность вашего PHP-приложения" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Liveprof покажет, когда и почему менялась производительность вашего PHP-приложения" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Liveprof покажет, когда и почему менялась производительность вашего PHP-приложения" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Привет, Хабр! Меня зовут Тимур Шагиахметов, я PHP-разработчик в Badoo. 
+
+Производительность приложения — один из важнейших критериев качества работы программиста. В вопросах оптимизации..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Привет, Хабр! Меня зовут Тимур Шагиахметов, я PHP-разработчик в Badoo. 
+
+Производительность приложения — один из важнейших критериев качества работы программиста. В вопросах оптимизации..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Привет, Хабр! Меня зовут Тимур Шагиахметов, я PHP-разработчик в Badoo. 
+
+Производительность приложения — один из важнейших критериев качества работы программиста. В вопросах оптимизации..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Привет, Хабр! Меня зовут Тимур Шагиахметов, я PHP-разработчик в Badoo. 
+
+Производительность приложения — один из важнейших критериев качества работы программиста. В вопросах оптимизации..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Привет, Хабр! Меня зовут Тимур Шагиахметов, я PHP-разработчик в Badoo. 
+
+Производительность приложения — один из важнейших критериев качества работы программиста. В вопросах оптимизации..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/436364/0d6688ea107e25309c02cdadfea38877/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/436364/0d6688ea107e25309c02cdadfea38877/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/436364/0d6688ea107e25309c02cdadfea38877/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/436364/0d6688ea107e25309c02cdadfea38877/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/436364/0d6688ea107e25309c02cdadfea38877/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="436364" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2019-01-29T13:01:01.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/badoo/blog/436364/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="php, pinba, performance, xhprof, live profiler, optimisation">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/436364/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.61.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/436364/0d6688ea107e25309c02cdadfea38877/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="badoo" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><div class="tm-company-card__branding tm-company-article__branding tm-company-card__branding_loading"><div class="tm-company-card__branding-placeholder"><!----></div> <a href="https://tech.badoo.com/"><img src="https://habrastorage.org/getpro/habr/branding/760/e1e/777/760e1e777c1a4ef5a44a2da009719a85.png" width="100%" class="tm-company-card__branding-image"></a></div></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/badoo/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/69e/0a4/840/69e0a4840cbfdc565559f6af093b5835.png" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">121.53</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/badoo/profile/" class="tm-company-card__name">
+      Badoo
+    </a> <div class="tm-company-card__description">Big Dating</div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/Shag_tv/" title="Shag_tv" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/8a9/6e1/364/8a96e136444ed2b9f36ac99689e70760.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/Shag_tv/" class="tm-user-info__username">
+      Shag_tv
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2019-01-29T13:01:01.000Z" title="2019-01-29, 16:01">29  января  2019 в 16:01</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Liveprof покажет, когда и почему менялась производительность вашего PHP-приложения</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/badoo/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании Badoo</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/hi/" class="tm-article-snippet__hubs-item-link"><span>Высокая производительность</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/php/" class="tm-article-snippet__hubs-item-link"><span>PHP</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/programming/" class="tm-article-snippet__hubs-item-link"><span>Программирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><img src="https://habrastorage.org/r/w780q1/webt/sm/5p/or/sm5porzvybv5m_8ngvmgicgmeui.jpeg" data-src="https://habrastorage.org/webt/sm/5p/or/sm5porzvybv5m_8ngvmgicgmeui.jpeg" data-blurred="true"/><br/>
+<br/>
+Привет, Хабр! Меня зовут Тимур Шагиахметов, я PHP-разработчик в <a href="https://tech.badoo.com/ru/">Badoo</a>. <br/>
+<br/>
+Производительность приложения — один из важнейших критериев качества работы программиста. В вопросах оптимизации PHP-приложений помощником является профайлер. <br/>
+<br/>
+Недавно мы <a href="https://habr.com/company/badoo/blog/430722/">рассказывали</a> о том, какими инструментами пользуемся для профилирования. Напомню: одним из инструментов для анализа производительности, когда непонятно, какие части кода повлияли больше всего на увеличение времени формирования ответа, является <a href="http://php.net/xhprof">XHProf</a>. Это расширение для PHP, которое позволяет профилировать код на боевом сервере и впоследствии  улучшать его. <br/>
+<br/>
+Но хотелось бы ещё иметь историю изменения производительности, чтобы можно было отследить, что и когда повлияло на её ухудшение, не так ли? Для этого около года назад мы разработали <a href="https://github.com/badoo/liveprof-ui">Liveprof</a> — инструмент для автоматического профилирования всех запросов с интерфейсом для анализа изменения производительности приложения. <br/>
+<br/>
+Наш инструмент позволяет анализировать изменение производительности любой части кода, находить места, в которых наиболее сильно она упала. При этом его не нужно специально включать и ждать, пока накопится статистика, — он всегда активен и собирает данные для определённой доли всех запросов.<br/>
+<br/>
+В этой статье я расскажу о деталях реализации и особенностях использования этого инструмента.<br/>
+<a name="habracut"></a><br/>
+<h2>Немного об XHProf</h2><br/>
+Для начала несколько слов о возможностях самого XHProf. Это профайлер для PHP, написанный на C как расширение. Он был разработан в Facebook и выложен в открытый доступ. Имеет несколько форков (<a href="https://github.com/FriendsOfPHP/uprofiler">uprofiler</a>, <a href="https://github.com/tideways/php-profiler-extension">Tideways</a>), полностью совместимых на уровне формата выходных данных.<br/>
+<br/>
+XHProf расставляет таймеры вокруг всех вызовов функций/методов. Его использование сопряжено с некоторыми накладными расходами. Но они не такие большие и позволяют использовать его в продакшене. <br/>
+<br/>
+Результатом работы XHProf является массив элементов в следующем формате:<br/>
+<br/>
+<pre><code class="php">$data = [
+   'parentMethodName==>childMethodName' => [
+        'ct' => 1
+        'wt' => 8
+        'cpu' => 11
+        'mu' => 528
+        'pmu' => 0
+    ]
+];</code></pre><br/>
+, где<br/>
+<br/>
+<code><b>parentMethodName</b></code> и <code><b>childMethodName</b></code> — родительский и дочерний методы соответственно;<br/>
+<code><b>ct</b> </code>— количество вызовов в контексте запроса;<br/>
+<code><b>wt</b></code> — время выполнения запроса (состоит из времени, затраченного процессором, и времени ожидания ввода/вывода или ответа другого сервиса);<br/>
+<code><b>cpu</b></code> — время, затраченное процессором на обработку запроса;<br/>
+<code><b>mu</b></code> — изменение потребления памяти после вызова метода;<br/>
+<code><b>pmu</b></code> — изменение пикового потребления памяти после вызова метода.<br/>
+<br/>
+Также возможно наличие некоторых других параметров.<br/>
+<br/>
+XHProf также содержит инструменты для визуализации полученных таким образом результатов. Для каждой операции профилирования получаем таблицу с набором параметров по каждому методу. <br/>
+<br/>
+Например, <br/>
+<br/>
+<div class="spoiler" role="button" tabindex="0">
+                        <b class="spoiler_title">результат сортировки пузырьком</b>
+                        <div class="spoiler_text"><pre><code class="php">
+&lt;?php
+
+class ArrayGenerator
+{
+    public function getRandomArray(int $count): array
+    {
+        $array = [];
+        for ($i = 0; $i &lt; $count; $i++) {
+            $array[] = rand(0, 1000);
+        }
+        return $array;
+    }
+}
+
+class BubbleSorter
+{
+    public function sort(&amp;$array): void
+    {
+        $len = count($array);
+        for ($i = 0; $i &lt; $len ; $i++) {
+            for ($j = 0; $j &lt; $len - $i - 1; $j++) {
+                if ($array[$j] > $array[$j + 1]) {
+                    $this->swap($array[$j], $array[$j + 1]);
+                }
+            }
+        }
+    }
+
+    private function swap(&amp;$a, &amp;$b): void
+    {
+        $tmp = $a;
+        $a = $b;
+        $b = $tmp;
+    }
+
+    public function isSorted(array $array): bool
+    {
+        $len = count($array);
+        for ($i = 0; $i &lt; $len - 1; $i++) {
+            if ($array[$i] > $array[$i + 1]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+class ArrayPrinter
+{
+    public function print(array $array, string $delimiter = ' '): void
+    {
+        echo implode($delimiter, $array) . PHP_EOL;
+    }
+}
+
+xhprof_enable();
+
+$n = 10;
+$arrayGenerator = new \ArrayGenerator();
+$array = $arrayGenerator->getRandomArray($n);
+
+$sorter = new BubbleSorter();
+if (!$sorter->isSorted($array)) {
+    $sorter->sort($array);
+}
+
+$printer = new \ArrayPrinter();
+$printer->print($array);
+
+$xhprof_data = xhprof_disable();
+
+</code></pre><br/>
+</div>
+                    </div><br/>
+<img src="https://habrastorage.org/r/w1560/webt/ip/cw/vi/ipcwviocimg7kjon1memwwziho8.png" data-src="https://habrastorage.org/webt/ip/cw/vi/ipcwviocimg7kjon1memwwziho8.png"/><br/>
+<br/>
+Можно пройти внутрь каждого метода, чтобы узнать, какие методы сколько ресурсов использовали.<br/>
+<br/>
+Также можно посмотреть на граф вызовов с подсветкой самых ресурсоёмких методов:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/zq/yw/pl/zqywplc0eibbdxdotsr3f0bed_o.png" data-src="https://habrastorage.org/webt/zq/yw/pl/zqywplc0eibbdxdotsr3f0bed_o.png"/><br/>
+<br/>
+XHProf полезен для анализа производительности каждого запроса вручную. Но нам также важно видеть картину в целом. Нужно понимать, как изменилась производительность с течением времени. Для этого был разработан инструмент, который профилирует запросы в автоматическом режиме и позволяет анализировать их в веб-интерфейсе.<br/>
+<br/>
+<h2>Liveprof: агрегируем результаты и храним историю</h2><br/>
+Как получить историю профилирования?<br/>
+ <br/>
+Для начала нужно настроить автоматический запуск профайлера и сохранение результатов. Производительность не бывает постоянной, и от запуска к запуску она колеблется. Чтобы избежать влияния таких колебаний, используем усреднённые данные нескольких запросов. В результате мы получаем агрегированные результаты по каждому запросу, например, минимум, максимум, среднее и 95-й перцентиль. Это помогает находить тяжелые вещи, которые могут вызываться не на каждый запрос.<br/>
+<br/>
+У нашего инструмента есть и преимущества, и некоторые ограничения. <br/>
+<br/>
+<h3>Что умеет агрегатор:</h3><br/>
+<ol>
+<li>Автоматическое профилирование каждого N-го запроса.<br/>
+</li>
+<li>Ежесуточное агрегирование собранных профилей.<br/>
+</li>
+<li>Возможность посмотреть графики изменения каждого параметра, измеренного профайлером. Например, wt, cpu,  mu, pmu, описанные выше.<br/>
+</li>
+<li>Посмотреть изменение производительности любого метода за определенный интервал.<br/>
+</li>
+<li><a href="http://www.brendangregg.com/flamegraphs.html">Флеймграф</a>, построенный по последним агрегированным данным.<br/>
+</li>
+<li>Найти запросы, в которых вызывался определенный метод<br/>
+</li>
+</ol><br/>
+<h3>Ограничения:</h3><br/>
+<ol>
+<li>Поскольку наш инструмент — агрегирующий, нельзя узнать производительность одного запроса (например, самого медленного) — результаты получаем усреднённые за последние сутки. Но этого достаточно, чтобы оценить общую динамику производительности. Если какой-то запрос просел в скорости выполнения, то изменятся среднее значение, 95-й перцентиль и максимальное время выполнения.<br/>
+</li>
+<li>Нельзя однозначно восстановить полный стек вызова, так как XHProf возвращает только уникальные пары «родитель — потомок» с суммой значений затраченных ресурсов.<br/>
+</li>
+<li>Погрешность времени выполнения запросов, связанная с накладными расходами XHProf. Разница не такая и большая, но ее надо учитывать при измерении времени выполнения запроса.<br/>
+</li>
+</ol><br/>
+<h3>Как использовать профайлер</h3><br/>
+<ol>
+<li>Для начала профайлер нужно подключить к сайту или скрипту. Удобнее всего использовать <a href="https://github.com/badoo/liveprof">инструмент для автоматического запуска профайлера</a>:<br/>
+<br/>
+<pre><code class="plaintext">php composer.phar require badoo/liveprof
+
+# Run a script to configure database
+LIVE_PROFILER_CONNECTION_URL=mysql://db_user:db_password@db_mysql:3306/Profiler?charset=utf8 php vendor/badoo/liveprof/bin/install.php
+</code></pre><br/>
+Он поддерживает версии PHP начиная с 5.4, и его использование сопряжено с минимальными накладными расходами, что позволяет использовать его в боевом окружении. Инструмент  автоматически определяет используемое расширение профайлера: <a href="http://php.net/xhprof">XHProf</a>, <a href="https://github.com/FriendsOfPHP/uprofiler">uprofiler</a> или <a href="https://github.com/tideways/php-profiler-extension">Tideways</a>. При запуске нужно указать параметры подключения к базе данных и настройки профилирования. <br/>
+<br/>
+Пример использования в коде с настройками по умолчанию:<br/>
+<br/>
+<pre><code class="php">&lt;?php
+include 'vendor/autoload.php';
+
+\Badoo\LiveProfiler\LiveProfiler::getInstance()->start();
+// Code is here</code></pre><br/>
+Результаты профилирования сохраняются в базу данных. Раз в день происходит процесс агрегации. Для этого выбираются все записи по определённому запросу за день и вычисляются агрегированные функции по каждому из параметров. Функции агрегации можно расширить или переопределить.<br/>
+<br/>
+Сейчас доступны следующие:<br/>
+<br/>
+<ul>
+<li>минимум за день;</li>
+<li>максимум за день;</li>
+<li>среднее значение за день;</li>
+<li>95-й перцентиль за день.</li>
+</ul><br/>
+</li>
+<li>Для настройки агрегации и просмотра результатов используется <a href="https://github.com/badoo/liveprof-ui">веб-клиент агрегатора</a>. Проще всего его установить в докер-контейнере:<br/>
+<br/>
+<pre><code class="php">git clone https://github.com/badoo/liveprof-ui.git
+cd liveprof-ui
+docker-compose up web</code></pre></li>
+<li>Перед первым запуском нужно настроить параметры подключения к базе данных, список полей и используемых агрегированных функций в файле конфигурации src/config/services.yaml. Затем выполнить скрипт установки:<br/>
+<br/>
+<pre><code class="php">docker-compose exec web bash install.sh</code></pre></li>
+<li>Надо прописать в крон автоматически запускаемые скрипты агрегации и очистки старых данных:<br/>
+<br/>
+<pre><code class="php"># script aggregates all profiles for previous day, add it if you don't use a queue for aggregation jobs (parameter aggregator.use_jobs_in_aggregation=false)
+0 2 * * * docker-compose -f %PATH_TO_PROJECT%/docker-compose.yml run --rm  --entrypoint '/usr/local/bin/php /app/bin/cli.php cron:aggregate-all-profiles' web
+# script removes old aggregated data, by default > 200 days
+0 1 * * * docker-compose -f %PATH_TO_PROJECT%/docker-compose.yml run --rm  --entrypoint '/usr/local/bin/php /app/bin/cli.php cron:remove-old-profiles' web 200</code></pre><br/>
+</li>
+<li>Для заполнения тестовыми данными можно запустить скрипт:<br/>
+<br/>
+<pre><code class="php">docker-compose exec web php /app/bin/cli.php example:a-week-degradation</code></pre></li>
+</ol><br/>
+<h2>Описание интерфейса</h2><br/>
+Веб-интерфейс доступен по адресу: 127.0.0.1:8000.<br/>
+<br/>
+По умолчанию открывается страница со списком агрегированных запросов. Позволяет легко найти интересующий запрос, отсортировать все запросы по любому из параметров, а также переагрегировать определенный запрос, чтобы посмотреть последние результаты:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/qj/-d/6b/qj-d6bj1095huwhvqmzdwim1g6k.png" data-src="https://habrastorage.org/webt/qj/-d/6b/qj-d6bj1095huwhvqmzdwim1g6k.png"/><br/>
+<br/>
+Страница со списком методов и графиками изменения производительности — наиболее используемая при работе с инструментом. Позволяет переходит по стеку вызова, смотреть потребление каждого параметра, а также графики изменения производительности за определенный интервал:<br/>
+ <br/>
+<img src="https://habrastorage.org/r/w1560/webt/-6/ag/u4/-6agu45zuu1qs77tckpkngabjwq.png" data-src="https://habrastorage.org/webt/-6/ag/u4/-6agu45zuu1qs77tckpkngabjwq.png"/><br/>
+<br/>
+<i>Страница с полным списком вызванных методов позволяет быстро найти интересующий метод и посмотреть графики, перейдя на страницу с графиками:</i><br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/nj/g-/f_/njg-f_48jsuo8mcmlxuq1ukxj_4.png" data-src="https://habrastorage.org/webt/nj/g-/f_/njg-f_48jsuo8mcmlxuq1ukxj_4.png"/><br/>
+<i>Страница с <a href="http://www.brendangregg.com/flamegraphs.html">флеймграфом</a> последнего агрегированного запроса позволяет визуально определить самые тяжелые части. </i><br/>
+<br/>
+Использование XHProf накладывает некоторые ограничения по точности результата. Это связано с тем, что профайлер не возвращает полное дерево вызовов, а только пары «родитель — потомок». При этом если какая-то пара методов вызывалась из разных мест приложения, то в результате получим сумму затраченного времени. Для флеймграфа нужно  иметь полное дерево вызовов.  При восстановлении такого дерева значения параметров нормализуется с учетом времени, затраченного родителями.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/vp/lp/xr/vplpxry-gjd-lq774gg3ji9cooo.png" data-src="https://habrastorage.org/webt/vp/lp/xr/vplpxry-gjd-lq774gg3ji9cooo.png"/><br/>
+<i>Страница со списком методов, которые стали работать медленнее в течение выбранного интервала.</i><br/>
+<br/>
+Также по каждому методу можно посмотреть, какой из дочерних вызовов повлиял больше всего на производительность. Например, на скриншоте ниже можно увидеть, что метод <code>ServiceApi::getAvailableServices()</code> стал выполняться на 116 мс медленнее. Причиной тому стало добавление вызова <code>ServiceApi::getGifts()</code> (изменение на 56 мс) и увеличение числа вызовов метода <code>ServiceApi::getConfigForList() </code>с 1 до 5 (еще 50 мс):<br/>
+<br/>
+<a href="https://habrastorage.org/webt/rv/mc/dd/rvmcddru-ay4x9cb45xsvey_tka.png"><img src="https://habrastorage.org/r/w1560/webt/rv/mc/dd/rvmcddru-ay4x9cb45xsvey_tka.png" data-src="https://habrastorage.org/webt/rv/mc/dd/rvmcddru-ay4x9cb45xsvey_tka.png"/></a><br/>
+<br/>
+Если заранее неизвестно, у какого запроса наиболее заметно изменилась производительность, то поможет страница со списком методов, которые стали работать медленнее без привязки к конкретному запросу:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/-6/0b/3s/-60b3svwq_rg9z7wbzmzmpriapc.png" data-src="https://habrastorage.org/webt/-6/0b/3s/-60b3svwq_rg9z7wbzmzmpriapc.png"/><br/>
+<i>Страница с поиском запросов, в которых вызывался конкретный метод.</i> <br/>
+<br/>
+Она позволяет сравнить время исполнения в разных запросах. Полезна также в поиске неиспользуемого кода:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/hq/du/lv/hqdulvav1asbj9nczgowuk1mvak.png" data-src="https://habrastorage.org/webt/hq/du/lv/hqdulvav1asbj9nczgowuk1mvak.png"/><br/>
+<br/>
+<h3>Возможности кастомизации</h3><br/>
+Инструмент имеет широкие возможности для кастомизации:<br/>
+<br/>
+<ul>
+<li>можно добавить собственные агрегирующие функции, которые вычисляют некое значение на основе переданного массива значений параметра;<br/>
+</li>
+<li>можно изменить базу данных для хранения профилей и агрегированных результатов (сейчас поддерживаются SQLite, MySQL и PostgreSQL, но можно использовать и другие из списка доступных для <a href="https://www.doctrine-project.org/projects/doctrine-dbal/en/2.8/reference/configuration.html#configuration">Doctrine DBAL</a>); <br/>
+</li>
+<li>можно переопределить как менеджер подключения к базе данных, так и реализовать свои методы получения данных;<br/>
+</li>
+<li>можно использовать веб-интерфейс как в качестве самостоятельного проекта, так и внутри любого фреймворка (например, панели управления сайтом). Пример:<br/>
+<br/>
+<pre><code class="php">public function profileListAction()
+{    
+    &lt;i>//Some custom logic before&lt;/i>
+    $this->checkPermissions();
+
+    $App = new \Badoo\LiveProfilerUI\LiveProfilerUI();
+    $Page = $App->getPage('profile_method_list_page');
+    return $Page->setData($data)->render();
+}</code></pre></li>
+</ul><br/>
+<h2>Заключение</h2><br/>
+Надеюсь, наш инструмент будет полезен и другим разработчикам. Он даст возможность проверить изменение производительности любой части кода без использования дополнительных таймеров. Также это облегчит процесс оптимизации, поскольку теперь можно посмотреть, что повлияло на падение производительности приложения с течением времени.   <br/>
+<br/>
+Он доступен на GitHub: <a href="https://github.com/badoo/liveprof/">github.com/badoo/liveprof</a>, веб-интерфейс — <a href="https://github.com/badoo/liveprof-ui/">github.com/badoo/liveprof-ui</a>.<br/>
+<br/>
+Инструмент находится в активной разработке и может содержать некоторые ошибки. Надеюсь, при участии сообщества он станет еще лучше. В планах добавить поддержку других профайлеров помимо XHProf, а также расширить список поддерживаемых баз данных. <br/>
+<br/>
+Отзывы и вопросы по использованию присылайте нам в <a href="https://t.me/badoo_php_meetup">Telegram</a>, баги и пулл реквесты — прямиком в <a href="http://github.com/badoo/liveprof">GitHub</a>. Будем рады комментариям и предложениям! <br/>
+<br/>
+Отдельная благодарность <a href="https://habr.com/users/PhoenixMSTU/">Григорию</a> за идею и первую реализацию.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bphp%5D" class="tm-tags-list__link">php</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bpinba%5D" class="tm-tags-list__link">pinba</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bperformance%5D" class="tm-tags-list__link">performance</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bxhprof%5D" class="tm-tags-list__link">xhprof</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Blive%20profiler%5D" class="tm-tags-list__link">live profiler</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Boptimisation%5D" class="tm-tags-list__link">optimisation</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/badoo/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании Badoo
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/hi/" class="tm-hubs-list__link">
+    Высокая производительность
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/php/" class="tm-hubs-list__link">
+    PHP
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/programming/" class="tm-hubs-list__link">
+    Программирование
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 84: ↑84 и ↓0</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 84: ↑84 и ↓0" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+84</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">17K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    160
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/badoo/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/69e/0a4/840/69e0a4840cbfdc565559f6af093b5835.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/badoo/profile/" class="tm-company-snippet__title">Badoo</a> <div class="tm-company-snippet__description">Big Dating</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="https://tech.badoo.com/" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Сайт
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/Shag_tv/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/8a9/6e1/364/8a96e136444ed2b9f36ac99689e70760.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 27 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    27
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Timur Shagiakhmetov</span> <a href="https://habr.com/ru/users/Shag_tv/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @Shag_tv
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Программист</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/badoo/blog/436364/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 7 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><span>
+      2006
+    </span></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="http://badoo.com/" target="_blank" class="tm-company-basic-info__link">
+      badoo.com
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    501–1 000 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2009-12-14T21:34:10.000Z" title="2009-12-15, 00:34">15  декабря  2009</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Представитель</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://habr.com/ru/users/Yulcifer/" class="tm-company-basic-info__link">
+      Yuliya Telezhkina
+    </a></dd></dl></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/badoo/blog/436364/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/badoo/blog/436364/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"436364":{"id":"436364","timePublished":"2019-01-29T13:01:01+00:00","isCorporative":true,"lang":"ru","titleHtml":"Liveprof покажет, когда и почему менялась производительность вашего PHP-приложения","leadData":{"textHtml":"\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fsm\u002F5p\u002For\u002Fsm5porzvybv5m_8ngvmgicgmeui.jpeg\"\u003E\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nПривет, Хабр! Меня зовут Тимур Шагиахметов, я PHP-разработчик в \u003Ca href=\"https:\u002F\u002Ftech.badoo.com\u002Fru\u002F\" rel=\"nofollow\"\u003EBadoo\u003C\u002Fa\u003E. \u003Cbr\u003E\r\n\u003Cbr\u003E\r\nПроизводительность приложения — один из важнейших критериев качества работы программиста. В вопросах оптимизации PHP-приложений помощником является профайлер. \u003Cbr\u003E\r\n\u003Cbr\u003E\r\nНедавно мы \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fbadoo\u002Fblog\u002F430722\u002F\"\u003Eрассказывали\u003C\u002Fa\u003E о том, какими инструментами пользуемся для профилирования. Напомню: одним из инструментов для анализа производительности, когда непонятно, какие части кода повлияли больше всего на увеличение времени формирования ответа, является \u003Ca href=\"http:\u002F\u002Fphp.net\u002Fxhprof\" rel=\"nofollow\"\u003EXHProf\u003C\u002Fa\u003E. Это расширение для PHP, которое позволяет профилировать код на боевом сервере и впоследствии  улучшать его. \u003Cbr\u003E\r\n\u003Cbr\u003E\r\nНо хотелось бы ещё иметь историю изменения производительности, чтобы можно было отследить, что и когда повлияло на её ухудшение, не так ли? Для этого около года назад мы разработали \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fbadoo\u002Fliveprof-ui\" rel=\"nofollow\"\u003ELiveprof\u003C\u002Fa\u003E — инструмент для автоматического профилирования всех запросов с интерфейсом для анализа изменения производительности приложения. \u003Cbr\u003E\r\n\u003Cbr\u003E\r\nНаш инструмент позволяет анализировать изменение производительности любой части кода, находить места, в которых наиболее сильно она упала. При этом его не нужно специально включать и ждать, пока накопится статистика, — он всегда активен и собирает данные для определённой доли всех запросов.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nВ этой статье я расскажу о деталях реализации и особенностях использования этого инструмента.\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":27,"votesCount":27},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"134310","alias":"Shag_tv","fullname":"Timur Shagiakhmetov","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F8a9\u002F6e1\u002F364\u002F8a96e136444ed2b9f36ac99689e70760.jpg","speciality":"Программист"},"statistics":{"commentsCount":7,"favoritesCount":160,"readingCount":17144,"score":84,"votesCount":84},"hubs":[{"relatedData":null,"id":"13276","alias":"badoo","type":"corporative","title":"Блог компании Badoo","titleHtml":"Блог компании Badoo","isProfiled":false},{"relatedData":null,"id":"4","alias":"hi","type":"collective","title":"Высокая производительность","titleHtml":"Высокая производительность","isProfiled":true},{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"260","alias":"php","type":"collective","title":"PHP","titleHtml":"PHP","isProfiled":true},{"relatedData":null,"id":"359","alias":"programming","type":"collective","title":"Программирование","titleHtml":"Программирование","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fsm\u002F5p\u002For\u002Fsm5porzvybv5m_8ngvmgicgmeui.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fsm\u002F5p\u002For\u002Fsm5porzvybv5m_8ngvmgicgmeui.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПривет, Хабр! Меня зовут Тимур Шагиахметов, я PHP-разработчик в \u003Ca href=\"https:\u002F\u002Ftech.badoo.com\u002Fru\u002F\"\u003EBadoo\u003C\u002Fa\u003E. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПроизводительность приложения — один из важнейших критериев качества работы программиста. В вопросах оптимизации PHP-приложений помощником является профайлер. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНедавно мы \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Fbadoo\u002Fblog\u002F430722\u002F\"\u003Eрассказывали\u003C\u002Fa\u003E о том, какими инструментами пользуемся для профилирования. Напомню: одним из инструментов для анализа производительности, когда непонятно, какие части кода повлияли больше всего на увеличение времени формирования ответа, является \u003Ca href=\"http:\u002F\u002Fphp.net\u002Fxhprof\"\u003EXHProf\u003C\u002Fa\u003E. Это расширение для PHP, которое позволяет профилировать код на боевом сервере и впоследствии  улучшать его. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо хотелось бы ещё иметь историю изменения производительности, чтобы можно было отследить, что и когда повлияло на её ухудшение, не так ли? Для этого около года назад мы разработали \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fbadoo\u002Fliveprof-ui\"\u003ELiveprof\u003C\u002Fa\u003E — инструмент для автоматического профилирования всех запросов с интерфейсом для анализа изменения производительности приложения. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНаш инструмент позволяет анализировать изменение производительности любой части кода, находить места, в которых наиболее сильно она упала. При этом его не нужно специально включать и ждать, пока накопится статистика, — он всегда активен и собирает данные для определённой доли всех запросов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ этой статье я расскажу о деталях реализации и особенностях использования этого инструмента.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EНемного об XHProf\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nДля начала несколько слов о возможностях самого XHProf. Это профайлер для PHP, написанный на C как расширение. Он был разработан в Facebook и выложен в открытый доступ. Имеет несколько форков (\u003Ca href=\"https:\u002F\u002Fgithub.com\u002FFriendsOfPHP\u002Fuprofiler\"\u003Euprofiler\u003C\u002Fa\u003E, \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Ftideways\u002Fphp-profiler-extension\"\u003ETideways\u003C\u002Fa\u003E), полностью совместимых на уровне формата выходных данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nXHProf расставляет таймеры вокруг всех вызовов функций\u002Fметодов. Его использование сопряжено с некоторыми накладными расходами. Но они не такие большие и позволяют использовать его в продакшене. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРезультатом работы XHProf является массив элементов в следующем формате:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E$data = [\n   'parentMethodName==\u003EchildMethodName' =\u003E [\n        'ct' =\u003E 1\n        'wt' =\u003E 8\n        'cpu' =\u003E 11\n        'mu' =\u003E 528\n        'pmu' =\u003E 0\n    ]\n];\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n, где\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E\u003Cb\u003EparentMethodName\u003C\u002Fb\u003E\u003C\u002Fcode\u003E и \u003Ccode\u003E\u003Cb\u003EchildMethodName\u003C\u002Fb\u003E\u003C\u002Fcode\u003E — родительский и дочерний методы соответственно;\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E\u003Cb\u003Ect\u003C\u002Fb\u003E \u003C\u002Fcode\u003E— количество вызовов в контексте запроса;\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E\u003Cb\u003Ewt\u003C\u002Fb\u003E\u003C\u002Fcode\u003E — время выполнения запроса (состоит из времени, затраченного процессором, и времени ожидания ввода\u002Fвывода или ответа другого сервиса);\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E\u003Cb\u003Ecpu\u003C\u002Fb\u003E\u003C\u002Fcode\u003E — время, затраченное процессором на обработку запроса;\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E\u003Cb\u003Emu\u003C\u002Fb\u003E\u003C\u002Fcode\u003E — изменение потребления памяти после вызова метода;\u003Cbr\u002F\u003E\r\n\u003Ccode\u003E\u003Cb\u003Epmu\u003C\u002Fb\u003E\u003C\u002Fcode\u003E — изменение пикового потребления памяти после вызова метода.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТакже возможно наличие некоторых других параметров.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nXHProf также содержит инструменты для визуализации полученных таким образом результатов. Для каждой операции профилирования получаем таблицу с набором параметров по каждому методу. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНапример, \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\" role=\"button\" tabindex=\"0\"\u003E\n                        \u003Cb class=\"spoiler_title\"\u003Eрезультат сортировки пузырьком\u003C\u002Fb\u003E\n                        \u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"php\"\u003E\n&lt;?php\n\nclass ArrayGenerator\n{\n    public function getRandomArray(int $count): array\n    {\n        $array = [];\n        for ($i = 0; $i &lt; $count; $i++) {\n            $array[] = rand(0, 1000);\n        }\n        return $array;\n    }\n}\n\nclass BubbleSorter\n{\n    public function sort(&amp;$array): void\n    {\n        $len = count($array);\n        for ($i = 0; $i &lt; $len ; $i++) {\n            for ($j = 0; $j &lt; $len - $i - 1; $j++) {\n                if ($array[$j] \u003E $array[$j + 1]) {\n                    $this-\u003Eswap($array[$j], $array[$j + 1]);\n                }\n            }\n        }\n    }\n\n    private function swap(&amp;$a, &amp;$b): void\n    {\n        $tmp = $a;\n        $a = $b;\n        $b = $tmp;\n    }\n\n    public function isSorted(array $array): bool\n    {\n        $len = count($array);\n        for ($i = 0; $i &lt; $len - 1; $i++) {\n            if ($array[$i] \u003E $array[$i + 1]) {\n                return false;\n            }\n        }\n\n        return true;\n    }\n}\n\nclass ArrayPrinter\n{\n    public function print(array $array, string $delimiter = ' '): void\n    {\n        echo implode($delimiter, $array) . PHP_EOL;\n    }\n}\n\nxhprof_enable();\n\n$n = 10;\n$arrayGenerator = new \\ArrayGenerator();\n$array = $arrayGenerator-\u003EgetRandomArray($n);\n\n$sorter = new BubbleSorter();\nif (!$sorter-\u003EisSorted($array)) {\n    $sorter-\u003Esort($array);\n}\n\n$printer = new \\ArrayPrinter();\n$printer-\u003Eprint($array);\n\n$xhprof_data = xhprof_disable();\n\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\n                    \u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fip\u002Fcw\u002Fvi\u002Fipcwviocimg7kjon1memwwziho8.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fip\u002Fcw\u002Fvi\u002Fipcwviocimg7kjon1memwwziho8.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМожно пройти внутрь каждого метода, чтобы узнать, какие методы сколько ресурсов использовали.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТакже можно посмотреть на граф вызовов с подсветкой самых ресурсоёмких методов:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fzq\u002Fyw\u002Fpl\u002Fzqywplc0eibbdxdotsr3f0bed_o.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fzq\u002Fyw\u002Fpl\u002Fzqywplc0eibbdxdotsr3f0bed_o.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nXHProf полезен для анализа производительности каждого запроса вручную. Но нам также важно видеть картину в целом. Нужно понимать, как изменилась производительность с течением времени. Для этого был разработан инструмент, который профилирует запросы в автоматическом режиме и позволяет анализировать их в веб-интерфейсе.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003ELiveprof: агрегируем результаты и храним историю\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nКак получить историю профилирования?\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\nДля начала нужно настроить автоматический запуск профайлера и сохранение результатов. Производительность не бывает постоянной, и от запуска к запуску она колеблется. Чтобы избежать влияния таких колебаний, используем усреднённые данные нескольких запросов. В результате мы получаем агрегированные результаты по каждому запросу, например, минимум, максимум, среднее и 95-й перцентиль. Это помогает находить тяжелые вещи, которые могут вызываться не на каждый запрос.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУ нашего инструмента есть и преимущества, и некоторые ограничения. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EЧто умеет агрегатор:\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EАвтоматическое профилирование каждого N-го запроса.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003EЕжесуточное агрегирование собранных профилей.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003EВозможность посмотреть графики изменения каждого параметра, измеренного профайлером. Например, wt, cpu,  mu, pmu, описанные выше.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003EПосмотреть изменение производительности любого метода за определенный интервал.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"http:\u002F\u002Fwww.brendangregg.com\u002Fflamegraphs.html\"\u003EФлеймграф\u003C\u002Fa\u003E, построенный по последним агрегированным данным.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003EНайти запросы, в которых вызывался определенный метод\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EОграничения:\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EПоскольку наш инструмент — агрегирующий, нельзя узнать производительность одного запроса (например, самого медленного) — результаты получаем усреднённые за последние сутки. Но этого достаточно, чтобы оценить общую динамику производительности. Если какой-то запрос просел в скорости выполнения, то изменятся среднее значение, 95-й перцентиль и максимальное время выполнения.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003EНельзя однозначно восстановить полный стек вызова, так как XHProf возвращает только уникальные пары «родитель — потомок» с суммой значений затраченных ресурсов.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003EПогрешность времени выполнения запросов, связанная с накладными расходами XHProf. Разница не такая и большая, но ее надо учитывать при измерении времени выполнения запроса.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EКак использовать профайлер\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EДля начала профайлер нужно подключить к сайту или скрипту. Удобнее всего использовать \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fbadoo\u002Fliveprof\"\u003Eинструмент для автоматического запуска профайлера\u003C\u002Fa\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Ephp composer.phar require badoo\u002Fliveprof\n\n# Run a script to configure database\nLIVE_PROFILER_CONNECTION_URL=mysql:\u002F\u002Fdb_user:db_password@db_mysql:3306\u002FProfiler?charset=utf8 php vendor\u002Fbadoo\u002Fliveprof\u002Fbin\u002Finstall.php\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nОн поддерживает версии PHP начиная с 5.4, и его использование сопряжено с минимальными накладными расходами, что позволяет использовать его в боевом окружении. Инструмент  автоматически определяет используемое расширение профайлера: \u003Ca href=\"http:\u002F\u002Fphp.net\u002Fxhprof\"\u003EXHProf\u003C\u002Fa\u003E, \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FFriendsOfPHP\u002Fuprofiler\"\u003Euprofiler\u003C\u002Fa\u003E или \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Ftideways\u002Fphp-profiler-extension\"\u003ETideways\u003C\u002Fa\u003E. При запуске нужно указать параметры подключения к базе данных и настройки профилирования. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПример использования в коде с настройками по умолчанию:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E&lt;?php\ninclude 'vendor\u002Fautoload.php';\n\n\\Badoo\\LiveProfiler\\LiveProfiler::getInstance()-\u003Estart();\n\u002F\u002F Code is here\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nРезультаты профилирования сохраняются в базу данных. Раз в день происходит процесс агрегации. Для этого выбираются все записи по определённому запросу за день и вычисляются агрегированные функции по каждому из параметров. Функции агрегации можно расширить или переопределить.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСейчас доступны следующие:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eминимум за день;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eмаксимум за день;\u003C\u002Fli\u003E\r\n\u003Cli\u003Eсреднее значение за день;\u003C\u002Fli\u003E\r\n\u003Cli\u003E95-й перцентиль за день.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003EДля настройки агрегации и просмотра результатов используется \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fbadoo\u002Fliveprof-ui\"\u003Eвеб-клиент агрегатора\u003C\u002Fa\u003E. Проще всего его установить в докер-контейнере:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003Egit clone https:\u002F\u002Fgithub.com\u002Fbadoo\u002Fliveprof-ui.git\ncd liveprof-ui\ndocker-compose up web\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EПеред первым запуском нужно настроить параметры подключения к базе данных, список полей и используемых агрегированных функций в файле конфигурации src\u002Fconfig\u002Fservices.yaml. Затем выполнить скрипт установки:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003Edocker-compose exec web bash install.sh\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EНадо прописать в крон автоматически запускаемые скрипты агрегации и очистки старых данных:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003E# script aggregates all profiles for previous day, add it if you don't use a queue for aggregation jobs (parameter aggregator.use_jobs_in_aggregation=false)\n0 2 * * * docker-compose -f %PATH_TO_PROJECT%\u002Fdocker-compose.yml run --rm  --entrypoint '\u002Fusr\u002Flocal\u002Fbin\u002Fphp \u002Fapp\u002Fbin\u002Fcli.php cron:aggregate-all-profiles' web\n# script removes old aggregated data, by default \u003E 200 days\n0 1 * * * docker-compose -f %PATH_TO_PROJECT%\u002Fdocker-compose.yml run --rm  --entrypoint '\u002Fusr\u002Flocal\u002Fbin\u002Fphp \u002Fapp\u002Fbin\u002Fcli.php cron:remove-old-profiles' web 200\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003EДля заполнения тестовыми данными можно запустить скрипт:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003Edocker-compose exec web php \u002Fapp\u002Fbin\u002Fcli.php example:a-week-degradation\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EОписание интерфейса\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nВеб-интерфейс доступен по адресу: 127.0.0.1:8000.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПо умолчанию открывается страница со списком агрегированных запросов. Позволяет легко найти интересующий запрос, отсортировать все запросы по любому из параметров, а также переагрегировать определенный запрос, чтобы посмотреть последние результаты:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fqj\u002F-d\u002F6b\u002Fqj-d6bj1095huwhvqmzdwim1g6k.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fqj\u002F-d\u002F6b\u002Fqj-d6bj1095huwhvqmzdwim1g6k.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСтраница со списком методов и графиками изменения производительности — наиболее используемая при работе с инструментом. Позволяет переходит по стеку вызова, смотреть потребление каждого параметра, а также графики изменения производительности за определенный интервал:\u003Cbr\u002F\u003E\r\n \u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002F-6\u002Fag\u002Fu4\u002F-6agu45zuu1qs77tckpkngabjwq.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F-6\u002Fag\u002Fu4\u002F-6agu45zuu1qs77tckpkngabjwq.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ci\u003EСтраница с полным списком вызванных методов позволяет быстро найти интересующий метод и посмотреть графики, перейдя на страницу с графиками:\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fnj\u002Fg-\u002Ff_\u002Fnjg-f_48jsuo8mcmlxuq1ukxj_4.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fnj\u002Fg-\u002Ff_\u002Fnjg-f_48jsuo8mcmlxuq1ukxj_4.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EСтраница с \u003Ca href=\"http:\u002F\u002Fwww.brendangregg.com\u002Fflamegraphs.html\"\u003Eфлеймграфом\u003C\u002Fa\u003E последнего агрегированного запроса позволяет визуально определить самые тяжелые части. \u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИспользование XHProf накладывает некоторые ограничения по точности результата. Это связано с тем, что профайлер не возвращает полное дерево вызовов, а только пары «родитель — потомок». При этом если какая-то пара методов вызывалась из разных мест приложения, то в результате получим сумму затраченного времени. Для флеймграфа нужно  иметь полное дерево вызовов.  При восстановлении такого дерева значения параметров нормализуется с учетом времени, затраченного родителями.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fvp\u002Flp\u002Fxr\u002Fvplpxry-gjd-lq774gg3ji9cooo.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fvp\u002Flp\u002Fxr\u002Fvplpxry-gjd-lq774gg3ji9cooo.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EСтраница со списком методов, которые стали работать медленнее в течение выбранного интервала.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТакже по каждому методу можно посмотреть, какой из дочерних вызовов повлиял больше всего на производительность. Например, на скриншоте ниже можно увидеть, что метод \u003Ccode\u003EServiceApi::getAvailableServices()\u003C\u002Fcode\u003E стал выполняться на 116 мс медленнее. Причиной тому стало добавление вызова \u003Ccode\u003EServiceApi::getGifts()\u003C\u002Fcode\u003E (изменение на 56 мс) и увеличение числа вызовов метода \u003Ccode\u003EServiceApi::getConfigForList() \u003C\u002Fcode\u003Eс 1 до 5 (еще 50 мс):\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Frv\u002Fmc\u002Fdd\u002Frvmcddru-ay4x9cb45xsvey_tka.png\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Frv\u002Fmc\u002Fdd\u002Frvmcddru-ay4x9cb45xsvey_tka.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Frv\u002Fmc\u002Fdd\u002Frvmcddru-ay4x9cb45xsvey_tka.png\"\u002F\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли заранее неизвестно, у какого запроса наиболее заметно изменилась производительность, то поможет страница со списком методов, которые стали работать медленнее без привязки к конкретному запросу:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002F-6\u002F0b\u002F3s\u002F-60b3svwq_rg9z7wbzmzmpriapc.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F-6\u002F0b\u002F3s\u002F-60b3svwq_rg9z7wbzmzmpriapc.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EСтраница с поиском запросов, в которых вызывался конкретный метод.\u003C\u002Fi\u003E \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОна позволяет сравнить время исполнения в разных запросах. Полезна также в поиске неиспользуемого кода:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fhq\u002Fdu\u002Flv\u002Fhqdulvav1asbj9nczgowuk1mvak.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fhq\u002Fdu\u002Flv\u002Fhqdulvav1asbj9nczgowuk1mvak.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EВозможности кастомизации\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nИнструмент имеет широкие возможности для кастомизации:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Eможно добавить собственные агрегирующие функции, которые вычисляют некое значение на основе переданного массива значений параметра;\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003Eможно изменить базу данных для хранения профилей и агрегированных результатов (сейчас поддерживаются SQLite, MySQL и PostgreSQL, но можно использовать и другие из списка доступных для \u003Ca href=\"https:\u002F\u002Fwww.doctrine-project.org\u002Fprojects\u002Fdoctrine-dbal\u002Fen\u002F2.8\u002Freference\u002Fconfiguration.html#configuration\"\u003EDoctrine DBAL\u003C\u002Fa\u003E); \u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003Eможно переопределить как менеджер подключения к базе данных, так и реализовать свои методы получения данных;\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003Eможно использовать веб-интерфейс как в качестве самостоятельного проекта, так и внутри любого фреймворка (например, панели управления сайтом). Пример:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"php\"\u003Epublic function profileListAction()\n{    \n    &lt;i\u003E\u002F\u002FSome custom logic before&lt;\u002Fi\u003E\n    $this-\u003EcheckPermissions();\n\n    $App = new \\Badoo\\LiveProfilerUI\\LiveProfilerUI();\n    $Page = $App-\u003EgetPage('profile_method_list_page');\n    return $Page-\u003EsetData($data)-\u003Erender();\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EЗаключение\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nНадеюсь, наш инструмент будет полезен и другим разработчикам. Он даст возможность проверить изменение производительности любой части кода без использования дополнительных таймеров. Также это облегчит процесс оптимизации, поскольку теперь можно посмотреть, что повлияло на падение производительности приложения с течением времени.   \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОн доступен на GitHub: \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fbadoo\u002Fliveprof\u002F\"\u003Egithub.com\u002Fbadoo\u002Fliveprof\u003C\u002Fa\u003E, веб-интерфейс — \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fbadoo\u002Fliveprof-ui\u002F\"\u003Egithub.com\u002Fbadoo\u002Fliveprof-ui\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИнструмент находится в активной разработке и может содержать некоторые ошибки. Надеюсь, при участии сообщества он станет еще лучше. В планах добавить поддержку других профайлеров помимо XHProf, а также расширить список поддерживаемых баз данных. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОтзывы и вопросы по использованию присылайте нам в \u003Ca href=\"https:\u002F\u002Ft.me\u002Fbadoo_php_meetup\"\u003ETelegram\u003C\u002Fa\u003E, баги и пулл реквесты — прямиком в \u003Ca href=\"http:\u002F\u002Fgithub.com\u002Fbadoo\u002Fliveprof\"\u003EGitHub\u003C\u002Fa\u003E. Будем рады комментариям и предложениям! \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОтдельная благодарность \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fusers\u002FPhoenixMSTU\u002F\"\u003EГригорию\u003C\u002Fa\u003E за идею и первую реализацию.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"php"},{"titleHtml":"pinba"},{"titleHtml":"performance"},{"titleHtml":"xhprof"},{"titleHtml":"live profiler"},{"titleHtml":"optimisation"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F436364\u002F0d6688ea107e25309c02cdadfea38877\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F436364\u002F0d6688ea107e25309c02cdadfea38877\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fbadoo\\\u002Fblog\\\u002F436364\\\u002F\"},\"headline\":\"Liveprof покажет, когда и почему менялась производительность вашего PHP-приложения\",\"datePublished\":\"2019-01-29T16:01:01+03:00\",\"dateModified\":\"2020-05-13T15:10:20+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Timur Shagiakhmetov\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Привет, Хабр! Меня зовут Тимур Шагиахметов, я PHP-разработчик в Badoo.   Производительность приложения &mdash; один из важнейших критериев качества работы программис...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fbadoo\\\u002Fblog\\\u002F436364\\\u002F#post-content-body\",\"about\":[\"c_badoo\",\"h_hi\",\"h_webdev\",\"h_php\",\"h_programming\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fsm\\\u002F5p\\\u002For\\\u002Fsm5porzvybv5m_8ngvmgicgmeui.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fip\\\u002Fcw\\\u002Fvi\\\u002Fipcwviocimg7kjon1memwwziho8.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fzq\\\u002Fyw\\\u002Fpl\\\u002Fzqywplc0eibbdxdotsr3f0bed_o.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fqj\\\u002F-d\\\u002F6b\\\u002Fqj-d6bj1095huwhvqmzdwim1g6k.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F-6\\\u002Fag\\\u002Fu4\\\u002F-6agu45zuu1qs77tckpkngabjwq.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fnj\\\u002Fg-\\\u002Ff_\\\u002Fnjg-f_48jsuo8mcmlxuq1ukxj_4.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fvp\\\u002Flp\\\u002Fxr\\\u002Fvplpxry-gjd-lq774gg3ji9cooo.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Frv\\\u002Fmc\\\u002Fdd\\\u002Frvmcddru-ay4x9cb45xsvey_tka.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F-6\\\u002F0b\\\u002F3s\\\u002F-60b3svwq_rg9z7wbzmzmpriapc.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fhq\\\u002Fdu\\\u002Flv\\\u002Fhqdulvav1asbj9nczgowuk1mvak.png\"]}","metaDescription":"Привет, Хабр! Меня зовут Тимур Шагиахметов, я PHP-разработчик в Badoo. \r\n\r\nПроизводительность приложения — один из важнейших критериев качества работы программиста. В вопросах оптимизации...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"badoo":{"alias":"badoo","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002F69e\u002F0a4\u002F840\u002F69e0a4840cbfdc565559f6af093b5835.png","titleHtml":"Badoo","descriptionHtml":"Big Dating","relatedData":null,"statistics":{"postsCount":367,"newsCount":0,"vacanciesCount":0,"employeesCount":152,"careerRating":null,"subscribersCount":82866,"rating":121.53,"invest":null},"foundationDate":{"year":"2006","month":null,"day":null},"location":{"city":{"id":"447159","title":"Москва"},"region":{"id":"1885","title":"Москва и Московская обл."},"country":{"id":"168","title":"Россия"}},"siteUrl":"http:\u002F\u002Fbadoo.com\u002F","staffNumber":"501–1 000 человек","registrationDate":"2009-12-14T21:34:10+00:00","representativeUser":{"alias":"Yulcifer","fullname":"Yuliya Telezhkina"},"contacts":[{"title":"Сайт","url":"https:\u002F\u002Ftech.badoo.com\u002F"}],"settings":{"analyticsSettings":[{"type":"ym","trackingId":"83229820"}],"branding":{"imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fbranding\u002F760\u002Fe1e\u002F777\u002F760e1e777c1a4ef5a44a2da009719a85.png","linkUrl":"https:\u002F\u002Ftech.badoo.com\u002F","pixelUrl":null},"status":"active","isStartup":false},"metadata":{"titleHtml":"Badoo, Москва - Big Dating с 2006 год","title":"Badoo, Москва - Big Dating с 2006 год","keywords":["Программирование","Разработка под Android","Тестирование мобильных приложений","Kotlin","Управление разработкой","badoo","php","баду","android","ios","go","qa","meetup","тестирование","javascript","highload","kotlin","митап","автоматизация тестирования","swift","управление людьми","разработка","c","конференции","mysql"],"descriptionHtml":"367 статей от авторов компании Badoo","description":"367 статей от авторов компании Badoo"},"aDeskSettings":null,"careerAlias":"badoo"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Обзор способов и протоколов аутентификации в веб-приложениях / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/dataart\/blog\/262817\/"},"headline":"Обзор способов и протоколов аутентификации в веб-приложениях","datePublished":"2015-07-16T19:35:16+03:00","dateModified":"2019-08-08T18:33:43+03:00","author":{"@type":"Person","name":"DataArt"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Я расскажу о применении различных способов аутентификации для веб-приложений, включая аутентификацию по паролю, по сертификатам, по одноразовым паролям, по клю...","url":"https:\/\/habr.com\/ru\/company\/dataart\/blog\/262817\/#post-content-body","about":["c_dataart","h_infosecurity","h_webdev","h_programming","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/262817\/635849468320152893fee348d83adce9\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Обзор способов и протоколов аутентификации в веб-приложениях" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Обзор способов и протоколов аутентификации в веб-приложениях" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Обзор способов и протоколов аутентификации в веб-приложениях" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Я расскажу о применении различных способов аутентификации для веб-приложений, включая аутентификацию по паролю, по сертификатам, по одноразовым паролям, по ключам доступа и по токенам. Коснусь..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Я расскажу о применении различных способов аутентификации для веб-приложений, включая аутентификацию по паролю, по сертификатам, по одноразовым паролям, по ключам доступа и по токенам. Коснусь..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Я расскажу о применении различных способов аутентификации для веб-приложений, включая аутентификацию по паролю, по сертификатам, по одноразовым паролям, по ключам доступа и по токенам. Коснусь..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Я расскажу о применении различных способов аутентификации для веб-приложений, включая аутентификацию по паролю, по сертификатам, по одноразовым паролям, по ключам доступа и по токенам. Коснусь..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Я расскажу о применении различных способов аутентификации для веб-приложений, включая аутентификацию по паролю, по сертификатам, по одноразовым паролям, по ключам доступа и по токенам. Коснусь..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/262817/635849468320152893fee348d83adce9/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/262817/635849468320152893fee348d83adce9/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/262817/635849468320152893fee348d83adce9/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/262817/635849468320152893fee348d83adce9/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/262817/635849468320152893fee348d83adce9/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="262817" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2015-07-16T16:35:16.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/dataart/blog/262817/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="dataart, безопасность, security">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/262817/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.39.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/262817/635849468320152893fee348d83adce9/" data-vmid="image:href"><link data-vue-meta="ssr" rel="amphtml" href="https://habr.com/ru/amp/post/262817/">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="dataart" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><!----></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/dataart/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/d40/dc3/cb0/d40dc3cb05cb68dac9a38b3f4fda2d0f.png" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">65.87</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/dataart/profile/" class="tm-company-card__name">
+      DataArt
+    </a> <div class="tm-company-card__description">Технологический консалтинг и разработка ПО</div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/DataArt/" title="DataArt" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/3bc/d08/30a/3bcd0830ae333662c41e475082f68dd6.png" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/DataArt/" class="tm-user-info__username">
+      DataArt
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2015-07-16T16:35:16.000Z" title="2015-07-16, 19:35">16  июля  2015 в 19:35</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Обзор способов и протоколов аутентификации в веб-приложениях</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/dataart/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании DataArt</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/infosecurity/" class="tm-article-snippet__hubs-item-link"><span>Информационная безопасность</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/programming/" class="tm-article-snippet__hubs-item-link"><span>Программирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><img src="https://habrastorage.org/r/w1560/files/682/c4b/c7b/682c4bc7b2d44e24a77ed3c9678b1946.png" data-src="https://habrastorage.org/files/682/c4b/c7b/682c4bc7b2d44e24a77ed3c9678b1946.png"/><br/>
+<br/>
+Я расскажу о применении различных способов аутентификации для веб-приложений, включая аутентификацию по паролю, по сертификатам, по одноразовым паролям, по ключам доступа и по токенам. Коснусь технологии единого входа (Single Sign-On), рассмотрю различные стандарты и протоколы аутентификации.<br/>
+<br/>
+Перед тем, как перейти к техническим деталям, давайте немного освежим терминологию.<br/>
+<br/>
+<ul>
+<li><b>Идентификация</b> — это заявление о том, кем вы являетесь. В зависимости от ситуации, это может быть имя, адрес электронной почты, номер учетной записи, итд.</li>
+<li><b>Аутентификация</b> — предоставление доказательств, что вы на самом деле есть тот, кем идентифицировались (от слова “authentic” — истинный, подлинный).</li>
+<li><b>Авторизация</b> — проверка, что вам разрешен доступ к запрашиваемому ресурсу.</li>
+</ul><br/>
+<br/>
+Например, при попытке попасть в закрытый клуб вас <i>идентифицируют</i> (спросят ваше имя и фамилию), <i>аутентифицируют</i> (попросят показать паспорт и сверят фотографию) и <i>авторизуют</i> (проверят, что фамилия находится в списке гостей), прежде чем пустят внутрь.<br/>
+<br/>
+Аналогично эти термины применяются в компьютерных системах, где традиционно под <i>идентификацией</i> понимают получение вашей учетной записи (identity) по username или email; под <i>аутентификацией</i> — проверку, что вы знаете пароль от этой учетной записи, а под <i>авторизацией</i> — проверку вашей роли в системе и решение о предоставлении доступа к запрошенной странице или ресурсу.<br/>
+<br/>
+Однако в современных системах существуют и более сложные схемы аутентификации и авторизации, о которых я расскажу далее. Но начнем с простого и понятного.<br/>
+<a name="habracut"></a><br/>
+<h5><b>Аутентификация по паролю</b></h5><br/>
+Этот метод основывается на том, что пользователь должен предоставить username и password для успешной идентификации и аутентификации в системе. Пара username/password задается пользователем при его регистрации в системе, при этом в качестве username может выступать адрес электронной почты пользователя.<br/>
+<br/>
+Применительно к веб-приложениям, существует несколько стандартных протоколов для аутентификации по паролю, которые мы рассмотрим ниже.<br/>
+<br/>
+<h6><b>HTTP authentication</b></h6><br/>
+Этот протокол, описанный в стандартах HTTP 1.0/1.1, существует очень давно и до сих пор активно применяется в корпоративной среде. Применительно к веб-сайтам работает следующим образом:<br/>
+<br/>
+<ol>
+<li>Сервер, при обращении неавторизованного клиента к защищенному ресурсу, отсылает HTTP статус “401 Unauthorized” и добавляет заголовок “WWW-Authenticate” с указанием схемы и параметров аутентификации.</li>
+<li>Браузер, при получении такого ответа, <u>автоматически</u> показывает диалог ввода username и password. Пользователь вводит детали своей учетной записи.</li>
+<li>Во всех последующих запросах к этому веб-сайту браузер автоматически добавляет HTTP заголовок “Authorization”, в котором передаются данные пользователя для аутентификации сервером.</li>
+<li>Сервер аутентифицирует пользователя по данным из этого заголовка. Решение о предоставлении доступа (авторизация) производится отдельно на основании роли пользователя, ACL или других данных учетной записи.</li>
+</ol><br/>
+<br/>
+Весь процесс стандартизирован и хорошо поддерживается всеми браузерами и веб-серверами. Существует несколько схем аутентификации, отличающихся по уровню безопасности:<br/>
+<br/>
+<ol>
+<li><b>Basic</b> — наиболее простая схема, при которой username и password пользователя передаются в заголовке Authorization в незашифрованном виде (base64-encoded). Однако при использовании HTTPS (HTTP over SSL) протокола, является относительно безопасной.<br/>
+<img width="50%" height="50%" src="https://habrastorage.org/r/w1560/files/c27/ac0/637/c27ac06373984352a1ebe2f6424cd9e9.png" data-src="https://habrastorage.org/files/c27/ac0/637/c27ac06373984352a1ebe2f6424cd9e9.png"/><br/>
+<i>Пример HTTP аутентификации с использованием Basic схемы.</i><br/>
+<br/>
+</li>
+<li><b>Digest</b> — challenge-response-схема, при которой сервер посылает уникальное значение nonce, а браузер передает MD5 хэш пароля пользователя, вычисленный с использованием указанного nonce. Более безопасная альтернативв Basic схемы при незащищенных соединениях, но подвержена man-in-the-middle attacks (с заменой схемы на basic). Кроме того, использование этой схемы не позволяет применить современные хэш-функции для хранения паролей пользователей на сервере.</li>
+<li><b>NTLM</b> (известная как Windows authentication) — также основана на challenge-response подходе, при котором пароль не передается в чистом виде. Эта схема не является стандартом HTTP, но поддерживается большинством браузеров и веб-серверов. Преимущественно используется для аутентификации пользователей Windows Active Directory в веб-приложениях. Уязвима к pass-the-hash-атакам.</li>
+<li><b>Negotiate</b> — еще одна схема из семейства Windows authentication, которая позволяет клиенту выбрать между NTLM и Kerberos аутентификацией. Kerberos — более безопасный протокол, основанный на принципе Single Sign-On. Однако он может функционировать, только если и клиент, и сервер находятся в зоне intranet и являются частью домена Windows.</li>
+</ol><br/>
+Стоит отметить, что при использовании HTTP-аутентификации у пользователя нет стандартной возможности выйти из веб-приложения, кроме как закрыть все окна браузера.<br/>
+<br/>
+<h6><b>Forms authentication</b></h6><br/>
+Для этого протокола нет определенного стандарта, поэтому все его реализации специфичны для конкретных систем, а точнее, для модулей аутентификации фреймворков разработки.<br/>
+<br/>
+Работает это по следующему принципу: в веб-приложение включается HTML-форма, в которую пользователь должен ввести свои username/password и отправить их на сервер через HTTP POST для аутентификации. В случае успеха веб-приложение создает session token, который обычно помещается в browser cookies. При последующих веб-запросах <i>session token</i> автоматически передается на сервер и позволяет приложению получить информацию о текущем пользователе для авторизации запроса.<br/>
+<br/>
+<img width="50%" height="50%" src="https://habrastorage.org/r/w1560/files/8e5/211/8bb/8e52118bbaa84a4286e2ef2a2a5ad36d.png" data-src="https://habrastorage.org/files/8e5/211/8bb/8e52118bbaa84a4286e2ef2a2a5ad36d.png"/><br/>
+<i>Пример forms authentication.</i><br/>
+<br/>
+Приложение может создать session token двумя способами:<br/>
+<br/>
+<ol>
+<li>Как идентификатор аутентифицированной сессии пользователя, которая хранится в памяти сервера или в базе данных. Сессия должна содержать всю необходимую информацию о пользователе для возможности авторизации его запросов.</li>
+<li>Как зашифрованный и/или подписанный объект, содержащий данные о пользователе, а также период действия. Этот подход позволяет реализовать stateless-архитектуру сервера, однако требует механизма обновления сессионного токена по истечении срока действия. Несколько стандартных форматов таких токенов рассматриваются в секции «Аутентификация по токенам».</li>
+</ol><br/>
+Необходимо понимать, что перехват session token зачастую дает аналогичный уровень доступа, что и знание username/password. Поэтому все коммуникации между клиентом и сервером в случае forms authentication должны производиться только по защищенному соединению HTTPS.<br/>
+<br/>
+<h6><b>Другие протоколы аутентификации по паролю</b></h6><br/>
+Два протокола, описанных выше, успешно используются для аутентификации пользователей на веб-сайтах. Но при разработке клиент-серверных приложений с использованием веб-сервисов (например, iOS или Android), наряду с HTTP аутентификацией, часто применяются нестандартные протоколы, в которых данные для аутентификации передаются в других частях запроса.<br/>
+<br/>
+Существует всего несколько мест, где можно передать username и password в HTTP запросах:<br/>
+<br/>
+<ol>
+<li><b>URL query</b> — считается небезопасным вариантом, т. к. строки URL могут запоминаться браузерами, прокси и веб-серверами.</li>
+<li><b>Request body</b> — безопасный вариант, но он применим только для запросов, содержащих тело сообщения (такие как POST, PUT, PATCH).</li>
+<li><b>HTTP header</b> —оптимальный вариант, при этом могут использоваться и стандартный заголовок Authorization (например, с Basic-схемой), и другие произвольные заголовки.</li>
+</ol><br/>
+<br/>
+<h6><b>Распространенные уязвимости и ошибки реализации</b><h6>Аутентификации по паролю считается не очень надежным способом, так как пароль часто можно подобрать, а пользователи склонны использовать простые и одинаковые пароли в разных системах, либо записывать их на клочках бумаги. Если злоумышленник смог выяснить пароль, то пользователь зачастую об этом не узнает. Кроме того, разработчики приложений могут допустить ряд концептуальных ошибок, упрощающих взлом учетных записей.<br/>
+<br/>
+Ниже представлен список наиболее часто встречающихся уязвимостей в случае использования аутентификации по паролю:<br/>
+<br/>
+<ul>
+<li>Веб-приложение позволяет пользователям создавать простые пароли.</li>
+<li>Веб-приложение не защищено от возможности перебора паролей (brute-force attacks).</li>
+<li>Веб-приложение само генерирует и распространяет пароли пользователям, однако не требует смены пароля после первого входа (т.е. текущий пароль где-то записан).</li>
+<li>Веб-приложение допускает передачу паролей по незащищенному HTTP-соединению, либо в строке URL.</li>
+<li>Веб-приложение не использует безопасные хэш-функции для хранения паролей пользователей.</li>
+<li>Веб-приложение не предоставляет пользователям возможность изменения пароля либо не нотифицирует пользователей об изменении их паролей.</li>
+<li>Веб-приложение использует уязвимую функцию восстановления пароля, которую можно использовать для получения несанкционированного доступа к другим учетным записям.</li>
+<li>Веб-приложение не требует повторной аутентификации пользователя для важных действий: смена пароля, изменения адреса доставки товаров и т. п.</li>
+<li>Веб-приложение создает session tokens таким образом, что они могут быть подобраны или предсказаны для других пользователей.</li>
+<li>Веб-приложение допускает передачу session tokens по незащищенному HTTP-соединению, либо в строке URL.</li>
+<li>Веб-приложение уязвимо для session fixation-атак (т. е. не заменяет session token при переходе анонимной сессии пользователя в аутентифицированную).</li>
+<li>Веб-приложение не устанавливает флаги HttpOnly и Secure для browser cookies, содержащих session tokens.</li>
+<li>Веб-приложение не уничтожает сессии пользователя после короткого периода неактивности либо не предоставляет функцию выхода из аутентифицированной сессии.</li>
+</ul><br/>
+<br/>
+<h5><b>Аутентификация по сертификатам</b></h5><br/>
+Сертификат представляет собой набор атрибутов, идентифицирующих владельца, подписанный <i>certificate authority</i> (CA). CA выступает в роли посредника, который гарантирует подлинность сертификатов (по аналогии с ФМС, выпускающей паспорта). Также сертификат криптографически связан с закрытым ключом, который хранится у владельца сертификата и позволяет однозначно подтвердить факт владения сертификатом.<br/>
+<br/>
+На стороне клиента сертификат вместе с закрытым ключом могут храниться в операционной системе, в браузере, в файле, на отдельном физическом устройстве (smart card, USB token). Обычно закрытый ключ дополнительно защищен паролем или PIN-кодом.<br/>
+<br/>
+В веб-приложениях традиционно используют сертификаты стандарта X.509. Аутентификация с помощью X.509-сертификата происходит в момент соединения с сервером и является частью протокола SSL/TLS. Этот механизм также хорошо поддерживается браузерами, которые позволяют пользователю выбрать и применить сертификат, если веб-сайт допускает такой способ аутентификации.<br/>
+<br/>
+<img width="33%" height="33%" src="https://habrastorage.org/r/w1560/files/681/fec/01d/681fec01de36423183fd3da27396b2a9.png" data-src="https://habrastorage.org/files/681/fec/01d/681fec01de36423183fd3da27396b2a9.png"/><br/>
+<i>Использование сертификата для аутентификации.</i><br/>
+<br/>
+Во время аутентификации сервер выполняет проверку сертификата на основании следующих правил:<br/>
+<br/>
+<ol>
+<li>Сертификат должен быть подписан доверенным certification authority (проверка цепочки сертификатов).</li>
+<li>Сертификат должен быть действительным на текущую дату (проверка срока действия).</li>
+<li>Сертификат не должен быть отозван соответствующим CA (проверка списков исключения).</li>
+</ol><br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/files/de5/425/ee9/de5425ee9f1b462da2e49cc29ad7599a.png" data-src="https://habrastorage.org/files/de5/425/ee9/de5425ee9f1b462da2e49cc29ad7599a.png"/><br/>
+<i>Пример X.509 сертификата.</i><br/>
+<br/>
+После успешной аутентификации веб-приложение может выполнить авторизацию запроса на основании таких данных сертификата, как subject (имя владельца), issuer (эмитент), serial number (серийный номер сертификата) или thumbprint (отпечаток открытого ключа сертификата).<br/>
+<br/>
+Использование сертификатов для аутентификации — куда более надежный способ, чем аутентификация посредством паролей. Это достигается созданием в процессе аутентификации цифровой подписи, наличие которой доказывает факт применения закрытого ключа в конкретной ситуации (non-repudiation). Однако трудности с распространением и поддержкой сертификатов делает такой способ аутентификации малодоступным в широких кругах.<br/>
+<br/>
+<h5><b>Аутентификация по одноразовым паролям</b></h5><br/>
+Аутентификация по одноразовым паролям обычно применяется дополнительно к аутентификации по паролям для реализации<i> two-factor authentication</i> (2FA). В этой концепции пользователю необходимо предоставить данные двух типов для входа в систему: что-то, что он знает (например, пароль), и что-то, чем он владеет (например, устройство для генерации одноразовых паролей). Наличие двух факторов позволяет в значительной степени увеличить уровень безопасности, что м. б. востребовано для определенных видов веб-приложений.<br/>
+<br/>
+Другой популярный сценарий использования одноразовых паролей — дополнительная аутентификация пользователя во время выполнения важных действий: перевод денег, изменение настроек и т. п.<br/>
+<br/>
+Существуют разные источники для создания одноразовых паролей. Наиболее популярные:<br/>
+<br/>
+<ol>
+<li>Аппаратные или программные токены, которые могут генерировать одноразовые пароли на основании секретного ключа, введенного в них, и текущего времени. Секретные ключи пользователей, являющиеся фактором владения, также хранятся на сервере, что позволяет выполнить проверку введенных одноразовых паролей. Пример аппаратной реализаций токенов — <a href="http://www.emc.com/security/rsa-securid/index.htm">RSA SecurID</a>; программной — приложение <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2">Google Authenticator</a>.</li>
+<li>Случайно генерируемые коды, передаваемые пользователю через SMS или другой канал связи. В этой ситуации фактор владения — телефон пользователя (точнее — SIM-карта, привязанная к определенному номеру).</li>
+<li>Распечатка или scratch card со списком заранее сформированных одноразовых паролей. Для каждого нового входа в систему требуется ввести новый одноразовый пароль с указанным номером. </li>
+</ol><br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/files/e9f/c06/fe1/e9fc06fe151749839f2f48f24e9f148f.jpg" data-src="https://habrastorage.org/files/e9f/c06/fe1/e9fc06fe151749839f2f48f24e9f148f.jpg" data-blurred="true"/><br/>
+<i>Аппаратный токен RSA SecurID генерирует новый код каждые 30 секунд.</i><br/>
+<br/>
+В веб-приложениях такой механизм аутентификации часто реализуется посредством расширения forms authentication: после первичной аутентификации по паролю, создается сессия пользователя, однако в контексте этой сессии пользователь не имеет доступа к приложению до тех пор, пока он не выполнит дополнительную аутентификацию по одноразовому паролю.<br/>
+<br/>
+<h5><b>Аутентификация по ключам доступа</b></h5><br/>
+Этот способ чаще всего используется для аутентификации устройств, сервисов или других приложений при обращении к веб-сервисам. Здесь в качестве секрета применяются ключи доступа (<i>access key, API key</i>) — длинные уникальные строки, содержащие произвольный набор символов, по сути заменяющие собой комбинацию username/password.<br/>
+<br/>
+В большинстве случаев, сервер генерирует ключи доступа по запросу пользователей, которые далее сохраняют эти ключи в клиентских приложениях. При создании ключа также возможно ограничить срок действия и уровень доступа, который получит клиентское приложение при аутентификации с помощью этого ключа.<br/>
+<br/>
+Хороший пример применения аутентификации по ключу — облако Amazon Web Services. Предположим, у пользователя есть веб-приложение, позволяющее загружать и просматривать фотографии, и он хочет использовать сервис Amazon S3 для хранения файлов. В таком случае, пользователь через консоль AWS может создать ключ, имеющий ограниченный доступ к облаку: только чтение/запись его файлов в Amazon S3. Этот ключ в результате можно применить для аутентификации веб-приложения в облаке AWS.<br/>
+<br/>
+<img width="50%" height="50%" src="https://habrastorage.org/r/w1560/files/e81/4ba/c63/e814bac63f3440308d6f1305e7ce2dbc.png" data-src="https://habrastorage.org/files/e81/4ba/c63/e814bac63f3440308d6f1305e7ce2dbc.png"/><br/>
+<i>Пример применения аутентификации по ключу.</i><br/>
+<br/>
+Использование ключей позволяет избежать передачи пароля пользователя сторонним приложениям (в примере выше пользователь сохранил в веб-приложении не свой пароль, а ключ доступа). Ключи обладают значительно большей энтропией по сравнению с паролями, поэтому их практически невозможно подобрать. Кроме того, если ключ был раскрыт, это не приводит к компрометации основной учетной записи пользователя — достаточно лишь аннулировать этот ключ и создать новый.<br/>
+<br/>
+С технической точки зрения, здесь не существует единого протокола: ключи могут передаваться в разных частях HTTP-запроса: URL query, request body или HTTP header. Как и в случае аутентификации по паролю, наиболее оптимальный вариант — использование HTTP header. В некоторых случаях используют HTTP-схему Bearer для передачи токена в заголовке (Authorization: Bearer [token]). Чтобы избежать перехвата ключей, соединение с сервером должно быть обязательно защищено протоколом SSL/TLS.<br/>
+<br/>
+<img width="50%" height="50%" src="https://habrastorage.org/r/w1560/files/5e1/fa4/ad6/5e1fa4ad660e45e4ad005bd335e42944.png" data-src="https://habrastorage.org/files/5e1/fa4/ad6/5e1fa4ad660e45e4ad005bd335e42944.png"/><br/>
+<i>Пример аутентификации по ключу доступа, переданного в HTTP заголовке.</i><br/>
+<br/>
+Кроме того, существуют более сложные схемы аутентификации по ключам для незащищенных соединений. В этом случае, ключ обычно состоит их двух частей: публичной и секретной. Публичная часть используется для идентификации клиента, а секретная часть позволяет сгенерировать подпись. Например, по аналогии с digest authentication схемой, сервер может послать клиенту уникальное значение nonce или timestamp, а клиент — возвратить хэш или HMAC этого значения, вычисленный с использованием секретной части ключа. Это позволяет избежать передачи всего ключа в оригинальном виде и защищает от replay attacks.<br/>
+<br/>
+<h5><b>Аутентификация по токенам</b></h5><br/>
+Такой способ аутентификации чаще всего применяется при построении распределенных систем <i>Single Sign-On</i> (SSO), где одно приложение (<i>service provider</i> или <i>relying party</i>) делегирует функцию аутентификации пользователей другому приложению (<i>identity provider</i> или <i>authentication service</i>). Типичный пример этого способа — вход в приложение через учетную запись в социальных сетях. Здесь социальные сети являются сервисами аутентификации, а приложение <u>доверяет</u> функцию аутентификации пользователей социальным сетям.<br/>
+<br/>
+Реализация этого способа заключается в том, что identity provider (IP) предоставляет достоверные сведения о пользователе <u>в виде токена</u>, а service provider (SP) приложение использует этот токен для идентификации, аутентификации и авторизации пользователя.<br/>
+На общем уровне, весь процесс выглядит следующим образом:<br/>
+<br/>
+<ol>
+<li>Клиент аутентифицируется в identity provider одним из способов, специфичным для него (пароль, ключ доступа, сертификат, Kerberos, итд.).</li>
+<li>Клиент просит identity provider предоставить ему токен для конкретного SP-приложения. Identity provider генерирует токен и отправляет его клиенту.</li>
+<li>Клиент аутентифицируется в SP-приложении при помощи этого токена.</li>
+</ol><br/>
+<br/>
+<img width="50%" height="50%" src="https://habrastorage.org/r/w1560/files/b19/0b1/1c0/b190b11c0d934c999c1955184ddeb0c3.png" data-src="https://habrastorage.org/files/b19/0b1/1c0/b190b11c0d934c999c1955184ddeb0c3.png"/><br/>
+<i>Пример аутентификации «активного» клиента при помощи токена, переданного посредством Bearer схемы.</i><br/>
+<br/>
+Процесс, описанный выше, отражает механизм аутентификации <i>активного</i> клиента, т. е. такого, который может выполнять запрограммированную последовательность действий (например, iOS/Android приложения). Браузер же — <i>пассивный</i> клиент в том смысле, что он только может отображать страницы, запрошенные пользователем. В этом случае аутентификация достигается посредством автоматического перенаправления браузера между веб-приложениями identity provider и service provider.<br/>
+<br/>
+<img width="66%" height="66%" src="https://habrastorage.org/r/w1560/files/553/6a3/98c/5536a398ca884b81a8a9b649c7bb8402.png" data-src="https://habrastorage.org/files/553/6a3/98c/5536a398ca884b81a8a9b649c7bb8402.png"/><br/>
+<i>Пример аутентификации «пассивного» клиента посредством перенаправления запросов.</i><br/>
+<br/>
+Существует несколько стандартов, в точности определяющих протокол взаимодействия между клиентами (активными и пассивными) и IP/SP-приложениями и формат поддерживаемых токенов. Среди наиболее популярных стандартов — OAuth, OpenID Connect, SAML, и WS-Federation. Некоторая информация об этих протоколах — ниже в статье.<br/>
+<br/>
+Сам токен обычно представляет собой структуру данных, которая содержит информацию, кто сгенерировал токен, кто может быть получателем токена, срок действия, набор сведений о самом пользователе (claims). Кроме того, токен дополнительно подписывается для предотвращения несанкционированных изменений и гарантий подлинности.<br/>
+<br/>
+При аутентификации с помощью токена SP-приложение должно выполнить следующие проверки:<br/>
+<br/>
+<ol>
+<li>Токен был выдан доверенным identity provider приложением (проверка поля <i>issuer</i>).</li>
+<li>Токен предназначается текущему SP-приложению (проверка поля <i>audience</i>).</li>
+<li>Срок действия токена еще не истек (проверка поля <i>expiration date</i>).</li>
+<li>Токен подлинный и не был изменен (проверка подписи).</li>
+</ol><br/>
+<br/>
+В случае успешной проверки SP-приложение выполняет авторизацию запроса на основании данных о пользователе, содержащихся в токене.<br/>
+<br/>
+<h6><b>Форматы токенов</b></h6><br/>
+Существует несколько распространенных форматов токенов для веб-приложений:<br/>
+<br/>
+<ol>
+<li><b>Simple Web Token</b> (SWT) — наиболее простой формат, представляющий собой набор произвольных пар имя/значение в формате кодирования HTML form. Стандарт определяет несколько зарезервированных имен: Issuer, Audience, ExpiresOn и HMACSHA256. Токен подписывается с помощью симметричного ключа, таким образом оба IP- и SP-приложения должны иметь этот ключ для возможности создания/проверки токена.<br/>
+<br/>
+<i>Пример SWT токена (после декодирования).</i><br/>
+<blockquote>Issuer=http://auth.myservice.com&amp;<br/>
+Audience=http://myservice.com&amp;<br/>
+ExpiresOn=1435937883&amp;<br/>
+UserName=John Smith&amp;<br/>
+UserRole=Admin&amp;<br/>
+HMACSHA256=KOUQRPSpy64rvT2KnYyQKtFFXUIggnesSpE7ADA4o9w</blockquote><br/>
+</li>
+<li><b>JSON Web Token (JWT)</b> — содержит три блока, разделенных точками: заголовок, набор полей (claims) и подпись. Первые два блока представлены в JSON-формате и дополнительно закодированы в формат base64. Набор полей содержит произвольные пары имя/значения, притом стандарт JWT определяет несколько зарезервированных имен (iss, aud, exp и другие). Подпись может генерироваться при помощи и симметричных алгоритмов шифрования, и асимметричных. Кроме того, существует отдельный стандарт, отписывающий формат зашифрованного JWT-токена.<br/>
+<br/>
+<i>Пример подписанного JWT токена (после декодирования 1 и 2 блоков).</i><br/>
+<blockquote>{ «alg»: «HS256», «typ»: «JWT» }.<br/>
+{ «iss»: «<a href="http://auth.myservice.com">auth.myservice.com</a>», «aud»: «<a href="http://myservice.com">myservice.com</a>», «exp»: «1435937883», «userName»: «John Smith», «userRole»: «Admin» }.<br/>
+S9Zs/8/uEGGTVVtLggFTizCsMtwOJnRhjaQ2BMUQhcY</blockquote><br/>
+<br/>
+</li>
+<li><b>Security Assertion Markup Language (SAML)</b> — определяет токены (SAML assertions) в XML-формате, включающем информацию об эмитенте, о субъекте, необходимые условия для проверки токена, набор дополнительных утверждений (statements) о пользователе. Подпись SAML-токенов осуществляется при помощи ассиметричной криптографии. Кроме того, в отличие от предыдущих форматов, SAML-токены содержат механизм для подтверждения владения токеном, что позволяет предотвратить перехват токенов через man-in-the-middle-атаки при использовании незащищенных соединений.</li>
+</ol><br/>
+<br/>
+<h5><b>Стандарт SAML</b></h5><br/>
+Стандарт Security Assertion Markup Language (SAML) описывает способы взаимодействия и протоколы между identity provider и service provider для обмена данными аутентификации и авторизации посредством токенов. Изначально версии 1.0 и 1.1 были выпущены в 2002 – 2003 гг., в то время как версия 2.0, значительно расширяющая стандарт и обратно несовместимая, опубликована в 2005 г.<br/>
+<br/>
+Этот основополагающий стандарт — достаточно сложный и поддерживает много различных сценариев интеграции систем. Основные «строительные блоки» стандарта:<br/>
+<br/>
+<ol>
+<li><b>Assertions</b> — собственный формат SAML токенов в XML формате.</li>
+<li><b>Protocols</b> — набор поддерживаемых сообщений между участниками, среди которых — запрос на создание нового токена, получение существующих токенов, выход из системы (logout), управление идентификаторами пользователей, и другие.</li>
+<li><b>Bindings</b> — механизмы передачи сообщений через различные транспортные протоколы. Поддерживаются такие способы, как HTTP Redirect, HTTP POST, HTTP Artifact (ссылка на сообщения), SAML SOAP, SAML URI (адрес получения сообщения) и другие.</li>
+<li><b>Profiles</b> — типичные сценарии использования стандарта, определяющие набор assertions, protocols и bindings необходимых для их реализации, что позволяет достичь лучшей совместимости. Web Browser SSO — один из примеров таких профилей.</li>
+</ol><br/>
+<br/>
+Кроме того, стандарт определяет формат обмена метаинформацией между участниками, которая включает список поддерживаемых ролей, протоколов, атрибутов, ключи шифрования и т. п.<br/>
+<br/>
+Рассмотрим краткий пример использования SAML для сценария Single Sign-On. Пользователь хочет получить доступ на защищенный ресурс сервис-провайдера (шаг № 1 на диаграмме аутентификации пассивных клиентов). Т. к. пользователь не был аутентифицирован, SP отправляет его на сайт identity provider’а для создания токена (шаг № 2). Ниже приведен пример ответа SP, где последний использует SAML HTTP Redirect binding для отправки сообщения с запросом токена:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/files/b3e/064/4db/b3e0644db4c44581acd2cecd00b5af41.png" data-src="https://habrastorage.org/files/b3e/064/4db/b3e0644db4c44581acd2cecd00b5af41.png"/><br/>
+<br/>
+В случае такого запроса, identity provider аутентифицирует пользователя (шаги №3-4), после чего генерирует токен. Ниже приведен пример ответа IP с использованием HTTP POST binding (шаг № 5):<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/files/143/d65/ab4/143d65ab44374a95a7d1552be3cbebcf.png" data-src="https://habrastorage.org/files/143/d65/ab4/143d65ab44374a95a7d1552be3cbebcf.png"/><br/>
+<br/>
+После того как браузер автоматически отправит эту форму на сайт service provider’а (шаг № 6), последний декодирует токен и аутентифицирует пользователя. По результатам успешной авторизации запроса пользователь получает доступ к запрошенному ресурсу (шаг № 7).<br/>
+<br/>
+<h5><b>Стандарты WS-Trust и WS-Federation</b></h5><br/>
+WS-Trust и WS-Federation входят в группу стандартов WS-*, описывающих SOAP/XML-веб сервисы. Эти стандарты разрабатываются группой компаний, куда входят Microsoft, IBM, VeriSign и другие. Наряду с SAML, эти стандарты достаточно сложные, используются преимущественно в корпоративных сценариях.<br/>
+<br/>
+Стандарт <b>WS-Trust</b> описывает интерфейс сервиса авторизации, именуемого Secure Token Service (STS). Этот сервис работает по протоколу SOAP и поддерживает создание, обновление и аннулирование токенов. При этом стандарт допускает использование токенов различного формата, однако на практике в основном используются SAML-токены.<br/>
+<br/>
+Стандарт <b>WS-Federation</b> касается механизмов взаимодействия сервисов между компаниями, в частности, протоколов обмена токенов. При этом WS-Federation расширяет функции и интерфейс сервиса STS, описанного в стандарте WS-Trust. Среди прочего, стандарт WS-Federation определяет:<br/>
+<br/>
+<ul>
+<li>Формат и способы обмена метаданными о сервисах.</li>
+<li>Функцию единого выхода из всех систем (single sign-out).</li>
+<li>Сервис атрибутов, предоставляющий дополнительную информацию о пользователе.</li>
+<li>Сервис псевдонимов, позволяющий создавать альтернативные имена пользователей.</li>
+<li>Поддержку пассивных клиентов (браузеров) посредством перенаправления.</li>
+</ul><br/>
+<br/>
+Можно сказать, что WS-Federation позволяет решить те же задачи, что и SAML, однако их подходы и реализация в некоторой степени отличаются.<br/>
+<br/>
+<h5><b>Стандарты OAuth и OpenID Connect</b></h5><br/>
+<br/>
+В отличие от SAML и WS-Federation, стандарт OAuth (Open Authorization) не описывает протокол аутентификации пользователя. Вместо этого он определяет механизм получения доступа одного приложения к другому от имени пользователя. Однако существуют схемы, позволяющие осуществить аутентификацию пользователя на базе этого стандарта (об этом — ниже).<br/>
+<br/>
+Первая версия стандарта разрабатывалась в 2007 – 2010 гг., а текущая версия 2.0 опубликована в 2012 г. Версия 2.0 значительно расширяет и в то же время упрощает стандарт, но обратно несовместима с версией 1.0. Сейчас OAuth 2.0 очень популярен и используется повсеместно для предоставления делегированного доступа и третье-сторонней аутентификации пользователей.<br/>
+<br/>
+Чтобы лучше понять сам стандарт, рассмотрим пример веб-приложения, которое помогает пользователям планировать путешествия. Как часть функциональности оно умеет анализировать почту пользователей на наличие писем с подтверждениями бронирований и автоматически включать их в планируемый маршрут. Возникает вопрос, как это веб-приложение может безопасно получить доступ к почте пользователей, например, к Gmail?<br/>
+<br/>
+> <i>Попросить пользователя указать данные своей учетной записи?</i> — плохой вариант.<br/>
+> <i>Попросить пользователя создать ключ доступа?</i> — возможно, но весьма сложно.<br/>
+<br/>
+Как раз эту проблему и позволяет решить стандарт OAuth: он описывает, как приложение путешествий (client) может получить доступ к почте пользователя (resource server) с разрешения пользователя (resource owner). В общем виде весь процесс состоит из нескольких шагов:<br/>
+<br/>
+<ol>
+<li>Пользователь (resource owner) дает разрешение приложению (client) на доступ к определенному ресурсу в виде гранта. Что такое грант, рассмотрим чуть ниже.</li>
+<li>Приложение обращается к серверу авторизации и получает токен доступа к ресурсу в обмен на свой грант. В нашем примере сервер авторизации — Google. При вызове приложение дополнительно аутентифицируется при помощи ключа доступа, выданным ему при предварительной регистрации.</li>
+<li>Приложение использует этот токен для получения требуемых данных от сервера ресурсов (в нашем случае — сервис Gmail).</li>
+</ol><br/>
+<br/>
+<img width="55%" height="55%" src="https://habrastorage.org/r/w1560/files/078/176/f4b/078176f4bee345459dcccc2ea8910d6d.png" data-src="https://habrastorage.org/files/078/176/f4b/078176f4bee345459dcccc2ea8910d6d.png"/><br/>
+<i>Взаимодействие компонентов в стандарте OAuth.</i><br/>
+<br/>
+Стандарт описывает четыре вида грантов, которые определяют возможные сценарии применения:<br/>
+<br/>
+<ol>
+<li><b>Authorization Code</b> — этот грант пользователь может получить от сервера авторизации после успешной аутентификации и подтверждения согласия на предоставление доступа. Такой способ наиболее часто используется в веб-приложениях. Процесс получения гранта очень похож на механизм аутентификации пассивных клиентов в SAML и WS-Federation.</li>
+<li><b>Implicit</b> — применяется, когда у приложения нет возможности безопасно получить токен от сервера авторизации (например, JavaScript-приложение в браузере). В этом случае грант представляет собой токен, полученный от сервера авторизации, а шаг № 2 исключается из сценария выше.</li>
+<li><b>Resource Owner Password Credentials</b> — грант представляет собой пару username/password пользователя. Может применяться, если приложение является «интерфейсом» для сервера ресурсов (например, приложение — мобильный клиент для Gmail).</li>
+<li><b>Client Credentials</b> — в этом случае нет никакого пользователя, а приложение получает доступ к своим ресурсам при помощи своих ключей доступа (исключается шаг № 1).</li>
+</ol><br/>
+<br/>
+Стандарт не определяет формат токена, который получает приложение: в сценариях, адресуемых стандартом, приложению нет необходимости анализировать токен, т. к. он лишь используется для получения доступа к ресурсам. Поэтому ни токен, ни грант сами по себе не могут быть использованы для аутентификации пользователя. Однако если приложению необходимо получить достоверную информацию о пользователе, существуют несколько способов это сделать:<br/>
+<br/>
+<ol>
+<li>Зачастую API сервера ресурсов включает операцию, предоставляющую информацию о самом пользователе (например, /me в Facebook API). Приложение может выполнять эту операцию каждый раз после получения токена для идентификации клиента. Такой метод иногда называют <i>псевдо-аутентификацией</i>.</li>
+<li>Использовать стандарт <b>OpenID Connect</b>, разработанный как слой учетных данных поверх OAuth (опубликован в 2014 г.). В соответствии с этим стандартом, сервер авторизации предоставляет дополнительный identity token на шаге № 2. Этот токен в формате JWT будет содержать набор определенных полей (claims) с информацией о пользователе.</li>
+</ol><br/>
+<br/>
+Стоит заметить, что OpenID Connect, заменивший предыдущие версии стандарта OpenID 1.0 и 2.0, также содержит набор необязательных дополнений для поиска серверов авторизации, динамической регистрации клиентов и управления сессией пользователя.<br/>
+<br/>
+<h4><b>Заключение</b></h4><br/>
+В этой статье мы рассмотрели различные методы аутентификации в веб-приложениях. Ниже — таблица, которая резюмирует описанные способы и протоколы:<br/>
+<br/>
+</h6></h6><table border="1">
+<tbody>
+<tr>
+<td> <p><b>Способ</b></p><br/>
+ </td>
+<td> <p><b>Основное применение</b></p><br/>
+ </td>
+<td> <p><b>Протоколы</b></p><br/>
+ </td>
+</tr>
+<tr>
+<td> <p><b>По паролю</b></p><br/>
+ </td>
+<td> <p>Аутентификация пользователей</p><br/>
+ </td>
+<td> <p>HTTP, Forms</p><br/>
+ </td>
+</tr>
+<tr>
+<td> <p><b>По сертификатам</b></p><br/>
+ </td>
+<td> <p>Аутентификация пользователей в безопасных приложениях; аутентификация сервисов</p><br/>
+ </td>
+<td> <p>SSL/TLS</p><br/>
+ </td>
+</tr>
+<tr>
+<td> <p><b>По одноразовым паролям</b></p><br/>
+ </td>
+<td> <p>Дополнительная аутентификация пользователей (для достижения two-factor authentication)</p><br/>
+ </td>
+<td> <p>Forms</p><br/>
+ </td>
+</tr>
+<tr>
+<td> <p><b>По ключам доступа</b></p><br/>
+ </td>
+<td> <p>Аутентификация сервисов и приложений</p><br/>
+ </td>
+<td> <p>-</p><br/>
+ </td>
+</tr>
+<tr>
+<td> <p><b>По токенам</b></p><br/>
+ </td>
+<td> <p>Делегированная аутентификация пользователей; делегированная авторизация приложений</p><br/>
+ </td>
+<td> <p>SAML, WS-Federation, OAuth, OpenID Connect</p><br/>
+ </td>
+</tr>
+</tbody>
+</table><br/>
+<br/>
+Надеюсь, что информация оказалась полезна, и вы сможете применить ее при дизайне и разработке новых приложений. До новых встреч!<br/>
+<br/>
+<b>Автор</b>: Дмитрий Выростков, Solutions Architect в DataArt.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bdataart%5D" class="tm-tags-list__link">dataart</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B1%D0%B5%D0%B7%D0%BE%D0%BF%D0%B0%D1%81%D0%BD%D0%BE%D1%81%D1%82%D1%8C%5D" class="tm-tags-list__link">безопасность</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bsecurity%5D" class="tm-tags-list__link">security</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/dataart/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании DataArt
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/infosecurity/" class="tm-hubs-list__link">
+    Информационная безопасность
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/programming/" class="tm-hubs-list__link">
+    Программирование
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 48: ↑48 и ↓0</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 48: ↑48 и ↓0" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+48</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">470K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    1601
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/dataart/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/d40/dc3/cb0/d40dc3cb05cb68dac9a38b3f4fda2d0f.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/dataart/profile/" class="tm-company-snippet__title">DataArt</a> <div class="tm-company-snippet__description">Технологический консалтинг и разработка ПО</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="https://facebook.com/DataArt.Dev" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Facebook
+    </a><a href="https://twitter.com/DataArt_Dev" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Twitter
+    </a><a href="https://vk.com/dataart" rel="noopener" target="_blank" class="tm-article-author__contact">
+      ВКонтакте
+    </a><a href="https://instagram.com/dataart_enjoy_it" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Instagram
+    </a><a href="https://plus.google.com/+dataart" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Google+
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/DataArt/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/3bc/d08/30a/3bcd0830ae333662c41e475082f68dd6.png" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 322 голоса " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    180
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">DataArt</span> <a href="https://habr.com/ru/users/DataArt/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @DataArt
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/dataart/blog/262817/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 19 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="1997-04-29T20:00:00.000Z" title="1997-04-30, 00:00">30  апреля  1997</time></dd></dl> <!----> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="http://www.dataart.com" target="_blank" class="tm-company-basic-info__link">
+      www.dataart.com
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    1 001–5 000 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2008-08-09T07:42:59.000Z" title="2008-08-09, 11:42">9  августа  2008</time></dd></dl> <!----></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/dataart/blog/262817/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/dataart/blog/262817/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"262817":{"id":"262817","timePublished":"2015-07-16T16:35:16+00:00","isCorporative":true,"lang":"ru","titleHtml":"Обзор способов и протоколов аутентификации в веб-приложениях","leadData":{"textHtml":"\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F682\u002Fc4b\u002Fc7b\u002F682c4bc7b2d44e24a77ed3c9678b1946.png\"\u003E\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nЯ расскажу о применении различных способов аутентификации для веб-приложений, включая аутентификацию по паролю, по сертификатам, по одноразовым паролям, по ключам доступа и по токенам. Коснусь технологии единого входа (Single Sign-On), рассмотрю различные стандарты и протоколы аутентификации.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nПеред тем, как перейти к техническим деталям, давайте немного освежим терминологию.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cb\u003EИдентификация\u003C\u002Fb\u003E — это заявление о том, кем вы являетесь. В зависимости от ситуации, это может быть имя, адрес электронной почты, номер учетной записи, итд.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EАутентификация\u003C\u002Fb\u003E — предоставление доказательств, что вы на самом деле есть тот, кем идентифицировались (от слова “authentic” — истинный, подлинный).\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EАвторизация\u003C\u002Fb\u003E — проверка, что вам разрешен доступ к запрашиваемому ресурсу.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nНапример, при попытке попасть в закрытый клуб вас \u003Ci\u003Eидентифицируют\u003C\u002Fi\u003E (спросят ваше имя и фамилию), \u003Ci\u003Eаутентифицируют\u003C\u002Fi\u003E (попросят показать паспорт и сверят фотографию) и \u003Ci\u003Eавторизуют\u003C\u002Fi\u003E (проверят, что фамилия находится в списке гостей), прежде чем пустят внутрь.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nАналогично эти термины применяются в компьютерных системах, где традиционно под \u003Ci\u003Eидентификацией\u003C\u002Fi\u003E понимают получение вашей учетной записи (identity) по username или email; под \u003Ci\u003Eаутентификацией\u003C\u002Fi\u003E — проверку, что вы знаете пароль от этой учетной записи, а под \u003Ci\u003Eавторизацией\u003C\u002Fi\u003E — проверку вашей роли в системе и решение о предоставлении доступа к запрошенной странице или ресурсу.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nОднако в современных системах существуют и более сложные схемы аутентификации и авторизации, о которых я расскажу далее. Но начнем с простого и понятного.\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":180,"votesCount":322},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"7114","alias":"DataArt","fullname":"DataArt","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F3bc\u002Fd08\u002F30a\u002F3bcd0830ae333662c41e475082f68dd6.png","speciality":"Пользователь"},"statistics":{"commentsCount":19,"favoritesCount":1601,"readingCount":470089,"score":48,"votesCount":48},"hubs":[{"relatedData":null,"id":"5275","alias":"dataart","type":"corporative","title":"Блог компании DataArt","titleHtml":"Блог компании DataArt","isProfiled":false},{"relatedData":null,"id":"50","alias":"infosecurity","type":"collective","title":"Информационная безопасность","titleHtml":"Информационная безопасность","isProfiled":true},{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"359","alias":"programming","type":"collective","title":"Программирование","titleHtml":"Программирование","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F682\u002Fc4b\u002Fc7b\u002F682c4bc7b2d44e24a77ed3c9678b1946.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F682\u002Fc4b\u002Fc7b\u002F682c4bc7b2d44e24a77ed3c9678b1946.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯ расскажу о применении различных способов аутентификации для веб-приложений, включая аутентификацию по паролю, по сертификатам, по одноразовым паролям, по ключам доступа и по токенам. Коснусь технологии единого входа (Single Sign-On), рассмотрю различные стандарты и протоколы аутентификации.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПеред тем, как перейти к техническим деталям, давайте немного освежим терминологию.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cb\u003EИдентификация\u003C\u002Fb\u003E — это заявление о том, кем вы являетесь. В зависимости от ситуации, это может быть имя, адрес электронной почты, номер учетной записи, итд.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EАутентификация\u003C\u002Fb\u003E — предоставление доказательств, что вы на самом деле есть тот, кем идентифицировались (от слова “authentic” — истинный, подлинный).\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EАвторизация\u003C\u002Fb\u003E — проверка, что вам разрешен доступ к запрашиваемому ресурсу.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНапример, при попытке попасть в закрытый клуб вас \u003Ci\u003Eидентифицируют\u003C\u002Fi\u003E (спросят ваше имя и фамилию), \u003Ci\u003Eаутентифицируют\u003C\u002Fi\u003E (попросят показать паспорт и сверят фотографию) и \u003Ci\u003Eавторизуют\u003C\u002Fi\u003E (проверят, что фамилия находится в списке гостей), прежде чем пустят внутрь.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nАналогично эти термины применяются в компьютерных системах, где традиционно под \u003Ci\u003Eидентификацией\u003C\u002Fi\u003E понимают получение вашей учетной записи (identity) по username или email; под \u003Ci\u003Eаутентификацией\u003C\u002Fi\u003E — проверку, что вы знаете пароль от этой учетной записи, а под \u003Ci\u003Eавторизацией\u003C\u002Fi\u003E — проверку вашей роли в системе и решение о предоставлении доступа к запрошенной странице или ресурсу.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОднако в современных системах существуют и более сложные схемы аутентификации и авторизации, о которых я расскажу далее. Но начнем с простого и понятного.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch5\u003E\u003Cb\u003EАутентификация по паролю\u003C\u002Fb\u003E\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nЭтот метод основывается на том, что пользователь должен предоставить username и password для успешной идентификации и аутентификации в системе. Пара username\u002Fpassword задается пользователем при его регистрации в системе, при этом в качестве username может выступать адрес электронной почты пользователя.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПрименительно к веб-приложениям, существует несколько стандартных протоколов для аутентификации по паролю, которые мы рассмотрим ниже.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch6\u003E\u003Cb\u003EHTTP authentication\u003C\u002Fb\u003E\u003C\u002Fh6\u003E\u003Cbr\u002F\u003E\r\nЭтот протокол, описанный в стандартах HTTP 1.0\u002F1.1, существует очень давно и до сих пор активно применяется в корпоративной среде. Применительно к веб-сайтам работает следующим образом:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EСервер, при обращении неавторизованного клиента к защищенному ресурсу, отсылает HTTP статус “401 Unauthorized” и добавляет заголовок “WWW-Authenticate” с указанием схемы и параметров аутентификации.\u003C\u002Fli\u003E\r\n\u003Cli\u003EБраузер, при получении такого ответа, \u003Cu\u003Eавтоматически\u003C\u002Fu\u003E показывает диалог ввода username и password. Пользователь вводит детали своей учетной записи.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВо всех последующих запросах к этому веб-сайту браузер автоматически добавляет HTTP заголовок “Authorization”, в котором передаются данные пользователя для аутентификации сервером.\u003C\u002Fli\u003E\r\n\u003Cli\u003EСервер аутентифицирует пользователя по данным из этого заголовка. Решение о предоставлении доступа (авторизация) производится отдельно на основании роли пользователя, ACL или других данных учетной записи.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВесь процесс стандартизирован и хорошо поддерживается всеми браузерами и веб-серверами. Существует несколько схем аутентификации, отличающихся по уровню безопасности:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E\u003Cb\u003EBasic\u003C\u002Fb\u003E — наиболее простая схема, при которой username и password пользователя передаются в заголовке Authorization в незашифрованном виде (base64-encoded). Однако при использовании HTTPS (HTTP over SSL) протокола, является относительно безопасной.\u003Cbr\u002F\u003E\r\n\u003Cimg width=\"50%\" height=\"50%\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002Fc27\u002Fac0\u002F637\u002Fc27ac06373984352a1ebe2f6424cd9e9.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002Fc27\u002Fac0\u002F637\u002Fc27ac06373984352a1ebe2f6424cd9e9.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EПример HTTP аутентификации с использованием Basic схемы.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EDigest\u003C\u002Fb\u003E — challenge-response-схема, при которой сервер посылает уникальное значение nonce, а браузер передает MD5 хэш пароля пользователя, вычисленный с использованием указанного nonce. Более безопасная альтернативв Basic схемы при незащищенных соединениях, но подвержена man-in-the-middle attacks (с заменой схемы на basic). Кроме того, использование этой схемы не позволяет применить современные хэш-функции для хранения паролей пользователей на сервере.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003ENTLM\u003C\u002Fb\u003E (известная как Windows authentication) — также основана на challenge-response подходе, при котором пароль не передается в чистом виде. Эта схема не является стандартом HTTP, но поддерживается большинством браузеров и веб-серверов. Преимущественно используется для аутентификации пользователей Windows Active Directory в веб-приложениях. Уязвима к pass-the-hash-атакам.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003ENegotiate\u003C\u002Fb\u003E — еще одна схема из семейства Windows authentication, которая позволяет клиенту выбрать между NTLM и Kerberos аутентификацией. Kerberos — более безопасный протокол, основанный на принципе Single Sign-On. Однако он может функционировать, только если и клиент, и сервер находятся в зоне intranet и являются частью домена Windows.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nСтоит отметить, что при использовании HTTP-аутентификации у пользователя нет стандартной возможности выйти из веб-приложения, кроме как закрыть все окна браузера.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch6\u003E\u003Cb\u003EForms authentication\u003C\u002Fb\u003E\u003C\u002Fh6\u003E\u003Cbr\u002F\u003E\r\nДля этого протокола нет определенного стандарта, поэтому все его реализации специфичны для конкретных систем, а точнее, для модулей аутентификации фреймворков разработки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРаботает это по следующему принципу: в веб-приложение включается HTML-форма, в которую пользователь должен ввести свои username\u002Fpassword и отправить их на сервер через HTTP POST для аутентификации. В случае успеха веб-приложение создает session token, который обычно помещается в browser cookies. При последующих веб-запросах \u003Ci\u003Esession token\u003C\u002Fi\u003E автоматически передается на сервер и позволяет приложению получить информацию о текущем пользователе для авторизации запроса.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg width=\"50%\" height=\"50%\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F8e5\u002F211\u002F8bb\u002F8e52118bbaa84a4286e2ef2a2a5ad36d.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F8e5\u002F211\u002F8bb\u002F8e52118bbaa84a4286e2ef2a2a5ad36d.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EПример forms authentication.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПриложение может создать session token двумя способами:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EКак идентификатор аутентифицированной сессии пользователя, которая хранится в памяти сервера или в базе данных. Сессия должна содержать всю необходимую информацию о пользователе для возможности авторизации его запросов.\u003C\u002Fli\u003E\r\n\u003Cli\u003EКак зашифрованный и\u002Fили подписанный объект, содержащий данные о пользователе, а также период действия. Этот подход позволяет реализовать stateless-архитектуру сервера, однако требует механизма обновления сессионного токена по истечении срока действия. Несколько стандартных форматов таких токенов рассматриваются в секции «Аутентификация по токенам».\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nНеобходимо понимать, что перехват session token зачастую дает аналогичный уровень доступа, что и знание username\u002Fpassword. Поэтому все коммуникации между клиентом и сервером в случае forms authentication должны производиться только по защищенному соединению HTTPS.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch6\u003E\u003Cb\u003EДругие протоколы аутентификации по паролю\u003C\u002Fb\u003E\u003C\u002Fh6\u003E\u003Cbr\u002F\u003E\r\nДва протокола, описанных выше, успешно используются для аутентификации пользователей на веб-сайтах. Но при разработке клиент-серверных приложений с использованием веб-сервисов (например, iOS или Android), наряду с HTTP аутентификацией, часто применяются нестандартные протоколы, в которых данные для аутентификации передаются в других частях запроса.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСуществует всего несколько мест, где можно передать username и password в HTTP запросах:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E\u003Cb\u003EURL query\u003C\u002Fb\u003E — считается небезопасным вариантом, т. к. строки URL могут запоминаться браузерами, прокси и веб-серверами.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003ERequest body\u003C\u002Fb\u003E — безопасный вариант, но он применим только для запросов, содержащих тело сообщения (такие как POST, PUT, PATCH).\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EHTTP header\u003C\u002Fb\u003E —оптимальный вариант, при этом могут использоваться и стандартный заголовок Authorization (например, с Basic-схемой), и другие произвольные заголовки.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch6\u003E\u003Cb\u003EРаспространенные уязвимости и ошибки реализации\u003C\u002Fb\u003E\u003Ch6\u003EАутентификации по паролю считается не очень надежным способом, так как пароль часто можно подобрать, а пользователи склонны использовать простые и одинаковые пароли в разных системах, либо записывать их на клочках бумаги. Если злоумышленник смог выяснить пароль, то пользователь зачастую об этом не узнает. Кроме того, разработчики приложений могут допустить ряд концептуальных ошибок, упрощающих взлом учетных записей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНиже представлен список наиболее часто встречающихся уязвимостей в случае использования аутентификации по паролю:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EВеб-приложение позволяет пользователям создавать простые пароли.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВеб-приложение не защищено от возможности перебора паролей (brute-force attacks).\u003C\u002Fli\u003E\r\n\u003Cli\u003EВеб-приложение само генерирует и распространяет пароли пользователям, однако не требует смены пароля после первого входа (т.е. текущий пароль где-то записан).\u003C\u002Fli\u003E\r\n\u003Cli\u003EВеб-приложение допускает передачу паролей по незащищенному HTTP-соединению, либо в строке URL.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВеб-приложение не использует безопасные хэш-функции для хранения паролей пользователей.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВеб-приложение не предоставляет пользователям возможность изменения пароля либо не нотифицирует пользователей об изменении их паролей.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВеб-приложение использует уязвимую функцию восстановления пароля, которую можно использовать для получения несанкционированного доступа к другим учетным записям.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВеб-приложение не требует повторной аутентификации пользователя для важных действий: смена пароля, изменения адреса доставки товаров и т. п.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВеб-приложение создает session tokens таким образом, что они могут быть подобраны или предсказаны для других пользователей.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВеб-приложение допускает передачу session tokens по незащищенному HTTP-соединению, либо в строке URL.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВеб-приложение уязвимо для session fixation-атак (т. е. не заменяет session token при переходе анонимной сессии пользователя в аутентифицированную).\u003C\u002Fli\u003E\r\n\u003Cli\u003EВеб-приложение не устанавливает флаги HttpOnly и Secure для browser cookies, содержащих session tokens.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВеб-приложение не уничтожает сессии пользователя после короткого периода неактивности либо не предоставляет функцию выхода из аутентифицированной сессии.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003E\u003Cb\u003EАутентификация по сертификатам\u003C\u002Fb\u003E\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nСертификат представляет собой набор атрибутов, идентифицирующих владельца, подписанный \u003Ci\u003Ecertificate authority\u003C\u002Fi\u003E (CA). CA выступает в роли посредника, который гарантирует подлинность сертификатов (по аналогии с ФМС, выпускающей паспорта). Также сертификат криптографически связан с закрытым ключом, который хранится у владельца сертификата и позволяет однозначно подтвердить факт владения сертификатом.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа стороне клиента сертификат вместе с закрытым ключом могут храниться в операционной системе, в браузере, в файле, на отдельном физическом устройстве (smart card, USB token). Обычно закрытый ключ дополнительно защищен паролем или PIN-кодом.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ веб-приложениях традиционно используют сертификаты стандарта X.509. Аутентификация с помощью X.509-сертификата происходит в момент соединения с сервером и является частью протокола SSL\u002FTLS. Этот механизм также хорошо поддерживается браузерами, которые позволяют пользователю выбрать и применить сертификат, если веб-сайт допускает такой способ аутентификации.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg width=\"33%\" height=\"33%\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F681\u002Ffec\u002F01d\u002F681fec01de36423183fd3da27396b2a9.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F681\u002Ffec\u002F01d\u002F681fec01de36423183fd3da27396b2a9.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EИспользование сертификата для аутентификации.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВо время аутентификации сервер выполняет проверку сертификата на основании следующих правил:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EСертификат должен быть подписан доверенным certification authority (проверка цепочки сертификатов).\u003C\u002Fli\u003E\r\n\u003Cli\u003EСертификат должен быть действительным на текущую дату (проверка срока действия).\u003C\u002Fli\u003E\r\n\u003Cli\u003EСертификат не должен быть отозван соответствующим CA (проверка списков исключения).\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002Fde5\u002F425\u002Fee9\u002Fde5425ee9f1b462da2e49cc29ad7599a.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002Fde5\u002F425\u002Fee9\u002Fde5425ee9f1b462da2e49cc29ad7599a.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EПример X.509 сертификата.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПосле успешной аутентификации веб-приложение может выполнить авторизацию запроса на основании таких данных сертификата, как subject (имя владельца), issuer (эмитент), serial number (серийный номер сертификата) или thumbprint (отпечаток открытого ключа сертификата).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИспользование сертификатов для аутентификации — куда более надежный способ, чем аутентификация посредством паролей. Это достигается созданием в процессе аутентификации цифровой подписи, наличие которой доказывает факт применения закрытого ключа в конкретной ситуации (non-repudiation). Однако трудности с распространением и поддержкой сертификатов делает такой способ аутентификации малодоступным в широких кругах.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003E\u003Cb\u003EАутентификация по одноразовым паролям\u003C\u002Fb\u003E\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nАутентификация по одноразовым паролям обычно применяется дополнительно к аутентификации по паролям для реализации\u003Ci\u003E two-factor authentication\u003C\u002Fi\u003E (2FA). В этой концепции пользователю необходимо предоставить данные двух типов для входа в систему: что-то, что он знает (например, пароль), и что-то, чем он владеет (например, устройство для генерации одноразовых паролей). Наличие двух факторов позволяет в значительной степени увеличить уровень безопасности, что м. б. востребовано для определенных видов веб-приложений.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДругой популярный сценарий использования одноразовых паролей — дополнительная аутентификация пользователя во время выполнения важных действий: перевод денег, изменение настроек и т. п.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСуществуют разные источники для создания одноразовых паролей. Наиболее популярные:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EАппаратные или программные токены, которые могут генерировать одноразовые пароли на основании секретного ключа, введенного в них, и текущего времени. Секретные ключи пользователей, являющиеся фактором владения, также хранятся на сервере, что позволяет выполнить проверку введенных одноразовых паролей. Пример аппаратной реализаций токенов — \u003Ca href=\"http:\u002F\u002Fwww.emc.com\u002Fsecurity\u002Frsa-securid\u002Findex.htm\"\u003ERSA SecurID\u003C\u002Fa\u003E; программной — приложение \u003Ca href=\"https:\u002F\u002Fplay.google.com\u002Fstore\u002Fapps\u002Fdetails?id=com.google.android.apps.authenticator2\"\u003EGoogle Authenticator\u003C\u002Fa\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003EСлучайно генерируемые коды, передаваемые пользователю через SMS или другой канал связи. В этой ситуации фактор владения — телефон пользователя (точнее — SIM-карта, привязанная к определенному номеру).\u003C\u002Fli\u003E\r\n\u003Cli\u003EРаспечатка или scratch card со списком заранее сформированных одноразовых паролей. Для каждого нового входа в систему требуется ввести новый одноразовый пароль с указанным номером. \u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Ffiles\u002Fe9f\u002Fc06\u002Ffe1\u002Fe9fc06fe151749839f2f48f24e9f148f.jpg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002Fe9f\u002Fc06\u002Ffe1\u002Fe9fc06fe151749839f2f48f24e9f148f.jpg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EАппаратный токен RSA SecurID генерирует новый код каждые 30 секунд.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ веб-приложениях такой механизм аутентификации часто реализуется посредством расширения forms authentication: после первичной аутентификации по паролю, создается сессия пользователя, однако в контексте этой сессии пользователь не имеет доступа к приложению до тех пор, пока он не выполнит дополнительную аутентификацию по одноразовому паролю.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003E\u003Cb\u003EАутентификация по ключам доступа\u003C\u002Fb\u003E\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nЭтот способ чаще всего используется для аутентификации устройств, сервисов или других приложений при обращении к веб-сервисам. Здесь в качестве секрета применяются ключи доступа (\u003Ci\u003Eaccess key, API key\u003C\u002Fi\u003E) — длинные уникальные строки, содержащие произвольный набор символов, по сути заменяющие собой комбинацию username\u002Fpassword.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ большинстве случаев, сервер генерирует ключи доступа по запросу пользователей, которые далее сохраняют эти ключи в клиентских приложениях. При создании ключа также возможно ограничить срок действия и уровень доступа, который получит клиентское приложение при аутентификации с помощью этого ключа.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nХороший пример применения аутентификации по ключу — облако Amazon Web Services. Предположим, у пользователя есть веб-приложение, позволяющее загружать и просматривать фотографии, и он хочет использовать сервис Amazon S3 для хранения файлов. В таком случае, пользователь через консоль AWS может создать ключ, имеющий ограниченный доступ к облаку: только чтение\u002Fзапись его файлов в Amazon S3. Этот ключ в результате можно применить для аутентификации веб-приложения в облаке AWS.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg width=\"50%\" height=\"50%\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002Fe81\u002F4ba\u002Fc63\u002Fe814bac63f3440308d6f1305e7ce2dbc.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002Fe81\u002F4ba\u002Fc63\u002Fe814bac63f3440308d6f1305e7ce2dbc.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EПример применения аутентификации по ключу.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИспользование ключей позволяет избежать передачи пароля пользователя сторонним приложениям (в примере выше пользователь сохранил в веб-приложении не свой пароль, а ключ доступа). Ключи обладают значительно большей энтропией по сравнению с паролями, поэтому их практически невозможно подобрать. Кроме того, если ключ был раскрыт, это не приводит к компрометации основной учетной записи пользователя — достаточно лишь аннулировать этот ключ и создать новый.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nС технической точки зрения, здесь не существует единого протокола: ключи могут передаваться в разных частях HTTP-запроса: URL query, request body или HTTP header. Как и в случае аутентификации по паролю, наиболее оптимальный вариант — использование HTTP header. В некоторых случаях используют HTTP-схему Bearer для передачи токена в заголовке (Authorization: Bearer [token]). Чтобы избежать перехвата ключей, соединение с сервером должно быть обязательно защищено протоколом SSL\u002FTLS.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg width=\"50%\" height=\"50%\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F5e1\u002Ffa4\u002Fad6\u002F5e1fa4ad660e45e4ad005bd335e42944.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F5e1\u002Ffa4\u002Fad6\u002F5e1fa4ad660e45e4ad005bd335e42944.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EПример аутентификации по ключу доступа, переданного в HTTP заголовке.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКроме того, существуют более сложные схемы аутентификации по ключам для незащищенных соединений. В этом случае, ключ обычно состоит их двух частей: публичной и секретной. Публичная часть используется для идентификации клиента, а секретная часть позволяет сгенерировать подпись. Например, по аналогии с digest authentication схемой, сервер может послать клиенту уникальное значение nonce или timestamp, а клиент — возвратить хэш или HMAC этого значения, вычисленный с использованием секретной части ключа. Это позволяет избежать передачи всего ключа в оригинальном виде и защищает от replay attacks.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003E\u003Cb\u003EАутентификация по токенам\u003C\u002Fb\u003E\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nТакой способ аутентификации чаще всего применяется при построении распределенных систем \u003Ci\u003ESingle Sign-On\u003C\u002Fi\u003E (SSO), где одно приложение (\u003Ci\u003Eservice provider\u003C\u002Fi\u003E или \u003Ci\u003Erelying party\u003C\u002Fi\u003E) делегирует функцию аутентификации пользователей другому приложению (\u003Ci\u003Eidentity provider\u003C\u002Fi\u003E или \u003Ci\u003Eauthentication service\u003C\u002Fi\u003E). Типичный пример этого способа — вход в приложение через учетную запись в социальных сетях. Здесь социальные сети являются сервисами аутентификации, а приложение \u003Cu\u003Eдоверяет\u003C\u002Fu\u003E функцию аутентификации пользователей социальным сетям.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРеализация этого способа заключается в том, что identity provider (IP) предоставляет достоверные сведения о пользователе \u003Cu\u003Eв виде токена\u003C\u002Fu\u003E, а service provider (SP) приложение использует этот токен для идентификации, аутентификации и авторизации пользователя.\u003Cbr\u002F\u003E\r\nНа общем уровне, весь процесс выглядит следующим образом:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EКлиент аутентифицируется в identity provider одним из способов, специфичным для него (пароль, ключ доступа, сертификат, Kerberos, итд.).\u003C\u002Fli\u003E\r\n\u003Cli\u003EКлиент просит identity provider предоставить ему токен для конкретного SP-приложения. Identity provider генерирует токен и отправляет его клиенту.\u003C\u002Fli\u003E\r\n\u003Cli\u003EКлиент аутентифицируется в SP-приложении при помощи этого токена.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg width=\"50%\" height=\"50%\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002Fb19\u002F0b1\u002F1c0\u002Fb190b11c0d934c999c1955184ddeb0c3.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002Fb19\u002F0b1\u002F1c0\u002Fb190b11c0d934c999c1955184ddeb0c3.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EПример аутентификации «активного» клиента при помощи токена, переданного посредством Bearer схемы.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПроцесс, описанный выше, отражает механизм аутентификации \u003Ci\u003Eактивного\u003C\u002Fi\u003E клиента, т. е. такого, который может выполнять запрограммированную последовательность действий (например, iOS\u002FAndroid приложения). Браузер же — \u003Ci\u003Eпассивный\u003C\u002Fi\u003E клиент в том смысле, что он только может отображать страницы, запрошенные пользователем. В этом случае аутентификация достигается посредством автоматического перенаправления браузера между веб-приложениями identity provider и service provider.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg width=\"66%\" height=\"66%\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F553\u002F6a3\u002F98c\u002F5536a398ca884b81a8a9b649c7bb8402.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F553\u002F6a3\u002F98c\u002F5536a398ca884b81a8a9b649c7bb8402.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EПример аутентификации «пассивного» клиента посредством перенаправления запросов.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСуществует несколько стандартов, в точности определяющих протокол взаимодействия между клиентами (активными и пассивными) и IP\u002FSP-приложениями и формат поддерживаемых токенов. Среди наиболее популярных стандартов — OAuth, OpenID Connect, SAML, и WS-Federation. Некоторая информация об этих протоколах — ниже в статье.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСам токен обычно представляет собой структуру данных, которая содержит информацию, кто сгенерировал токен, кто может быть получателем токена, срок действия, набор сведений о самом пользователе (claims). Кроме того, токен дополнительно подписывается для предотвращения несанкционированных изменений и гарантий подлинности.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПри аутентификации с помощью токена SP-приложение должно выполнить следующие проверки:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EТокен был выдан доверенным identity provider приложением (проверка поля \u003Ci\u003Eissuer\u003C\u002Fi\u003E).\u003C\u002Fli\u003E\r\n\u003Cli\u003EТокен предназначается текущему SP-приложению (проверка поля \u003Ci\u003Eaudience\u003C\u002Fi\u003E).\u003C\u002Fli\u003E\r\n\u003Cli\u003EСрок действия токена еще не истек (проверка поля \u003Ci\u003Eexpiration date\u003C\u002Fi\u003E).\u003C\u002Fli\u003E\r\n\u003Cli\u003EТокен подлинный и не был изменен (проверка подписи).\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ случае успешной проверки SP-приложение выполняет авторизацию запроса на основании данных о пользователе, содержащихся в токене.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch6\u003E\u003Cb\u003EФорматы токенов\u003C\u002Fb\u003E\u003C\u002Fh6\u003E\u003Cbr\u002F\u003E\r\nСуществует несколько распространенных форматов токенов для веб-приложений:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E\u003Cb\u003ESimple Web Token\u003C\u002Fb\u003E (SWT) — наиболее простой формат, представляющий собой набор произвольных пар имя\u002Fзначение в формате кодирования HTML form. Стандарт определяет несколько зарезервированных имен: Issuer, Audience, ExpiresOn и HMACSHA256. Токен подписывается с помощью симметричного ключа, таким образом оба IP- и SP-приложения должны иметь этот ключ для возможности создания\u002Fпроверки токена.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ci\u003EПример SWT токена (после декодирования).\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EIssuer=http:\u002F\u002Fauth.myservice.com&amp;\u003Cbr\u002F\u003E\r\nAudience=http:\u002F\u002Fmyservice.com&amp;\u003Cbr\u002F\u003E\r\nExpiresOn=1435937883&amp;\u003Cbr\u002F\u003E\r\nUserName=John Smith&amp;\u003Cbr\u002F\u003E\r\nUserRole=Admin&amp;\u003Cbr\u002F\u003E\r\nHMACSHA256=KOUQRPSpy64rvT2KnYyQKtFFXUIggnesSpE7ADA4o9w\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EJSON Web Token (JWT)\u003C\u002Fb\u003E — содержит три блока, разделенных точками: заголовок, набор полей (claims) и подпись. Первые два блока представлены в JSON-формате и дополнительно закодированы в формат base64. Набор полей содержит произвольные пары имя\u002Fзначения, притом стандарт JWT определяет несколько зарезервированных имен (iss, aud, exp и другие). Подпись может генерироваться при помощи и симметричных алгоритмов шифрования, и асимметричных. Кроме того, существует отдельный стандарт, отписывающий формат зашифрованного JWT-токена.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ci\u003EПример подписанного JWT токена (после декодирования 1 и 2 блоков).\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E{ «alg»: «HS256», «typ»: «JWT» }.\u003Cbr\u002F\u003E\r\n{ «iss»: «\u003Ca href=\"http:\u002F\u002Fauth.myservice.com\"\u003Eauth.myservice.com\u003C\u002Fa\u003E», «aud»: «\u003Ca href=\"http:\u002F\u002Fmyservice.com\"\u003Emyservice.com\u003C\u002Fa\u003E», «exp»: «1435937883», «userName»: «John Smith», «userRole»: «Admin» }.\u003Cbr\u002F\u003E\r\nS9Zs\u002F8\u002FuEGGTVVtLggFTizCsMtwOJnRhjaQ2BMUQhcY\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003ESecurity Assertion Markup Language (SAML)\u003C\u002Fb\u003E — определяет токены (SAML assertions) в XML-формате, включающем информацию об эмитенте, о субъекте, необходимые условия для проверки токена, набор дополнительных утверждений (statements) о пользователе. Подпись SAML-токенов осуществляется при помощи ассиметричной криптографии. Кроме того, в отличие от предыдущих форматов, SAML-токены содержат механизм для подтверждения владения токеном, что позволяет предотвратить перехват токенов через man-in-the-middle-атаки при использовании незащищенных соединений.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003E\u003Cb\u003EСтандарт SAML\u003C\u002Fb\u003E\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nСтандарт Security Assertion Markup Language (SAML) описывает способы взаимодействия и протоколы между identity provider и service provider для обмена данными аутентификации и авторизации посредством токенов. Изначально версии 1.0 и 1.1 были выпущены в 2002 – 2003 гг., в то время как версия 2.0, значительно расширяющая стандарт и обратно несовместимая, опубликована в 2005 г.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭтот основополагающий стандарт — достаточно сложный и поддерживает много различных сценариев интеграции систем. Основные «строительные блоки» стандарта:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E\u003Cb\u003EAssertions\u003C\u002Fb\u003E — собственный формат SAML токенов в XML формате.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EProtocols\u003C\u002Fb\u003E — набор поддерживаемых сообщений между участниками, среди которых — запрос на создание нового токена, получение существующих токенов, выход из системы (logout), управление идентификаторами пользователей, и другие.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EBindings\u003C\u002Fb\u003E — механизмы передачи сообщений через различные транспортные протоколы. Поддерживаются такие способы, как HTTP Redirect, HTTP POST, HTTP Artifact (ссылка на сообщения), SAML SOAP, SAML URI (адрес получения сообщения) и другие.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EProfiles\u003C\u002Fb\u003E — типичные сценарии использования стандарта, определяющие набор assertions, protocols и bindings необходимых для их реализации, что позволяет достичь лучшей совместимости. Web Browser SSO — один из примеров таких профилей.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКроме того, стандарт определяет формат обмена метаинформацией между участниками, которая включает список поддерживаемых ролей, протоколов, атрибутов, ключи шифрования и т. п.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРассмотрим краткий пример использования SAML для сценария Single Sign-On. Пользователь хочет получить доступ на защищенный ресурс сервис-провайдера (шаг № 1 на диаграмме аутентификации пассивных клиентов). Т. к. пользователь не был аутентифицирован, SP отправляет его на сайт identity provider’а для создания токена (шаг № 2). Ниже приведен пример ответа SP, где последний использует SAML HTTP Redirect binding для отправки сообщения с запросом токена:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002Fb3e\u002F064\u002F4db\u002Fb3e0644db4c44581acd2cecd00b5af41.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002Fb3e\u002F064\u002F4db\u002Fb3e0644db4c44581acd2cecd00b5af41.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ случае такого запроса, identity provider аутентифицирует пользователя (шаги №3-4), после чего генерирует токен. Ниже приведен пример ответа IP с использованием HTTP POST binding (шаг № 5):\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F143\u002Fd65\u002Fab4\u002F143d65ab44374a95a7d1552be3cbebcf.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F143\u002Fd65\u002Fab4\u002F143d65ab44374a95a7d1552be3cbebcf.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПосле того как браузер автоматически отправит эту форму на сайт service provider’а (шаг № 6), последний декодирует токен и аутентифицирует пользователя. По результатам успешной авторизации запроса пользователь получает доступ к запрошенному ресурсу (шаг № 7).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003E\u003Cb\u003EСтандарты WS-Trust и WS-Federation\u003C\u002Fb\u003E\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\nWS-Trust и WS-Federation входят в группу стандартов WS-*, описывающих SOAP\u002FXML-веб сервисы. Эти стандарты разрабатываются группой компаний, куда входят Microsoft, IBM, VeriSign и другие. Наряду с SAML, эти стандарты достаточно сложные, используются преимущественно в корпоративных сценариях.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСтандарт \u003Cb\u003EWS-Trust\u003C\u002Fb\u003E описывает интерфейс сервиса авторизации, именуемого Secure Token Service (STS). Этот сервис работает по протоколу SOAP и поддерживает создание, обновление и аннулирование токенов. При этом стандарт допускает использование токенов различного формата, однако на практике в основном используются SAML-токены.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСтандарт \u003Cb\u003EWS-Federation\u003C\u002Fb\u003E касается механизмов взаимодействия сервисов между компаниями, в частности, протоколов обмена токенов. При этом WS-Federation расширяет функции и интерфейс сервиса STS, описанного в стандарте WS-Trust. Среди прочего, стандарт WS-Federation определяет:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EФормат и способы обмена метаданными о сервисах.\u003C\u002Fli\u003E\r\n\u003Cli\u003EФункцию единого выхода из всех систем (single sign-out).\u003C\u002Fli\u003E\r\n\u003Cli\u003EСервис атрибутов, предоставляющий дополнительную информацию о пользователе.\u003C\u002Fli\u003E\r\n\u003Cli\u003EСервис псевдонимов, позволяющий создавать альтернативные имена пользователей.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПоддержку пассивных клиентов (браузеров) посредством перенаправления.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМожно сказать, что WS-Federation позволяет решить те же задачи, что и SAML, однако их подходы и реализация в некоторой степени отличаются.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003E\u003Cb\u003EСтандарты OAuth и OpenID Connect\u003C\u002Fb\u003E\u003C\u002Fh5\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ отличие от SAML и WS-Federation, стандарт OAuth (Open Authorization) не описывает протокол аутентификации пользователя. Вместо этого он определяет механизм получения доступа одного приложения к другому от имени пользователя. Однако существуют схемы, позволяющие осуществить аутентификацию пользователя на базе этого стандарта (об этом — ниже).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПервая версия стандарта разрабатывалась в 2007 – 2010 гг., а текущая версия 2.0 опубликована в 2012 г. Версия 2.0 значительно расширяет и в то же время упрощает стандарт, но обратно несовместима с версией 1.0. Сейчас OAuth 2.0 очень популярен и используется повсеместно для предоставления делегированного доступа и третье-сторонней аутентификации пользователей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЧтобы лучше понять сам стандарт, рассмотрим пример веб-приложения, которое помогает пользователям планировать путешествия. Как часть функциональности оно умеет анализировать почту пользователей на наличие писем с подтверждениями бронирований и автоматически включать их в планируемый маршрут. Возникает вопрос, как это веб-приложение может безопасно получить доступ к почте пользователей, например, к Gmail?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003E \u003Ci\u003EПопросить пользователя указать данные своей учетной записи?\u003C\u002Fi\u003E — плохой вариант.\u003Cbr\u002F\u003E\r\n\u003E \u003Ci\u003EПопросить пользователя создать ключ доступа?\u003C\u002Fi\u003E — возможно, но весьма сложно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКак раз эту проблему и позволяет решить стандарт OAuth: он описывает, как приложение путешествий (client) может получить доступ к почте пользователя (resource server) с разрешения пользователя (resource owner). В общем виде весь процесс состоит из нескольких шагов:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EПользователь (resource owner) дает разрешение приложению (client) на доступ к определенному ресурсу в виде гранта. Что такое грант, рассмотрим чуть ниже.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПриложение обращается к серверу авторизации и получает токен доступа к ресурсу в обмен на свой грант. В нашем примере сервер авторизации — Google. При вызове приложение дополнительно аутентифицируется при помощи ключа доступа, выданным ему при предварительной регистрации.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПриложение использует этот токен для получения требуемых данных от сервера ресурсов (в нашем случае — сервис Gmail).\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg width=\"55%\" height=\"55%\" src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Ffiles\u002F078\u002F176\u002Ff4b\u002F078176f4bee345459dcccc2ea8910d6d.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Ffiles\u002F078\u002F176\u002Ff4b\u002F078176f4bee345459dcccc2ea8910d6d.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EВзаимодействие компонентов в стандарте OAuth.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСтандарт описывает четыре вида грантов, которые определяют возможные сценарии применения:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E\u003Cb\u003EAuthorization Code\u003C\u002Fb\u003E — этот грант пользователь может получить от сервера авторизации после успешной аутентификации и подтверждения согласия на предоставление доступа. Такой способ наиболее часто используется в веб-приложениях. Процесс получения гранта очень похож на механизм аутентификации пассивных клиентов в SAML и WS-Federation.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EImplicit\u003C\u002Fb\u003E — применяется, когда у приложения нет возможности безопасно получить токен от сервера авторизации (например, JavaScript-приложение в браузере). В этом случае грант представляет собой токен, полученный от сервера авторизации, а шаг № 2 исключается из сценария выше.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EResource Owner Password Credentials\u003C\u002Fb\u003E — грант представляет собой пару username\u002Fpassword пользователя. Может применяться, если приложение является «интерфейсом» для сервера ресурсов (например, приложение — мобильный клиент для Gmail).\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EClient Credentials\u003C\u002Fb\u003E — в этом случае нет никакого пользователя, а приложение получает доступ к своим ресурсам при помощи своих ключей доступа (исключается шаг № 1).\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСтандарт не определяет формат токена, который получает приложение: в сценариях, адресуемых стандартом, приложению нет необходимости анализировать токен, т. к. он лишь используется для получения доступа к ресурсам. Поэтому ни токен, ни грант сами по себе не могут быть использованы для аутентификации пользователя. Однако если приложению необходимо получить достоверную информацию о пользователе, существуют несколько способов это сделать:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EЗачастую API сервера ресурсов включает операцию, предоставляющую информацию о самом пользователе (например, \u002Fme в Facebook API). Приложение может выполнять эту операцию каждый раз после получения токена для идентификации клиента. Такой метод иногда называют \u003Ci\u003Eпсевдо-аутентификацией\u003C\u002Fi\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003EИспользовать стандарт \u003Cb\u003EOpenID Connect\u003C\u002Fb\u003E, разработанный как слой учетных данных поверх OAuth (опубликован в 2014 г.). В соответствии с этим стандартом, сервер авторизации предоставляет дополнительный identity token на шаге № 2. Этот токен в формате JWT будет содержать набор определенных полей (claims) с информацией о пользователе.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСтоит заметить, что OpenID Connect, заменивший предыдущие версии стандарта OpenID 1.0 и 2.0, также содержит набор необязательных дополнений для поиска серверов авторизации, динамической регистрации клиентов и управления сессией пользователя.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003E\u003Cb\u003EЗаключение\u003C\u002Fb\u003E\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВ этой статье мы рассмотрели различные методы аутентификации в веб-приложениях. Ниже — таблица, которая резюмирует описанные способы и протоколы:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003C\u002Fh6\u003E\u003C\u002Fh6\u003E\u003Ctable border=\"1\"\u003E\r\n\u003Ctbody\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E \u003Cp\u003E\u003Cb\u003EСпособ\u003C\u002Fb\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003Ctd\u003E \u003Cp\u003E\u003Cb\u003EОсновное применение\u003C\u002Fb\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003Ctd\u003E \u003Cp\u003E\u003Cb\u003EПротоколы\u003C\u002Fb\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E \u003Cp\u003E\u003Cb\u003EПо паролю\u003C\u002Fb\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003Ctd\u003E \u003Cp\u003EАутентификация пользователей\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003Ctd\u003E \u003Cp\u003EHTTP, Forms\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E \u003Cp\u003E\u003Cb\u003EПо сертификатам\u003C\u002Fb\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003Ctd\u003E \u003Cp\u003EАутентификация пользователей в безопасных приложениях; аутентификация сервисов\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003Ctd\u003E \u003Cp\u003ESSL\u002FTLS\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E \u003Cp\u003E\u003Cb\u003EПо одноразовым паролям\u003C\u002Fb\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003Ctd\u003E \u003Cp\u003EДополнительная аутентификация пользователей (для достижения two-factor authentication)\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003Ctd\u003E \u003Cp\u003EForms\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E \u003Cp\u003E\u003Cb\u003EПо ключам доступа\u003C\u002Fb\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003Ctd\u003E \u003Cp\u003EАутентификация сервисов и приложений\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003Ctd\u003E \u003Cp\u003E-\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E \u003Cp\u003E\u003Cb\u003EПо токенам\u003C\u002Fb\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003Ctd\u003E \u003Cp\u003EДелегированная аутентификация пользователей; делегированная авторизация приложений\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003Ctd\u003E \u003Cp\u003ESAML, WS-Federation, OAuth, OpenID Connect\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftbody\u003E\r\n\u003C\u002Ftable\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНадеюсь, что информация оказалась полезна, и вы сможете применить ее при дизайне и разработке новых приложений. До новых встреч!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EАвтор\u003C\u002Fb\u003E: Дмитрий Выростков, Solutions Architect в DataArt.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"dataart"},{"titleHtml":"безопасность"},{"titleHtml":"security"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F262817\u002F635849468320152893fee348d83adce9\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F262817\u002F635849468320152893fee348d83adce9\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fdataart\\\u002Fblog\\\u002F262817\\\u002F\"},\"headline\":\"Обзор способов и протоколов аутентификации в веб-приложениях\",\"datePublished\":\"2015-07-16T19:35:16+03:00\",\"dateModified\":\"2019-08-08T18:33:43+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"DataArt\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Я расскажу о применении различных способов аутентификации для веб-приложений, включая аутентификацию по паролю, по сертификатам, по одноразовым паролям, по клю...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fdataart\\\u002Fblog\\\u002F262817\\\u002F#post-content-body\",\"about\":[\"c_dataart\",\"h_infosecurity\",\"h_webdev\",\"h_programming\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F262817\\\u002F635849468320152893fee348d83adce9\\\u002F\"]}","metaDescription":"Я расскажу о применении различных способов аутентификации для веб-приложений, включая аутентификацию по паролю, по сертификатам, по одноразовым паролям, по ключам доступа и по токенам. Коснусь...","mainImageUrl":null,"amp":true,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"dataart":{"alias":"dataart","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002Fd40\u002Fdc3\u002Fcb0\u002Fd40dc3cb05cb68dac9a38b3f4fda2d0f.png","titleHtml":"DataArt","descriptionHtml":"Технологический консалтинг и разработка ПО","relatedData":null,"statistics":{"postsCount":272,"newsCount":0,"vacanciesCount":0,"employeesCount":35,"careerRating":null,"subscribersCount":6531,"rating":65.87,"invest":null},"foundationDate":{"year":"1997","month":"04","day":"30"},"location":null,"siteUrl":"http:\u002F\u002Fwww.dataart.com","staffNumber":"1 001–5 000 человек","registrationDate":"2008-08-09T07:42:59+00:00","representativeUser":null,"contacts":[{"title":"Facebook","url":"https:\u002F\u002Ffacebook.com\u002FDataArt.Dev"},{"title":"Twitter","url":"https:\u002F\u002Ftwitter.com\u002FDataArt_Dev"},{"title":"ВКонтакте","url":"https:\u002F\u002Fvk.com\u002Fdataart"},{"title":"Instagram","url":"https:\u002F\u002Finstagram.com\u002Fdataart_enjoy_it"},{"title":"Google+","url":"https:\u002F\u002Fplus.google.com\u002F+dataart"}],"settings":{"analyticsSettings":[{"type":"ga","trackingId":"UA-181907-32"}],"branding":null,"status":"active","isStartup":false},"metadata":{"titleHtml":"DataArt - Технологический консалтинг и разработка ПО с 30 апреля 1997 г.","title":"DataArt - Технологический консалтинг и разработка ПО с 30 апреля 1997 г.","keywords":["История IT","Старое железо","Kubernetes","DevOps","Носимая электроника","dataart","музей dataart","dataart museum","iot","советские компьютеры","история it","история ит","разработка","старое железо","java","devicehive","интервью","ес эвм","wearables","конференция","python","google","mobile","cloud","интернет вещей"],"descriptionHtml":"272 статьи от авторов компании DataArt","description":"272 статьи от авторов компании DataArt"},"aDeskSettings":null,"careerAlias":"dataart"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

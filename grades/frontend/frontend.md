@@ -2,41 +2,42 @@
 
 # Разделы
 
- 1. [Грейды](#Грейды)
-     * [Грейды 1-5](#Грейды-1-5)
-        * [Грейд 1](#Грейд-1)
-        * [Грейд 2](#Грейд-2)
-        * [Грейд 3](#Грейд-3)
-        * [Грейд 4](#Грейд-4)
-        * [Грейд 5](#Грейд-5)
-     * [Грейды 6-10](#Грейды-6-10)
-        * [Грейд 6](#Грейд-6)
-        * [Грейд 7](#Грейд-7)
-        * [Грейд 8](#Грейд-8)
-        * [Грейд 9](#Грейд-9)
-        * [Грейд 10](#Грейд-10)
-     * [Грейды 11-14](#Грейды-11-16)
-        * [Грейд 11](#Грейд-11)
-        * [Грейд 12](#Грейд-12)
-        * [Грейд 13](#Грейд-13)
-        * [Грейд 14](#Грейд-14)
-        * [Грейд 15](#Грейд-15)
-        * [Грейд 16](#Грейд-16)
-        
-        
+1.  [Грейды](#Грейды)
+    - [Грейды 1-5](#Грейды-1-5)
+      - [Грейд 1](#Грейд-1)
+      - [Грейд 2](#Грейд-2)
+      - [Грейд 3](#Грейд-3)
+      - [Грейд 4](#Грейд-4)
+      - [Грейд 5](#Грейд-5)
+    - [Грейды 6-10](#Грейды-6-10)
+      - [Грейд 6](#Грейд-6)
+      - [Грейд 7](#Грейд-7)
+      - [Грейд 8](#Грейд-8)
+      - [Грейд 9](#Грейд-9)
+      - [Грейд 10](#Грейд-10)
+    - [Грейды 11-14](#Грейды-11-16)
+      - [Грейд 11](#Грейд-11)
+      - [Грейд 12](#Грейд-12)
+      - [Грейд 13](#Грейд-13)
+      - [Грейд 14](#Грейд-14)
+      - [Грейд 15](#Грейд-15)
+      - [Грейд 16](#Грейд-16)
+
 ## Грейды
 
-### Грейды 1-5 
+### Грейды 1-5
+
 **[⬆ вернуться к началу](#Разделы)**
 
 #### Грейд 1
+
 Теория и общая практика
 
 [Кодировки текста](https://habr.com/ru/post/478636/)  
 [Относительные (relative) и абсолютные (absolute) адреса ресурсов](https://habr.com/ru/post/310286/) + [Мнение Google об относительных и абсолютных адресах](https://www.searchengines.ru/google-absolute.html)  
-[Понятия вектора и растра](https://htmlacademy.ru/blog/boost/graphics/rastr-vector)  
+[Понятия вектора и растра](https://htmlacademy.ru/blog/boost/graphics/rastr-vector)
 
-***
+---
 
 HTML
 
@@ -44,9 +45,9 @@ HTML
 [Базовая структура документа](https://developer.mozilla.org/ru/docs/Learn/HTML/%D0%92%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5_%D0%B2_HTML/%D0%A1%D1%82%D1%80%D1%83%D0%BA%D1%82%D1%83%D1%80%D0%B0_%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0_%D0%B8_%D0%B2%D0%B5%D0%B1-%D1%81%D0%B0%D0%B9%D1%82%D0%B0)  
 [Валидация разметки](https://htmlacademy.ru/blog/boost/frontend/html-validation)  
 [Базовая структура форм](https://developer.mozilla.org/ru/docs/Learn/HTML/Forms/How_to_structure_an_HTML_form)  
-[Теги атрибуты](https://ru.hexlet.io/courses/html/lessons/html_terms/theory_unit)  
+[Теги атрибуты](https://ru.hexlet.io/courses/html/lessons/html_terms/theory_unit)
 
-***
+---
 
 CSS
 
@@ -61,20 +62,22 @@ CSS
 [Вендорные префиксы](https://web-standards.ru/articles/prefix-or-posthack/)  
 Источники стилей элемента
 
-***
+---
 
 Инструментарий
 
 Графические редакторы (Photoshop, Sketch, Figma, Avocode, Zepplin)  
-Работа с изображениями в редакторе (Вытащить изображения из макета, пережать (прогрессивный jpg + качество 60%), сохранить в нужном размере, обрезать)  
+Работа с изображениями в редакторе (Вытащить изображения из макета, пережать (прогрессивный jpg + качество 60%), сохранить в нужном размере, обрезать)
 
-***
-***
+---
+
+---
 
 #### Грейд 2
-Теория и общая практика  
 
-Структура вектора, операции над вектором  
+Теория и общая практика
+
+[Структура вектора, операции над вектором](<https://ru.wikipedia.org/wiki/%D0%92%D0%B5%D0%BA%D1%82%D0%BE%D1%80_(%D0%BC%D0%B0%D1%82%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B0)>)  
 [Векторные спрайты](https://medium.com/web-standards/accessible-svg-icons-4d8d80b52f92)  
 [Форматы шрифтов](https://medium.com/@itsedrika/%D1%88%D1%80%D0%B8%D1%84%D1%82%D1%8B-%D0%B2-%D0%B2%D0%B5%D0%B1%D0%B5-a0ab4e65b3a)  
 [Особенности загрузки шрифтов](https://htmlacademy.ru/blog/boost/frontend/short-14)  
@@ -82,11 +85,11 @@ CSS
 [Понимание работы веб-сервера](https://developer.mozilla.org/ru/docs/Learn/%D0%A7%D1%82%D0%BE_%D1%82%D0%B0%D0%BA%D0%BE%D0%B5_%D0%B2%D0%B5%D0%B1_%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80)  
 [Оптимизация вектора](https://webformyself.com/optimizaciya-svg-dlya-veb/), [сервис для сжатия SVGOMG](https://jakearchibald.github.io/svgomg/)  
 [Оптимизация растра](https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/image-optimization?hl=ru#%D0%9E%D0%BF%D1%82%D0%B8%D0%BC%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F_%D1%80%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B2%D1%8B%D1%85_%D0%B8%D0%B7%D0%BE%D0%B1%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D0%B8%D0%B9)  
-[DNS](https://www.reg.ru/support/dns/obschaja-informatsija-o-dns-serverah/printsipy-raboty-dns-i-pochemu-domeny-nachinayut-rabotat-ne-srazu)  
+[DNS](https://www.reg.ru/support/dns/obschaja-informatsija-o-dns-serverah/printsipy-raboty-dns-i-pochemu-domeny-nachinayut-rabotat-ne-srazu)
 
-***
+---
 
-HTML  
+HTML
 
 [Особенности подготовки текста](http://www.benran.ru/SEM/Sb_17/sbornik/164.pdf) + [Типограф](https://www.artlebedev.ru/typograf/)  
 [Мнемоники (спецсимволы)](https://html5book.ru/specsimvoly-html/) + [Максимально полный список](https://dev.w3.org/html5/html-author/charref)  
@@ -98,11 +101,11 @@ HTML
 [Понятие DOM-дерева](https://developer.mozilla.org/ru/docs/DOM/DOM_Reference/%D0%92%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5)  
 [Возможности вьюпорт-мета](https://developer.mozilla.org/ru/docs/Mozilla/Mobile/Viewport_meta_tag)  
 [Семантика](https://medium.com/@stasonmars/%D1%81%D0%B5%D0%BA%D1%80%D0%B5%D1%82%D1%8B-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-%D1%81%D0%B5%D0%BC%D0%B0%D0%BD%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%BE%D0%B8%CC%86-%D0%B2%D0%B5%D1%80%D1%81%D1%82%D0%BA%D0%B8-%D0%B2-html5-c7cd5e6f1ebb)  
-Псевдопротоколы: [tel](https://blog.toliklunev.ru/all/psevdoprotokol-tel/), [mailto](https://ru.wikipedia.org/wiki/Mailto)  
+Псевдопротоколы: [tel](https://blog.toliklunev.ru/all/psevdoprotokol-tel/), [mailto](https://ru.wikipedia.org/wiki/Mailto)
 
-***
+---
 
-CSS  
+CSS
 
 [Трансформации](https://html5book.ru/css3-transform/)  
 [Анимации](https://learn.javascript.ru/css-transitions)  
@@ -116,17 +119,18 @@ CSS
 [Медиазапросы](https://developer.mozilla.org/ru/docs/Web/CSS/Media_Queries/Using_media_queries)  
 [Float](https://learn.javascript.ru/float)  
 [Блочная модель документа](https://tproger.ru/translations/css-box-model/)  
-[Возможные значения display и их отличия](https://learn.javascript.ru/display)  
+[Возможные значения display и их отличия](https://learn.javascript.ru/display)
 
-***
+---
 
-Инструментарий  
+Инструментарий
 
 [Работа в Photoshop](https://habr.com/ru/post/272649/)  
 [[git] Понятие системы контроля версий](https://htmlacademy.ru/blog/education/all/version-control-system)  
 [git] Сервер, [ветка](https://git-scm.com/book/ru/v2/%D0%92%D0%B5%D1%82%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2-Git-%D0%9E%D1%81%D0%BD%D0%BE%D0%B2%D1%8B-%D0%B2%D0%B5%D1%82%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F-%D0%B8-%D1%81%D0%BB%D0%B8%D1%8F%D0%BD%D0%B8%D1%8F), [коммит](https://githowto.com/ru/commiting_changes), [конфликт](https://githowto.com/ru/resolving_conflicts)  
 [[git] Индексация и добавление в индекс](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%98%D0%BD%D1%82%D0%B5%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D0%B5-%D0%B8%D0%BD%D0%B4%D0%B5%D0%BA%D1%81%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5)  
 [git] push, pull, remote
+
 ```
     git push //отправляем изменения на сервер (удаолённый репозиторий) после коммита. если кто-то уже сделал изменения в общей ветке, необходимо сделать git pull
     git pull //автоматически получить изменения из удалённой ветки и слить их со своей текущей
@@ -136,26 +140,28 @@ CSS
     git remote add имя_репозитория //добавить удалённый репозиторий
     git remote rm имя_репозитория //удалить
 ```
-[Эспорт вектора](https://helpx.adobe.com/ru/illustrator/how-to/export-svg.html)  
-[.gitignore](https://git-scm.com/docs/gitignore), gitkeep  
 
-***
-***
+[Эспорт вектора](https://helpx.adobe.com/ru/illustrator/how-to/export-svg.html)  
+[.gitignore](https://git-scm.com/docs/gitignore), [gitkeep](https://overcoder.net/q/13269/%D0%BA%D0%B0%D0%BA%D0%BE%D0%B2%D1%8B-%D1%80%D0%B0%D0%B7%D0%BB%D0%B8%D1%87%D0%B8%D1%8F-%D0%BC%D0%B5%D0%B6%D0%B4%D1%83-gitignore-%D0%B8-gitkeep)
+
+---
+
+---
 
 #### Грейд 3
 
-Теория и общая практика  
+Теория и общая практика
 
 Cпособы получения данных для вывода  
 [Cуществующие браузерные движки отличия](https://habr.com/ru/post/349512/)  
 [HTTP, HTTP2](https://habr.com/ru/post/308846/), [HTTPS](https://support.google.com/webmasters/answer/6073543?hl=ru), [FTP](https://ru.wikipedia.org/wiki/FTP)  
 [URL](https://developer.mozilla.org/ru/docs/Learn/Understanding_URLs)  
-[Basic-auth](https://developer.mozilla.org/ru/docs/Web/HTTP/Authentication) 
-[localhost](https://www.hostinger.ru/rukovodstva/shto-takoje-localhost/)  
+[Basic-auth](https://developer.mozilla.org/ru/docs/Web/HTTP/Authentication)
+[localhost](https://www.hostinger.ru/rukovodstva/shto-takoje-localhost/)
 
-***
+---
 
-HTML  
+HTML
 
 [ARIA-атрибуты](https://developer.mozilla.org/ru/docs/Web/Accessibility/ARIA)  
 Разница [DOM-дерева (Document Object Model)](https://learn.javascript.ru/dom-nodes) и [дерева доступности (Accessibility tree)](https://developers.google.com/web/fundamentals/accessibility/semantics-builtin/the-accessibility-tree)  
@@ -166,11 +172,11 @@ HTML
 [Особенности подготовки favicon](https://htmlacademy.ru/blog/boost/graphics/short-18)  
 [Назначение дата-атрибутов](https://developer.mozilla.org/ru/docs/Web/Guide/HTML/Using_data_attributes)  
 [Ретинизация изображений](https://developer.mozilla.org/ru/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images)  
-[Доступность](https://medium.com/@ABatickaya/%D0%BF%D0%B8%D1%88%D0%B5%D0%BC-html-%D0%BD%D0%B5-%D0%B7%D0%B0%D0%B1%D1%8B%D0%B2%D0%B0%D1%8F-%D0%BE-%D0%B4%D0%BE%D1%81%D1%82%D1%83%D0%BF%D0%BD%D0%BE%D1%81%D1%82%D0%B8-9ffbf97ecbe7)  
+[Доступность](https://medium.com/@ABatickaya/%D0%BF%D0%B8%D1%88%D0%B5%D0%BC-html-%D0%BD%D0%B5-%D0%B7%D0%B0%D0%B1%D1%8B%D0%B2%D0%B0%D1%8F-%D0%BE-%D0%B4%D0%BE%D1%81%D1%82%D1%83%D0%BF%D0%BD%D0%BE%D1%81%D1%82%D0%B8-9ffbf97ecbe7)
 
-***
+---
 
-CSS  
+CSS
 
 [Grid](https://medium.com/@stasonmars/%D0%B2%D0%B5%CC%88%D1%80%D1%81%D1%82%D0%BA%D0%B0-%D0%BD%D0%B0-grid-%D0%B2-css-%D0%BF%D0%BE%D0%BB%D0%BD%D0%BE%D0%B5-%D1%80%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE-%D0%B8-%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%BE%D1%87%D0%BD%D0%B8%D0%BA-220508316f8b)  
 [Стили для печати](https://vc.ru/flood/23660-print-style-sheets)  
@@ -179,39 +185,42 @@ no-js решения (аккордеоны/слайдеры/свитчеры н�
 [Cложные (комплексные) селекторы](https://webref.ru/layout/advanced-html-css/complex-selectors)  
 [reset.css](https://habr.com/ru/post/45296/)  
 [normalize.css](https://htmlacademy.ru/blog/boost/frontend/about-normalize-css)  
-[CSS-фреймворки](https://geekbrains.ru/posts/5_css_frameworks)  
+[CSS-фреймворки](https://geekbrains.ru/posts/5_css_frameworks)
 
-***
+---
 
-Инструментарий  
+Инструментарий
 
 [Основы работы в терминале](https://tproger.ru/articles/useful-linux-commands/)  
 [Понимание файловой системы unix](https://ru.wikipedia.org/wiki/Unix_File_System)  
 [Понимание cli](https://ru.wikipedia.org/wiki/%D0%98%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81_%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D0%BD%D0%BE%D0%B9_%D1%81%D1%82%D1%80%D0%BE%D0%BA%D0%B8)  
-[git] реквесты  
-[git] отличие распределенной и не расп.  
+[git] [реквесты](https://techrocks.ru/2020/09/30/what-is-pull-request/)  
+[git] [отличие распределенной и не расп.](https://git-scm.com/book/ru/v2/%D0%92%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5-%D0%9E-%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B5-%D0%BA%D0%BE%D0%BD%D1%82%D1%80%D0%BE%D0%BB%D1%8F-%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D0%B9)  
 [Понимание назначения таск-раннеров](https://www.youtube.com/watch?v=t7yYD3qVchw)  
 [Возможности консоли в браузере](https://habr.com/ru/company/ruvds/blog/414375/)  
 [caniuse //посмотреть поддержку браузерами](https://caniuse.com/)  
 [emmet](https://ru.wikipedia.org/wiki/Emmet)  
 [Простая сборка на gulp](https://habr.com/ru/post/484714/)
 
-***
-***
+---
 
-#### Грейд 4  
-Теория и общая практика  
+---
+
+#### Грейд 4
+
+Теория и общая практика
 
 [Progressive Enhancement / Graceful Degradation](https://htmlacademy.ru/blog/boost/frontend/progressive-enhancement)  
 [Markdown](https://ru.wikipedia.org/wiki/Markdown)
-[Блок-схемы (практика)](https://oaipbfek.wordpress.com/%D1%81%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B1%D0%BB%D0%BE%D0%BA-%D1%81%D1%85%D0%B5%D0%BC-%D0%B0%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC%D0%BE%D0%B2/)  
+[Блок-схемы (практика)](https://oaipbfek.wordpress.com/%D1%81%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B1%D0%BB%D0%BE%D0%BA-%D1%81%D1%85%D0%B5%D0%BC-%D0%B0%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC%D0%BE%D0%B2/)
 
-***
+---
 
-HTML  
+HTML
 
 [Pug](https://gist.github.com/neretin-trike/53aff5afb76153f050c958b82abd9228)  
-Способы вставки видео в разметку. Тег html5 [<video>](https://developer.mozilla.org/ru/docs/Web/HTML/Element/video). Чаще всего используемые видео-форматы: webp, mp4 (кодек H264) или ogv (для устаревших браузеров), пожать можно в [браузере](https://www.online-convert.com/ru).  
+Способы вставки видео в разметку. Тег html5 [video](https://developer.mozilla.org/ru/docs/Web/HTML/Element/video). Чаще всего используемые видео-форматы: webp, mp4 (кодек H264), пожать можно в [браузере](https://www.online-convert.com/ru).
+
 ```
     <video id="promo-video" class="video-promo desktop" poster="" muted="" autoplay="" loop="" playsinline>
         <source src="/interface/collections/trendbook-ss-2020/video/1.mp4" type="video/mp4">
@@ -222,18 +231,18 @@ HTML
     <iframe width="100%" src="https://www.youtube.com/embed/JZm6E9Hu7D4?controls=1&amp;autoplay=1&amp;loop=1&amp;rel=0&showinfo=0&vq=hd1080" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> //способ вставки iframe через Youtube
 ```
 
-***
+---
 
 CSS
 
 [Назначение и виды препроцессоров](https://mrmlnc.gitbooks.io/less-guidebook-for-beginners/content/chapter_1/css-reprocessors.html)  
 [Cинтаксис и возможности препроцессоров](https://medium.com/oceanize-geeks/6-reasons-you-should-use-a-css-preprocessor-51766ca130a8)  
 [Custom properties](https://developer.mozilla.org/ru/docs/Web/CSS/Using_CSS_custom_properties)  
-[PostCSS](https://webformyself.com/vvedenie-v-postcss/)  
+[PostCSS](https://webformyself.com/vvedenie-v-postcss/)
 
-***
+---
 
-Инструментарий  
+Инструментарий
 
 [симлинки](https://ru.wikipedia.org/wiki/%D0%A1%D0%B8%D0%BC%D0%B2%D0%BE%D0%BB%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B0%D1%8F_%D1%81%D1%81%D1%8B%D0%BB%D0%BA%D0%B0)  
 [gitconfig](https://git-scm.com/book/ru/v2/%D0%92%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5-%D0%9F%D0%B5%D1%80%D0%B2%D0%BE%D0%BD%D0%B0%D1%87%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-Git)  
@@ -242,13 +251,13 @@ CSS
 [package.json](https://habr.com/ru/company/ruvds/blog/423703/)  
 работа с готовой системой сборки  
 [способы отладки кода](https://learn.javascript.ru/debugging-chrome)  
-отладка сетевых запросов  
-понимание exit-кодов ПО  
-[editorconfig](https://habr.com/ru/post/220131/)  
+[Отладка сетевых запросов](https://developer.chrome.com/docs/devtools/network/)  
+[Понимание exit-кодов ПО](https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%B4_%D0%B2%D0%BE%D0%B7%D0%B2%D1%80%D0%B0%D1%82%D0%B0) (В консоли выполняем нормальную команду, например `mkdir test`, через команду `echo $?` смотрим exit-code. Делаем тоже самое с заведомо невыполнимой командой, например `mkdirrrrr test`, смотрим разные значения
+[editorconfig](https://habr.com/ru/post/220131/)
 
-***
+---
 
-JavaScript  
+JavaScript
 
 [Понимание назначения jQuery](https://habr.com/ru/company/piter/blog/308134/)  
 [Плюсы и минусы jQuery](https://overcoder.net/q/96592/%D0%BA%D0%B0%D0%BA%D0%BE%D0%B2%D1%8B-%D0%BD%D0%B5%D0%BA%D0%BE%D1%82%D0%BE%D1%80%D1%8B%D0%B5-%D0%BF%D0%BB%D1%8E%D1%81%D1%8B-%D0%B8-%D0%BC%D0%B8%D0%BD%D1%83%D1%81%D1%8B-%D0%B8%D1%81%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F-jquery)  
@@ -262,13 +271,15 @@ JavaScript
 [Циклы](https://developer.mozilla.org/ru/docs/Web/JavaScript/Guide/%D0%A6%D0%B8%D0%BA%D0%BB%D1%8B_%D0%B8_%D0%B8%D1%82%D0%B5%D1%80%D0%B0%D1%86%D0%B8%D0%B8)  
 [Стили именования переменных](https://habr.com/ru/post/113044/)  
 [Переменные](https://learn.javascript.ru/variables)  
-custom properties из js
+[custom properties из js](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties#values_in_javascript)
 
-***
-***
+---
 
-#### Грейд 5  
-Теория и общая практика  
+---
+
+#### Грейд 5
+
+Теория и общая практика
 
 [JSON](https://learn.javascript.ru/json)  
 [API](https://habr.com/ru/post/464261/)  
@@ -277,296 +288,339 @@ custom properties из js
 [Web sockets](https://learn.javascript.ru/websocket)  
 [Минификация кода](https://learn.javascript.ru/minification)  
 [Обфускация кода](https://medium.com/ctrl-info/%D0%B1%D0%B5%D1%81%D0%BF%D0%BB%D0%B0%D1%82%D0%BD%D1%8B%D0%B9-%D0%BE%D0%B1%D1%84%D1%83%D1%81%D0%BA%D0%B0%D1%82%D0%BE%D1%80-javascript-%D0%B8%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82-%D0%B4%D0%BB%D1%8F-%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA%D0%B0-js-2bb2f1ccad41)  
-[Сорсмапы](https://habr.com/ru/post/148098/)  
+[Сорсмапы](https://habr.com/ru/post/148098/)
 
-***
+---
 
-HTML  
+HTML
 
-[Возможности анимации SVG](https://habr.com/ru/post/450924/)  
+[Возможности анимации SVG](https://habr.com/ru/post/450924/)
 
-***
+---
 
-Инструментарий  
+Инструментарий
 
-[git] stash cherry-pick diff reset revert rebase squash  
-навыки отладки через debugger  
+[git] [stash](https://www.atlassian.com/ru/git/tutorials/saving-changes/git-stash), [cherry-pick](https://git-scm.com/book/ru/v2/%D0%9F%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5-C%3A-%D0%9A%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B-Git-%D0%92%D0%BD%D0%B5%D1%81%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B8%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B9), [diff](https://www.atlassian.com/ru/git/tutorials/saving-changes/git-diff), [reset](https://www.atlassian.com/ru/git/tutorials/undoing-changes/git-reset) [revert](https://www.atlassian.com/ru/git/tutorials/undoing-changes), [rebase](https://www.atlassian.com/ru/git/tutorials/rewriting-history/git-rebase), [squash](https://medium.com/nuances-of-programming/%D0%BA%D0%B0%D0%BA-%D1%81%D0%B6%D0%B8%D0%BC%D0%B0%D1%82%D1%8C-%D0%BA%D0%BE%D0%BC%D0%BC%D0%B8%D1%82%D1%8B-%D0%B2-git-%D1%81-%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D1%8C%D1%8E-git-squash-8a84b9f62734)  
+Навыки отладки через [debugger](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Statements/debugger)
 [Основы webpack](https://medium.com/nuances-of-programming/%D0%B2%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2-webpack-%D0%B4%D0%BB%D1%8F-%D0%BD%D0%BE%D0%B2%D0%B8%D1%87%D0%BA%D0%BE%D0%B2-6cafbf562386)  
 [Babel](https://medium.com/@it_root.corp/what-is-babel-e8a980bf4ad5)  
-stylelint  
+[stylelint](https://css-tricks.com/stylelint/)
 
-***
+---
 
-JavaScript  
+JavaScript
 
 [Все типы данных](https://developer.mozilla.org/ru/docs/Web/JavaScript/Data_structures)  
 [Логические операторы](https://learn.javascript.ru/logical-operators)  
-Операторы логического присваивания, Nullish Coalescing  
+[Операторы логического присваивания](https://techrocks.ru/2021/01/22/logical-assignment-operators-in-javascript/), [Nullish Coalescing](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator)  
 [Преобразование типов](https://learn.javascript.ru/type-conversions)  
-копирование объектов и ссылки  
-виды функций  
+[Копирование объектов и ссылки](https://learn.javascript.ru/object-copy) (Глубокое копирование объекта можно реализовать через преобразование его в json и обратно)
+[Виды функций](https://learn.javascript.ru/function-basics)  
 [XMLHttpRequest и аналоги](https://learn.javascript.ru/xmlhttprequest)  
 система событий  
-работа с JSON  
+[Работа с JSON](https://developer.mozilla.org/ru/docs/Learn/JavaScript/Objects/JSON)
 [Отличия let const var](https://techrocks.ru/2020/04/07/difference-between-var-let-const/)  
-отличия разных видов функций  
+[Отличия разных видов функций](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Functions)
+
+```
+    //Стрелочные функции, самая короткая запись. Нет arguments, нет this
+    const sum = (a,b) => a + b;
+    alert(sum(1,2));
+
+    //Function expression
+    const greeting = function() {
+        alert( "Привет");
+    };
+
+    //Function declaration
+    function greeting() {
+        alert("Привет");
+    }
+```
+
 [iife](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%BD%D0%B8%D0%BC%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B5%D0%BC%D0%B5%D0%B4%D0%BB%D0%B5%D0%BD%D0%BD%D0%BE-%D0%B2%D1%8B%D0%B7%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC%D1%8B%D0%B5-%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B8-iife-%D0%B8-%D0%BD%D0%B5%D0%BC%D0%BD%D0%BE%D0%B3%D0%BE-%D0%B1%D0%BE%D0%BB%D1%8C%D1%88%D0%B5-ff8e9ba409eb)  
-всплытие  
-процесс срабатывания событий  
+[Всплытие](https://learn.javascript.ru/bubbling-and-capturing)
+[Процесс срабатывания событий](https://learn.javascript.ru/bubbling-and-capturing)  
 [Понятие BOM](https://learn.javascript.ru/browser-environment)  
-eval
+[eval](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/eval) (Лучше не использовать и вообще забыть о ней нахрен. Но стоит упомянуть, что она используется в вебпаке)
 
-***
+---
 
-Прочее  
+Прочее
 
-[Базовый синтаксис php или иного](https://www.php.net/manual/ru/)  
+[Базовый синтаксис php или иного](https://www.php.net/manual/ru/)
 
-***
+---
 
-Тестирование  
+Тестирование
 
-[Принципы ручного тестирования](https://habr.com/ru/post/279535/)  
+[Принципы ручного тестирования](https://habr.com/ru/post/279535/)
 
-***
-***
+---
 
-### Грейды 6-10  
+---
+
+### Грейды 6-10
+
 **[⬆ вернуться к началу](#Разделы)**
 
-#### Грейд 6  
-Теория и общая практика  
+#### Грейд 6
 
-яндекс метрика или гугл аналитика  
+Теория и общая практика
+
+[Яндекс метрика](https://yandex.ru/support/metrica/) или [гугл аналитика](https://marketingplatform.google.com/about/analytics/features/)  
 [MIME-типы](https://developer.mozilla.org/ru/docs/Web/HTTP/Basics_of_HTTP/MIME_types)  
 [CORS](https://developer.mozilla.org/ru/docs/Web/HTTP/CORS)  
 [JSONP](https://learn.javascript.ru/ajax-jsonp)  
 [Императивная и декларативная парадигмы](https://habr.com/ru/post/324688/)  
-[Процедурная/функциональная/ООП](https://habr.com/ru/post/474518/)  
+[Процедурная/функциональная/ООП](https://habr.com/ru/post/474518/)
 
-***
+---
 
 CSS  
-[CSSNext](https://habr.com/ru/post/267181/)  
+[CSSNext](https://habr.com/ru/post/267181/)
 
-***
+---
 
-Инструментарий  
+Инструментарий
 
-git submodule  
-установка и удаление пакетов  
-версионирование пакетов semver  
-переменные окружения  
-[git] хуки  
-webpack: лоадеры плагины  
-webpack: точки входа и бандлинг  
+[git submodule](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%9F%D0%BE%D0%B4%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D0%B8)  
+[Установка](https://docs.npmjs.com/cli/v7/commands/npm-install) и [удаление пакетов](https://www.tech-wiki.online/ru/npm-uninstall-packages.html)
+
+```
+    //Установка конкретной версии пакета
+    npm install имя_пакета@версия
+
+    //Установка следующей версии пакета
+    npm install имя_пакета@next
+```
+
+[Версионирование пакетов semver](https://semver.org/lang/ru/)
+[Переменные окружения](https://ru.wikipedia.org/wiki/%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%BD%D0%B0%D1%8F_%D1%81%D1%80%D0%B5%D0%B4%D1%8B) (В macos посмотреть можно через команду `env` в терминале)
+
+[git хуки](https://git-scm.com/book/ru/v2/%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-Git-%D0%A5%D1%83%D0%BA%D0%B8-%D0%B2-Git)  
+Webpack: [лоадеры](https://webpack.js.org/concepts/loaders/), [плагины](https://webpack.js.org/concepts/plugins/)  
+[Webpack: точки входа и бандлинг](https://medium.com/web-standards/multiple-routes-webpack-19f71fa39090)
 [core-js](https://habr.com/ru/post/216997/)  
-[package-lock-json](https://medium.com/devschacht/understanding-lock-files-in-npm-5-4bf615c6cd50)  
+[package-lock-json](https://medium.com/devschacht/understanding-lock-files-in-npm-5-4bf615c6cd50)
 
-***
+---
 
-JavaScript  
+JavaScript
 
-this, globalThis  
-методы массивов  
-методы объектов  
-методы строк  
-замыкания и область видимости  
-cookie localstorage indexedDB и прочее 
-regexp — основы  
-рекурсия  
-деструктуризация  
-объект arguments  
-rest/spread  
-bind call apply  
-шаблонные строки  
-Понятие JavaScript ECMAScript  
-IEEE 754  
-структуры для хранения данных  
+[this](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Operators/this), globalThis  
+[Методы массивов](https://learn.javascript.ru/array-methods)  
+[Методы объектов](https://learn.javascript.ru/object-methods)  
+[Методы строк](https://developer.mozilla.org/ru/docs/Learn/JavaScript/First_steps/Useful_string_methods)
 
-***
+```
+    // по предыдущим трём вопросам не забывайте смотреть новенькое, например
+    let arr = [1, 2, [3, 4]]
+    arr.flat();
+```
 
-Прочее  
-composer  
-nginx  
-apache  
-базы данных  
+[Замыкания и область видимости](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%BD%D0%B8%D0%BC%D0%B0%D0%B5%D0%BC-%D0%B7%D0%B0%D0%BC%D1%8B%D0%BA%D0%B0%D0%BD%D0%B8%D1%8F-%D0%B2-javascript-%D1%80%D0%B0%D0%B7-%D0%B8-%D0%BD%D0%B0%D0%B2%D1%81%D0%B5%D0%B3%D0%B4%D0%B0-c211805b6898)  
+[cookie](https://learn.javascript.ru/cookie), [localstorage](https://developer.mozilla.org/ru/docs/Web/API/Window/localStorage), [sessionstorage](https://developer.mozilla.org/ru/docs/Web/API/Window/sessionStorage), [indexedDB](https://learn.javascript.ru/indexeddb) и прочее  
+[regexp — основы](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/RegExp)  
+[Рекурсия](https://learn.javascript.ru/recursion)  
+[Деструктуризация](https://learn.javascript.ru/destructuring-assignment)  
+[Объект arguments](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Functions/arguments) (никогда не называйте его массивом, пожалуйста)
+[rest](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Functions/Rest_parameters)/[spread](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Operators/Spread_syntax)  
+[bind, call, apply](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%B4%D1%80%D0%BE%D0%B1%D0%BD%D0%BE-%D0%BE-%D0%BC%D0%B5%D1%82%D0%BE%D0%B4%D0%B0%D1%85-apply-call-%D0%B8-bind-%D0%BD%D0%B5%D0%BE%D0%B1%D1%85%D0%BE%D0%B4%D0%B8%D0%BC%D1%8B%D1%85-%D0%BA%D0%B0%D0%B6%D0%B4%D0%BE%D0%BC%D1%83-javascript-%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA%D1%83-ddd5f9b06290)  
+[Шаблонные строки (с ES15 лучше называть шаблонные литералы)](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Template_literals)  
+[Понятие JavaScript ECMAScript](https://ru.wikipedia.org/wiki/ECMAScript)  
+[IEEE 754](https://ru.wikipedia.org/wiki/IEEE_754-2008)  
+[Структуры для хранения данных](https://habr.com/ru/post/497476/)
 
-***
+---
 
-Тестирование  
+[composer](https://habr.com/ru/post/439200/)  
+[nginx](https://nginx.org/ru/)  
+[apache](https://ru.wikipedia.org/wiki/Apache_HTTP_Server)  
+[базы данных](https://habr.com/ru/post/555760/)
 
-теория видов тестирования  
+---
 
-***
-***
+Тестирование
 
-#### Грейд 7  
-Теория и общая практика  
+[Теория видов тестирования](https://habr.com/ru/post/549054/)
+
+---
+
+---
+
+#### Грейд 7
+
+Теория и общая практика
 
 [GraphQL](https://tproger.ru/translations/graphql-beginners-guide/)  
-[Что же такое этот GraphQL?](https://habr.com/ru/post/326986/)  
+[Что же такое этот GraphQL?](https://habr.com/ru/post/326986/)
 
-***
+---
 
-Инструментарий  
+Инструментарий
 
-webpack: динамический импорт, чанки  
-eslint  
-docker  
-docker-compose  
-npm scripts  
+[webpack: динамический импорт, чанки](https://webpack.js.org/guides/code-splitting/)  
+[eslint](https://frontend-stuff.com/blog/eslint/)
+[docker](https://aws.amazon.com/ru/docker/)  
+[docker-compose](https://docs.microsoft.com/ru-ru/visualstudio/docker/tutorials/use-docker-compose)  
+[npm scripts](https://docs.npmjs.com/cli/v6/using-npm/scripts)
 
-***
+---
 
-JavaScript  
+JavaScript
 
 [Прототипы в JS](https://learn.javascript.ru/prototypes)  
 свойства объекта и их конфигурация  
-Object.freeze, Object.seal  
+[Object.freeze](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze), [Object.seal](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Object/seal)  
 [ООП в JS](https://developer.mozilla.org/ru/docs/Web/JavaScript/Introduction_to_Object-Oriented_JavaScript)  
 сравнение прототипов и классов  
-виды функций и их отличия  
+Виды функций и их отличия ~~(ну сколько можно то, а?)~~  
 [Синхронное и асинхронное выполнение кода](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%BB%D0%BD%D0%BE%D0%B5-%D0%BF%D0%BE%D0%BD%D0%B8%D0%BC%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE-%D0%B8-%D0%B0%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE-javascript-%D1%81-async-await-ba5f47f4436)  
 [Canvas](https://developer.mozilla.org/ru/docs/Web/API/Canvas_API/Tutorial)  
 [Тегированные строки](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/template_strings)  
-паттерн модуль  
+[Паттерн модуль](https://largescalejs.ru/module-pattern/)
 
-***
+---
 
-Прочее  
+Прочее
 
 [Реляционные и нереляционные БД](https://habr.com/ru/company/ruvds/blog/324936/)  
 [Основы синтаксиса SQL](https://www.w3schools.com/sql/sql_syntax.asp)  
-[SQL: выборка данных](https://ru.hexlet.io/courses/rdb-basics/lessons/sql-dql/theory_unit)  
+[SQL: выборка данных](https://ru.hexlet.io/courses/rdb-basics/lessons/sql-dql/theory_unit)
 
-***
-***
+---
 
-#### Грейд 8  
+---
 
-Теория и общая практика  
+#### Грейд 8
+
+Теория и общая практика
 
 [Процесс отрисовки страницы в браузере](https://habr.com/ru/post/224187/)  
-Event loop  
+[Event loop (событийный цикл)](https://learn.javascript.ru/event-loop)
 
-***
+---
 
-JavaScript  
+JavaScript
 
 функциональный подход в js  
-промисы  
-полифилы  
-колбэки  
-window  
-document  
-location  
-history  
-navigator  
-fetch  
-каррирование  
-lodash  
-паттерн декоратор  
+[Промисы](https://learn.javascript.ru/promise-basics)  
+[Полифилы](https://developer.mozilla.org/ru/docs/Glossary/Polyfill)  
+[Колбэки](https://learn.javascript.ru/callbacks)  
+[window](https://developer.mozilla.org/ru/docs/Web/API/Window)  
+[document](https://developer.mozilla.org/ru/docs/Web/API/Document)  
+[location](https://developer.mozilla.org/ru/docs/Web/API/Location)  
+[history](https://developer.mozilla.org/ru/docs/Web/API/History_API)  
+[navigator](https://developer.mozilla.org/ru/docs/Web/API/Navigator)  
+[fetch](https://danlevy.net/you-may-not-need-axios/)  
+[каррирование](https://learn.javascript.ru/currying-partials)  
+[lodash](https://lodash.com/)  
+[паттерн декоратор](https://learn.javascript.ru/call-apply-decorators)
 
-***
+---
 
 Прочее  
-[SQL: изменение удаление добавление](https://docs.microsoft.com/ru-ru/office/vba/access/concepts/structured-query-language/insert-update-and-delete-records-from-a-table-using-access-sql)  
+[SQL: изменение удаление добавление](https://docs.microsoft.com/ru-ru/office/vba/access/concepts/structured-query-language/insert-update-and-delete-records-from-a-table-using-access-sql)
 
-***
+---
 
 Тестирование  
-unit-тесты на Jest  
+[unit-тесты на Jest](https://habr.com/ru/post/502302/)
 
-***
-***
+---
 
-#### Грейд 9  
+---
 
-Теория и общая практика  
+#### Грейд 9
 
-SSR  
+Теория и общая практика
 
-***
+[SSR](https://habr.com/ru/post/527310/)
 
-Инструментарий  
+---
 
-[Sentry](https://geekbrains.ru/events/761?from=events)  
+Инструментарий
 
-***
+[Sentry](https://geekbrains.ru/events/761?from=events)
 
-JavaScript  
+---
 
-собственные события  
+JavaScript
+
+[Собственные события](https://itchief.ru/javascript/custom-events)  
 шаблонизаторы  
-history api  
-try catch finally  
-основы React  
-классовые и функциональные компоненты  
+[history api](https://developer.mozilla.org/ru/docs/Web/API/History_API)  
+[try catch finally](https://learn.javascript.ru/try-catch)  
+[Основы React](https://learn-reactjs.ru/basics/topics)  
+[Классовые и функциональные компоненты](https://ru.reactjs.org/docs/components-and-props.html)  
 Fragments, refs  
-VDOM  
+[VDOM](https://habr.com/ru/company/macloud/blog/558682/)  
 продвинутое знание regexp  
-import/export  
+[import/export](https://learn.javascript.ru/import-export)  
 продвинутые промисы  
 Все паттерны проектирования
 
-***
-***
+---
 
-#### Грейд 10  
+---
 
-Теория и общая практика  
+#### Грейд 10
 
-react native  
-статические генераторы сайтов  
-Electron  
+Теория и общая практика
 
-***
+[react native](https://ru.wikipedia.org/wiki/React_Native)  
+[Статические генераторы сайтов](https://bestprogrammer.ru/programmirovanie-i-razrabotka/generatory-staticheskih-sajtov-rukovodstvo-dlya-novichkov)  
+[Electron](https://www.electronjs.org/ru/docs/latest)
 
-Инструментарий  
+---
 
-headless-браузеры  
+Инструментарий
+
+[headless-браузеры](https://habr.com/ru/company/oleg-bunin/blog/421137/)  
 Puppeteer  
-parcel rollup snowpack esbuild  
+parcel rollup snowpack esbuild
 
-***
+---
 
 JavaScript  
-commonjs amd umd  
-observable  
+[commonjs](https://largescalejs.ru/commonjs-modules/), amd umd  
+[observable](https://habr.com/ru/post/568064/)  
 JS/ES/WebAPI/Node.js  
-сравнение фреймворков  
-MVC  
-SPA/MPA/PWA/TWA  
+[Сравнение фреймворков](https://athemes.com/guides/angular-vs-react-vs-vue/)  
+[MVC](https://medium.com/swlh/es6-mvc-javascript-tutorial-build-a-simple-crud-app-c402f09e69c7)  
+[SPA/MPA/PWA/TWA](https://www.azoft.ru/blog/spa-mpa-pwa/)  
 Плюсы-минусы PWA-native  
-CSS-in-JS, styled components  
+[CSS-in-JS](https://ru.reactjs.org/docs/faq-styling.html)
 CSS modules  
-жизненный цикл React-компонента  
-аналоги жизненного цикла на хуках  
+[Жизненный цикл React-компонента](https://ru.reactjs.org/docs/state-and-lifecycle.html)  
+[Аналоги жизненного цикла на хуках](https://ru.reactjs.org/docs/hooks-faq.html#how-do-lifecycle-methods-correspond-to-hooks)  
 Context
 
-***
-***
+---
 
-### Грейды 11-16 
+---
+
+### Грейды 11-16
+
 **[⬆ вернуться к началу](#Разделы)**
 
-#### Грейд 11  
+#### Грейд 11
 
-Теория и общая практика  
+Теория и общая практика
 
 Project fugu  
-Chrome origin trial  
+Chrome origin trial
 
-***
+---
 
-Инструментарий  
+Инструментарий
 
-Workbox  
+Workbox
 
-***
+---
 
-JavaScript  
+JavaScript
 
 веб-компоненты  
 Понятие ES и ESNext stages proposals  
@@ -581,24 +635,25 @@ redux hooks
 React.Children, cloneElement  
 Portal’s
 
-***
+---
 
-Тестирование  
+Тестирование
 
-ui-тесты  
+ui-тесты
 
-***
-***
+---
 
-#### Грейд 12  
+---
 
-Теория и общая практика  
+#### Грейд 12
 
-OWASP  
+Теория и общая практика
 
-***
+OWASP
 
-JavaScript  
+---
+
+JavaScript
 
 веб-воркеры  
 стратегии кеширования  
@@ -606,29 +661,30 @@ D3.js
 render-props  
 Оптимизация рендера react-компонентов  
 Profiler  
-React-Testing-Library  
+React-Testing-Library
 
-***
+---
 
-Тестирование  
+Тестирование
 
-интеграционное тестирование через Puppeteer  
+интеграционное тестирование через Puppeteer
 
-***
-***
+---
 
-#### Грейд 13  
+---
 
-Теория и общая практика  
+#### Грейд 13
+
+Теория и общая практика
 
 Оптимизация загрузки страницы  
 Core Web Vitals  
 Бинарный поиск  
-Расчет сложности алгоритма (О-большое)  
+Расчет сложности алгоритма (О-большое)
 
-***
+---
 
-JavaScript  
+JavaScript
 
 написание расширений для браузеров  
 WebGL  
@@ -637,76 +693,66 @@ three.js
 базовые типы TS  
 Базовые типы react-компонентов
 
-***
+---
 
-Прочее  
+Прочее
 
-наличие стажёра  
+наличие стажёра
 
-***
-***
-#### Грейд 14  
+---
 
-Теория и общая практика  
+---
+
+#### Грейд 14
+
+Теория и общая практика
 
 метапрограммирование  
 Работа памяти, массивы и связанные списки  
-Сортировка выбором, быстрая сортировка  
+Сортировка выбором, быстрая сортировка
 
-***
+---
 
-JavaScript  
+JavaScript
 
 TS: объекты функции массивы кортежи  
 TS: интерфейсы алиасы  
 написание и публикация NPM-пакетов  
 ES-декораторы  
-Proxy и Reflect  
+Proxy и Reflect
 
-***
-***
+---
+
+---
 
 #### Грейд 15
 
-Теория и общая практика  
+Теория и общая практика
 
 NodeJS, различия между платформой NodeJS и браузером  
-Хэш-таблицы, графы, поиск в ширину  
+Хэш-таблицы, графы, поиск в ширину
 
-***
+---
 
-JavaScript  
+JavaScript
 
 NodeJS Основные модули  
 NodeJS Генерация событий  
 NodeJS Создание сервера  
-TS: расширенные типы  
+TS: расширенные типы
 
 #### Грейд 16
 
-Теория и общая практика  
+Теория и общая практика
 
 алгоритмы сжатия данных  
-алгоритм k-ближайших соседей  
+алгоритм k-ближайших соседей
 
-***
+---
 
-JavaScript  
+JavaScript
 
 TS: условные типы пространства имён декларации  
 WebAssembly  
 TS: обобщения  
-TS: защитники типов  
-
-***
-***
-
-
-***
-Просто ссылочки на полезности  
-[Объясняем js динозавру](https://habr.com/ru/company/mailru/blog/340922/)
-[Правила наименования переменных](https://learn.javascript.ru/variable-names)
-[First Aid Git //помощь с гитом](http://firstaidgit.ru/#/)  
-[Tiny png //сжать png в браузере (c jpg он делает страшное)](https://tinypng.com/)
-[Image Optim //ставим на Mac и жмём изображения кучей](https://imageoptim.com/mac)
-[Расширение Pixel perfect для Chrome](https://chrome.google.com/webstore/detail/perfectpixel-by-welldonec/dkaagdgjmgdmbnecmcefdhjekcoceebi?hl=ru)
+TS: защитники типов

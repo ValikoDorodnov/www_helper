@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Что же такое этот GraphQL? / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/326986\/"},"headline":"Что же такое этот GraphQL?","datePublished":"2017-04-20T13:56:13+03:00","dateModified":"2019-08-17T19:23:05+03:00","author":{"@type":"Person","name":"Alik Send"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Вашему вниманию предлагаю перевод статьи Sacha Greif &quot;Что же такое этот GraphQL?&quot; Если вы такой же, как и я, вы обычно проходите через три этапа, когда узнаёте о...","url":"https:\/\/habr.com\/ru\/post\/326986\/#post-content-body","about":["h_webdev","h_api","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/326986\/b9719789efc279eb1150888df1f425fe\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Что же такое этот GraphQL?" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Что же такое этот GraphQL?" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Что же такое этот GraphQL?" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Вашему вниманию предлагаю перевод статьи Sacha Greif &amp;quot;Что же такое этот GraphQL?&amp;quot;
+Если вы такой же, как и я, вы обычно проходите через три этапа, когда узнаёте о новой технологии:
+
+Отрицание: Ещё..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Вашему вниманию предлагаю перевод статьи Sacha Greif &amp;quot;Что же такое этот GraphQL?&amp;quot;
+Если вы такой же, как и я, вы обычно проходите через три этапа, когда узнаёте о новой технологии:
+
+Отрицание: Ещё..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Вашему вниманию предлагаю перевод статьи Sacha Greif &amp;quot;Что же такое этот GraphQL?&amp;quot;
+Если вы такой же, как и я, вы обычно проходите через три этапа, когда узнаёте о новой технологии:
+
+Отрицание: Ещё..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Вашему вниманию предлагаю перевод статьи Sacha Greif &amp;quot;Что же такое этот GraphQL?&amp;quot;
+Если вы такой же, как и я, вы обычно проходите через три этапа, когда узнаёте о новой технологии:
+
+Отрицание: Ещё..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Вашему вниманию предлагаю перевод статьи Sacha Greif &amp;quot;Что же такое этот GraphQL?&amp;quot;
+Если вы такой же, как и я, вы обычно проходите через три этапа, когда узнаёте о новой технологии:
+
+Отрицание: Ещё..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/326986/b9719789efc279eb1150888df1f425fe/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/326986/b9719789efc279eb1150888df1f425fe/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/326986/b9719789efc279eb1150888df1f425fe/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/326986/b9719789efc279eb1150888df1f425fe/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/326986/b9719789efc279eb1150888df1f425fe/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="326986" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2017-04-20T10:56:13.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/326986/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="API, GraphQL">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/326986/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.201.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/326986/b9719789efc279eb1150888df1f425fe/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/aliksend/" title="aliksend" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/226/f0b/562/226f0b562d56affa51e5fed3594f4f19.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/aliksend/" class="tm-user-info__username">
+      aliksend
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2017-04-20T10:56:13.000Z" title="2017-04-20, 13:56">20  апреля  2017 в 13:56</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Что же такое этот GraphQL?</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/api/" class="tm-article-snippet__hubs-item-link"><span>API</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-sandbox"><span>
+        Из песочницы
+      </span></div></div> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><p><em>Вашему вниманию предлагаю перевод статьи Sacha Greif <a href="https://medium.freecodecamp.com/so-whats-this-graphql-thing-i-keep-hearing-about-baf4d36c20cf">"Что же такое этот GraphQL?"</a></em></p><br/>
+<p>Если вы такой же, как и я, вы обычно проходите через три этапа, когда узнаёте о новой технологии:</p><br/>
+<ul>
+<li>Отрицание: <em>Ещё одна JavaScript библиотека?! Зачем? У меня уже есть jQuery!</em></li>
+<li>Интерес: <em>Хм, наверное мне <strong>следует</strong> взглянуть на эту библиотеку...</em></li>
+<li>Паника: <em>Помогите! Мне нужно изучить эту библиотеку <strong>прямо сейчас</strong>, иначе мои знания устареют!</em></li>
+</ul><br/>
+<p>Есть одна хитрость для поддержания благоразумия в эпоху быстроразвивающихся технологий: изучать новые вещи между вторым и третьим этапом, как только интерес задет, но пока технология ещё не распространена повсеместно.</p><br/>
+<p>Именно поэтому сейчас самое время узнать, что же такое этот GraphQL, о котором вы повсюду слышите.</p><a name="habracut"></a><br/>
+<h1 id="osnovy">Основы</h1><br/>
+<p>В двух словах, GraphQL это <strong>синтаксис, который описывает как запрашивать данные</strong>, и, в основном, используется клиентом для загрузки данных с сервера. GraphQL имеет три основные характеристики:</p><br/>
+<ul>
+<li>Позволяет клиенту точно указать, какие данные ему нужны.</li>
+<li>Облегчает агрегацию данных из нескольких источников.</li>
+<li>Использует систему типов для описания данных.</li>
+</ul><br/>
+<p>Так с чего же начать изучение GraphQL? Как это выглядит на практике? Как начать его использовать? Читайте дальше чтобы узнать!</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/91a/a61/d6b/91aa61d6b93ede63cdf5bb5a440e60f6.png" alt="Происхождение" data-src="https://habrastorage.org/getpro/habr/post_images/91a/a61/d6b/91aa61d6b93ede63cdf5bb5a440e60f6.png"/></p><br/>
+<h1 id="zadacha">Задача</h1><br/>
+<p>GraphQL был разработан в большом старом Facebook, но даже гораздо более простые приложения могут столкнуться с ограничениями традиционных REST API интерфейсов.</p><br/>
+<p>Например представьте, что вам нужно отобразить список <code>записей</code> (<code>posts</code>), и под каждым опубликовать список <code>лайков</code> (<code>likes</code>), включая имена пользователей и аватары. На самом деле, это не сложно, вы просто измените API <code>posts</code> так, чтобы оно содержало массив <code>likes</code>, в котором будут объекты-пользователи.</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/c95/229/afc/c95229afc99cdef3330e0cc8ec8ce478.png" data-src="https://habrastorage.org/getpro/habr/post_images/c95/229/afc/c95229afc99cdef3330e0cc8ec8ce478.png"/></p><br/>
+<p>Но затем, при разработке мобильного приложения, оказалось что из-за загрузки дополнительных данных приложение работает медленнее. Так что вам теперь нужно <em>два</em> endpoint, один возвращающий записи с лайками, а другой без них.</p><br/>
+<p>Добавим ещё один фактор: оказывается, записи хранятся в базе данных MySQL, а лайки в Redis! Что же теперь делать?!</p><br/>
+<p>Экстраполируйте этот сценарий на то множество источников данных и клиентских API, с которыми имеет дело Facebook, и вы поймёте почему старый добрый REST API достиг своего предела.</p><br/>
+<h1 id="reshenie">Решение</h1><br/>
+<p>Facebook придумал концептуально простое решение: вместо того, чтобы иметь множество "глупых" endpoint, лучше иметь один "умный" endpoint, который будет способен работать со сложными запросами и придавать данным такую форму, какую запрашивает клиент.</p><br/>
+<p>Фактически, слой GraphQL находится между клиентом и одним или несколькими источниками данных; он принимает запросы клиентов и возвращает необходимые данные в соответствии с переданными инструкциями. Запутаны? Время метафор!</p><br/>
+<p>Пользоваться старой REST-моделью это как заказывать пиццу, затем заказывать доставку продуктов, а затем звонить в химчистку, чтобы забрать одежду. Три магазина – три телефонных звонка.</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/da9/586/540/da9586540234becd1bd50f04e34beb7a.png" data-src="https://habrastorage.org/getpro/habr/post_images/da9/586/540/da9586540234becd1bd50f04e34beb7a.png"/></p><br/>
+<p>GraphQL похож на личного помощника: вы можете передать ему адреса всех трех мест, а затем просто запрашивать то, что вам нужно («принеси мне мою одежду, большую пиццу и два десятка яиц») и ждать их получения.</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/4a9/7b0/503/4a97b0503004e8afb68c107aec64782b.png" data-src="https://habrastorage.org/getpro/habr/post_images/4a9/7b0/503/4a97b0503004e8afb68c107aec64782b.png"/></p><br/>
+<p>Другими словами, GraphQL это стандартный язык для разговора с этим волшебным личным помощником.</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/d7c/084/aaa/d7c084aaa07c39328f792ebd9ef7ae9a.png" data-src="https://habrastorage.org/getpro/habr/post_images/d7c/084/aaa/d7c084aaa07c39328f792ebd9ef7ae9a.png"/><br/>
+<em>Согласно Google Images, типичный личный помощник это пришелец с восемью руками</em></p><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/9bb/eeb/c26/9bbeebc264750ff1b3a3533d815163b0.png" alt="Компоненты" data-src="https://habrastorage.org/getpro/habr/post_images/9bb/eeb/c26/9bbeebc264750ff1b3a3533d815163b0.png"/></p><br/>
+<p>На практике GraphQL API построен на трёх основных строительных блоках: на <strong>схеме</strong> (schema), <strong>запросах</strong> (queries) и <strong>распознавателях</strong> (resolvers).</p><br/>
+<h2 id="zaprosy-queries">Запросы (queries)</h2><br/>
+<p><em>(query и request одинаково переводится как "запрос". Далее будет подразумеваться query, если не указано иначе – прим. пер.)</em></p><br/>
+<p>Когда вы о чём-то просите вашего персонального помощника, вы выполняете <strong>запрос</strong>. Это выглядит примерно так:</p><br/>
+<pre><code class="plaintext">query {
+  stuff
+}</code></pre><br/>
+<p>Мы объявляем новый запрос при помощи ключевого слова <code>query</code>, также спрашивая про поле <code>stuff</code>. Самое замечательное в запросах GraphQL является то, что они поддерживают вложенные поля, так что мы можем пойти на один уровень глубже:</p><br/>
+<pre><code class="plaintext">query {
+  stuff {
+    eggs
+    shirt
+    pizza
+  }
+}</code></pre><br/>
+<p>Как можно заметить, клиенту при формировании запроса не нужно знать откуда поступают данные. Он просто спрашивает о них, а сервер GraphQL заботится об остальном.</p><br/>
+<p>Также стоит отметить, что поля запроса могут быть <strong>массивами</strong>. Например вот общий шаблон запроса списка сообщений:</p><br/>
+<pre><code class="plaintext">query {
+  posts { # это массив
+    title
+    body
+    author { # мы может пойти глубже
+      name
+      avatarUrl
+      profileUrl
+    }
+  }
+}</code></pre><br/>
+<p>Поля запроса также могут содержать аргументы. Например, если необходимо отобразить конкретный пост, можно добавить аргумент <code>id</code> к полю <code>post</code>:</p><br/>
+<pre><code class="plaintext">query {
+  post(id: "123foo"){
+    title
+    body
+    author{
+      name
+      avatarUrl
+      profileUrl
+    }
+  }
+}</code></pre><br/>
+<p>Наконец, если нужно сделать аргумент <code>id</code> динамическим, можно определить <strong>переменную</strong>, а затем использовать её в запросе (обратите внимание, также мы сделали запрос <strong>именованным</strong>):</p><br/>
+<pre><code class="plaintext">query getMyPost($id: String) {
+  post(id: $id){
+    title
+    body
+    author{
+      name
+      avatarUrl
+      profileUrl
+    }
+  }
+}</code></pre><br/>
+<p>Хороший способ попробовать все это на практике – использовать <a href="https://developer.github.com/early-access/graphql/explorer/">GraphQL API Explorer</a> от GitHub. Например, давайте попробуем выполнить следующий запрос:</p><br/>
+<pre><code class="plaintext">query {
+  repository(owner: "graphql", name: "graphql-js"){
+    name
+    description
+  }
+}</code></pre><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/a61/18a/7b8/a6118a7b8c6cb947d5fb79083845ae43.gif" data-src="https://habrastorage.org/getpro/habr/post_images/a61/18a/7b8/a6118a7b8c6cb947d5fb79083845ae43.gif"/><br/>
+<em>GraphQL и автодополнение в действии</em></p><br/>
+<p>Обратите внимание, когда вы вводите имя поля, IDE автоматически предлагает вам возможные имена полей, полученные при помощи GraphQL API. Ловко!</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/b2c/fba/f1e/b2cfbaf1e03dbf478fc1214f96f73676.png" data-src="https://habrastorage.org/getpro/habr/post_images/b2c/fba/f1e/b2cfbaf1e03dbf478fc1214f96f73676.png"/><br/>
+<a href="https://dev-blog.apollodata.com/the-anatomy-of-a-graphql-query-6dffa9e9e747"><em>Анатомия запросов GraphQL (англ)</em></a></p><br/>
+<p>Вы можете узнать больше о запросах GraphQL в отличной статье <a href="https://dev-blog.apollodata.com/the-anatomy-of-a-graphql-query-6dffa9e9e747">"Анатомия запросов GraphQL" <em>(англ)</em></a>.</p><br/>
+<h2 id="raspoznavateli-resolvers">Распознаватели (resolvers)</h2><br/>
+<p>Даже самый лучший в мире личный помощник не сможет принести ваши вещи из химчистки если вы не дадите ему адрес.</p><br/>
+<p>Подобным образом, сервер GraphQL не может знать что делать с входящим запросом, если ему не объяснить при помощи <strong>распознавателя</strong> (<strong>resolver</strong>).</p><br/>
+<p>Используя распознаватель GraphQL понимает, как и где получить данные, соответствующие запрашиваемому полю. К примеру, распознаватель для поля <strong>запись</strong> может выглядеть вот так (используя генератор схемы (schema) из набора Apollo <a href="https://github.com/apollographql/graphql-tools">GraphQL-Tools</a>):</p><br/>
+<pre><code class="plaintext">Query: {
+  post(root, args) {
+    return Posts.find({ id: args.id });
+  }
+}</code></pre><br/>
+<p>Мы помещаем наш распознаватель в раздел <code>Query</code> потому что мы хотим получать <code>запись</code> (<code>post</code>) в корне ответа. Но также мы можем создать распознаватели для подполей, как например для поля <code>author</code>:</p><br/>
+<pre><code class="plaintext">Query: {
+  post(root, args) {
+    return Posts.find({ id: args.id });
+  }
+},
+Post: {
+  author(post) {
+    return Users.find({ id: post.authorId})
+  }
+}</code></pre><br/>
+<p>Обратите внимание что ваши распознаватели не ограничены в количестве возвращаемых объектов. К примеру, вы захотите добавить поле <code>commentsCount</code> к объекту <code>Post</code>:</p><br/>
+<pre><code class="plaintext">Post: {
+  author(post) {
+    return Users.find({ id: post.authorId})
+  },
+  commentsCount(post) {
+    return Comments.find({ postId: post.id}).count()
+  }
+}</code></pre><br/>
+<p>Ключевое понятие здесь то, что <strong>схема запроса GraphQL и структура вашей базы данных никак не связаны</strong>. Другими словами, в базе данных может не существовать полей <code>author</code> или <code>commentsCount</code>, но мы можем "симулировать" их благодаря силе распознавателей.</p><br/>
+<p>Как было показано выше, вы можете писать любой код внутри распознавателя. Так что вы можете <em>изменять</em> содержимое базы данных; такие распознаватели называют <strong>изменяющими</strong> (<strong>mutation</strong>).</p><br/>
+<h2 id="shema-schema">Схема (schema)</h2><br/>
+<p>Все это становится возможным благодаря типизированной схеме данных GraphQL. Цель этой статьи дать скорее краткий обзор, чем исчерпывающее введение, так что в этом разделе не будет подробностей.</p><br/>
+<p>Я призываю вас заглянуть в <a href="http://graphql.org/learn/schema/">документацию GraphQL <em>(англ)</em></a>, если вы хотите узнать больше.</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/575/9b5/a5b/5759b5a5b144464a546e71448069b93b.png" data-src="https://habrastorage.org/getpro/habr/post_images/575/9b5/a5b/5759b5a5b144464a546e71448069b93b.png"/></p><br/>
+<h1 id="chasto-zadavaemye-voprosy">Часто задаваемые вопросы</h1><br/>
+<p>Сделаем перерыв, чтобы ответить на несколько общих вопросов.</p><br/>
+<p>Эй, вы там, на задних рядах. Да вы. Я вижу, вы хотите что-то спросить. Идите вперед, не стесняйтесь!</p><br/>
+<h3 id="chto-obschego-u-graphql-i-grafovyh-baz-dannyhhttpsruwikipediaorgwikid093d180d0b0d184d0bed0b2d0b0d18f_d0b1d0b0d0b7d0b0_d0b4d0b0d0bdd0bdd18bd185">Что общего у GraphQL и <a href="https://ru.wikipedia.org/wiki/%D0%93%D1%80%D0%B0%D1%84%D0%BE%D0%B2%D0%B0%D1%8F_%D0%B1%D0%B0%D0%B7%D0%B0_%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85">графовых баз данных</a>?</h3><br/>
+<p>Ничего общего. На самом деле, GraphQL не имеет ничего общего с графовыми БД типа <a href="https://ru.wikipedia.org/wiki/Neo4j">Neo4j</a>. Часть "Graph" отражает идею получения контента, проходя сквозь граф API, используя поля и подполя; часть "QL" расшифровывается как "query language" – "язык запросов".</p><br/>
+<h3 id="menya-polnostyu-ustraivaet-rest-zachem-mne-perehodit-na-graphql">Меня полностью устраивает REST, зачем мне переходить на GraphQL?</h3><br/>
+<p>Если вы не достигли болевых точек REST API, решением которых является GraphQL, то можете не волноваться.</p><br/>
+<p>Использование GraphQL поверх REST вероятнее всего не заставит вас производить какие-то сложные изменения в остальном API и ломать накопившийся пользовательский опыт, так что переход не будет вопросом жизни и смерти в любом случае. Так что определенно стоит попробовать GraphQL в небольшой части проекта, если это возможно.</p><br/>
+<h3 id="mogu-li-ya-ispolzovat-graphql-bez-reactrelayimya_biblioteki">Могу ли я использовать GraphQL без React/Relay/имя_библиотеки?</h3><br/>
+<p>Конечно! GraphQL это только спецификация, вы можете использовать его с любой библиотекой на любой платформе, используя готовый клиент (к примеру, у <a href="http://dev.apollodata.com/">Apollo</a> есть клиенты для web, iOS, Angular и другие) или вручную отправляя запросы на сервер GraphQL.</p><br/>
+<h3 id="graphql-byl-sozdan-facebook-a-ya-ne-doveryayu-facebook">GraphQL был создан Facebook, а я не доверяю Facebook.</h3><br/>
+<p>Ещё раз, GraphQL является всего лишь спецификацией, это значит что вы можете использовать его не используя ни одной строки кода, написанной Facebook.</p><br/>
+<p>Наличие поддержки Facebook это безусловно хороший плюс для экосистемы GraphQL. Но на данный момент сообщество достаточно большое чтобы поддерживать GraphQL, даже если Facebook перестанет его использовать.</p><br/>
+<h3 id="kak-to-pozvolit-klientu-prosit-o-teh-dannyh-kotorye-emu-nuzhny-ne-vyglyadit-bezopasnym">Как-то "позволить клиенту просить о тех данных, которые ему нужны" не выглядит безопасным</h3><br/>
+<p>Так как вы пишете свои распознаватели, вы можете разрешать любые проблемы безопасности на этом уровне.</p><br/>
+<p>К примеру, если вы позволите клиенту использовать параметр <code>limit</code> для указания количества документов, которые он запрашивает, вы скорее всего захотите контролировать это число для избежания атак типа "отказ в обслуживании" когда клиент будет запрашивать миллионы документов снова и снова.</p><br/>
+<h3 id="tak-chto-zhe-nuzhno-chtoby-nachat">Так что же нужно чтобы начать?</h3><br/>
+<p>На самом деле, необходимо всего два компонента чтобы начать:</p><br/>
+<ul>
+<li>Сервер GraphQL для обработки запросов к API</li>
+<li>Клиент GraphQL, который будет подключаться к endpoint.</li>
+</ul><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/a56/74b/6c6/a5674b6c6c82799ba03012b8303fadaa.png" data-src="https://habrastorage.org/getpro/habr/post_images/a56/74b/6c6/a5674b6c6c82799ba03012b8303fadaa.png"/></p><br/>
+<p>Теперь, когда вы понимаете как работает GraphQL, можно поговорить о главных игроках в этой области.</p><br/>
+<h2 id="servery-graphql">Серверы GraphQL</h2><br/>
+<p>Первое что вам нужно для работы, это сервер GraphQL. <a href="http://graphql.org/">Сам GraphQL</a> это просто спецификация, так что двери открыты для конкурирующих реализаций.</p><br/>
+<h3 id="graphql-jshttpsgithubcomgraphqlgraphql-js-node"><a href="https://github.com/graphql/graphql-js">GraphQL-JS</a> (Node)</h3><br/>
+<p>Это ссылка на оригинальную реализацию спецификации GraphQL. Вы можете использовать её с <a href="https://github.com/graphql/express-graphql">express-graphql</a> для <a href="http://graphql.org/graphql-js/running-an-express-graphql-server/">создания своего сервера API <em>(англ)</em></a>.</p><br/>
+<h3 id="graphql-serverhttpdevapollodatacomtoolsgraphql-server-node"><a href="http://dev.apollodata.com/tools/graphql-server/">GraphQL-Server</a> (Node)</h3><br/>
+<p>Команда <a href="http://apollostack.com/">Apollo</a> имеет свою собственную реализацию GraphQL-сервера. Она ещё не настолько полна как оригинал, но очень хорошо документирована, хорошо поддерживается и быстро развивается.</p><br/>
+<h3 id="drugie-platformy">Другие платформы</h3><br/>
+<p>На официальном сайте есть <a href="http://graphql.org/code/">список реализаций спецификации GraphQL для различных платформ</a> (PHP, Ruby и другие).</p><br/>
+<h2 id="klienty-graphql">Клиенты GraphQL</h2><br/>
+<p>Конечно вы можете работать с API GraphQL напрямую, но специальная клиентская библиотека определённо может сделать вашу жизнь проще.</p><br/>
+<h3 id="relayhttpsfacebookgithubiorelay"><a href="https://facebook.github.io/relay/">Relay</a></h3><br/>
+<p>Relay это собственный инструментарий Facebook. Он создавался с учётом потребностей Facebook и может быть немного избыточным для большинства пользователей.</p><br/>
+<h3 id="klient-apollohttpwwwapollodatacom"><a href="http://www.apollodata.com/">Клиент Apollo</a></h3><br/>
+<p>Быстро занял своё место новый участник в этой области — <a href="http://apollostack.com/">Apollo</a>. Типичный клиент состоит из двух частей:</p><br/>
+<ul>
+<li><a href="http://dev.apollodata.com/core/">Apollo-client</a>, позволяющий выполнять запросы GraphQL в браузере (также есть <a href="https://github.com/apollographql/apollo-client-devtools">расширение для DevTools</a>)</li>
+<li>Коннектор для frontend-фреймворка (<a href="http://dev.apollodata.com/react/">React-Apollo</a>, <a href="http://dev.apollodata.com/angular2/">Angular-Apollo</a> и другие)</li>
+</ul><br/>
+<p>По умолчанию Apollo-client сохраняет данных используя <a href="http://redux.js.org/">Redux</a>, который сам является достаточно авторитетной библиотекой управления состоянием с богатой экосистемой.</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/e1c/b94/4f3/e1cb944f33c66515b396fc29960f99ac.png" data-src="https://habrastorage.org/getpro/habr/post_images/e1c/b94/4f3/e1cb944f33c66515b396fc29960f99ac.png"/><br/>
+<em>Расширение Apollo для Chrome DevTools</em></p><br/>
+<h2 id="prilozheniya-s-otkrytym-ishodnym-kodom">Приложения с открытым исходным кодом</h2><br/>
+<p>Несмотря на то, что GraphQL это достаточно новая концепция, уже есть некоторые перспективные приложения с открытым исходным кодом, которые используют её.</p><br/>
+<h3 id="vulcanjshttpvulcanjsorg"><a href="http://vulcanjs.org/">VulcanJS</a></h3><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/8de/0f8/a2c/8de0f8a2c3219f41e2e03beaa67624ed.png" data-src="https://habrastorage.org/getpro/habr/post_images/8de/0f8/a2c/8de0f8a2c3219f41e2e03beaa67624ed.png"/></p><br/>
+<p>Я <em>(автор оригинальной статьи — прим. пер.)</em> являюсь ведущим разработчиком <a href="http://vulcanjs.org/">VulcanJS</a>. Я создал его чтобы дать людям возможность попробовать силу стека React/GraphQL без необходимости писать много шаблонного кода. Вы можете воспринимать его как "Rails для современной web-экосистемы" потому что он позволяет создавать CRUD-приложения (<a href="https://www.youtube.com/watch?v=qibyA_ReqEQ">клон Instagram</a> например) в течение нескольких часов.</p><br/>
+<h3 id="gatsbyhttpswwwgatsbyjsorgdocs"><a href="https://www.gatsbyjs.org/docs/">Gatsby</a></h3><br/>
+<p>Gatsby это генератор статических сайтов для React, который начиная с <a href="https://www.gatsbyjs.org/docs/">версии 1.0</a> также использует GraphQL. Несмотря на то, что это можно показаться странным сочетанием на первый взгляд, это на самом деле довольно мощная идея. В процессе сборки Gatsby может извлекать данные из нескольких GraphQL API, затем используя их для создания полностью статического клиентского React-приложения.</p><br/>
+<h2 id="drugie-instrumenty-dlya-raboty-s-graphql">Другие инструменты для работы с GraphQL</h2><br/>
+<h3 id="graphiqlhttpsgithubcomgraphqlgraphiql"><a href="https://github.com/graphql/graphiql">GraphiQL</a></h3><br/>
+<p>GraphiQL это очень удобная браузерная IDE для создания и выполнения запросов к endpoint-ам GraphQL.</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/2f6/188/174/2f618817477044d0f1726adef5b9e677.png" data-src="https://habrastorage.org/getpro/habr/post_images/2f6/188/174/2f618817477044d0f1726adef5b9e677.png"/></p><br/>
+<h3 id="dataloaderhttpsgithubcomfacebookdataloader"><a href="https://github.com/facebook/dataloader">DataLoader</a></h3><br/>
+<p>Из-за вложенной природы запросов GraphQL, один запрос может легко вызывать десятки обращений к базе данных. Для снижения нагрузки вы можете использовать инструменты кеширования наподобие разработанной Facebook библиотеке DataLoader.</p><br/>
+<h3 id="create-graphql-serverhttpsbloghichromacomcreate-graphql-server-instantly-scaffold-a-graphql-server-1ebad1e71840"><a href="https://blog.hichroma.com/create-graphql-server-instantly-scaffold-a-graphql-server-1ebad1e71840">Create GraphQL Server</a></h3><br/>
+<p>Create GraphQL Server это консольная программа, позволяющая легко и быстро сгенерировать сервер на базе Node, использующий базу данных Mongo.</p><br/>
+<h3 id="graphql-uphttpswwwgraphcoolgraphql-up"><a href="https://www.graph.cool/graphql-up/">GraphQL-up</a></h3><br/>
+<p>Аналогично Create GraphQL Server, GraphQL-up позволяет быстро создать GraphQL backend, но на базе сервиса <a href="https://www.graph.cool/">Graphcool</a>.</p><br/>
+<h2 id="servisy-graphql">Сервисы GraphQL</h2><br/>
+<p>Наконец, есть целый ряд компаний, предоставляющих "GraphQL-backend-как-сервис"; они сами позаботятся о серверной части для вас, и это может быть хорошим способом окунуться в экосистему GraphQL.</p><br/>
+<h3 id="graphcoolhttpgraphcool"><a href="http://graph.cool/">Graphcool</a></h3><br/>
+<p>Гибкая backend-платформа, объединяющая GraphQL и AWS Lambda, имеющая бесплатный тарифный план для разработки.</p><br/>
+<h3 id="scapholdhttpsscapholdio"><a href="https://scaphold.io/">Scaphold</a></h3><br/>
+<p>Другой GraphQL-backend-как-сервис с бесплатным тарифным планом. Он предлагает много функций, подобных Graphcool.</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/a58/83d/82b/a5883d82b6e8c5390e168975e2bc1fed.png" data-src="https://habrastorage.org/getpro/habr/post_images/a58/83d/82b/a5883d82b6e8c5390e168975e2bc1fed.png"/></p><br/>
+<p>Уже есть немало ресурсов по GraphQL.</p><br/>
+<p><em>(Также предлагайте ресурсы на русском языке в комментариях – прим. пер.)</em></p><br/>
+<h3 id="graphqlorg-anglhttpgraphqlorglearn"><a href="http://graphql.org/learn/">GraphQL.org <em>(англ)</em></a></h3><br/>
+<p>На официальном сайте GraphQL есть замечательная документация чтобы начать.</p><br/>
+<h3 id="learngraphql-anglhttpslearngraphqlcom"><a href="https://learngraphql.com/">LearnGraphQL <em>(англ)</em></a></h3><br/>
+<p>LearnGraphQL это интерактивный курс, созданный в компании <a href="https://kadira.io/">Kadira</a>.</p><br/>
+<h3 id="learnapollo-anglhttpswwwlearnapollocom"><a href="https://www.learnapollo.com/">LearnApollo <em>(англ)</em></a></h3><br/>
+<p>Хорошее продолжение LearnGraphQL, LearnApollo это бесплатный курс, созданный <a href="https://www.graph.cool/">Graphcool</a>.</p><br/>
+<h3 id="blog-apollo-anglhttpsdev-blogapollodatacom"><a href="https://dev-blog.apollodata.com/">Блог Apollo <em>(англ)</em></a></h3><br/>
+<p>Блог Apollo имеет массу подробных хорошо написанных постов о Apollo и GraphQL в целом.</p><br/>
+<h3 id="graphql-weekly-anglhttpsgraphqlweeklycom"><a href="https://graphqlweekly.com/">GraphQL Weekly <em>(англ)</em></a></h3><br/>
+<p>Информационная рассылка о GraphQL, курируемая командой Graphcool.</p><br/>
+<h3 id="hashbang-weekly-anglhttphashbangweeklyokgrowcom"><a href="http://hashbangweekly.okgrow.com/">Hashbang Weekly <em>(англ)</em></a></h3><br/>
+<p>Еще одна большая новостная рассылка, которая помимо GraphQL также охватывает React и Meteor.</p><br/>
+<h3 id="freecom-anglhttpswwwgraphcoolfreecom"><a href="https://www.graph.cool/freecom/">Freecom <em>(англ)</em></a></h3><br/>
+<p>Серия руководств, описывающая как создать клон Интерком с помощью GraphQL.</p><br/>
+<h3 id="awesome-graphql-anglhttpsgithubcomchentsulinawesome-graphql"><a href="https://github.com/chentsulin/awesome-graphql">Awesome GraphQL <em>(англ)</em></a></h3><br/>
+<p>Довольно исчерпывающий перечень ссылок и ресурсов по GraphQL.</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/5fb/c61/112/5fbc6111286f009df40a4e2b0e7dbd86.png" data-src="https://habrastorage.org/getpro/habr/post_images/5fb/c61/112/5fbc6111286f009df40a4e2b0e7dbd86.png"/></p><br/>
+<p>Как же вы можете применить вновь приобретенные знания о GraphQL на практике? Вот несколько рецептов, которые можно попробовать:</p><br/>
+<h3 id="apollo--graphcool--nextjshttpsgithubcomzeitnextjstreemasterexampleswith-apollo"><a href="https://github.com/zeit/next.js/tree/master/examples/with-apollo">Apollo + Graphcool + Next.js</a></h3><br/>
+<p>Если вы уже знакомы с Next.js и React, этот пример позволит вам настроить GraphQL endpoint при помощи Graphcool и затем отправлять ей запросы при помощи Apollo.</p><br/>
+<h3 id="vulcanjshttpdocsvulcanjsorg"><a href="http://docs.vulcanjs.org/">VulcanJS</a></h3><br/>
+<p><a href="http://docs.vulcanjs.org/">Учебник Vulcan <em>(англ)</em></a> поможет вам создать простой слой данных GraphQL на сервере и на клиенте. Поскольку Vulcan является платформой "все-в-одном", это хороший способ начать работу без каких-либо настроек. Если вам нужна помощь, не стесняйтесь <a href="http://slack.vulcanjs.org/">обратиться в наш канал Slack <em>(англ)</em></a>!</p><br/>
+<h3 id="uchebnik-graphql--reacthttpsbloghichromacomgraphql-react-tutorial-part-1-6-d0691af25858o54ygcruh"><a href="https://blog.hichroma.com/graphql-react-tutorial-part-1-6-d0691af25858#.o54ygcruh">Учебник GraphQL &amp; React</a></h3><br/>
+<p>В блоге Chroma есть <a href="https://blog.hichroma.com/graphql-react-tutorial-part-1-6-d0691af25858#.o54ygcruh">руководство из шести частей <em>(англ)</em></a> по созданию приложения React/GraphQL используя компоненто-ориентированный подход к разработке.</p><br/>
+<p><img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/575/9b5/a5b/5759b5a5b144464a546e71448069b93b.png" data-src="https://habrastorage.org/getpro/habr/post_images/575/9b5/a5b/5759b5a5b144464a546e71448069b93b.png"/></p><br/>
+<h1 id="zaklyuchenie">Заключение</h1><br/>
+<p>GraphQL поначалу может показаться сложным, потому что это технология, которая затрагивает многие области современной разработки. Но уделив время чтобы понять основные концепции, я думаю вы поймёте что многое из этого имеет смысл.</p><br/>
+<p>Решите ли вы использовать это или нет, я считаю что стоит потратить время чтобы ознакомиться с GraphQL. Все больше и больше компаний и структур начинают использовать его, и он вполне может в течение следующих нескольких лет стать одним из ключевых строительных блоков в веб-разработке.</p><br/>
+<p>Согласны? Не согласны? Вопросы? Дайте мне знать, здесь в комментариях.</p></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BAPI%5D" class="tm-tags-list__link">API</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BGraphQL%5D" class="tm-tags-list__link">GraphQL</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/api/" class="tm-hubs-list__link">
+    API
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 23: ↑22 и ↓1</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 23: ↑22 и ↓1" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+21</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">493K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    655
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/aliksend/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/226/f0b/562/226f0b562d56affa51e5fed3594f4f19.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 18 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    16
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Alik Send</span> <a href="https://habr.com/ru/users/aliksend/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @aliksend
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Программист</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/326986/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 55 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner12299" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner12300" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/326986/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/326986/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"326986":{"id":"326986","timePublished":"2017-04-20T10:56:13+00:00","isCorporative":false,"lang":"ru","titleHtml":"Что же такое этот GraphQL?","leadData":{"textHtml":"\u003Cp\u003E\u003Cem\u003EВашему вниманию предлагаю перевод статьи Sacha Greif \u003Ca href=\"https:\u002F\u002Fmedium.freecodecamp.com\u002Fso-whats-this-graphql-thing-i-keep-hearing-about-baf4d36c20cf\"\u003E\"Что же такое этот GraphQL?\"\u003C\u002Fa\u003E\u003C\u002Fem\u003E\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EЕсли вы такой же, как и я, вы обычно проходите через три этапа, когда узнаёте о новой технологии:\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EОтрицание: \u003Cem\u003EЕщё одна JavaScript библиотека?! Зачем? У меня уже есть jQuery!\u003C\u002Fem\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EИнтерес: \u003Cem\u003EХм, наверное мне \u003Cstrong\u003Eследует\u003C\u002Fstrong\u003E взглянуть на эту библиотеку...\u003C\u002Fem\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EПаника: \u003Cem\u003EПомогите! Мне нужно изучить эту библиотеку \u003Cstrong\u003Eпрямо сейчас\u003C\u002Fstrong\u003E, иначе мои знания устареют!\u003C\u002Fem\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u003E\r\n\u003Cp\u003EЕсть одна хитрость для поддержания благоразумия в эпоху быстроразвивающихся технологий: изучать новые вещи между вторым и третьим этапом, как только интерес задет, но пока технология ещё не распространена повсеместно.\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EИменно поэтому сейчас самое время узнать, что же такое этот GraphQL, о котором вы повсюду слышите.\u003C\u002Fp\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"sandbox","data":null}],"author":{"scoreStats":{"score":16,"votesCount":18},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"146855","alias":"aliksend","fullname":"Alik Send","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F226\u002Ff0b\u002F562\u002F226f0b562d56affa51e5fed3594f4f19.jpg","speciality":"Программист"},"statistics":{"commentsCount":55,"favoritesCount":655,"readingCount":493442,"score":21,"votesCount":23},"hubs":[{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"17690","alias":"api","type":"collective","title":"API","titleHtml":"API","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cp\u003E\u003Cem\u003EВашему вниманию предлагаю перевод статьи Sacha Greif \u003Ca href=\"https:\u002F\u002Fmedium.freecodecamp.com\u002Fso-whats-this-graphql-thing-i-keep-hearing-about-baf4d36c20cf\"\u003E\"Что же такое этот GraphQL?\"\u003C\u002Fa\u003E\u003C\u002Fem\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕсли вы такой же, как и я, вы обычно проходите через три этапа, когда узнаёте о новой технологии:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EОтрицание: \u003Cem\u003EЕщё одна JavaScript библиотека?! Зачем? У меня уже есть jQuery!\u003C\u002Fem\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EИнтерес: \u003Cem\u003EХм, наверное мне \u003Cstrong\u003Eследует\u003C\u002Fstrong\u003E взглянуть на эту библиотеку...\u003C\u002Fem\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EПаника: \u003Cem\u003EПомогите! Мне нужно изучить эту библиотеку \u003Cstrong\u003Eпрямо сейчас\u003C\u002Fstrong\u003E, иначе мои знания устареют!\u003C\u002Fem\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕсть одна хитрость для поддержания благоразумия в эпоху быстроразвивающихся технологий: изучать новые вещи между вторым и третьим этапом, как только интерес задет, но пока технология ещё не распространена повсеместно.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИменно поэтому сейчас самое время узнать, что же такое этот GraphQL, о котором вы повсюду слышите.\u003C\u002Fp\u003E\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1 id=\"osnovy\"\u003EОсновы\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ двух словах, GraphQL это \u003Cstrong\u003Eсинтаксис, который описывает как запрашивать данные\u003C\u002Fstrong\u003E, и, в основном, используется клиентом для загрузки данных с сервера. GraphQL имеет три основные характеристики:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EПозволяет клиенту точно указать, какие данные ему нужны.\u003C\u002Fli\u003E\r\n\u003Cli\u003EОблегчает агрегацию данных из нескольких источников.\u003C\u002Fli\u003E\r\n\u003Cli\u003EИспользует систему типов для описания данных.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТак с чего же начать изучение GraphQL? Как это выглядит на практике? Как начать его использовать? Читайте дальше чтобы узнать!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F91a\u002Fa61\u002Fd6b\u002F91aa61d6b93ede63cdf5bb5a440e60f6.png\" alt=\"Происхождение\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F91a\u002Fa61\u002Fd6b\u002F91aa61d6b93ede63cdf5bb5a440e60f6.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1 id=\"zadacha\"\u003EЗадача\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EGraphQL был разработан в большом старом Facebook, но даже гораздо более простые приложения могут столкнуться с ограничениями традиционных REST API интерфейсов.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНапример представьте, что вам нужно отобразить список \u003Ccode\u003Eзаписей\u003C\u002Fcode\u003E (\u003Ccode\u003Eposts\u003C\u002Fcode\u003E), и под каждым опубликовать список \u003Ccode\u003Eлайков\u003C\u002Fcode\u003E (\u003Ccode\u003Elikes\u003C\u002Fcode\u003E), включая имена пользователей и аватары. На самом деле, это не сложно, вы просто измените API \u003Ccode\u003Eposts\u003C\u002Fcode\u003E так, чтобы оно содержало массив \u003Ccode\u003Elikes\u003C\u002Fcode\u003E, в котором будут объекты-пользователи.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fc95\u002F229\u002Fafc\u002Fc95229afc99cdef3330e0cc8ec8ce478.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fc95\u002F229\u002Fafc\u002Fc95229afc99cdef3330e0cc8ec8ce478.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНо затем, при разработке мобильного приложения, оказалось что из-за загрузки дополнительных данных приложение работает медленнее. Так что вам теперь нужно \u003Cem\u003Eдва\u003C\u002Fem\u003E endpoint, один возвращающий записи с лайками, а другой без них.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДобавим ещё один фактор: оказывается, записи хранятся в базе данных MySQL, а лайки в Redis! Что же теперь делать?!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЭкстраполируйте этот сценарий на то множество источников данных и клиентских API, с которыми имеет дело Facebook, и вы поймёте почему старый добрый REST API достиг своего предела.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1 id=\"reshenie\"\u003EРешение\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EFacebook придумал концептуально простое решение: вместо того, чтобы иметь множество \"глупых\" endpoint, лучше иметь один \"умный\" endpoint, который будет способен работать со сложными запросами и придавать данным такую форму, какую запрашивает клиент.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EФактически, слой GraphQL находится между клиентом и одним или несколькими источниками данных; он принимает запросы клиентов и возвращает необходимые данные в соответствии с переданными инструкциями. Запутаны? Время метафор!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПользоваться старой REST-моделью это как заказывать пиццу, затем заказывать доставку продуктов, а затем звонить в химчистку, чтобы забрать одежду. Три магазина – три телефонных звонка.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fda9\u002F586\u002F540\u002Fda9586540234becd1bd50f04e34beb7a.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fda9\u002F586\u002F540\u002Fda9586540234becd1bd50f04e34beb7a.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EGraphQL похож на личного помощника: вы можете передать ему адреса всех трех мест, а затем просто запрашивать то, что вам нужно («принеси мне мою одежду, большую пиццу и два десятка яиц») и ждать их получения.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F4a9\u002F7b0\u002F503\u002F4a97b0503004e8afb68c107aec64782b.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F4a9\u002F7b0\u002F503\u002F4a97b0503004e8afb68c107aec64782b.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДругими словами, GraphQL это стандартный язык для разговора с этим волшебным личным помощником.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fd7c\u002F084\u002Faaa\u002Fd7c084aaa07c39328f792ebd9ef7ae9a.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fd7c\u002F084\u002Faaa\u002Fd7c084aaa07c39328f792ebd9ef7ae9a.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cem\u003EСогласно Google Images, типичный личный помощник это пришелец с восемью руками\u003C\u002Fem\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F9bb\u002Feeb\u002Fc26\u002F9bbeebc264750ff1b3a3533d815163b0.png\" alt=\"Компоненты\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F9bb\u002Feeb\u002Fc26\u002F9bbeebc264750ff1b3a3533d815163b0.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНа практике GraphQL API построен на трёх основных строительных блоках: на \u003Cstrong\u003Eсхеме\u003C\u002Fstrong\u003E (schema), \u003Cstrong\u003Eзапросах\u003C\u002Fstrong\u003E (queries) и \u003Cstrong\u003Eраспознавателях\u003C\u002Fstrong\u003E (resolvers).\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"zaprosy-queries\"\u003EЗапросы (queries)\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cem\u003E(query и request одинаково переводится как \"запрос\". Далее будет подразумеваться query, если не указано иначе – прим. пер.)\u003C\u002Fem\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКогда вы о чём-то просите вашего персонального помощника, вы выполняете \u003Cstrong\u003Eзапрос\u003C\u002Fstrong\u003E. Это выглядит примерно так:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Equery {\n  stuff\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EМы объявляем новый запрос при помощи ключевого слова \u003Ccode\u003Equery\u003C\u002Fcode\u003E, также спрашивая про поле \u003Ccode\u003Estuff\u003C\u002Fcode\u003E. Самое замечательное в запросах GraphQL является то, что они поддерживают вложенные поля, так что мы можем пойти на один уровень глубже:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Equery {\n  stuff {\n    eggs\n    shirt\n    pizza\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКак можно заметить, клиенту при формировании запроса не нужно знать откуда поступают данные. Он просто спрашивает о них, а сервер GraphQL заботится об остальном.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТакже стоит отметить, что поля запроса могут быть \u003Cstrong\u003Eмассивами\u003C\u002Fstrong\u003E. Например вот общий шаблон запроса списка сообщений:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Equery {\n  posts { # это массив\n    title\n    body\n    author { # мы может пойти глубже\n      name\n      avatarUrl\n      profileUrl\n    }\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПоля запроса также могут содержать аргументы. Например, если необходимо отобразить конкретный пост, можно добавить аргумент \u003Ccode\u003Eid\u003C\u002Fcode\u003E к полю \u003Ccode\u003Epost\u003C\u002Fcode\u003E:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Equery {\n  post(id: \"123foo\"){\n    title\n    body\n    author{\n      name\n      avatarUrl\n      profileUrl\n    }\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНаконец, если нужно сделать аргумент \u003Ccode\u003Eid\u003C\u002Fcode\u003E динамическим, можно определить \u003Cstrong\u003Eпеременную\u003C\u002Fstrong\u003E, а затем использовать её в запросе (обратите внимание, также мы сделали запрос \u003Cstrong\u003Eименованным\u003C\u002Fstrong\u003E):\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Equery getMyPost($id: String) {\n  post(id: $id){\n    title\n    body\n    author{\n      name\n      avatarUrl\n      profileUrl\n    }\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EХороший способ попробовать все это на практике – использовать \u003Ca href=\"https:\u002F\u002Fdeveloper.github.com\u002Fearly-access\u002Fgraphql\u002Fexplorer\u002F\"\u003EGraphQL API Explorer\u003C\u002Fa\u003E от GitHub. Например, давайте попробуем выполнить следующий запрос:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Equery {\n  repository(owner: \"graphql\", name: \"graphql-js\"){\n    name\n    description\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fa61\u002F18a\u002F7b8\u002Fa6118a7b8c6cb947d5fb79083845ae43.gif\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fa61\u002F18a\u002F7b8\u002Fa6118a7b8c6cb947d5fb79083845ae43.gif\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cem\u003EGraphQL и автодополнение в действии\u003C\u002Fem\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОбратите внимание, когда вы вводите имя поля, IDE автоматически предлагает вам возможные имена полей, полученные при помощи GraphQL API. Ловко!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fb2c\u002Ffba\u002Ff1e\u002Fb2cfbaf1e03dbf478fc1214f96f73676.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fb2c\u002Ffba\u002Ff1e\u002Fb2cfbaf1e03dbf478fc1214f96f73676.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fdev-blog.apollodata.com\u002Fthe-anatomy-of-a-graphql-query-6dffa9e9e747\"\u003E\u003Cem\u003EАнатомия запросов GraphQL (англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВы можете узнать больше о запросах GraphQL в отличной статье \u003Ca href=\"https:\u002F\u002Fdev-blog.apollodata.com\u002Fthe-anatomy-of-a-graphql-query-6dffa9e9e747\"\u003E\"Анатомия запросов GraphQL\" \u003Cem\u003E(англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"raspoznavateli-resolvers\"\u003EРаспознаватели (resolvers)\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДаже самый лучший в мире личный помощник не сможет принести ваши вещи из химчистки если вы не дадите ему адрес.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПодобным образом, сервер GraphQL не может знать что делать с входящим запросом, если ему не объяснить при помощи \u003Cstrong\u003Eраспознавателя\u003C\u002Fstrong\u003E (\u003Cstrong\u003Eresolver\u003C\u002Fstrong\u003E).\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИспользуя распознаватель GraphQL понимает, как и где получить данные, соответствующие запрашиваемому полю. К примеру, распознаватель для поля \u003Cstrong\u003Eзапись\u003C\u002Fstrong\u003E может выглядеть вот так (используя генератор схемы (schema) из набора Apollo \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fapollographql\u002Fgraphql-tools\"\u003EGraphQL-Tools\u003C\u002Fa\u003E):\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EQuery: {\n  post(root, args) {\n    return Posts.find({ id: args.id });\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EМы помещаем наш распознаватель в раздел \u003Ccode\u003EQuery\u003C\u002Fcode\u003E потому что мы хотим получать \u003Ccode\u003Eзапись\u003C\u002Fcode\u003E (\u003Ccode\u003Epost\u003C\u002Fcode\u003E) в корне ответа. Но также мы можем создать распознаватели для подполей, как например для поля \u003Ccode\u003Eauthor\u003C\u002Fcode\u003E:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EQuery: {\n  post(root, args) {\n    return Posts.find({ id: args.id });\n  }\n},\nPost: {\n  author(post) {\n    return Users.find({ id: post.authorId})\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОбратите внимание что ваши распознаватели не ограничены в количестве возвращаемых объектов. К примеру, вы захотите добавить поле \u003Ccode\u003EcommentsCount\u003C\u002Fcode\u003E к объекту \u003Ccode\u003EPost\u003C\u002Fcode\u003E:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003EPost: {\n  author(post) {\n    return Users.find({ id: post.authorId})\n  },\n  commentsCount(post) {\n    return Comments.find({ postId: post.id}).count()\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКлючевое понятие здесь то, что \u003Cstrong\u003Eсхема запроса GraphQL и структура вашей базы данных никак не связаны\u003C\u002Fstrong\u003E. Другими словами, в базе данных может не существовать полей \u003Ccode\u003Eauthor\u003C\u002Fcode\u003E или \u003Ccode\u003EcommentsCount\u003C\u002Fcode\u003E, но мы можем \"симулировать\" их благодаря силе распознавателей.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКак было показано выше, вы можете писать любой код внутри распознавателя. Так что вы можете \u003Cem\u003Eизменять\u003C\u002Fem\u003E содержимое базы данных; такие распознаватели называют \u003Cstrong\u003Eизменяющими\u003C\u002Fstrong\u003E (\u003Cstrong\u003Emutation\u003C\u002Fstrong\u003E).\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"shema-schema\"\u003EСхема (schema)\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВсе это становится возможным благодаря типизированной схеме данных GraphQL. Цель этой статьи дать скорее краткий обзор, чем исчерпывающее введение, так что в этом разделе не будет подробностей.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЯ призываю вас заглянуть в \u003Ca href=\"http:\u002F\u002Fgraphql.org\u002Flearn\u002Fschema\u002F\"\u003Eдокументацию GraphQL \u003Cem\u003E(англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E, если вы хотите узнать больше.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F575\u002F9b5\u002Fa5b\u002F5759b5a5b144464a546e71448069b93b.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F575\u002F9b5\u002Fa5b\u002F5759b5a5b144464a546e71448069b93b.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1 id=\"chasto-zadavaemye-voprosy\"\u003EЧасто задаваемые вопросы\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСделаем перерыв, чтобы ответить на несколько общих вопросов.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЭй, вы там, на задних рядах. Да вы. Я вижу, вы хотите что-то спросить. Идите вперед, не стесняйтесь!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"chto-obschego-u-graphql-i-grafovyh-baz-dannyhhttpsruwikipediaorgwikid093d180d0b0d184d0bed0b2d0b0d18f_d0b1d0b0d0b7d0b0_d0b4d0b0d0bdd0bdd18bd185\"\u003EЧто общего у GraphQL и \u003Ca href=\"https:\u002F\u002Fru.wikipedia.org\u002Fwiki\u002F%D0%93%D1%80%D0%B0%D1%84%D0%BE%D0%B2%D0%B0%D1%8F_%D0%B1%D0%B0%D0%B7%D0%B0_%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85\"\u003Eграфовых баз данных\u003C\u002Fa\u003E?\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНичего общего. На самом деле, GraphQL не имеет ничего общего с графовыми БД типа \u003Ca href=\"https:\u002F\u002Fru.wikipedia.org\u002Fwiki\u002FNeo4j\"\u003ENeo4j\u003C\u002Fa\u003E. Часть \"Graph\" отражает идею получения контента, проходя сквозь граф API, используя поля и подполя; часть \"QL\" расшифровывается как \"query language\" – \"язык запросов\".\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"menya-polnostyu-ustraivaet-rest-zachem-mne-perehodit-na-graphql\"\u003EМеня полностью устраивает REST, зачем мне переходить на GraphQL?\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕсли вы не достигли болевых точек REST API, решением которых является GraphQL, то можете не волноваться.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИспользование GraphQL поверх REST вероятнее всего не заставит вас производить какие-то сложные изменения в остальном API и ломать накопившийся пользовательский опыт, так что переход не будет вопросом жизни и смерти в любом случае. Так что определенно стоит попробовать GraphQL в небольшой части проекта, если это возможно.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"mogu-li-ya-ispolzovat-graphql-bez-reactrelayimya_biblioteki\"\u003EМогу ли я использовать GraphQL без React\u002FRelay\u002Fимя_библиотеки?\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКонечно! GraphQL это только спецификация, вы можете использовать его с любой библиотекой на любой платформе, используя готовый клиент (к примеру, у \u003Ca href=\"http:\u002F\u002Fdev.apollodata.com\u002F\"\u003EApollo\u003C\u002Fa\u003E есть клиенты для web, iOS, Angular и другие) или вручную отправляя запросы на сервер GraphQL.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"graphql-byl-sozdan-facebook-a-ya-ne-doveryayu-facebook\"\u003EGraphQL был создан Facebook, а я не доверяю Facebook.\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕщё раз, GraphQL является всего лишь спецификацией, это значит что вы можете использовать его не используя ни одной строки кода, написанной Facebook.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНаличие поддержки Facebook это безусловно хороший плюс для экосистемы GraphQL. Но на данный момент сообщество достаточно большое чтобы поддерживать GraphQL, даже если Facebook перестанет его использовать.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"kak-to-pozvolit-klientu-prosit-o-teh-dannyh-kotorye-emu-nuzhny-ne-vyglyadit-bezopasnym\"\u003EКак-то \"позволить клиенту просить о тех данных, которые ему нужны\" не выглядит безопасным\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТак как вы пишете свои распознаватели, вы можете разрешать любые проблемы безопасности на этом уровне.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EК примеру, если вы позволите клиенту использовать параметр \u003Ccode\u003Elimit\u003C\u002Fcode\u003E для указания количества документов, которые он запрашивает, вы скорее всего захотите контролировать это число для избежания атак типа \"отказ в обслуживании\" когда клиент будет запрашивать миллионы документов снова и снова.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"tak-chto-zhe-nuzhno-chtoby-nachat\"\u003EТак что же нужно чтобы начать?\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНа самом деле, необходимо всего два компонента чтобы начать:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EСервер GraphQL для обработки запросов к API\u003C\u002Fli\u003E\r\n\u003Cli\u003EКлиент GraphQL, который будет подключаться к endpoint.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fa56\u002F74b\u002F6c6\u002Fa5674b6c6c82799ba03012b8303fadaa.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fa56\u002F74b\u002F6c6\u002Fa5674b6c6c82799ba03012b8303fadaa.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТеперь, когда вы понимаете как работает GraphQL, можно поговорить о главных игроках в этой области.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"servery-graphql\"\u003EСерверы GraphQL\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПервое что вам нужно для работы, это сервер GraphQL. \u003Ca href=\"http:\u002F\u002Fgraphql.org\u002F\"\u003EСам GraphQL\u003C\u002Fa\u003E это просто спецификация, так что двери открыты для конкурирующих реализаций.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"graphql-jshttpsgithubcomgraphqlgraphql-js-node\"\u003E\u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fgraphql\u002Fgraphql-js\"\u003EGraphQL-JS\u003C\u002Fa\u003E (Node)\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЭто ссылка на оригинальную реализацию спецификации GraphQL. Вы можете использовать её с \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fgraphql\u002Fexpress-graphql\"\u003Eexpress-graphql\u003C\u002Fa\u003E для \u003Ca href=\"http:\u002F\u002Fgraphql.org\u002Fgraphql-js\u002Frunning-an-express-graphql-server\u002F\"\u003Eсоздания своего сервера API \u003Cem\u003E(англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"graphql-serverhttpdevapollodatacomtoolsgraphql-server-node\"\u003E\u003Ca href=\"http:\u002F\u002Fdev.apollodata.com\u002Ftools\u002Fgraphql-server\u002F\"\u003EGraphQL-Server\u003C\u002Fa\u003E (Node)\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКоманда \u003Ca href=\"http:\u002F\u002Fapollostack.com\u002F\"\u003EApollo\u003C\u002Fa\u003E имеет свою собственную реализацию GraphQL-сервера. Она ещё не настолько полна как оригинал, но очень хорошо документирована, хорошо поддерживается и быстро развивается.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"drugie-platformy\"\u003EДругие платформы\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНа официальном сайте есть \u003Ca href=\"http:\u002F\u002Fgraphql.org\u002Fcode\u002F\"\u003Eсписок реализаций спецификации GraphQL для различных платформ\u003C\u002Fa\u003E (PHP, Ruby и другие).\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"klienty-graphql\"\u003EКлиенты GraphQL\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКонечно вы можете работать с API GraphQL напрямую, но специальная клиентская библиотека определённо может сделать вашу жизнь проще.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"relayhttpsfacebookgithubiorelay\"\u003E\u003Ca href=\"https:\u002F\u002Ffacebook.github.io\u002Frelay\u002F\"\u003ERelay\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003ERelay это собственный инструментарий Facebook. Он создавался с учётом потребностей Facebook и может быть немного избыточным для большинства пользователей.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"klient-apollohttpwwwapollodatacom\"\u003E\u003Ca href=\"http:\u002F\u002Fwww.apollodata.com\u002F\"\u003EКлиент Apollo\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EБыстро занял своё место новый участник в этой области — \u003Ca href=\"http:\u002F\u002Fapollostack.com\u002F\"\u003EApollo\u003C\u002Fa\u003E. Типичный клиент состоит из двух частей:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"http:\u002F\u002Fdev.apollodata.com\u002Fcore\u002F\"\u003EApollo-client\u003C\u002Fa\u003E, позволяющий выполнять запросы GraphQL в браузере (также есть \u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fapollographql\u002Fapollo-client-devtools\"\u003Eрасширение для DevTools\u003C\u002Fa\u003E)\u003C\u002Fli\u003E\r\n\u003Cli\u003EКоннектор для frontend-фреймворка (\u003Ca href=\"http:\u002F\u002Fdev.apollodata.com\u002Freact\u002F\"\u003EReact-Apollo\u003C\u002Fa\u003E, \u003Ca href=\"http:\u002F\u002Fdev.apollodata.com\u002Fangular2\u002F\"\u003EAngular-Apollo\u003C\u002Fa\u003E и другие)\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПо умолчанию Apollo-client сохраняет данных используя \u003Ca href=\"http:\u002F\u002Fredux.js.org\u002F\"\u003ERedux\u003C\u002Fa\u003E, который сам является достаточно авторитетной библиотекой управления состоянием с богатой экосистемой.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fe1c\u002Fb94\u002F4f3\u002Fe1cb944f33c66515b396fc29960f99ac.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fe1c\u002Fb94\u002F4f3\u002Fe1cb944f33c66515b396fc29960f99ac.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cem\u003EРасширение Apollo для Chrome DevTools\u003C\u002Fem\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"prilozheniya-s-otkrytym-ishodnym-kodom\"\u003EПриложения с открытым исходным кодом\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНесмотря на то, что GraphQL это достаточно новая концепция, уже есть некоторые перспективные приложения с открытым исходным кодом, которые используют её.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"vulcanjshttpvulcanjsorg\"\u003E\u003Ca href=\"http:\u002F\u002Fvulcanjs.org\u002F\"\u003EVulcanJS\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F8de\u002F0f8\u002Fa2c\u002F8de0f8a2c3219f41e2e03beaa67624ed.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F8de\u002F0f8\u002Fa2c\u002F8de0f8a2c3219f41e2e03beaa67624ed.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЯ \u003Cem\u003E(автор оригинальной статьи — прим. пер.)\u003C\u002Fem\u003E являюсь ведущим разработчиком \u003Ca href=\"http:\u002F\u002Fvulcanjs.org\u002F\"\u003EVulcanJS\u003C\u002Fa\u003E. Я создал его чтобы дать людям возможность попробовать силу стека React\u002FGraphQL без необходимости писать много шаблонного кода. Вы можете воспринимать его как \"Rails для современной web-экосистемы\" потому что он позволяет создавать CRUD-приложения (\u003Ca href=\"https:\u002F\u002Fwww.youtube.com\u002Fwatch?v=qibyA_ReqEQ\"\u003Eклон Instagram\u003C\u002Fa\u003E например) в течение нескольких часов.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"gatsbyhttpswwwgatsbyjsorgdocs\"\u003E\u003Ca href=\"https:\u002F\u002Fwww.gatsbyjs.org\u002Fdocs\u002F\"\u003EGatsby\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EGatsby это генератор статических сайтов для React, который начиная с \u003Ca href=\"https:\u002F\u002Fwww.gatsbyjs.org\u002Fdocs\u002F\"\u003Eверсии 1.0\u003C\u002Fa\u003E также использует GraphQL. Несмотря на то, что это можно показаться странным сочетанием на первый взгляд, это на самом деле довольно мощная идея. В процессе сборки Gatsby может извлекать данные из нескольких GraphQL API, затем используя их для создания полностью статического клиентского React-приложения.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"drugie-instrumenty-dlya-raboty-s-graphql\"\u003EДругие инструменты для работы с GraphQL\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"graphiqlhttpsgithubcomgraphqlgraphiql\"\u003E\u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fgraphql\u002Fgraphiql\"\u003EGraphiQL\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EGraphiQL это очень удобная браузерная IDE для создания и выполнения запросов к endpoint-ам GraphQL.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F2f6\u002F188\u002F174\u002F2f618817477044d0f1726adef5b9e677.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F2f6\u002F188\u002F174\u002F2f618817477044d0f1726adef5b9e677.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"dataloaderhttpsgithubcomfacebookdataloader\"\u003E\u003Ca href=\"https:\u002F\u002Fgithub.com\u002Ffacebook\u002Fdataloader\"\u003EDataLoader\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИз-за вложенной природы запросов GraphQL, один запрос может легко вызывать десятки обращений к базе данных. Для снижения нагрузки вы можете использовать инструменты кеширования наподобие разработанной Facebook библиотеке DataLoader.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"create-graphql-serverhttpsbloghichromacomcreate-graphql-server-instantly-scaffold-a-graphql-server-1ebad1e71840\"\u003E\u003Ca href=\"https:\u002F\u002Fblog.hichroma.com\u002Fcreate-graphql-server-instantly-scaffold-a-graphql-server-1ebad1e71840\"\u003ECreate GraphQL Server\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003ECreate GraphQL Server это консольная программа, позволяющая легко и быстро сгенерировать сервер на базе Node, использующий базу данных Mongo.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"graphql-uphttpswwwgraphcoolgraphql-up\"\u003E\u003Ca href=\"https:\u002F\u002Fwww.graph.cool\u002Fgraphql-up\u002F\"\u003EGraphQL-up\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EАналогично Create GraphQL Server, GraphQL-up позволяет быстро создать GraphQL backend, но на базе сервиса \u003Ca href=\"https:\u002F\u002Fwww.graph.cool\u002F\"\u003EGraphcool\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2 id=\"servisy-graphql\"\u003EСервисы GraphQL\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНаконец, есть целый ряд компаний, предоставляющих \"GraphQL-backend-как-сервис\"; они сами позаботятся о серверной части для вас, и это может быть хорошим способом окунуться в экосистему GraphQL.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"graphcoolhttpgraphcool\"\u003E\u003Ca href=\"http:\u002F\u002Fgraph.cool\u002F\"\u003EGraphcool\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EГибкая backend-платформа, объединяющая GraphQL и AWS Lambda, имеющая бесплатный тарифный план для разработки.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"scapholdhttpsscapholdio\"\u003E\u003Ca href=\"https:\u002F\u002Fscaphold.io\u002F\"\u003EScaphold\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДругой GraphQL-backend-как-сервис с бесплатным тарифным планом. Он предлагает много функций, подобных Graphcool.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fa58\u002F83d\u002F82b\u002Fa5883d82b6e8c5390e168975e2bc1fed.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002Fa58\u002F83d\u002F82b\u002Fa5883d82b6e8c5390e168975e2bc1fed.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EУже есть немало ресурсов по GraphQL.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cem\u003E(Также предлагайте ресурсы на русском языке в комментариях – прим. пер.)\u003C\u002Fem\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"graphqlorg-anglhttpgraphqlorglearn\"\u003E\u003Ca href=\"http:\u002F\u002Fgraphql.org\u002Flearn\u002F\"\u003EGraphQL.org \u003Cem\u003E(англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНа официальном сайте GraphQL есть замечательная документация чтобы начать.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"learngraphql-anglhttpslearngraphqlcom\"\u003E\u003Ca href=\"https:\u002F\u002Flearngraphql.com\u002F\"\u003ELearnGraphQL \u003Cem\u003E(англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003ELearnGraphQL это интерактивный курс, созданный в компании \u003Ca href=\"https:\u002F\u002Fkadira.io\u002F\"\u003EKadira\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"learnapollo-anglhttpswwwlearnapollocom\"\u003E\u003Ca href=\"https:\u002F\u002Fwww.learnapollo.com\u002F\"\u003ELearnApollo \u003Cem\u003E(англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EХорошее продолжение LearnGraphQL, LearnApollo это бесплатный курс, созданный \u003Ca href=\"https:\u002F\u002Fwww.graph.cool\u002F\"\u003EGraphcool\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"blog-apollo-anglhttpsdev-blogapollodatacom\"\u003E\u003Ca href=\"https:\u002F\u002Fdev-blog.apollodata.com\u002F\"\u003EБлог Apollo \u003Cem\u003E(англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EБлог Apollo имеет массу подробных хорошо написанных постов о Apollo и GraphQL в целом.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"graphql-weekly-anglhttpsgraphqlweeklycom\"\u003E\u003Ca href=\"https:\u002F\u002Fgraphqlweekly.com\u002F\"\u003EGraphQL Weekly \u003Cem\u003E(англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EИнформационная рассылка о GraphQL, курируемая командой Graphcool.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"hashbang-weekly-anglhttphashbangweeklyokgrowcom\"\u003E\u003Ca href=\"http:\u002F\u002Fhashbangweekly.okgrow.com\u002F\"\u003EHashbang Weekly \u003Cem\u003E(англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕще одна большая новостная рассылка, которая помимо GraphQL также охватывает React и Meteor.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"freecom-anglhttpswwwgraphcoolfreecom\"\u003E\u003Ca href=\"https:\u002F\u002Fwww.graph.cool\u002Ffreecom\u002F\"\u003EFreecom \u003Cem\u003E(англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСерия руководств, описывающая как создать клон Интерком с помощью GraphQL.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"awesome-graphql-anglhttpsgithubcomchentsulinawesome-graphql\"\u003E\u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fchentsulin\u002Fawesome-graphql\"\u003EAwesome GraphQL \u003Cem\u003E(англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДовольно исчерпывающий перечень ссылок и ресурсов по GraphQL.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F5fb\u002Fc61\u002F112\u002F5fbc6111286f009df40a4e2b0e7dbd86.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F5fb\u002Fc61\u002F112\u002F5fbc6111286f009df40a4e2b0e7dbd86.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКак же вы можете применить вновь приобретенные знания о GraphQL на практике? Вот несколько рецептов, которые можно попробовать:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"apollo--graphcool--nextjshttpsgithubcomzeitnextjstreemasterexampleswith-apollo\"\u003E\u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fzeit\u002Fnext.js\u002Ftree\u002Fmaster\u002Fexamples\u002Fwith-apollo\"\u003EApollo + Graphcool + Next.js\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕсли вы уже знакомы с Next.js и React, этот пример позволит вам настроить GraphQL endpoint при помощи Graphcool и затем отправлять ей запросы при помощи Apollo.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"vulcanjshttpdocsvulcanjsorg\"\u003E\u003Ca href=\"http:\u002F\u002Fdocs.vulcanjs.org\u002F\"\u003EVulcanJS\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ca href=\"http:\u002F\u002Fdocs.vulcanjs.org\u002F\"\u003EУчебник Vulcan \u003Cem\u003E(англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E поможет вам создать простой слой данных GraphQL на сервере и на клиенте. Поскольку Vulcan является платформой \"все-в-одном\", это хороший способ начать работу без каких-либо настроек. Если вам нужна помощь, не стесняйтесь \u003Ca href=\"http:\u002F\u002Fslack.vulcanjs.org\u002F\"\u003Eобратиться в наш канал Slack \u003Cem\u003E(англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3 id=\"uchebnik-graphql--reacthttpsbloghichromacomgraphql-react-tutorial-part-1-6-d0691af25858o54ygcruh\"\u003E\u003Ca href=\"https:\u002F\u002Fblog.hichroma.com\u002Fgraphql-react-tutorial-part-1-6-d0691af25858#.o54ygcruh\"\u003EУчебник GraphQL &amp; React\u003C\u002Fa\u003E\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ блоге Chroma есть \u003Ca href=\"https:\u002F\u002Fblog.hichroma.com\u002Fgraphql-react-tutorial-part-1-6-d0691af25858#.o54ygcruh\"\u003Eруководство из шести частей \u003Cem\u003E(англ)\u003C\u002Fem\u003E\u003C\u002Fa\u003E по созданию приложения React\u002FGraphQL используя компоненто-ориентированный подход к разработке.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F575\u002F9b5\u002Fa5b\u002F5759b5a5b144464a546e71448069b93b.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F575\u002F9b5\u002Fa5b\u002F5759b5a5b144464a546e71448069b93b.png\"\u002F\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Ch1 id=\"zaklyuchenie\"\u003EЗаключение\u003C\u002Fh1\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EGraphQL поначалу может показаться сложным, потому что это технология, которая затрагивает многие области современной разработки. Но уделив время чтобы понять основные концепции, я думаю вы поймёте что многое из этого имеет смысл.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EРешите ли вы использовать это или нет, я считаю что стоит потратить время чтобы ознакомиться с GraphQL. Все больше и больше компаний и структур начинают использовать его, и он вполне может в течение следующих нескольких лет стать одним из ключевых строительных блоков в веб-разработке.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСогласны? Не согласны? Вопросы? Дайте мне знать, здесь в комментариях.\u003C\u002Fp\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"API"},{"titleHtml":"GraphQL"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F326986\u002Fb9719789efc279eb1150888df1f425fe\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F326986\u002Fb9719789efc279eb1150888df1f425fe\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F326986\\\u002F\"},\"headline\":\"Что же такое этот GraphQL?\",\"datePublished\":\"2017-04-20T13:56:13+03:00\",\"dateModified\":\"2019-08-17T19:23:05+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Alik Send\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Вашему вниманию предлагаю перевод статьи Sacha Greif &quot;Что же такое этот GraphQL?&quot; Если вы такой же, как и я, вы обычно проходите через три этапа, когда узнаёте о...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F326986\\\u002F#post-content-body\",\"about\":[\"h_webdev\",\"h_api\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F326986\\\u002Fb9719789efc279eb1150888df1f425fe\\\u002F\"]}","metaDescription":"Вашему вниманию предлагаю перевод статьи Sacha Greif &quot;Что же такое этот GraphQL?&quot;\r\nЕсли вы такой же, как и я, вы обычно проходите через три этапа, когда узнаёте о новой технологии:\r\n\r\nОтрицание: Ещё...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":"webdev,api"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

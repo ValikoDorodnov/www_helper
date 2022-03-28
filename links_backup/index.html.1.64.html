@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Юнит-тестирование для чайников / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/169381\/"},"headline":"Юнит-тестирование для чайников","datePublished":"2013-02-14T12:23:09+04:00","dateModified":"2021-03-04T14:03:03+03:00","author":{"@type":"Person","name":"Максим Аршинов"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Даже если вы никогда в жизни не думали, что занимаетесь тестированием, вы это делаете. Вы собираете свое приложение, нажимаете кнопку и проверяете, соответствует...","url":"https:\/\/habr.com\/ru\/post\/169381\/#post-content-body","about":["h_webdev","h_it_testing","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/169381\/3ea3501da3e0bc1bcb974c5ccb05cb32\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Юнит-тестирование для чайников" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Юнит-тестирование для чайников" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Юнит-тестирование для чайников" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Даже если вы никогда в жизни не думали, что занимаетесь тестированием, вы это делаете. Вы собираете свое приложение, нажимаете кнопку и проверяете, соответствует ли полученный результат вашим..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Даже если вы никогда в жизни не думали, что занимаетесь тестированием, вы это делаете. Вы собираете свое приложение, нажимаете кнопку и проверяете, соответствует ли полученный результат вашим..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Даже если вы никогда в жизни не думали, что занимаетесь тестированием, вы это делаете. Вы собираете свое приложение, нажимаете кнопку и проверяете, соответствует ли полученный результат вашим..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Даже если вы никогда в жизни не думали, что занимаетесь тестированием, вы это делаете. Вы собираете свое приложение, нажимаете кнопку и проверяете, соответствует ли полученный результат вашим..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Даже если вы никогда в жизни не думали, что занимаетесь тестированием, вы это делаете. Вы собираете свое приложение, нажимаете кнопку и проверяете, соответствует ли полученный результат вашим..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/169381/3ea3501da3e0bc1bcb974c5ccb05cb32/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/169381/3ea3501da3e0bc1bcb974c5ccb05cb32/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/169381/3ea3501da3e0bc1bcb974c5ccb05cb32/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/169381/3ea3501da3e0bc1bcb974c5ccb05cb32/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/169381/3ea3501da3e0bc1bcb974c5ccb05cb32/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="169381" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2013-02-14T08:23:09.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/169381/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="tdd, unit-testing, модульное тестирование, разработка, тестирование, .net">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/169381/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.64.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/169381/3ea3501da3e0bc1bcb974c5ccb05cb32/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/marshinov/" title="marshinov" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/f33/8f7/4c7/f338f74c736571017d86fe79fcaa1965.png" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/marshinov/" class="tm-user-info__username">
+      marshinov
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2013-02-14T08:23:09.000Z" title="2013-02-14, 12:23">14  февраля  2013 в 12:23</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Юнит-тестирование для чайников</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/it_testing/" class="tm-article-snippet__hubs-item-link"><span>Тестирование IT-систем</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-tutorial"><span>
+        Tutorial
+      </span></div></div> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">Даже если вы никогда в жизни не думали, что занимаетесь тестированием, вы это делаете. Вы собираете свое приложение, нажимаете кнопку и проверяете, соответствует ли полученный результат вашим ожиданиям. Достаточно часто в приложении можно встретить формочки с кнопкой “Test it” или классы с названием <i>TestController</i> или <i>MyServiceTestClient</i>.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/storage2/6da/5c9/f6d/6da5c9f6d05c82a919b8cdcfa00e0b9b.png" data-src="https://habrastorage.org/storage2/6da/5c9/f6d/6da5c9f6d05c82a919b8cdcfa00e0b9b.png"/><br/>
+<br/>
+То что вы делаете, называется <i>интеграционным тестированием</i>. Современные приложения достаточно сложны и содержат множество зависимостей. Интеграционное тестирование проверяет, что несколько компонентов системы работают вместе правильно. <br/>
+<br/>
+Оно выполняет свою задачу, но сложно для автоматизации. Как правило, тесты требуют, чтобы вся или почти вся система была развернута и сконфигурирована на машине, на которой они выполняются. Предположим, что вы разрабатываете web-приложение с UI и веб-сервисами. Минимальная комплектация, которая вам потребуется: браузер, веб-сервер, правильно настроенные веб-сервисы и база данных. На практике все еще сложнее. Разворачивать всё это на билд-сервере и всех машинах разработчиков?<br/>
+<br/>
+<a name="habracut"></a><h2>We need to go deeper</h2><br/>
+<img src="https://habrastorage.org/r/w780q1/storage2/5c0/1c5/99f/5c01c599f95b6ee0edf77494908860a9.jpg" data-src="https://habrastorage.org/storage2/5c0/1c5/99f/5c01c599f95b6ee0edf77494908860a9.jpg" data-blurred="true"/><br/>
+Давайте сначала спустимся на предыдущий уровень и убедимся, что наши компоненты работают правильно по-отдельности.<br/>
+<br/>
+Обратимся к википедии:<br/>
+<blockquote><b>Модульное тестирование</b>, или <b>юнит-тестирование</b> (англ. unit testing) — процесс в программировании, позволяющий проверить на корректность отдельные модули исходного кода программы.<br/>
+<br/>
+Идея состоит в том, чтобы писать тесты для каждой нетривиальной функции или метода. Это позволяет достаточно быстро проверить, не привело ли очередное изменение кода к регрессии, то есть к появлению ошибок в уже оттестированных местах программы, а также облегчает обнаружение и устранение таких ошибок.<br/>
+</blockquote><br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/storage2/ec3/825/c7f/ec3825c7f0710f9fed6814c89b794ded.jpg" data-src="https://habrastorage.org/storage2/ec3/825/c7f/ec3825c7f0710f9fed6814c89b794ded.jpg" data-blurred="true"/><br/>
+<br/>
+Таким образом, юнит-тестирование – это первый бастион на борьбе с багами. За ним еще интеграционное, приемочное и, наконец, ручное тестирование, в том числе «свободный поиск».<br/>
+<br/>
+Нужно ли все это вам? С моей точки зрения ответ: «не всегда». <br/>
+<br/>
+<h2>Не нужно писать тесты, если</h2><br/>
+<ul>
+<li>Вы делаете простой сайт-визитку из 5 статических html-страниц и с одной формой отправки письма. На этом заказчик, скорее всего, успокоится, ничего большего ему не нужно. Здесь нет никакой особенной логики, быстрее просто все проверить «руками»</li>
+<li>Вы занимаетесь рекламным сайтом/простыми флеш-играми или баннерами – сложная верстка/анимация или большой объем статики. Никакой логики нет, только представление</li>
+<li>Вы делаете проект для выставки. Срок – от двух недель до месяца, ваша система – комбинация железа и софта, в начале проекта не до конца известно, что именно должно получиться в конце. Софт будет работать 1-2 дня на выставке</li>
+<li>Вы всегда пишете код без ошибок, обладаете идеальной памятью и даром предвидения. Ваш код настолько крут, что изменяет себя сам, вслед за требованиями клиента. Иногда код объясняет клиенту, что его требования — <s>гов</s> не нужно реализовывать</li>
+</ul><br/>
+<br/>
+В первых трех случаях по объективным причинам (сжатые сроки, бюджеты, размытые цели или очень простые требования) вы не получите выигрыша от написания тестов.<br/>
+<br/>
+Последний случай рассмотрим отдельно. Я знаю только одного такого человека, и если вы не узнали себя на фото ниже, то у меня для вас плохие новости.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/storage2/635/68c/356/63568c35676c4d929422ec8e42dd3563.jpg" data-src="https://habrastorage.org/storage2/635/68c/356/63568c35676c4d929422ec8e42dd3563.jpg" data-blurred="true"/><br/>
+<br/>
+<h2>Любой долгосрочный проект без надлежащего покрытия тестами обречен рано или поздно быть переписанным с нуля</h2><img src="https://habrastorage.org/r/w1560/storage2/ee9/ab0/40f/ee9ab040f988cde943d001c819e8c08c.png" data-src="https://habrastorage.org/storage2/ee9/ab0/40f/ee9ab040f988cde943d001c819e8c08c.png"/><br/>
+<br/>
+В своей практике я много раз встречался с проектами старше года. Они делятся на три категории:<br/>
+<ul>
+<li><b>Без покрытия тестами. </b> Обычно такие системы сопровождаются спагетти-кодом и уволившимися ведущими разработчиками. Никто в компании не знает, как именно все это работает. Да и что оно в конечном итоге должно делать, сотрудники представляют весьма отдаленно.</li>
+<li><b>С тестами, которые никто не запускает и не поддерживает. </b> Тесты в системе есть, но что они тестируют, и какой от них ожидается результат, неизвестно. Ситуация уже лучше. Присутствует какая-никакая архитектура, есть понимание, что такое слабая связанность. Можно отыскать некоторые документы. Скорее всего, в компании еще работает главный разработчик системы, который держит в голове особенности и хитросплетения кода.</li>
+<li><b>С серьезным покрытием. Все тесты проходят.</b> Если тесты в проекте действительно запускаются, то их много. Гораздо больше, чем в системах из предыдущей группы. И теперь каждый из них – атомарный: один тест проверяет только одну вещь. Тест является спецификацией метода класса, контрактом: какие входные параметры ожидает этот метод, и что остальные компоненты системы ждут от него на выходе. Таких систем гораздо меньше. В них присутствует актуальная спецификация. Текста немного: обычно пара страниц, с описанием основных фич, схем серверов и <i>getting started guide’ом</i>. В этом случае проект не зависит от людей. Разработчики могут приходить и уходить. Система надежно протестирована и сама рассказывает о себе путем тестов.</li>
+</ul><br/>
+<br/>
+Проекты первого типа – крепкий орешек, с ними работать тяжелее всего. Обычно их рефакторинг по стоимости равен или превышает переписывание с нуля.<br/>
+<br/>
+<h2>Почему есть проекты второго типа?</h2>Коллеги из <i>ScrumTrek</i> уверяют, что всему виной темная сторона кода и властелин <a href="http://habrahabr.ru/company/scrumtrek/blog/168485/" rel="nofollow noopener noreferrer">Дарт Автотестиус</a>. Я убежден, что это очень близко к правде. Бездумное написание тестов <b>не только не помогает, но вредит проекту</b>. Если раньше у вас был один некачественный продукт, то написав тесты, не разобравшись в этой теме, вы получите два. И удвоенное время на сопровождение и поддержку.<br/>
+<br/>
+Для того чтобы темная сторона кода не взяла верх, нужно придерживаться <b>следующих основных правил</b>. <br/>
+Ваши тесты должны:<br/>
+<br/>
+<ul>
+<li>Быть достоверными</li>
+<li>Не зависеть от окружения, на котором они выполняются</li>
+<li>Легко поддерживаться</li>
+<li>Легко читаться и быть простыми для понимания (даже новый разработчик должен понять <b>что именно</b> тестируется)</li>
+<li>Соблюдать единую конвенцию именования</li>
+<li>Запускаться регулярно в автоматическом режиме</li>
+</ul><br/>
+Чтобы достичь выполнения этих пунктов, нужны терпение и воля. Но давайте по порядку.<br/>
+<br/>
+<h3>Выберите логическое расположение тестов в вашей VCS</h3>Только так. Ваши тесты должны быть частью контроля версий. В зависимости от типа вашего решения, они могут быть организованы по-разному. Общая рекомендация: если приложение монолитное, положите все тесты в папку Tests; если у вас много разных компонентов, храните тесты в папке каждого компонента. <br/>
+<br/>
+<h3>Выберите способ именования проектов с тестами</h3>Одна из лучших практик: добавьте к каждому проекту его собственный тестовый проект.<br/>
+У вас есть части системы &lt;PROJECT_NAME>.Core, &lt;PROJECT_NAME>.Bl и &lt;PROJECT_NAME>.Web? Добавьте еще &lt;PROJECT_NAME>.Core.Tests, &lt;PROJECT_NAME>.Bl.Tests и &lt;PROJECT_NAME>.Web.Tests. <br/>
+<br/>
+У такого способа именования есть дополнительный сайд-эффект. Вы сможете использовать паттерн *.Tests.dll для запуска тестов на билд-сервере.<br/>
+<br/>
+<h3>Используйте такой же способ именования для тестовых классов</h3>У вас есть класс ProblemResolver? Добавьте в тестовый проект ProblemResolverTests. Каждый тестирующий класс должен тестировать только одну сущность. Иначе вы очень быстро скатитесь <s>в унылое го</s> во второй тип проектов (с тестами, которые никто не запускает).<br/>
+<br/>
+<h3>Выберите «говорящий» способ именования методов тестирующих классов</h3><i>TestLogin</i> – не самое лучшее название метода. Что именно тестируется? Каковы входные параметры? Могут ли возникать ошибки и исключительные ситуации?<br/>
+<br/>
+На мой взгляд, лучший способ именования методов такой: <i>[Тестируемый метод]_[Сценарий]_[Ожидаемое поведение]</i>.<br/>
+Предположим, что у нас есть класс Calculator, а у него есть метод Sum, который (привет, Кэп!) должен складывать два числа.<br/>
+В этом случае наш тестирующий класс будет выглядеть так:<br/>
+<br/>
+<pre><code class="plaintext">сlass CalculatorTests
+{
+        public void Sum_2Plus5_7Returned()
+        {
+ 	    // …
+        }
+}
+</code></pre><br/>
+Такая запись понятна без объяснений. Это спецификация к вашему коду.<br/>
+<br/>
+<h3>Выберите тестовый фреймворк, который подходит вам</h3>Вне зависимости от платформы не стоит писать велосипеды. Я видел много проектов, в которых автоматические тесты (в основном, не юнит, а приемочные) запускались из консольного приложения. Не надо этого делать, все уже сделано за вас.<br/>
+<br/>
+Уделите чуть больше внимания обзору фреймворков. Например, многие .NET разработчики используют MsTest только потому, что он входит в поставку студии. Мне гораздо больше по душе NUnit. Он не создает лишних папок с результатами тестов и имеет поддержку параметризированного тестирования. Я могу так же легко запускать мои тесты на NUnit с помощью Решарпера. Кому-то понравится элегантность xUnit’а: конструктор вместо атрибутов инициализации, реализация IDisposable как TearDown.<br/>
+<br/>
+<h3>Что тестировать, а что – нет?</h3>Одни говорят о необходимости покрытия кода на 100%, другие считают это лишней тратой ресурсов.<br/>
+Мне нравится такой подход: расчертите лист бумаги по оси X и Y, где X – алгоритмическая сложность, а Y – количество зависимостей. Ваш код можно разделить на 4 группы. <br/>
+<img src="https://habrastorage.org/r/w1560/storage2/177/ea7/e55/177ea7e5529adfb647db334db0e83cb0.png" data-src="https://habrastorage.org/storage2/177/ea7/e55/177ea7e5529adfb647db334db0e83cb0.png"/><br/>
+<br/>
+Рассмотрим сначала экстремальные случаи: простой код без зависимостей и сложный код с большим количеством зависимостей.<br/>
+<br/>
+<ol>
+<li><b>Простой код без зависимостей.</b> Скорее всего здесь и так все ясно. Его можно не тестировать.</li>
+<li><b>Сложный код с большим количеством зависимостей.</b> Хм, если у вас есть такой код, тут пахнет God Object’ом и сильной связностью. Скорее всего, неплохо будет провести рефакторинг. Мы не станем покрывать этот код юнит-тестами, потому что перепишем его, а значит, у нас изменятся сигнатуры методов и появятся новые классы. Так зачем писать тесты, которые придется выбросить? Хочу оговориться, что для проведения такого рода рефакторинга нам все же нужно тестирование, но лучше воспользоваться более высокоуровневыми <i>приемочными тестами</i>. Мы рассмотрим этот случай отдельно.</li>
+</ol><br/>
+Что у нас остается:<br/>
+<ol>
+<li><b>Cложный код без зависимостей.</b> Это некие алгоритмы или бизнес-логика. Отлично, это важные части системы, тестируем их.</li>
+<li><b>Не очень сложный код с зависимостями.</b> Этот код связывает между собой разные компоненты. Тесты важны, чтобы уточнить, как именно должно происходить взаимодействие. Причина потери Mars Climate Orbiter 23 сентября 1999 года заключалась в программно-человеческой ошибке: одно подразделение проекта считало «в дюймах», а другое – «в метрах», и прояснили это уже после потери аппарата. Результат мог быть другим, если бы команды протестировали «швы» приложения.</li>
+</ol><br/>
+<br/>
+<a name="aaa"></a><br/>
+<h3>Придерживайтесь единого стиля написания тела теста</h3>Отлично зарекомендовал себя подход AAA <i>(arrange, act, assert) </i>. Вернемся к примеру с калькулятором:<br/>
+<br/>
+<pre><code class="plaintext">class CalculatorTests
+{
+	public void Sum_2Plus5_7Returned()
+	{
+		// arrange
+		var calc = new Calculator();
+	
+		// act
+		var res = calc.Sum(2,5);
+
+		// assert
+		Assert.AreEqual(7, res);	
+	}
+}
+</code></pre><br/>
+<br/>
+Такая форма записи гораздо легче читается, чем<br/>
+<br/>
+<pre><code class="plaintext">class CalculatorTests
+{
+	public void Sum_2Plus5_7Returned()
+	{
+		Assert.AreEqual(7, new Calculator().sum(2,5));	
+	}
+}
+</code></pre><br/>
+<br/>
+А значит, этот код проще поддерживать.<br/>
+<br/>
+<h3>Тестируйте одну вещь за один раз</h3><b>Каждый тест должен проверять только одну вещь.</b> Если процесс слишком сложен (например, покупка в интернет магазине), разделите его на несколько частей и протестируйте их отдельно.<br/>
+Если вы не будете придерживаться этого правила, ваши тесты станут нечитаемыми, и вскоре вам окажется очень сложно их поддерживать.<br/>
+<br/>
+<h3>Борьба с зависимостями</h3>До сих пор мы тестировали калькулятор. У него совсем нет зависимостей. В современных бизнес-приложениях количество таких классов, к сожалению, мало.<br/>
+Рассмотрим такой пример.<br/>
+<br/>
+<pre><code class="plaintext">public class AccountManagementController : BaseAdministrationController
+{
+	#region Vars
+
+	private readonly IOrderManager _orderManager;
+        private readonly IAccountData _accountData;
+        private readonly IUserManager _userManager;
+        private readonly FilterParam _disabledAccountsFilter;
+
+        #endregion
+
+        public AccountManagementController()
+        {
+            _oms = OrderManagerFactory.GetOrderManager();
+            _accountData = _ orderManager.GetComponent&lt;IAccountData>();
+            _userManager = UserManagerFactory.Get();
+            _disabledAccountsFilter = new FilterParam("Enabled", Expression.Eq, true);
+        }
+}
+</code></pre><br/>
+Фабрика в этом примере берет данные о конкретной реализации <i>AccountData</i> из файла конфигурации, что нас абсолютно не устраивает. Мы же не хотим поддерживать зоопарк файлов *.config. Более того, настоящие реализации могут зависеть от базы данных. Если мы продолжим в том же духе, то перестанем тестировать только методы контроллера и начнем вместе с ними тестировать другие компоненты системы. Как мы помним, это называется <i>интеграционным тестированием</i>.<br/>
+Чтобы не тестировать все вместе, мы подсунем фальшивую реализацию <i>(fake)</i>.<br/>
+Перепишем наш класс так:<br/>
+<br/>
+<pre><code class="plaintext">public class AccountManagementController : BaseAdministrationController
+{
+        #region Vars
+
+        private readonly IOrderManager _oms;
+        private readonly IAccountData _accountData;
+        private readonly IUserManager _userManager;
+        private readonly FilterParam _disabledAccountsFilter;
+
+        #endregion
+
+        public AccountManagementController()
+        {
+            _oms = OrderManagerFactory.GetOrderManager();
+            _accountData = _oms.GetComponent&lt;IAccountData>();
+            _userManager = UserManagerFactory.Get();
+            _disabledAccountsFilter = new FilterParam("Enabled", Expression.Eq, true);
+        }
+
+        /// &lt;summary>
+        /// For testability
+        /// &lt;/summary>
+        /// &lt;param name="accountData">&lt;/param>
+        /// &lt;param name="userManager">&lt;/param>
+        public AccountManagementController(
+            IAccountData accountData,
+            IUserManager userManager)
+        {
+            _accountData = accountData;
+            _userManager = userManager;
+            _disabledAccountsFilter = new FilterParam("Enabled", Expression.Eq, true);
+        }
+}
+</code></pre><br/>
+<br/>
+Теперь у контроллера появилась новая точка входа, и мы можем передать туда другие реализации интерфейсов. <br/>
+<br/>
+<h3>Fakes: stubs &amp; mocks</h3>Мы переписали класс и теперь можем подсунуть контроллеру другие реализации зависимостей, которые не станут лезть в базу, смотреть конфиги и т.д. Словом, будут делать только то, что от них требуется. Разделяем и властвуем. Настоящие реализации мы должны протестировать отдельно в своих собственных тестовых классах. Сейчас мы тестируем только контроллер.<br/>
+<br/>
+<b>Выделяют два типа подделок: стабы (stubs) и моки (mock).</b><br/>
+Часто эти понятия путают. Разница в том, что стаб ничего не проверяет, а лишь имитирует заданное состояние. А мок – это объект, у которого есть ожидания. Например, что данный метод класса должен быть вызван определенное число раз. Иными словами, ваш тест никогда не сломается из-за «стаба», а вот из-за мока может.<br/>
+С технической точки зрения это значит, что используя стабы в Assert мы проверяем состояние тестируемого класса или результат выполненного метода. При использовании мока мы проверяем, соответствуют ли ожидания мока поведению тестируемого класса.<br/>
+<br/>
+<h4>Стаб<h4><img src="https://habrastorage.org/r/w1560/storage2/95a/409/842/95a40984251f9529238b2e48c61e79f2.png" data-src="https://habrastorage.org/storage2/95a/409/842/95a40984251f9529238b2e48c61e79f2.png"/><br/>
+<br/>
+<pre><code class="plaintext">[Test]
+public void LogIn_ExisingUser_HashReturned()
+{
+	// Arrange
+	OrderProcessor = Mock.Of&lt;IOrderProcessor>();
+	OrderData = Mock.Of&lt;IOrderData>();
+	LayoutManager = Mock.Of&lt;ILayoutManager>();
+	NewsProvider = Mock.Of&lt;INewsProvider>();
+
+	Service = new IosService(
+		UserManager,
+		AccountData,
+		OrderProcessor,
+		OrderData,
+		LayoutManager,
+		NewsProvider);
+	
+	// Act
+	var hash = Service.LogIn("ValidUser", "Password");
+
+	// Assert
+	Assert.That(!string.IsNullOrEmpty(hash));
+}
+</code></pre><br/>
+<br/>
+<h4>Мок<h4><img src="https://habrastorage.org/r/w1560/storage2/92d/add/11c/92dadd11ca7c689b6cc19e1f040c1888.png" data-src="https://habrastorage.org/storage2/92d/add/11c/92dadd11ca7c689b6cc19e1f040c1888.png"/><br/>
+<br/>
+<pre><code class="plaintext">[Test]
+public void Create_AddAccountToSpecificUser_AccountCreatedAndAddedToUser()
+{
+    // Arrange
+    var account = Mock.Of&lt;AccountViewModel>();
+            
+    // Act
+    _controller.Create(1, account);
+
+    // Assert
+    _accountData.Verify(m => m.CreateAccount(It.IsAny&lt;IAccount>()), Times.Exactly(1));
+    _accountData.Verify(m => m.AddAccountToUser(It.IsAny&lt;int>(), It.IsAny&lt;int>()), Times.Once());
+}
+</code></pre><br/>
+<br/>
+<h3>Тестирование состояния и тестирование поведения</h3>Почему важно понимать, казалось бы, незначительную разницу между моками и стабами? Давайте представим, что нам нужно протестировать автоматическую систему полива. Можно подойти к этой задаче двумя способами:<br/>
+<br/>
+<h4>Тестирование состояния</h4>Запускаем цикл (12 часов). И через 12 часов проверяем, хорошо ли политы растения, достаточно ли воды, каково состояние почвы и т.д.<br/>
+<br/>
+<h4>Тестирование взаимодействия</h4>Установим датчики, которые будут засекать, когда полив начался и закончился, и сколько воды поступило из системы.<br/>
+Стабы используются при тестировании состояния, а моки – взаимодействия. <b>Лучше использовать не более одного мока на тест</b>. Иначе с высокой вероятностью вы нарушите принцип «тестировать только одну вещь». При этом в одном тесте может быть сколько угодно стабов или же мок и стабы.<br/>
+<br/>
+<h3>Изоляционные фреймвоки</h3>Мы могли бы реализовывать моки и стабы самостоятельно, но есть несколько причин, почему я не советую делать это:<br/>
+<ul>
+<li>Велосипеды уже написаны до нас</li>
+<li>Многие интерфейсы не так просто реализовать с полпинка</li>
+<li>Наши самописные подделки могут содержать ошибки</li>
+<li>Это дополнительный код, который придется поддерживать</li>
+</ul><br/>
+<br/>
+В примере выше я использовал фреймворк <a href="http://code.google.com/p/moq/" rel="nofollow noopener noreferrer">Moq</a> для создания моков и стабов. Довольно распространен фреймворк <a href="http://www.hibernatingrhinos.com/oss/rhino-mocks" rel="nofollow noopener noreferrer">Rhino Mocks</a>. Оба фреймворка — бесплатные. На мой взгляд, они практически эквивалентны, но Moq субъективно удобнее. <br/>
+<br/>
+На рынке есть также два коммерческих фреймворка: <i>TypeMock Isolator</i> и <i>Microsoft Moles</i>. На мой взгляд они обладают чрезмерными возможностями подменять невиртуальные и статические методы. Хотя при работе с унаследованным кодом это и может быть полезно, ниже я опишу, почему все-таки не советую заниматься подобными вещами.<br/>
+<br/>
+Шоукейсы перечисленных изоляционных фреймворков можно посмотреть <a href="http://code.google.com/p/mocking-frameworks-compare/" rel="nofollow noopener noreferrer">тут</a>. А информацию по техническим аспектам работы с ними легко найти на Хабре.<br/>
+<br/>
+<h3>Тестируемая архитектура</h3>Вернемся к примеру с контроллером.<br/>
+<br/>
+<pre><code class="plaintext">public AccountManagementController(
+    IAccountData accountData,
+    IUserManager userManager)
+{
+    _accountData = accountData;
+    _userManager = userManager;
+    _disabledAccountsFilter = new FilterParam("Enabled", Expression.Eq, true);
+}
+</code></pre><br/>
+Здесь мы отделались «малой кровью». К сожалению, не всегда все бывает так просто. Давайте рассмотрим основные случаи, как мы можем внедрить зависимости:<br/>
+<br/>
+<h4>Инъекция в конструктор</h4>Добавляем дополнительный конструктор или заменяем текущий (зависит от того, как вы создаете объекты в вашем приложении, используете ли IOC-контейнер). Этим подходом мы воспользовались в примере выше.<br/>
+<br/>
+<h4>Инъекция в фабрику</h4>Setter можно дополнительно «спрятать» от основного приложения, если выделить интерфейс IUserManagerFactory и работать в продакшн-коде по интерфейсной ссылке.<br/>
+<br/>
+<pre><code class="plaintext">public class UserManagerFactory
+{
+    private IUserManager _instance;
+
+    /// &lt;summary>
+    /// Get UserManager instance
+    /// &lt;/summary>
+    /// &lt;returns>IUserManager with configuration from the configuration file&lt;/returns>
+    public IUserManager Get()
+    {
+        return _instance ?? Get(UserConfigurationSection.GetSection());
+    }
+
+    private IUserManager Get(UserConfigurationSection config)
+    {
+        return _instance ?? (_instance = Create(config));
+    }
+
+    /// &lt;summary>
+    /// For testing purposes only!
+    /// &lt;/summary>
+    /// &lt;param name="userManager">&lt;/param>
+    public void Set(IUserManager userManager)
+    {
+        _instance = userManager;
+    }
+}
+</code></pre><br/>
+<h4>Подмена фабрики</h4>Вы можете подменить всю фабрику целиком. Это потребует выделение интерфейса или создание виртуальной функции, создание объектов. После этого вы сможете переопределить фабричные методы так, чтобы они возвращали ваши подделки.<br/>
+<br/>
+<h4>Переопределение локального фабричного метода</h4>Если зависимости инстанцируются прямо в коде явным образом, то самый простой путь – выделить фабричный protected-метод CreateObjectName() и переопределить его в классе-наследнике. После этого тестируйте класс-наследник, а не ваш первоначально тестируемый класс.<br/>
+Например, мы решили написать расширяемый калькулятор (со сложными действиями) и начали выделять новый слой абстракции.<br/>
+<br/>
+<pre><code class="plaintext">public class Calculator
+{
+    public double Multipy(double a, double b)
+    {
+        var multiplier = new Multiplier();
+        return multiplier.Execute(a, b);
+    }
+}
+
+public interface IArithmetic
+{
+    double Execute(double a, double b);
+}
+
+public class Multiplier : IArithmetic
+{
+    public double Execute(double a, double b)
+    {
+        return a * b;
+    }
+}
+</code></pre><br/>
+Мы не хотим тестировать класс <i>Multiplier</i>, для него будет отдельный тест. Перепишем код так:<br/>
+<br/>
+<pre><code class="plaintext">public class Calculator
+{
+    public double Multipy(double a, double b)
+    {
+        var multiplier = CreateMultiplier();
+        return multiplier.Execute(a, b);
+    }
+
+    protected virtual IArithmetic CreateMultiplier()
+    {
+        var multiplier = new Multiplier();
+        return multiplier;
+    }
+}
+
+public class CalculatorUnderTest : Calculator
+{
+    protected override IArithmetic CreateMultiplier()
+    {
+        return new FakeMultiplier();
+    }
+}
+
+public class FakeMultiplier : IArithmetic
+{
+    public double Execute(double a, double b)
+    {
+        return 5;
+    }
+}
+</code></pre><br/>
+Код намеренно упрощен, чтобы акцентировать внимание именно на иллюстрации способа. В реальной жизни вместо калькулятора, скорее всего, будут DataProvider’ы, UserManager’ы и другие сущности с гораздо более сложной логикой.<br/>
+<br/>
+<h4>Тестируемая архитектура VS OOP</h4>Многие разработчики начинают жаловаться, дескать «этот ваш тестируемый дизайн» нарушает инкапсуляцию, открывает слишком много. Я думаю, что существует только две причины, когда это может вас беспокоить:<br/>
+<br/>
+<h5>Серьезные требования к безопасности</h5>Это значит, что у вас серьезная криптография, бинарники упакованы, и все обвешано сертификатами.<br/>
+Даже если так, скорее всего, вы сможете найти компромиссное решение. Например, в .NET вы можете использовать internal-методы и атрибут <a href="http://msdn.microsoft.com/ru-ru/library/system.runtime.compilerservices.internalsvisibletoattribute.aspx" rel="nofollow noopener noreferrer">[InternalsVisibleTo]</a>, чтобы дать доступ к тестируемым методам из ваших тестовых сборок.<br/>
+<br/>
+<h5>Производительность</h5>Существует ряд задач, когда архитектурой приходится жертвовать в угоду производительности, и для кого-то это становится поводом отказаться от тестирования. В моей практике докинуть сервер/проапгрейдить железо всегда было дешевле, чем писать нетестируемый код. Если у вас есть критический участок, вероятно, стоит переписать его на более низком уровне. Ваше приложение на C#? Возможно, есть смысл собрать одну неуправляемую сборку на С++.<br/>
+<br/>
+Вот несколько принципов, которые помогают писать тестируемый код:<br/>
+<ul>
+<li>Мыслите интерфейсами, а не классами, тогда вы всегда сможете легко подменять настоящие реализации подделками в тестовом коде</li>
+<li>Избегайте прямого инстанцирования объектов внутри методов с логикой. Используйте фабрики или <i>dependency injection</i>. В этом случае использование IOC-контейнера в проекте может сильно упростить вам работу.</li>
+<li>Избегайте прямого вызова статических методов</li>
+<li>Избегайте конструкторов, которые содержат логику: вам сложно будет это протестировать.</li>
+</ul><br/>
+<br/>
+<h2>Работа с унаследованным кодом</h2>Под «унаследованным» мы будем понимать код без тестов. Качество такого кода может быть разным. Несколько советов, как можно покрыть его тестами.<br/>
+<br/>
+<h3>Архитектура тестируема</h3>Нам повезло, прямых созданий классов и мясорубки нет, а принципы SOLID соблюдаются. Нет ничего проще – создаем тестовые проекты, и шаг за шагом покрываем приложение, используя принципы, описанные в статье. В крайнем случае, нам придется добавить пару сеттеров для фабрик и выделить несколько интерфейсов.<br/>
+<br/>
+<h3>Архитектура не тестируема</h3>У нас есть жесткие связи, костыли и прочие радости жизни. Нам предстоит рефакторинг. Как правильно проводить комплексный рефакторинг – тема, выходящая далеко за рамки этой статьи.<br/>
+Стоит выделить основное правило. Если вы не меняете интерфейсов – все просто, методика идентична. А вот если вы задумали большие перемены, следует составить граф зависимостей и разбить ваш код на отдельные более мелкие подсистемы (надеюсь, что это возможно). В идеале должно получиться примерно так: ядро, модуль #1, модуль #2 и т.д.<br/>
+После этого выберите жертву. Только не начинайте с ядра. Возьмите сначала что-то поменьше: то, что вы способны отрефакторить за разумное время. Покрывайте эту подсистему интеграционными и/или приемочными тестами. А когда закончите, сможете покрыть эту часть юнит-тестами. Рано или поздно, шаг за шагом, вы должны преуспеть.<br/>
+Будьте готовы, что сделать это быстро <s>скорее всего</s> не получится. Вам придется проявить волевые качества.<br/>
+<br/>
+<h2>Поддержка тестов</h2><br/>
+<img src="https://habrastorage.org/r/w1560/storage2/b51/49e/b95/b5149eb9594de7513ca2c79e1d1a0f41.png" data-src="https://habrastorage.org/storage2/b51/49e/b95/b5149eb9594de7513ca2c79e1d1a0f41.png"/><br/>
+<br/>
+Не относитесь к своим тестам как к второсортному коду. Многие начинающие разработчики ошибочно полагают, что DRY, KISS и все остальное – это для продакшна. А в тестах допустимо все. <b>Это не верно. Тесты – такой-же код.</b> Разница только в том, что у тестов другая цель – обеспечить качество вашего приложения. Все принципы, применямые в разработке продакшн-кода могут и должны применяться при написании тестов.<br/>
+Есть всего три причины, почему тест перестал проходить:<br/>
+<br/>
+<ol>
+<li>Ошибка в продакшн-коде: это баг, его нужно завести в баг-трекере и починить.</li>
+<li>Баг в тесте: видимо, продакшн-код изменился, а тест написан с ошибкой (например, тестирует слишком много или не то, что было нужно). Возможно, что раньше он проходил ошибочно. Разберитесь и почините тест.</li>
+<li>Смена требований. Если требования изменились слишком сильно – тест должен упасть. Это правильно и нормально. Вам нужно разобраться с новыми требованиями и исправить тест. Или удалить, если он больше не актуален.</li>
+</ol><br/>
+<br/>
+Уделяйте внимание поддержке ваших тестов, чините их вовремя, удаляйте дубликаты, выделяйте базовые классы и развивайте API тестов. Можно завести шаблонные базовые тестовые классы, которые обязывают реализовать набор тестов (например CRUD). Если делать это регулярно, то вскоре это не будет занимать много времени.<br/>
+<br/>
+<h2>Как «измерить» прогресс</h2>Для измерения успешности внедрения юнит-тестов в вашем проекте следует использовать две метрики:<br/>
+<br/>
+<ol>
+<li>Количество багов в новых релизах (в т.ч. и регрессии)</li>
+<li>Покрытие кода</li>
+</ol><br/>
+<br/>
+Первая показывает, есть ли у наших действий результат, или мы впустую расходуем время, которое могли бы потратить на фичи. Вторая – как много нам еще предстоит сделать. <br/>
+<br/>
+Наиболее популярные тулзы для измерения покрытия кода на .NET платформе это:<br/>
+<ul>
+<li>NCover</li>
+<li>dotTrace</li>
+<li>встроенный в студию Test Coverage</li>
+</ul><br/>
+<br/>
+<h2>Test First?</h2><br/>
+<img src="https://habrastorage.org/r/w1560/storage2/a4f/4a2/11e/a4f4a211e0a89c703b0741ed55d56f65.png" data-src="https://habrastorage.org/storage2/a4f/4a2/11e/a4f4a211e0a89c703b0741ed55d56f65.png"/><br/>
+<br/>
+Я умышленно не касался этой темы до самого конца. С моей точки зрения Test First – хорошая практика, обладающая рядом неоспоримых преимуществ. Однако, по тем или иным причинам, иногда я отступаю от этого правила и пишу тесты после того, как готов код.<br/>
+<br/>
+На мой взгляд, «как писать тесты» гораздо важнее, чем «когда это делать». Делайте, как вам удобно, но не забывайте: если вы начинаете с тестов, то получаете архитектуру «в придачу». Если вы сначала пишете код, вам возможно, придется его менять, чтобы сделать тестируемым.<br/>
+<br/>
+<h2>Почитать на тему</h2>Отличную подборку ссылок и книг по теме можно найти в <a href="http://habrahabr.ru/post/136049/" rel="nofollow noopener noreferrer">этой статье на Хабре</a>. Особенно рекомендую книгу The Art of Unit Testing. Я читал первое издание. Оказывается, вышло уже и второе.</h4></h4></h4></h4></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Btdd%5D" class="tm-tags-list__link">tdd</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bunit-testing%5D" class="tm-tags-list__link">unit-testing</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D1%8C%D0%BD%D0%BE%D0%B5%20%D1%82%D0%B5%D1%81%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%5D" class="tm-tags-list__link">модульное тестирование</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B0%5D" class="tm-tags-list__link">разработка</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%82%D0%B5%D1%81%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%5D" class="tm-tags-list__link">тестирование</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B.net%5D" class="tm-tags-list__link">.net</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/it_testing/" class="tm-hubs-list__link">
+    Тестирование IT-систем
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 70: ↑63 и ↓7</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 70: ↑63 и ↓7" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+56</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">844K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    2050
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/marshinov/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/f33/8f7/4c7/f338f74c736571017d86fe79fcaa1965.png" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 275 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    179
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0.2</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Максим Аршинов</span> <a href="https://habr.com/ru/users/marshinov/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @marshinov
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Предприниматель, спикер, преподаватель</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/169381/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 65 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner4156" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner4157" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/testirovshik_programmnogo_obespecheniya" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Тестировщик программного обеспечения
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        127
+    вакансий
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/169381/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/169381/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"169381":{"id":"169381","timePublished":"2013-02-14T08:23:09+00:00","isCorporative":false,"lang":"ru","titleHtml":"Юнит-тестирование для чайников","leadData":{"textHtml":"Даже если вы никогда в жизни не думали, что занимаетесь тестированием, вы это делаете. Вы собираете свое приложение, нажимаете кнопку и проверяете, соответствует ли полученный результат вашим ожиданиям. Достаточно часто в приложении можно встретить формочки с кнопкой “Test it” или классы с названием \u003Ci\u003ETestController\u003C\u002Fi\u003E или \u003Ci\u003EMyServiceTestClient\u003C\u002Fi\u003E.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fstorage2\u002F6da\u002F5c9\u002Ff6d\u002F6da5c9f6d05c82a919b8cdcfa00e0b9b.png\"\u003E\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nТо что вы делаете, называется \u003Ci\u003Eинтеграционным тестированием\u003C\u002Fi\u003E. Современные приложения достаточно сложны и содержат множество зависимостей. Интеграционное тестирование проверяет, что несколько компонентов системы работают вместе правильно. \u003Cbr\u003E\r\n\u003Cbr\u003E\r\nОно выполняет свою задачу, но сложно для автоматизации. Как правило, тесты требуют, чтобы вся или почти вся система была развернута и сконфигурирована на машине, на которой они выполняются. Предположим, что вы разрабатываете web-приложение с UI и веб-сервисами. Минимальная комплектация, которая вам потребуется: браузер, веб-сервер, правильно настроенные веб-сервисы и база данных. На практике все еще сложнее. Разворачивать всё это на билд-сервере и всех машинах разработчиков?\u003Cbr\u003E\r\n\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"We need to go deeper","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"tutorial","data":null}],"author":{"scoreStats":{"score":179,"votesCount":275},"rating":0.2,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"154299","alias":"marshinov","fullname":"Максим Аршинов","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002Ff33\u002F8f7\u002F4c7\u002Ff338f74c736571017d86fe79fcaa1965.png","speciality":"Предприниматель, спикер, преподаватель"},"statistics":{"commentsCount":65,"favoritesCount":2050,"readingCount":843695,"score":56,"votesCount":70},"hubs":[{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"210","alias":"it_testing","type":"collective","title":"Тестирование IT-систем","titleHtml":"Тестирование IT-систем","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EДаже если вы никогда в жизни не думали, что занимаетесь тестированием, вы это делаете. Вы собираете свое приложение, нажимаете кнопку и проверяете, соответствует ли полученный результат вашим ожиданиям. Достаточно часто в приложении можно встретить формочки с кнопкой “Test it” или классы с названием \u003Ci\u003ETestController\u003C\u002Fi\u003E или \u003Ci\u003EMyServiceTestClient\u003C\u002Fi\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fstorage2\u002F6da\u002F5c9\u002Ff6d\u002F6da5c9f6d05c82a919b8cdcfa00e0b9b.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fstorage2\u002F6da\u002F5c9\u002Ff6d\u002F6da5c9f6d05c82a919b8cdcfa00e0b9b.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТо что вы делаете, называется \u003Ci\u003Eинтеграционным тестированием\u003C\u002Fi\u003E. Современные приложения достаточно сложны и содержат множество зависимостей. Интеграционное тестирование проверяет, что несколько компонентов системы работают вместе правильно. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОно выполняет свою задачу, но сложно для автоматизации. Как правило, тесты требуют, чтобы вся или почти вся система была развернута и сконфигурирована на машине, на которой они выполняются. Предположим, что вы разрабатываете web-приложение с UI и веб-сервисами. Минимальная комплектация, которая вам потребуется: браузер, веб-сервер, правильно настроенные веб-сервисы и база данных. На практике все еще сложнее. Разворачивать всё это на билд-сервере и всех машинах разработчиков?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Ch2\u003EWe need to go deeper\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fstorage2\u002F5c0\u002F1c5\u002F99f\u002F5c01c599f95b6ee0edf77494908860a9.jpg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fstorage2\u002F5c0\u002F1c5\u002F99f\u002F5c01c599f95b6ee0edf77494908860a9.jpg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\nДавайте сначала спустимся на предыдущий уровень и убедимся, что наши компоненты работают правильно по-отдельности.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОбратимся к википедии:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cb\u003EМодульное тестирование\u003C\u002Fb\u003E, или \u003Cb\u003Eюнит-тестирование\u003C\u002Fb\u003E (англ. unit testing) — процесс в программировании, позволяющий проверить на корректность отдельные модули исходного кода программы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИдея состоит в том, чтобы писать тесты для каждой нетривиальной функции или метода. Это позволяет достаточно быстро проверить, не привело ли очередное изменение кода к регрессии, то есть к появлению ошибок в уже оттестированных местах программы, а также облегчает обнаружение и устранение таких ошибок.\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fstorage2\u002Fec3\u002F825\u002Fc7f\u002Fec3825c7f0710f9fed6814c89b794ded.jpg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fstorage2\u002Fec3\u002F825\u002Fc7f\u002Fec3825c7f0710f9fed6814c89b794ded.jpg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТаким образом, юнит-тестирование – это первый бастион на борьбе с багами. За ним еще интеграционное, приемочное и, наконец, ручное тестирование, в том числе «свободный поиск».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНужно ли все это вам? С моей точки зрения ответ: «не всегда». \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EНе нужно писать тесты, если\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EВы делаете простой сайт-визитку из 5 статических html-страниц и с одной формой отправки письма. На этом заказчик, скорее всего, успокоится, ничего большего ему не нужно. Здесь нет никакой особенной логики, быстрее просто все проверить «руками»\u003C\u002Fli\u003E\r\n\u003Cli\u003EВы занимаетесь рекламным сайтом\u002Fпростыми флеш-играми или баннерами – сложная верстка\u002Fанимация или большой объем статики. Никакой логики нет, только представление\u003C\u002Fli\u003E\r\n\u003Cli\u003EВы делаете проект для выставки. Срок – от двух недель до месяца, ваша система – комбинация железа и софта, в начале проекта не до конца известно, что именно должно получиться в конце. Софт будет работать 1-2 дня на выставке\u003C\u002Fli\u003E\r\n\u003Cli\u003EВы всегда пишете код без ошибок, обладаете идеальной памятью и даром предвидения. Ваш код настолько крут, что изменяет себя сам, вслед за требованиями клиента. Иногда код объясняет клиенту, что его требования — \u003Cs\u003Eгов\u003C\u002Fs\u003E не нужно реализовывать\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ первых трех случаях по объективным причинам (сжатые сроки, бюджеты, размытые цели или очень простые требования) вы не получите выигрыша от написания тестов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоследний случай рассмотрим отдельно. Я знаю только одного такого человека, и если вы не узнали себя на фото ниже, то у меня для вас плохие новости.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fstorage2\u002F635\u002F68c\u002F356\u002F63568c35676c4d929422ec8e42dd3563.jpg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fstorage2\u002F635\u002F68c\u002F356\u002F63568c35676c4d929422ec8e42dd3563.jpg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EЛюбой долгосрочный проект без надлежащего покрытия тестами обречен рано или поздно быть переписанным с нуля\u003C\u002Fh2\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fstorage2\u002Fee9\u002Fab0\u002F40f\u002Fee9ab040f988cde943d001c819e8c08c.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fstorage2\u002Fee9\u002Fab0\u002F40f\u002Fee9ab040f988cde943d001c819e8c08c.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ своей практике я много раз встречался с проектами старше года. Они делятся на три категории:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cb\u003EБез покрытия тестами. \u003C\u002Fb\u003E Обычно такие системы сопровождаются спагетти-кодом и уволившимися ведущими разработчиками. Никто в компании не знает, как именно все это работает. Да и что оно в конечном итоге должно делать, сотрудники представляют весьма отдаленно.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EС тестами, которые никто не запускает и не поддерживает. \u003C\u002Fb\u003E Тесты в системе есть, но что они тестируют, и какой от них ожидается результат, неизвестно. Ситуация уже лучше. Присутствует какая-никакая архитектура, есть понимание, что такое слабая связанность. Можно отыскать некоторые документы. Скорее всего, в компании еще работает главный разработчик системы, который держит в голове особенности и хитросплетения кода.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EС серьезным покрытием. Все тесты проходят.\u003C\u002Fb\u003E Если тесты в проекте действительно запускаются, то их много. Гораздо больше, чем в системах из предыдущей группы. И теперь каждый из них – атомарный: один тест проверяет только одну вещь. Тест является спецификацией метода класса, контрактом: какие входные параметры ожидает этот метод, и что остальные компоненты системы ждут от него на выходе. Таких систем гораздо меньше. В них присутствует актуальная спецификация. Текста немного: обычно пара страниц, с описанием основных фич, схем серверов и \u003Ci\u003Egetting started guide’ом\u003C\u002Fi\u003E. В этом случае проект не зависит от людей. Разработчики могут приходить и уходить. Система надежно протестирована и сама рассказывает о себе путем тестов.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПроекты первого типа – крепкий орешек, с ними работать тяжелее всего. Обычно их рефакторинг по стоимости равен или превышает переписывание с нуля.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EПочему есть проекты второго типа?\u003C\u002Fh2\u003EКоллеги из \u003Ci\u003EScrumTrek\u003C\u002Fi\u003E уверяют, что всему виной темная сторона кода и властелин \u003Ca href=\"http:\u002F\u002Fhabrahabr.ru\u002Fcompany\u002Fscrumtrek\u002Fblog\u002F168485\u002F\" rel=\"nofollow noopener noreferrer\"\u003EДарт Автотестиус\u003C\u002Fa\u003E. Я убежден, что это очень близко к правде. Бездумное написание тестов \u003Cb\u003Eне только не помогает, но вредит проекту\u003C\u002Fb\u003E. Если раньше у вас был один некачественный продукт, то написав тесты, не разобравшись в этой теме, вы получите два. И удвоенное время на сопровождение и поддержку.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля того чтобы темная сторона кода не взяла верх, нужно придерживаться \u003Cb\u003Eследующих основных правил\u003C\u002Fb\u003E. \u003Cbr\u002F\u003E\r\nВаши тесты должны:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EБыть достоверными\u003C\u002Fli\u003E\r\n\u003Cli\u003EНе зависеть от окружения, на котором они выполняются\u003C\u002Fli\u003E\r\n\u003Cli\u003EЛегко поддерживаться\u003C\u002Fli\u003E\r\n\u003Cli\u003EЛегко читаться и быть простыми для понимания (даже новый разработчик должен понять \u003Cb\u003Eчто именно\u003C\u002Fb\u003E тестируется)\u003C\u002Fli\u003E\r\n\u003Cli\u003EСоблюдать единую конвенцию именования\u003C\u002Fli\u003E\r\n\u003Cli\u003EЗапускаться регулярно в автоматическом режиме\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nЧтобы достичь выполнения этих пунктов, нужны терпение и воля. Но давайте по порядку.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EВыберите логическое расположение тестов в вашей VCS\u003C\u002Fh3\u003EТолько так. Ваши тесты должны быть частью контроля версий. В зависимости от типа вашего решения, они могут быть организованы по-разному. Общая рекомендация: если приложение монолитное, положите все тесты в папку Tests; если у вас много разных компонентов, храните тесты в папке каждого компонента. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EВыберите способ именования проектов с тестами\u003C\u002Fh3\u003EОдна из лучших практик: добавьте к каждому проекту его собственный тестовый проект.\u003Cbr\u002F\u003E\r\nУ вас есть части системы &lt;PROJECT_NAME\u003E.Core, &lt;PROJECT_NAME\u003E.Bl и &lt;PROJECT_NAME\u003E.Web? Добавьте еще &lt;PROJECT_NAME\u003E.Core.Tests, &lt;PROJECT_NAME\u003E.Bl.Tests и &lt;PROJECT_NAME\u003E.Web.Tests. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУ такого способа именования есть дополнительный сайд-эффект. Вы сможете использовать паттерн *.Tests.dll для запуска тестов на билд-сервере.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EИспользуйте такой же способ именования для тестовых классов\u003C\u002Fh3\u003EУ вас есть класс ProblemResolver? Добавьте в тестовый проект ProblemResolverTests. Каждый тестирующий класс должен тестировать только одну сущность. Иначе вы очень быстро скатитесь \u003Cs\u003Eв унылое го\u003C\u002Fs\u003E во второй тип проектов (с тестами, которые никто не запускает).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EВыберите «говорящий» способ именования методов тестирующих классов\u003C\u002Fh3\u003E\u003Ci\u003ETestLogin\u003C\u002Fi\u003E – не самое лучшее название метода. Что именно тестируется? Каковы входные параметры? Могут ли возникать ошибки и исключительные ситуации?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа мой взгляд, лучший способ именования методов такой: \u003Ci\u003E[Тестируемый метод]_[Сценарий]_[Ожидаемое поведение]\u003C\u002Fi\u003E.\u003Cbr\u002F\u003E\r\nПредположим, что у нас есть класс Calculator, а у него есть метод Sum, который (привет, Кэп!) должен складывать два числа.\u003Cbr\u002F\u003E\r\nВ этом случае наш тестирующий класс будет выглядеть так:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Eсlass CalculatorTests\n{\n        public void Sum_2Plus5_7Returned()\n        {\n \t    \u002F\u002F …\n        }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТакая запись понятна без объяснений. Это спецификация к вашему коду.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EВыберите тестовый фреймворк, который подходит вам\u003C\u002Fh3\u003EВне зависимости от платформы не стоит писать велосипеды. Я видел много проектов, в которых автоматические тесты (в основном, не юнит, а приемочные) запускались из консольного приложения. Не надо этого делать, все уже сделано за вас.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУделите чуть больше внимания обзору фреймворков. Например, многие .NET разработчики используют MsTest только потому, что он входит в поставку студии. Мне гораздо больше по душе NUnit. Он не создает лишних папок с результатами тестов и имеет поддержку параметризированного тестирования. Я могу так же легко запускать мои тесты на NUnit с помощью Решарпера. Кому-то понравится элегантность xUnit’а: конструктор вместо атрибутов инициализации, реализация IDisposable как TearDown.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EЧто тестировать, а что – нет?\u003C\u002Fh3\u003EОдни говорят о необходимости покрытия кода на 100%, другие считают это лишней тратой ресурсов.\u003Cbr\u002F\u003E\r\nМне нравится такой подход: расчертите лист бумаги по оси X и Y, где X – алгоритмическая сложность, а Y – количество зависимостей. Ваш код можно разделить на 4 группы. \u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fstorage2\u002F177\u002Fea7\u002Fe55\u002F177ea7e5529adfb647db334db0e83cb0.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fstorage2\u002F177\u002Fea7\u002Fe55\u002F177ea7e5529adfb647db334db0e83cb0.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРассмотрим сначала экстремальные случаи: простой код без зависимостей и сложный код с большим количеством зависимостей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E\u003Cb\u003EПростой код без зависимостей.\u003C\u002Fb\u003E Скорее всего здесь и так все ясно. Его можно не тестировать.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EСложный код с большим количеством зависимостей.\u003C\u002Fb\u003E Хм, если у вас есть такой код, тут пахнет God Object’ом и сильной связностью. Скорее всего, неплохо будет провести рефакторинг. Мы не станем покрывать этот код юнит-тестами, потому что перепишем его, а значит, у нас изменятся сигнатуры методов и появятся новые классы. Так зачем писать тесты, которые придется выбросить? Хочу оговориться, что для проведения такого рода рефакторинга нам все же нужно тестирование, но лучше воспользоваться более высокоуровневыми \u003Ci\u003Eприемочными тестами\u003C\u002Fi\u003E. Мы рассмотрим этот случай отдельно.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nЧто у нас остается:\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003E\u003Cb\u003ECложный код без зависимостей.\u003C\u002Fb\u003E Это некие алгоритмы или бизнес-логика. Отлично, это важные части системы, тестируем их.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cb\u003EНе очень сложный код с зависимостями.\u003C\u002Fb\u003E Этот код связывает между собой разные компоненты. Тесты важны, чтобы уточнить, как именно должно происходить взаимодействие. Причина потери Mars Climate Orbiter 23 сентября 1999 года заключалась в программно-человеческой ошибке: одно подразделение проекта считало «в дюймах», а другое – «в метрах», и прояснили это уже после потери аппарата. Результат мог быть другим, если бы команды протестировали «швы» приложения.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca name=\"aaa\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EПридерживайтесь единого стиля написания тела теста\u003C\u002Fh3\u003EОтлично зарекомендовал себя подход AAA \u003Ci\u003E(arrange, act, assert) \u003C\u002Fi\u003E. Вернемся к примеру с калькулятором:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Eclass CalculatorTests\n{\n\tpublic void Sum_2Plus5_7Returned()\n\t{\n\t\t\u002F\u002F arrange\n\t\tvar calc = new Calculator();\n\t\n\t\t\u002F\u002F act\n\t\tvar res = calc.Sum(2,5);\n\n\t\t\u002F\u002F assert\n\t\tAssert.AreEqual(7, res);\t\n\t}\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТакая форма записи гораздо легче читается, чем\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Eclass CalculatorTests\n{\n\tpublic void Sum_2Plus5_7Returned()\n\t{\n\t\tAssert.AreEqual(7, new Calculator().sum(2,5));\t\n\t}\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nА значит, этот код проще поддерживать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EТестируйте одну вещь за один раз\u003C\u002Fh3\u003E\u003Cb\u003EКаждый тест должен проверять только одну вещь.\u003C\u002Fb\u003E Если процесс слишком сложен (например, покупка в интернет магазине), разделите его на несколько частей и протестируйте их отдельно.\u003Cbr\u002F\u003E\r\nЕсли вы не будете придерживаться этого правила, ваши тесты станут нечитаемыми, и вскоре вам окажется очень сложно их поддерживать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EБорьба с зависимостями\u003C\u002Fh3\u003EДо сих пор мы тестировали калькулятор. У него совсем нет зависимостей. В современных бизнес-приложениях количество таких классов, к сожалению, мало.\u003Cbr\u002F\u003E\r\nРассмотрим такой пример.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Epublic class AccountManagementController : BaseAdministrationController\n{\n\t#region Vars\n\n\tprivate readonly IOrderManager _orderManager;\n        private readonly IAccountData _accountData;\n        private readonly IUserManager _userManager;\n        private readonly FilterParam _disabledAccountsFilter;\n\n        #endregion\n\n        public AccountManagementController()\n        {\n            _oms = OrderManagerFactory.GetOrderManager();\n            _accountData = _ orderManager.GetComponent&lt;IAccountData\u003E();\n            _userManager = UserManagerFactory.Get();\n            _disabledAccountsFilter = new FilterParam(\"Enabled\", Expression.Eq, true);\n        }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nФабрика в этом примере берет данные о конкретной реализации \u003Ci\u003EAccountData\u003C\u002Fi\u003E из файла конфигурации, что нас абсолютно не устраивает. Мы же не хотим поддерживать зоопарк файлов *.config. Более того, настоящие реализации могут зависеть от базы данных. Если мы продолжим в том же духе, то перестанем тестировать только методы контроллера и начнем вместе с ними тестировать другие компоненты системы. Как мы помним, это называется \u003Ci\u003Eинтеграционным тестированием\u003C\u002Fi\u003E.\u003Cbr\u002F\u003E\r\nЧтобы не тестировать все вместе, мы подсунем фальшивую реализацию \u003Ci\u003E(fake)\u003C\u002Fi\u003E.\u003Cbr\u002F\u003E\r\nПерепишем наш класс так:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Epublic class AccountManagementController : BaseAdministrationController\n{\n        #region Vars\n\n        private readonly IOrderManager _oms;\n        private readonly IAccountData _accountData;\n        private readonly IUserManager _userManager;\n        private readonly FilterParam _disabledAccountsFilter;\n\n        #endregion\n\n        public AccountManagementController()\n        {\n            _oms = OrderManagerFactory.GetOrderManager();\n            _accountData = _oms.GetComponent&lt;IAccountData\u003E();\n            _userManager = UserManagerFactory.Get();\n            _disabledAccountsFilter = new FilterParam(\"Enabled\", Expression.Eq, true);\n        }\n\n        \u002F\u002F\u002F &lt;summary\u003E\n        \u002F\u002F\u002F For testability\n        \u002F\u002F\u002F &lt;\u002Fsummary\u003E\n        \u002F\u002F\u002F &lt;param name=\"accountData\"\u003E&lt;\u002Fparam\u003E\n        \u002F\u002F\u002F &lt;param name=\"userManager\"\u003E&lt;\u002Fparam\u003E\n        public AccountManagementController(\n            IAccountData accountData,\n            IUserManager userManager)\n        {\n            _accountData = accountData;\n            _userManager = userManager;\n            _disabledAccountsFilter = new FilterParam(\"Enabled\", Expression.Eq, true);\n        }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТеперь у контроллера появилась новая точка входа, и мы можем передать туда другие реализации интерфейсов. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EFakes: stubs &amp; mocks\u003C\u002Fh3\u003EМы переписали класс и теперь можем подсунуть контроллеру другие реализации зависимостей, которые не станут лезть в базу, смотреть конфиги и т.д. Словом, будут делать только то, что от них требуется. Разделяем и властвуем. Настоящие реализации мы должны протестировать отдельно в своих собственных тестовых классах. Сейчас мы тестируем только контроллер.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EВыделяют два типа подделок: стабы (stubs) и моки (mock).\u003C\u002Fb\u003E\u003Cbr\u002F\u003E\r\nЧасто эти понятия путают. Разница в том, что стаб ничего не проверяет, а лишь имитирует заданное состояние. А мок – это объект, у которого есть ожидания. Например, что данный метод класса должен быть вызван определенное число раз. Иными словами, ваш тест никогда не сломается из-за «стаба», а вот из-за мока может.\u003Cbr\u002F\u003E\r\nС технической точки зрения это значит, что используя стабы в Assert мы проверяем состояние тестируемого класса или результат выполненного метода. При использовании мока мы проверяем, соответствуют ли ожидания мока поведению тестируемого класса.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСтаб\u003Ch4\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fstorage2\u002F95a\u002F409\u002F842\u002F95a40984251f9529238b2e48c61e79f2.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fstorage2\u002F95a\u002F409\u002F842\u002F95a40984251f9529238b2e48c61e79f2.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E[Test]\npublic void LogIn_ExisingUser_HashReturned()\n{\n\t\u002F\u002F Arrange\n\tOrderProcessor = Mock.Of&lt;IOrderProcessor\u003E();\n\tOrderData = Mock.Of&lt;IOrderData\u003E();\n\tLayoutManager = Mock.Of&lt;ILayoutManager\u003E();\n\tNewsProvider = Mock.Of&lt;INewsProvider\u003E();\n\n\tService = new IosService(\n\t\tUserManager,\n\t\tAccountData,\n\t\tOrderProcessor,\n\t\tOrderData,\n\t\tLayoutManager,\n\t\tNewsProvider);\n\t\n\t\u002F\u002F Act\n\tvar hash = Service.LogIn(\"ValidUser\", \"Password\");\n\n\t\u002F\u002F Assert\n\tAssert.That(!string.IsNullOrEmpty(hash));\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EМок\u003Ch4\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fstorage2\u002F92d\u002Fadd\u002F11c\u002F92dadd11ca7c689b6cc19e1f040c1888.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fstorage2\u002F92d\u002Fadd\u002F11c\u002F92dadd11ca7c689b6cc19e1f040c1888.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003E[Test]\npublic void Create_AddAccountToSpecificUser_AccountCreatedAndAddedToUser()\n{\n    \u002F\u002F Arrange\n    var account = Mock.Of&lt;AccountViewModel\u003E();\n            \n    \u002F\u002F Act\n    _controller.Create(1, account);\n\n    \u002F\u002F Assert\n    _accountData.Verify(m =\u003E m.CreateAccount(It.IsAny&lt;IAccount\u003E()), Times.Exactly(1));\n    _accountData.Verify(m =\u003E m.AddAccountToUser(It.IsAny&lt;int\u003E(), It.IsAny&lt;int\u003E()), Times.Once());\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EТестирование состояния и тестирование поведения\u003C\u002Fh3\u003EПочему важно понимать, казалось бы, незначительную разницу между моками и стабами? Давайте представим, что нам нужно протестировать автоматическую систему полива. Можно подойти к этой задаче двумя способами:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EТестирование состояния\u003C\u002Fh4\u003EЗапускаем цикл (12 часов). И через 12 часов проверяем, хорошо ли политы растения, достаточно ли воды, каково состояние почвы и т.д.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EТестирование взаимодействия\u003C\u002Fh4\u003EУстановим датчики, которые будут засекать, когда полив начался и закончился, и сколько воды поступило из системы.\u003Cbr\u002F\u003E\r\nСтабы используются при тестировании состояния, а моки – взаимодействия. \u003Cb\u003EЛучше использовать не более одного мока на тест\u003C\u002Fb\u003E. Иначе с высокой вероятностью вы нарушите принцип «тестировать только одну вещь». При этом в одном тесте может быть сколько угодно стабов или же мок и стабы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EИзоляционные фреймвоки\u003C\u002Fh3\u003EМы могли бы реализовывать моки и стабы самостоятельно, но есть несколько причин, почему я не советую делать это:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EВелосипеды уже написаны до нас\u003C\u002Fli\u003E\r\n\u003Cli\u003EМногие интерфейсы не так просто реализовать с полпинка\u003C\u002Fli\u003E\r\n\u003Cli\u003EНаши самописные подделки могут содержать ошибки\u003C\u002Fli\u003E\r\n\u003Cli\u003EЭто дополнительный код, который придется поддерживать\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ примере выше я использовал фреймворк \u003Ca href=\"http:\u002F\u002Fcode.google.com\u002Fp\u002Fmoq\u002F\" rel=\"nofollow noopener noreferrer\"\u003EMoq\u003C\u002Fa\u003E для создания моков и стабов. Довольно распространен фреймворк \u003Ca href=\"http:\u002F\u002Fwww.hibernatingrhinos.com\u002Foss\u002Frhino-mocks\" rel=\"nofollow noopener noreferrer\"\u003ERhino Mocks\u003C\u002Fa\u003E. Оба фреймворка — бесплатные. На мой взгляд, они практически эквивалентны, но Moq субъективно удобнее. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа рынке есть также два коммерческих фреймворка: \u003Ci\u003ETypeMock Isolator\u003C\u002Fi\u003E и \u003Ci\u003EMicrosoft Moles\u003C\u002Fi\u003E. На мой взгляд они обладают чрезмерными возможностями подменять невиртуальные и статические методы. Хотя при работе с унаследованным кодом это и может быть полезно, ниже я опишу, почему все-таки не советую заниматься подобными вещами.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nШоукейсы перечисленных изоляционных фреймворков можно посмотреть \u003Ca href=\"http:\u002F\u002Fcode.google.com\u002Fp\u002Fmocking-frameworks-compare\u002F\" rel=\"nofollow noopener noreferrer\"\u003Eтут\u003C\u002Fa\u003E. А информацию по техническим аспектам работы с ними легко найти на Хабре.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EТестируемая архитектура\u003C\u002Fh3\u003EВернемся к примеру с контроллером.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Epublic AccountManagementController(\n    IAccountData accountData,\n    IUserManager userManager)\n{\n    _accountData = accountData;\n    _userManager = userManager;\n    _disabledAccountsFilter = new FilterParam(\"Enabled\", Expression.Eq, true);\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗдесь мы отделались «малой кровью». К сожалению, не всегда все бывает так просто. Давайте рассмотрим основные случаи, как мы можем внедрить зависимости:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EИнъекция в конструктор\u003C\u002Fh4\u003EДобавляем дополнительный конструктор или заменяем текущий (зависит от того, как вы создаете объекты в вашем приложении, используете ли IOC-контейнер). Этим подходом мы воспользовались в примере выше.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EИнъекция в фабрику\u003C\u002Fh4\u003ESetter можно дополнительно «спрятать» от основного приложения, если выделить интерфейс IUserManagerFactory и работать в продакшн-коде по интерфейсной ссылке.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Epublic class UserManagerFactory\n{\n    private IUserManager _instance;\n\n    \u002F\u002F\u002F &lt;summary\u003E\n    \u002F\u002F\u002F Get UserManager instance\n    \u002F\u002F\u002F &lt;\u002Fsummary\u003E\n    \u002F\u002F\u002F &lt;returns\u003EIUserManager with configuration from the configuration file&lt;\u002Freturns\u003E\n    public IUserManager Get()\n    {\n        return _instance ?? Get(UserConfigurationSection.GetSection());\n    }\n\n    private IUserManager Get(UserConfigurationSection config)\n    {\n        return _instance ?? (_instance = Create(config));\n    }\n\n    \u002F\u002F\u002F &lt;summary\u003E\n    \u002F\u002F\u002F For testing purposes only!\n    \u002F\u002F\u002F &lt;\u002Fsummary\u003E\n    \u002F\u002F\u002F &lt;param name=\"userManager\"\u003E&lt;\u002Fparam\u003E\n    public void Set(IUserManager userManager)\n    {\n        _instance = userManager;\n    }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EПодмена фабрики\u003C\u002Fh4\u003EВы можете подменить всю фабрику целиком. Это потребует выделение интерфейса или создание виртуальной функции, создание объектов. После этого вы сможете переопределить фабричные методы так, чтобы они возвращали ваши подделки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EПереопределение локального фабричного метода\u003C\u002Fh4\u003EЕсли зависимости инстанцируются прямо в коде явным образом, то самый простой путь – выделить фабричный protected-метод CreateObjectName() и переопределить его в классе-наследнике. После этого тестируйте класс-наследник, а не ваш первоначально тестируемый класс.\u003Cbr\u002F\u003E\r\nНапример, мы решили написать расширяемый калькулятор (со сложными действиями) и начали выделять новый слой абстракции.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Epublic class Calculator\n{\n    public double Multipy(double a, double b)\n    {\n        var multiplier = new Multiplier();\n        return multiplier.Execute(a, b);\n    }\n}\n\npublic interface IArithmetic\n{\n    double Execute(double a, double b);\n}\n\npublic class Multiplier : IArithmetic\n{\n    public double Execute(double a, double b)\n    {\n        return a * b;\n    }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nМы не хотим тестировать класс \u003Ci\u003EMultiplier\u003C\u002Fi\u003E, для него будет отдельный тест. Перепишем код так:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"plaintext\"\u003Epublic class Calculator\n{\n    public double Multipy(double a, double b)\n    {\n        var multiplier = CreateMultiplier();\n        return multiplier.Execute(a, b);\n    }\n\n    protected virtual IArithmetic CreateMultiplier()\n    {\n        var multiplier = new Multiplier();\n        return multiplier;\n    }\n}\n\npublic class CalculatorUnderTest : Calculator\n{\n    protected override IArithmetic CreateMultiplier()\n    {\n        return new FakeMultiplier();\n    }\n}\n\npublic class FakeMultiplier : IArithmetic\n{\n    public double Execute(double a, double b)\n    {\n        return 5;\n    }\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКод намеренно упрощен, чтобы акцентировать внимание именно на иллюстрации способа. В реальной жизни вместо калькулятора, скорее всего, будут DataProvider’ы, UserManager’ы и другие сущности с гораздо более сложной логикой.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EТестируемая архитектура VS OOP\u003C\u002Fh4\u003EМногие разработчики начинают жаловаться, дескать «этот ваш тестируемый дизайн» нарушает инкапсуляцию, открывает слишком много. Я думаю, что существует только две причины, когда это может вас беспокоить:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003EСерьезные требования к безопасности\u003C\u002Fh5\u003EЭто значит, что у вас серьезная криптография, бинарники упакованы, и все обвешано сертификатами.\u003Cbr\u002F\u003E\r\nДаже если так, скорее всего, вы сможете найти компромиссное решение. Например, в .NET вы можете использовать internal-методы и атрибут \u003Ca href=\"http:\u002F\u002Fmsdn.microsoft.com\u002Fru-ru\u002Flibrary\u002Fsystem.runtime.compilerservices.internalsvisibletoattribute.aspx\" rel=\"nofollow noopener noreferrer\"\u003E[InternalsVisibleTo]\u003C\u002Fa\u003E, чтобы дать доступ к тестируемым методам из ваших тестовых сборок.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch5\u003EПроизводительность\u003C\u002Fh5\u003EСуществует ряд задач, когда архитектурой приходится жертвовать в угоду производительности, и для кого-то это становится поводом отказаться от тестирования. В моей практике докинуть сервер\u002Fпроапгрейдить железо всегда было дешевле, чем писать нетестируемый код. Если у вас есть критический участок, вероятно, стоит переписать его на более низком уровне. Ваше приложение на C#? Возможно, есть смысл собрать одну неуправляемую сборку на С++.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВот несколько принципов, которые помогают писать тестируемый код:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EМыслите интерфейсами, а не классами, тогда вы всегда сможете легко подменять настоящие реализации подделками в тестовом коде\u003C\u002Fli\u003E\r\n\u003Cli\u003EИзбегайте прямого инстанцирования объектов внутри методов с логикой. Используйте фабрики или \u003Ci\u003Edependency injection\u003C\u002Fi\u003E. В этом случае использование IOC-контейнера в проекте может сильно упростить вам работу.\u003C\u002Fli\u003E\r\n\u003Cli\u003EИзбегайте прямого вызова статических методов\u003C\u002Fli\u003E\r\n\u003Cli\u003EИзбегайте конструкторов, которые содержат логику: вам сложно будет это протестировать.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EРабота с унаследованным кодом\u003C\u002Fh2\u003EПод «унаследованным» мы будем понимать код без тестов. Качество такого кода может быть разным. Несколько советов, как можно покрыть его тестами.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EАрхитектура тестируема\u003C\u002Fh3\u003EНам повезло, прямых созданий классов и мясорубки нет, а принципы SOLID соблюдаются. Нет ничего проще – создаем тестовые проекты, и шаг за шагом покрываем приложение, используя принципы, описанные в статье. В крайнем случае, нам придется добавить пару сеттеров для фабрик и выделить несколько интерфейсов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EАрхитектура не тестируема\u003C\u002Fh3\u003EУ нас есть жесткие связи, костыли и прочие радости жизни. Нам предстоит рефакторинг. Как правильно проводить комплексный рефакторинг – тема, выходящая далеко за рамки этой статьи.\u003Cbr\u002F\u003E\r\nСтоит выделить основное правило. Если вы не меняете интерфейсов – все просто, методика идентична. А вот если вы задумали большие перемены, следует составить граф зависимостей и разбить ваш код на отдельные более мелкие подсистемы (надеюсь, что это возможно). В идеале должно получиться примерно так: ядро, модуль #1, модуль #2 и т.д.\u003Cbr\u002F\u003E\r\nПосле этого выберите жертву. Только не начинайте с ядра. Возьмите сначала что-то поменьше: то, что вы способны отрефакторить за разумное время. Покрывайте эту подсистему интеграционными и\u002Fили приемочными тестами. А когда закончите, сможете покрыть эту часть юнит-тестами. Рано или поздно, шаг за шагом, вы должны преуспеть.\u003Cbr\u002F\u003E\r\nБудьте готовы, что сделать это быстро \u003Cs\u003Eскорее всего\u003C\u002Fs\u003E не получится. Вам придется проявить волевые качества.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EПоддержка тестов\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fstorage2\u002Fb51\u002F49e\u002Fb95\u002Fb5149eb9594de7513ca2c79e1d1a0f41.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fstorage2\u002Fb51\u002F49e\u002Fb95\u002Fb5149eb9594de7513ca2c79e1d1a0f41.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНе относитесь к своим тестам как к второсортному коду. Многие начинающие разработчики ошибочно полагают, что DRY, KISS и все остальное – это для продакшна. А в тестах допустимо все. \u003Cb\u003EЭто не верно. Тесты – такой-же код.\u003C\u002Fb\u003E Разница только в том, что у тестов другая цель – обеспечить качество вашего приложения. Все принципы, применямые в разработке продакшн-кода могут и должны применяться при написании тестов.\u003Cbr\u002F\u003E\r\nЕсть всего три причины, почему тест перестал проходить:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EОшибка в продакшн-коде: это баг, его нужно завести в баг-трекере и починить.\u003C\u002Fli\u003E\r\n\u003Cli\u003EБаг в тесте: видимо, продакшн-код изменился, а тест написан с ошибкой (например, тестирует слишком много или не то, что было нужно). Возможно, что раньше он проходил ошибочно. Разберитесь и почините тест.\u003C\u002Fli\u003E\r\n\u003Cli\u003EСмена требований. Если требования изменились слишком сильно – тест должен упасть. Это правильно и нормально. Вам нужно разобраться с новыми требованиями и исправить тест. Или удалить, если он больше не актуален.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУделяйте внимание поддержке ваших тестов, чините их вовремя, удаляйте дубликаты, выделяйте базовые классы и развивайте API тестов. Можно завести шаблонные базовые тестовые классы, которые обязывают реализовать набор тестов (например CRUD). Если делать это регулярно, то вскоре это не будет занимать много времени.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EКак «измерить» прогресс\u003C\u002Fh2\u003EДля измерения успешности внедрения юнит-тестов в вашем проекте следует использовать две метрики:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EКоличество багов в новых релизах (в т.ч. и регрессии)\u003C\u002Fli\u003E\r\n\u003Cli\u003EПокрытие кода\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПервая показывает, есть ли у наших действий результат, или мы впустую расходуем время, которое могли бы потратить на фичи. Вторая – как много нам еще предстоит сделать. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНаиболее популярные тулзы для измерения покрытия кода на .NET платформе это:\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003ENCover\u003C\u002Fli\u003E\r\n\u003Cli\u003EdotTrace\u003C\u002Fli\u003E\r\n\u003Cli\u003Eвстроенный в студию Test Coverage\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003ETest First?\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fstorage2\u002Fa4f\u002F4a2\u002F11e\u002Fa4f4a211e0a89c703b0741ed55d56f65.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fstorage2\u002Fa4f\u002F4a2\u002F11e\u002Fa4f4a211e0a89c703b0741ed55d56f65.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯ умышленно не касался этой темы до самого конца. С моей точки зрения Test First – хорошая практика, обладающая рядом неоспоримых преимуществ. Однако, по тем или иным причинам, иногда я отступаю от этого правила и пишу тесты после того, как готов код.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа мой взгляд, «как писать тесты» гораздо важнее, чем «когда это делать». Делайте, как вам удобно, но не забывайте: если вы начинаете с тестов, то получаете архитектуру «в придачу». Если вы сначала пишете код, вам возможно, придется его менять, чтобы сделать тестируемым.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EПочитать на тему\u003C\u002Fh2\u003EОтличную подборку ссылок и книг по теме можно найти в \u003Ca href=\"http:\u002F\u002Fhabrahabr.ru\u002Fpost\u002F136049\u002F\" rel=\"nofollow noopener noreferrer\"\u003Eэтой статье на Хабре\u003C\u002Fa\u003E. Особенно рекомендую книгу The Art of Unit Testing. Я читал первое издание. Оказывается, вышло уже и второе.\u003C\u002Fh4\u003E\u003C\u002Fh4\u003E\u003C\u002Fh4\u003E\u003C\u002Fh4\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"tdd"},{"titleHtml":"unit-testing"},{"titleHtml":"модульное тестирование"},{"titleHtml":"разработка"},{"titleHtml":"тестирование"},{"titleHtml":".net"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F169381\u002F3ea3501da3e0bc1bcb974c5ccb05cb32\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F169381\u002F3ea3501da3e0bc1bcb974c5ccb05cb32\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F169381\\\u002F\"},\"headline\":\"Юнит-тестирование для чайников\",\"datePublished\":\"2013-02-14T12:23:09+04:00\",\"dateModified\":\"2021-03-04T14:03:03+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Максим Аршинов\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Даже если вы никогда в жизни не думали, что занимаетесь тестированием, вы это делаете. Вы собираете свое приложение, нажимаете кнопку и проверяете, соответствует...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F169381\\\u002F#post-content-body\",\"about\":[\"h_webdev\",\"h_it_testing\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F169381\\\u002F3ea3501da3e0bc1bcb974c5ccb05cb32\\\u002F\"]}","metaDescription":"Даже если вы никогда в жизни не думали, что занимаетесь тестированием, вы это делаете. Вы собираете свое приложение, нажимаете кнопку и проверяете, соответствует ли полученный результат вашим...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"Тестировщик программного обеспечения","vacanciesCount":127,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Ftestirovshik_programmnogo_obespecheniya","itemHubs":["it_testing"]}],"hubs":"webdev,it_testing"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

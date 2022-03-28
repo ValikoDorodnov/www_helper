@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Как работает Headless Chrome / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/oleg-bunin\/blog\/421137\/"},"headline":"Как работает Headless Chrome","datePublished":"2018-09-05T16:01:29+03:00","dateModified":"2018-09-05T16:10:58+03:00","author":{"@type":"Person","name":"Андрей Яманов"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Уже из&nbsp;названия понятно, что headless-браузер&nbsp;&mdash; это нечто без головы. В&nbsp;контексте фронтенда&nbsp;&mdash; это незаменимый инструмент разработчика, с&nbsp;помощью которого можно т...","url":"https:\/\/habr.com\/ru\/company\/oleg-bunin\/blog\/421137\/#post-content-body","about":["c_oleg-bunin","h_webdev","h_javascript","h_nodejs","f_develop"],"image":["https:\/\/habrastorage.org\/webt\/un\/7p\/zj\/un7pzjwjsn1a3psu2augn59jmj0.jpeg","https:\/\/habrastorage.org\/webt\/14\/ds\/oa\/14dsoabrnydhu5hb6iovu_gd2m8.jpeg","https:\/\/habrastorage.org\/webt\/ti\/14\/-e\/ti14-etgpuf8lm5euapnu1qk3rs.jpeg","https:\/\/habrastorage.org\/webt\/4y\/2i\/lq\/4y2ilqrqu3fxx8lrinrjp90zgfq.jpeg","https:\/\/habrastorage.org\/webt\/tx\/id\/ql\/txidqlimkcdam_vcyah-fu4vlk0.jpeg","https:\/\/habrastorage.org\/webt\/zh\/-x\/jf\/zh-xjfbpq4mjz2ntcwr_tjriuhe.jpeg","https:\/\/habrastorage.org\/webt\/_p\/p6\/10\/_pp610df2doffm9nfysj-62ioea.jpeg","https:\/\/habrastorage.org\/webt\/qe\/wy\/2b\/qewy2b3vwphvwanus0zqqnnxeq4.jpeg","https:\/\/habrastorage.org\/webt\/-a\/t8\/ch\/-at8chx2k1wsarzbzqhxtftflay.jpeg","https:\/\/habrastorage.org\/webt\/-f\/nc\/8g\/-fnc8gvu6h9dy5p5ovh3wf0v6ua.jpeg","https:\/\/habrastorage.org\/webt\/h0\/tx\/ud\/h0txudupxhjb8brbckihbe7wzum.jpeg","https:\/\/habrastorage.org\/webt\/pi\/ia\/or\/piiaoriro3hvbrm_yhvd1h-scq4.jpeg","https:\/\/habrastorage.org\/webt\/qz\/oo\/ie\/qzooiejebek5gqaww2gw9tv0sgc.jpeg","https:\/\/habrastorage.org\/webt\/dy\/zm\/bu\/dyzmbucfttmfjlbsdkpmlk6bypq.jpeg","https:\/\/habrastorage.org\/webt\/gx\/j6\/xl\/gxj6xlxcpfwiuekgcszpnijrzf8.jpeg","https:\/\/habrastorage.org\/webt\/62\/r2\/rj\/62r2rjsc0ggbgpedb5lhp_tceki.jpeg","https:\/\/habrastorage.org\/webt\/ku\/ys\/5e\/kuys5eq81wzsqfci9kpddrd-ahm.jpeg","https:\/\/habrastorage.org\/webt\/l8\/vc\/lt\/l8vcltt3bh-ccdysbg3azvqjxxe.jpeg"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Как работает Headless Chrome" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Как работает Headless Chrome" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Как работает Headless Chrome" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Уже из&amp;nbsp;названия понятно, что headless-браузер&amp;nbsp;&amp;mdash; это нечто без головы. В&amp;nbsp;контексте фронтенда&amp;nbsp;&amp;mdash; это незаменимый инструмент разработчика, с&amp;nbsp;помощью которого можно..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Уже из&amp;nbsp;названия понятно, что headless-браузер&amp;nbsp;&amp;mdash; это нечто без головы. В&amp;nbsp;контексте фронтенда&amp;nbsp;&amp;mdash; это незаменимый инструмент разработчика, с&amp;nbsp;помощью которого можно..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Уже из&amp;nbsp;названия понятно, что headless-браузер&amp;nbsp;&amp;mdash; это нечто без головы. В&amp;nbsp;контексте фронтенда&amp;nbsp;&amp;mdash; это незаменимый инструмент разработчика, с&amp;nbsp;помощью которого можно..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Уже из&amp;nbsp;названия понятно, что headless-браузер&amp;nbsp;&amp;mdash; это нечто без головы. В&amp;nbsp;контексте фронтенда&amp;nbsp;&amp;mdash; это незаменимый инструмент разработчика, с&amp;nbsp;помощью которого можно..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Уже из&amp;nbsp;названия понятно, что headless-браузер&amp;nbsp;&amp;mdash; это нечто без головы. В&amp;nbsp;контексте фронтенда&amp;nbsp;&amp;mdash; это незаменимый инструмент разработчика, с&amp;nbsp;помощью которого можно..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/421137/4bc10aa66f1cbff1a72a2d6c2b63c1ca/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/421137/4bc10aa66f1cbff1a72a2d6c2b63c1ca/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/421137/4bc10aa66f1cbff1a72a2d6c2b63c1ca/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/421137/4bc10aa66f1cbff1a72a2d6c2b63c1ca/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/421137/4bc10aa66f1cbff1a72a2d6c2b63c1ca/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="421137" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2018-09-05T13:01:29.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/oleg-bunin/blog/421137/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="headless browser, headless chrome, тестирование, оптимизация сайта, frontendconf">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/421137/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.213.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/421137/4bc10aa66f1cbff1a72a2d6c2b63c1ca/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="oleg-bunin" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><!----></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/oleg-bunin/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/add/eb3/e91/addeb3e91fe453f9d78c7b52b8dc6a90.png" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">349.95</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/oleg-bunin/profile/" class="tm-company-card__name">
+      Конференции Олега Бунина (Онтико)
+    </a> <div class="tm-company-card__description">Профессиональные конференции для IT-разработчиков</div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/Tenphi/" title="Tenphi" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/264/963/782/2649637826e59ef5b879169db5526328.png" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/Tenphi/" class="tm-user-info__username">
+      Tenphi
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2018-09-05T13:01:29.000Z" title="2018-09-05, 16:01">5  сентября  2018 в 16:01</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Как работает Headless Chrome</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/oleg-bunin/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании Конференции Олега Бунина (Онтико)</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/javascript/" class="tm-article-snippet__hubs-item-link"><span>JavaScript</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/nodejs/" class="tm-article-snippet__hubs-item-link"><span>Node.JS</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div><img height="1" src="https://vk.com/rtrg?p=VK-RTRG-200244-Qc4X" width="1" style="display: none;"></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">Уже из названия понятно, что headless-браузер — это нечто без головы. В контексте фронтенда — это незаменимый инструмент разработчика, с помощью которого можно тестировать код, проверять качество и соответствие верстке. Виталий Слободин на Frontend Conf решил, что необходимо познакомиться с устройством этого инструмента поближе.<br/>
+<br/>
+Под катом компоненты и особенности работы Headless Chrome, интересные сценарии использования Headless Chrome. Вторая часть про Puppeteer — удобную Node.js-библиотеку для управления Headless-режимом в Google Chrome и Chromium.<br/>
+<br/>
+<div class="oembed"><div><div style="left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.2493%;"><div class="tm-iframe_temp" data-src="https://www.youtube.com/embed/WPcahL2K27w?rel=0&amp;showinfo=1&amp;hl=en-US" data-style="border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;" id="" width=""></div></div></div></div><br/>
+<strong>О спикере: </strong> Виталий Слободин — бывший разработчик PhantomJS — тот, кто закрыл его и похоронил. Иногда помогает Константину Токареву ( <u><a href="https://github.com/annulen">annulen</a></u>) в «воскрешенной» версии QtWebKit — том самом QtWebKit, где есть поддержка ES6, Flexbox и многие других современных стандартов.<br/>
+<br/>
+Виталий любит исследовать браузеры, в свободное время копаться в WebKit, Chrome и прочее, прочее. Про браузеры сегодня и поговорим, а именно про безголовые браузеры и всю их семейку призраков.<a name="habracut"></a><br/>
+<br/>
+<h2><strong>Что такое безголовый браузер?</strong><br/>
+</h2><br/>
+Уже из названия понятно, что это нечто без головы. В контексте браузера это значит следующее.<br/>
+<br/>
+<ol>
+<li>У него <strong>нет реальной отрисовки содержимого</strong>, то есть он все отрисовывает в памяти.</li>
+<li>За счет этого он <strong>потребляет меньше памяти</strong>, потому что не нужно отрисовывать картинки или гигабайтные PNG, которые люди пытаются при помощи бомбы положить в бэкенд.</li>
+<li>Он <strong>работает быстрее</strong>, потому что ему ничего не нужно отрисовывать на реальном экране.</li>
+<li>Имеет <strong>программный интерфейс для управления</strong>. Вы спросите — у него же нет интерфейса, кнопочек, окошек? Как же им управлять? Поэтому конечно же он имеет интерфейс для управления.</li>
+<li>Немаловажное свойство — <strong>возможность установки на «голый» Linux-сервер</strong>. Это нужно для того, что, если у вас есть свежеустановленная Ubuntu или Red Hat, вы можете просто туда закинуть бинарник или поставить пакет, и браузер будет работать из коробки. Никакого шаманства или вуду-магии не понадобится.</li>
+</ol><br/>
+Так схематично выглядит обычной браузер на основе WebKit. Вы можете не вчитываться в компоненты — это просто наглядное изображение.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/un/7p/zj/un7pzjwjsn1a3psu2augn59jmj0.jpeg" data-src="https://habrastorage.org/webt/un/7p/zj/un7pzjwjsn1a3psu2augn59jmj0.jpeg" data-blurred="true"/><br/>
+<br/>
+Нас интересует только верхний компонент Browser UI. Это тот самый интерфейс пользователя — окошки, меню, всплывающие уведомления и все остальное.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/14/ds/oa/14dsoabrnydhu5hb6iovu_gd2m8.jpeg" data-src="https://habrastorage.org/webt/14/ds/oa/14dsoabrnydhu5hb6iovu_gd2m8.jpeg" data-blurred="true"/><br/>
+<br/>
+Так выглядит безголовый браузер. Заметили разницу? Мы полностью убираем интерфейс пользователя. Его больше нет. <strong>Остается только браузер</strong>.<br/>
+<br/>
+Сегодня мы будем говорить именно про Headless Chrome (). В чем между ними разница? На самом деле, Chrome — это брендированная версия Chromium, у которой есть проприетарные кодеки, тот же самый H.264, интеграции с сервисами Google и все остальное. Chromium — это просто открытая реализация.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/ti/14/-e/ti14-etgpuf8lm5euapnu1qk3rs.jpeg" data-src="https://habrastorage.org/webt/ti/14/-e/ti14-etgpuf8lm5euapnu1qk3rs.jpeg" data-blurred="true"/><br/>
+<br/>
+Дата рождения Headless Chrome: 2016 год. Если вы сталкивались с ним, то можете задать мне каверзный вопрос: «Как так, я помню новость 2017 года?» Дело в том, что команда инженеров из Google связывалась с разработчиками PhantomJS еще в 2016 году, когда они только-только начинали реализовывать Headless-режим в Chrome. Мы писали целые гуглдоки, как мы будем реализовывать интерфейс и прочее. Тогда Google хотели сделать интерфейс, полностью совместимый с PhantomJS. Это уже потом команда инженеров пришла к решению не делать таковую совместимость.<br/>
+<br/>
+Об интерфейсе для управления (API), в качестве которого выступает Chrome DevTools protocol, поговорим позже и посмотрим, что с его помощью можно делать.<br/>
+<br/>
+Эта статья будет строится по принципу пирамиды Puppeteer (с англ. кукловод). Хорошее название выбрано — кукловод — тот, кто управляет всеми остальными!<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/4y/2i/lq/4y2ilqrqu3fxx8lrinrjp90zgfq.jpeg" data-src="https://habrastorage.org/webt/4y/2i/lq/4y2ilqrqu3fxx8lrinrjp90zgfq.jpeg" data-blurred="true"/><br/>
+<br/>
+В основании пирамиды лежит Headless Chrome — безголовый Chrome — что это такое?<br/>
+<br/>
+<h2><strong>Headless Chrome</strong><br/>
+</h2><br/>
+<img src="https://habrastorage.org/r/w780q1/webt/tx/id/ql/txidqlimkcdam_vcyah-fu4vlk0.jpeg" data-src="https://habrastorage.org/webt/tx/id/ql/txidqlimkcdam_vcyah-fu4vlk0.jpeg" data-blurred="true"/><br/>
+<br/>
+В центре — Headless browser — тот самый Chromium или Chrome (обычно Chromium). У него есть так называемые отрисовщики (RENDERER) — процессы, которые отрисовывают содержимое страницы (ваше окно). Причем, каждой вкладке нужен свой отрисовщик, поэтому, если открыть много вкладок, то Chrome запустит столько же процессов для отрисовки.<br/>
+<br/>
+Поверх всего этого — ваше приложение. Если мы берем Chromium или Headless Chrome, то поверх него будет Chrome, либо какое-то приложение, в которое вы можете встроить его. Ближайшим аналогом можно назвать Steam. Все знают, что по сути Steam — это просто браузер к сайту Steam. Он, конечно, не headless, но похож на эту схему.<br/>
+<br/>
+Есть 2 способа встраивать безголовый Chrome в ваше приложение (или его использовать):<br/>
+<br/>
+<ol>
+<li>Стандартный, когда вы берете <strong>Puppeteer</strong> и используете Headless Chrome.<br/>
+</li>
+<li>Когда вы берете компонент <strong>Headless library</strong>, то есть библиотеку, которая реализует безголовый режим, и встраиваете в свое приложение, допустим, на языке C++.<br/>
+</li>
+</ol><br/>
+Вы спросите, зачем C++ на фронтенде? Ответ — DevTools C++ API. Вы можете по-разному реализовывать и использовать возможности безголового Chrome. Если вы используете Puppeteer, общение с безголовым браузером будет осуществляться через веб-сокеты. Если вы встраиваете Headless library в десктопное приложение, то будете использовать нативный интерфейс, который написан на C++.<br/>
+<br/>
+Но помимо всего этого у вас еще появляются дополнительные вещи, в том числе:<br/>
+<br/>
+<ul>
+<li><strong>Custom networking</strong> — кастомная реализация взаимодействия с сетью. Допустим, вы работаете в банке или в госструктуре, которая состоит из трех букв и начинается на «Ф», и используете очень хитрый протокол аутентификации или авторизации, который не поддерживается браузерами. Поэтому вам может понадобиться кастомный обработчик для вашей сети. Вы можете просто взять вашу уже реализованную библиотеку и использовать ее в Chrome.</li>
+<li><strong>Mojo modules</strong>. Ближайшим аналогом Mojo являются нативные биндинги в Node.js к вашим нативным библиотекам, написанные в C++. Mojo делает то же самое — вы берете свою нативную библиотеку, пишите для нее Mojo-интерфейс, и потом можете в вашем браузере вызывать методы вашей нативной библиотеки.</li>
+</ul><br/>
+<h3>Компоненты Chromium<br/>
+</h3><br/>
+<img src="https://habrastorage.org/r/w780q1/webt/zh/-x/jf/zh-xjfbpq4mjz2ntcwr_tjriuhe.jpeg" data-src="https://habrastorage.org/webt/zh/-x/jf/zh-xjfbpq4mjz2ntcwr_tjriuhe.jpeg" data-blurred="true"/><br/>
+<br/>
+Опять слышу каверзный вопрос: «Зачем мне эта страшная схема? Я пишу под (вставьте название любимого фреймворка)».<br/>
+<br/>
+<blockquote>Я считаю, что разработчик должен знать, как устроен его инструмент. Если вы пишите под React, вы должны знать, как работает React. Если вы пишите под Angular, вы должны знать, что у Angular под капотом.<br/>
+</blockquote><br/>
+Потому что в случае чего, допустим, фатальной ошибки или очень серьезного бага на продакшене, вам придется разбираться с «кишками», и вы просто можете потеряться там — где, что и как. Если вы, например, будете писать тесты или использовать Headless Chrome, вы тоже можете столкнуться с некоторыми его странностями поведения и багами. Поэтому я вам вкратце расскажу, какие у Chromium есть компоненты. Когда вы увидите большой stack trace, вы уже будете знать, в какую сторону копать и как вообще это можно поправить.<br/>
+<br/>
+Самый низкий уровень <strong>Platform layer</strong>. Его компоненты:<br/>
+<br/>
+<ul>
+<li><strong>Ozone</strong> — абстрактный менеджер окон в Chrome — то, с чем взаимодействует оконный менеджер операционной системы. На Linux это либо X-server, либо Wayland. На Windows это менеджер окон Windows.</li>
+<li><strong>Scheduler</strong> — тот самый планировщик, без которого мы никуда, потому что мы все знаем, что Chrome — это многопроцессное приложение, и нам нужно как-то разруливать все потоки, процессы и все остальное.</li>
+<li><strong>Net </strong>— у браузера всегда должен быть компонент для работы с сетью, например, парсинг HTTP, создание заголовков, редактирование и т.д.</li>
+</ul><br/>
+Уровень <strong>Content layer</strong> — самый большой компонент, который есть в Chrome. Он включает в себя:<br/>
+<br/>
+<ul>
+<li><strong>Blink</strong> — веб-движок на основе WebCore из WebKit. Он может взять HTML в виде строки, распарсить, выполнить JavaScript — и все. Больше он вообще ничего не умеет: ни работать с сетью, ни отрисовывать — все это происходит поверх Blink.<br/>
+ Blink в себя включает: сильно модифицированную версию WebCore — веб-движка для работы с HTML и CSS; V8 (JavaScript движок); а также API для всех расширений, которые мы используем в Chrome, например, блокировщик рекламы. Туда же входит DevTools protocol.<br/>
+ </li>
+<li> <strong>Content API</strong> — это интерфейс, при помощи которого можно очень легко использовать все возможности веб-движка. Поскольку внутри Blink так много всего (наверное, больше миллиона интерфейсов), то, чтобы не потеряться во всех этих методах и функциях, нужен Content API. Вы вводите HTML, движок его автоматически обработает, разберет DOM, построит CSS OM, выполнит JavaScript, запустит таймеры, обработчики и все остальное.<br/>
+ </li>
+</ul><br/>
+Уровень <strong>Headless layer</strong> — уровень безголового браузера:<br/>
+<br/>
+<ul>
+<li><strong>Headless library</strong>.</li>
+<li><strong>Embedder API</strong> интерфейс для встраивания Headless library в приложение.</li>
+<li><strong>Client API</strong> — интерфейс, который использует Puppeteer.</li>
+</ul><br/>
+Уровень приложения <strong>Application layer</strong>:<br/>
+<br/>
+<ul>
+<li>Ваше приложение (<strong>Embedding app</strong>);</li>
+<li>Мини-приложения, например, <strong>Headless shell</strong>.</li>
+</ul><br/>
+Теперь давайте поднимемся из глубин чуть выше, активизируемся — сейчас пойдет фронтенд.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/_p/p6/10/_pp610df2doffm9nfysj-62ioea.jpeg" data-src="https://habrastorage.org/webt/_p/p6/10/_pp610df2doffm9nfysj-62ioea.jpeg" data-blurred="true"/><br/>
+<br/>
+<h3>Chrome DevTools protocol<br/>
+</h3><br/>
+Мы все сталкивались с Chrome DevTools protocol, поскольку пользуемся панелью разработчиков в Chrome или удаленным отладчиком — теми же самыми средствами разработки. Если вы запускаете средства разработчика в удаленном режиме, общение с браузером происходит при помощи именно DevTools protocol. Когда вы ставите debugger, смотрите code coverage, используете геолокацию или еще что-нибудь — все это управляется при помощи DevTools.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/qe/wy/2b/qewy2b3vwphvwanus0zqqnnxeq4.jpeg" data-src="https://habrastorage.org/webt/qe/wy/2b/qewy2b3vwphvwanus0zqqnnxeq4.jpeg" data-blurred="true"/><br/>
+<br/>
+На самом деле сам DevTools protocol имеет огромное количество методов. Ваше средство разработчика не имеет доступа, наверное, к 80% из них. Реально там можно делать все!<br/>
+<br/>
+Давайте разберем, что из себя представляет этот протокол. На самом деле он очень простой. В нем есть 2 компонента:<br/>
+<br/>
+<ol>
+<li>DevTools target —вкладка, которую вы инспектируете;<br/>
+</li>
+<li>DevTools client — допустим, это панель разработчика, которая запущена в удаленном режиме.<br/>
+</li>
+</ol><br/>
+<img src="https://habrastorage.org/r/w780q1/webt/-a/t8/ch/-at8chx2k1wsarzbzqhxtftflay.jpeg" data-src="https://habrastorage.org/webt/-a/t8/ch/-at8chx2k1wsarzbzqhxtftflay.jpeg" data-blurred="true"/><br/>
+<br/>
+Они общаются при помощи простого JSON:<br/>
+<br/>
+<ul>
+<li>Есть идентификатор команды, название метода, который нужно выполнить, и некоторые параметры.</li>
+<li>Посылаем запрос и получаем ответ, который тоже выглядит очень просто: идентификатор, который нужен потому, что все команды, которые выполняются при помощи протокола, асинхронные. Для того, чтобы мы всегда могли сопоставить, какой ответ на какую команду нам пришел, нам и требуется идентификатор.</li>
+<li> Есть результат. В нашем случае он представляет собой объект result со следующими атрибутами: <strong>type: </strong><strong>«number», </strong><strong>value: </strong><strong>2, </strong><strong>description: </strong><strong>«2»</strong>, исключение брошено не было: <strong>wasThrown: </strong><strong>false.</strong><br/>
+ </li>
+</ul><br/>
+Но помимо всего прочего ваша вкладка может слать события вам обратно. Допустим, когда произошло какое-то событие на странице, или было исключение на странице, вы получите уведомление через этот протокол.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/-f/nc/8g/-fnc8gvu6h9dy5p5ovh3wf0v6ua.jpeg" data-src="https://habrastorage.org/webt/-f/nc/8g/-fnc8gvu6h9dy5p5ovh3wf0v6ua.jpeg" data-blurred="true"/><br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/h0/tx/ud/h0txudupxhjb8brbckihbe7wzum.jpeg" data-src="https://habrastorage.org/webt/h0/tx/ud/h0txudupxhjb8brbckihbe7wzum.jpeg" data-blurred="true"/><br/>
+<br/>
+<h2><strong>Puppeteer</strong><br/>
+</h2><br/>
+Установить Puppeteer можно при помощи любимого пакетного менеджера — будь то yarn, npm или любой другой.<br/>
+<br/>
+Использовать его тоже легко — просто запрашиваете его в своем Node.js-скрипте, и уже, по сути, можете использовать.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/pi/ia/or/piiaoriro3hvbrm_yhvd1h-scq4.jpeg" data-src="https://habrastorage.org/webt/pi/ia/or/piiaoriro3hvbrm_yhvd1h-scq4.jpeg" data-blurred="true"/><br/>
+<br/>
+По ссылке <a href="https://try-puppeteer.appspot.com/">https://try-puppeteer.appspot.com</a> вы можете прямо на сайте написать скрипт, выполнить его и получить результат прямо в браузере. Все это будет реализовано при помощи Headless Chrome.<br/>
+<br/>
+Рассмотрим простейший скрипт под Node.js:<br/>
+<br/>
+<pre><code class="javascript">const puppeteer = require('puppeteer');
+
+(async() => {
+  const browser = await puppeteer.launch() ; 
+  const page = await browser.newPage();
+
+  await page.goto('http://devconf.ru/') ; 
+  await page.emulateMedia('screen') ; 
+  await page.pdf({
+    path: './devconf.pdf, 
+    printBackground: true 
+  });
+await browser.close() ;
+})();
+</code></pre><br/>
+Здесь мы просто открываем страничку и печатаем ее в PDF. Посмотрим работу этого скрипта в режиме реального времени:<br/>
+<br/>
+<div class="oembed"><div><div style="left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.2493%;"><div class="tm-iframe_temp" data-src="https://www.youtube.com/embed/WPcahL2K27w?rel=0&amp;showinfo=1&amp;start=990&amp;hl=en-US" data-style="border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;" id="" width=""></div></div></div></div><br/>
+Все будет классно, но непонятно — что там внутри. Конечно, у нас же headless-браузер, мы же ничего не видим. Поэтому у Puppeteer есть специальный флаг, который называется headless: false:<br/>
+<br/>
+<pre><code class="javascript">const browser = await puppeteer.launch({
+  headless: false
+});
+</code></pre><br/>
+Он нужен для запуска headless-браузера в режиме headful, когда вы сможете увидеть какое-то окно и посмотреть, что же происходит с вашей страницей в режиме реального времени, то есть как ваш скрипт взаимодействует с вашей страницей.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/qz/oo/ie/qzooiejebek5gqaww2gw9tv0sgc.jpeg" data-src="https://habrastorage.org/webt/qz/oo/ie/qzooiejebek5gqaww2gw9tv0sgc.jpeg" data-blurred="true"/><br/>
+<br/>
+Так будет выглядеть тот же самый скрипт, когда мы добавим этот флаг. Слева появляется окно браузера — уже нагляднее.<br/>
+<br/>
+<div class="oembed"><div><div style="left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.2493%;"><div class="tm-iframe_temp" data-src="https://www.youtube.com/embed/WPcahL2K27w?rel=0&amp;showinfo=1&amp;start=1040&amp;hl=en-US" data-style="border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;" id="" width=""></div></div></div></div><br/>
+<strong>Плюсы Puppeteer:</strong><br/>
+<br/>
+  + Это Node.js-библиотека для безголового Chrome.<br/>
+  + Поддержка legacy-версий Node.js >= 6.<br/>
+  + Легкая установка.<br/>
+  + Высокоуровневый API для управления всей этой гигантской машиной.<br/>
+<br/>
+Безголовый Chrome устанавливается легко и без вмешательства в систему. При первой установке Puppeteer скачивает версию Chromium и устанавливает ее прямо в папку node_modules именно под вашу архитектуру и ОС. Вам не нужно ничего скачивать дополнительно, он это делает автоматически. Вы также можете использовать и вашу любимую версию Chrome, которая установлена у вас в системе. Это тоже можно сделать — Puppeteer предоставляет вам такой API.<br/>
+<br/>
+К сожалению, есть и минусы, если брать именно базовую инсталляцию.<br/>
+<br/>
+<strong>Минусы Puppeteer</strong>:<br/>
+<br/>
+  − <strong>Нет top-level функций</strong>: синхронизации закладок и паролей; поддержки профилей; аппаратного ускорения и т.д.<br/>
+  − <strong>Программный рендеринг</strong> — наиболее весомый минус. Все вычисления и отрисовки происходят на вашем CPU. Но и тут инженеры Google нас скоро удивят — работы по реализации аппаратного ускорения уже ведутся. Уже сейчас можно попытаться его использовать, если вы смелы и отважны.<br/>
+  − До недавнего времени не было поддержки расширений — теперь ЕСТЬ! Если вы хитрый разработчик, можете взять ваш любимый AdBlock, указать, как Puppeteer’у его использовать, и вся реклама будет заблокирована.<br/>
+  − <strong>Нет поддержки аудио/видео</strong>. Потому что, ну зачем headless-браузеру аудио и видео.<br/>
+<br/>
+<strong>Что может Puppeteer:</strong><br/>
+<br/>
+<ul>
+<li>Изоляция сессий.</li>
+<li>Виртуальные таймеры.</li>
+<li>Перехват сетевых запросов.</li>
+</ul><br/>
+И еще пара клевых вещей, которые я покажу чуть дальше.<br/>
+<br/>
+<h4>Изоляция сессий<br/>
+</h4><br/>
+Что это такое, с чем ее едят, и не подавимся ли мы? — Не подавимся!<br/>
+<br/>
+Изоляция сессий — это <strong>отдельные «хранилища» для каждой вкладки</strong>. Когда вы запускаете Puppeteer, вы можете создать новую страницу, и у каждой новой страницы у вас может быть отдельное хранилище, в том числе:<br/>
+<br/>
+<ul>
+<li>cookes;<br/>
+</li>
+<li>local storage;<br/>
+</li>
+<li>cache.<br/>
+</li>
+</ul><br/>
+Все страницы будут жить независимо друг от друга. Это нужно, чтобы, например, поддерживать атомарность тестов.<br/>
+<br/>
+Изоляция сессий позволяет <strong>сэкономить ресурсы и время при запуске параллельных сессий</strong>. Допустим, вы тестируете сайт, который собирается в development-режиме, то есть bundle не минимизированы, и весят 20 МБ. Если вы хотите просто его закэшировать, то можете указать Puppeteer использовать кэш общий для всех страниц, которые создаются, и этот bundle будет закэширован.<br/>
+<br/>
+Можно <strong>сериализовать сессии для последующего использования</strong>. Вы пишите тест, который проверяет некое действие у вас на сайте. Но у вас есть проблема — сайт требует авторизацию. Вы же не будете в каждом тесте постоянно добавлять before для авторизации на сайте. Puppeteer позволяет залогиниться на сайте один раз, и потом переиспользовать эту сессию в дальнейшем.<br/>
+<br/>
+<h4>Виртуальные таймеры<br/>
+</h4><br/>
+Возможно, вы уже используете виртуальные таймеры. Если вы двигали ползунок в средстве разработчика, который ускоряет или замедляет анимацию (и мыли после этого руки конечно же!), то в этот момент вы использовали виртуальные таймеры в браузере.<br/>
+<br/>
+Браузер может использовать виртуальные таймеры вместо реальных, чтобы <strong>«прокрутить» время вперед</strong> для ускорения загрузки страницы или завершения анимации. Допустим, у вас тот же самый тест, вы заходите на главную страницу, а там анимация на 30 секунд. Никому не выгодно, чтобы тест ждал все это время. Поэтому вы можете просто ускорить анимацию, чтобы она была завершена мгновенно при загрузке страницы, и ваш тест продолжил работу.<br/>
+<br/>
+Можно <strong>остановить время, пока выполняется сетевой запрос</strong>. Например, вы тестируете реакцию вашего приложения на то, когда запрос, ушедший на бэкенд, очень долго выполняется, либо возвращается с ошибкой. Вы можете остановить время — Puppeteer это позволяет.<br/>
+<br/>
+На слайде ниже есть еще один вариант: <strong>остановить и продолжить работу отрисовщика</strong> (renderer). В экспериментальном режиме была возможность сказать браузеру не заниматься отрисовкой, а позже, если понадобится, запросить скриншот. Тогда бы безголовый Chrome все бы быстро отрисовал, выдал скриншот, и снова перестал бы отрисовывать что-либо. К сожалению, разработчики уже успели поменять принцип работы этого API и такой функции больше нет.<br/>
+<br/>
+Схематичный вид виртуальных таймеров ниже.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/dy/zm/bu/dyzmbucfttmfjlbsdkpmlk6bypq.jpeg" data-src="https://habrastorage.org/webt/dy/zm/bu/dyzmbucfttmfjlbsdkpmlk6bypq.jpeg" data-blurred="true"/><br/>
+<br/>
+В верхней строке два обычных таймера: первый стартует в первую единицу времени и выполняется за одну единицу времени, второй стартует в третью единицу времени и выполняется за три единицы времени.<br/>
+<br/>
+Ускорение таймеров — они запускаются друг за другом. Когда мы их приостанавливаем, у нас появляется промежуток времени, после которого все таймеры стартанут.<br/>
+<br/>
+Рассмотрим это на примере. Ниже обрезанный кусок кода, который по сути просто загружает страницу с анимацией с codepen.io и ждет:<br/>
+<br/>
+<pre><code class="javascript">(async() => {
+  const browser = await puppeteer.launch(); 
+  const page = await browser.newPage();
+
+  const url = ‘https ://codepen.o/ajerez/full/EaEEOW/'; // # 1
+
+  await page.goto(url, { waitUnitl: 'load' }); // # 2
+})();
+</code></pre><br/>
+<br/>
+<a href="https://www.youtube.com/watch?v=WPcahL2K27w&amp;amp;feature=youtu.be&amp;amp;t=1454">Это</a> демонстрация выполнения в ходе доклада — просто анимация.<br/>
+<br/>
+Теперь при помощи Chrome DevTools protocol отправим метод, который называется Animation.setPlaybackRate, передадим в качестве параметров ему playbackRate с значением 12:<br/>
+<br/>
+<pre><code class="javascript">const url = 'https://codepen.o/ajerez/full/EaEEOW/'; // # 1
+await page._client.send('Animation.setPlaybackRate', { playbackRate: 12 }); // # 3
+await page.goto(url, { waitUntil: 'load' }); // # 2
+</code></pre><br/>
+Загружаем ту же самую ссылку, и анимашка стала работать гораздо быстрее. Это происходит за счет того, что мы использовали виртуальный таймер и ускорили проигрывание анимации в 12 раз.<br/>
+<br/>
+Давайте теперь проведем эксперимент — передадим playbackRate: 0 — и посмотрим, что же будет. А будет вот <a href="https://youtu.be/WPcahL2K27w?t=1507">что</a>: анимации вообще нет, она не проигрывается. Нулевое и отрицательные значения просто приостанавливают полностью всю анимацию.<br/>
+<br/>
+<h4>Работа с сетевыми запросами<br/>
+</h4><br/>
+Вы можете <strong>перехватывать сетевые запросы</strong> путем установки следующего флага:<br/>
+<br/>
+<pre><code class="javascript">await page.setRequestlnterception(true);</code></pre><br/>
+В таком режиме появляется дополнительное событие, которое срабатывает, когда отправляется или приходит какой-то сетевой запрос.<br/>
+<br/>
+Вы можете <strong>менять запрос на лету</strong>. Это значит, что вы можете полностью менять все его содержимое (body) и его заголовки, инспектировать, даже отменять запрос.<br/>
+<br/>
+Это нужно для того, чтобы <strong>обрабатывать авторизацию или аутентификацию</strong>, в том числе базовую аутентификацию по HTTP.<br/>
+<br/>
+Еще вы можете сделать <strong>покрытие кода (JS/CSS)</strong>. При помощи Puppeteer можно все это автоматизировать. Все мы знаем утилиты, которые могут загрузить страничку, показать, какие классы в ней используются и т.д. Но довольны ли мы ими? Думаю, нет.<br/>
+<br/>
+<blockquote>Браузер знает лучше, какие селекторы и классы используются — он же браузер! Он всегда знает, какой JavaScript выполнился, какой нет, какой CSS используется, какой нет.<br/>
+</blockquote><br/>
+Опять на помощь приходит Chrome DevTools protocol:<br/>
+<br/>
+<pre><code class="javascript">await Promise.all ( [
+  page.coverage.startJSCoverage(), 
+  page.coverage.startCSSCoverage()
+]);
+
+await page.goto(’https://example.com’);
+
+const [jsCoverage, cssCoverage] = await Promise,all([ 
+page.coverage.stopJSCoverage(), page.coverage.stopCSSCoverage()
+]): 
+</code></pre><br/>
+В первых двух строчках запускаем сравнительно новую фичу, которая позволяет узнать покрытие кода. Запускаем JS и CSS, переходим на какую-то страничку, потом говорим — стоп — и можем посмотреть результаты. Причем это не какие-то мнимые результаты, а те, которые видит браузер именно за счет движка.<br/>
+<br/>
+Помимо всего прочего, уже есть плагин, который для Puppeteer это все экспортирует в istanbul.<br/>
+<br/>
+На вершине пирамиды Puppeteer находится скрипт, который вы написали на Node.js — он как крестный отец всем нижним пунктам.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/gx/j6/xl/gxj6xlxcpfwiuekgcszpnijrzf8.jpeg" data-src="https://habrastorage.org/webt/gx/j6/xl/gxj6xlxcpfwiuekgcszpnijrzf8.jpeg" data-blurred="true"/><br/>
+<br/>
+Но… «не всё спокойно в датском королевстве...» — как писал Уильям Шекспир.<br/>
+<br/>
+<h2><strong>Что не так с безголовыми браузерами?</strong><br/>
+</h2><br/>
+У безголовых браузеров есть проблемы несмотря на то, что все их крутые фичи могут так много.<br/>
+<br/>
+<h4>Отличие в рендеринге страницы на разных платформах<br/>
+</h4><br/>
+Я очень люблю этот пункт и постоянно про это рассказываю. Давайте посмотрим на эту картинку.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/62/r2/rj/62r2rjsc0ggbgpedb5lhp_tceki.jpeg" data-src="https://habrastorage.org/webt/62/r2/rj/62r2rjsc0ggbgpedb5lhp_tceki.jpeg" data-blurred="true"/><br/>
+<br/>
+Здесь обычная страничка с обычным текстом: справа — отрисовка в Chrome на Linux, слева — под Windows. Те, кто тестирует скриншотами, знают, что всегда устанавливается значение, называемое «порогом погрешности», которое определяет, когда скриншот считается идентичным, а когда нет.<br/>
+<br/>
+На самом деле проблема в том, что как бы вы не старались установить этот порог, погрешность всегда будет выходить за эту грань, и вы все равно будете получать ложно позитивные результаты. Это связано с тем, что все страницы, и даже веб-шрифты рендерятся по-разному на всех трех платформах — на Windows по одному алгоритму, на MacOS по-другому, в Linux вообще зоопарк. <strong>Вы не можете просто взять и тестировать скриншотами</strong>.<br/>
+<br/>
+Вы скажете: «Мне просто нужна эталонная машина, где я буду запускать все эти тесты и сравнивать скриншоты». Но на самом деле это дико неудобно, потому что вам придется ждать CI, а вы хотите здесь и сейчас локально на машине у себя проверить, не сломали ли вы что-нибудь. Если у вас эталонные скриншоты делаются на Linux-машине, а у вас Mac, то будут ложные результаты.<br/>
+<br/>
+<blockquote>Поэтому я и говорю, что не тестируйте скриншотами вообще — забудьте это.<br/>
+</blockquote><br/>
+Кстати, если вы все-таки хотите тестировать скриншотами, есть замечательная статья Романа Дворнова "<a href="https://habr.com/company/avito/blog/350604/">Unit-тестирование скриншотами: преодолеваем звуковой барьер</a>". Это прямо детективное чтиво.<br/>
+<br/>
+<h4>Блокировки<br/>
+</h4><br/>
+Многие крупные контент-провайдеры не любят, когда вы делаете scraping или получаете их контент нелегальным способом. Представим, что я крупный контент-провайдер, и хочу сыграть с вами в одну игру. Есть два GET-запроса в двух разных браузерах.<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/ku/ys/5e/kuys5eq81wzsqfci9kpddrd-ahm.jpeg" data-src="https://habrastorage.org/webt/ku/ys/5e/kuys5eq81wzsqfci9kpddrd-ahm.jpeg" data-blurred="true"/><br/>
+<br/>
+Сможете ли вы угадать, где здесь Chrome? Вариант «оба» не принимается — Chrome тут только один. Скорее всего, вы не сможете ответить на этот вопрос, а я, как крупный контент-провайдер, могу: справа — PhantomJS, а слева — Chrome.<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/l8/vc/lt/l8vcltt3bh-ccdysbg3azvqjxxe.jpeg" data-src="https://habrastorage.org/webt/l8/vc/lt/l8vcltt3bh-ccdysbg3azvqjxxe.jpeg" data-blurred="true"/><br/>
+<br/>
+Я могу дойти до такой степени, что буду обнаруживать ваши браузеры (что это именно — Chrome или FireFox) путем сопоставления порядка HTTP заголовков в ваших запросах. Если хост идет первым — я четко знаю — это Chrome. Дальше могу не сравнивать. Да, конечно, есть более сложные алгоритмы — мы проверяем не только порядок, но еще и значения, и т.д. и т.п. Но важен факт, что я могу слепками сравнивать ваши заголовки, проверять, кто вы есть, а потом просто блокировать вас или не блокировать.<br/>
+<br/>
+<h4>Невозможно реализовать некоторые функции (Flash)<br/>
+</h4><br/>
+Вы когда-нибудь изучали углубленно, прямо хардкорно, Flash в браузерах? Как-то я заглянул — потом полгода не спал.<br/>
+<br/>
+Все мы помним, как мы раньше смотрели YouTube, когда еще был Flash: ролик крутится, все хорошо. Но в тот момент, когда создается встраиваемый объект на странице типа Flash, он всегда запрашивает реальное окно у вашей ОС. То есть помимо окна вашего браузера, внутри YouTube-окошка Flash было еще одно окно вашей ОС. Flash не может работать, если вы не дадите ему реальное окно — причем не просто реальное окно, а окно, которое видно у вас на экране. Поэтому некоторые функции в безголовых браузерах реализовать невозможно, в том числе, Flash.<br/>
+<br/>
+<h4>Полная автоматизация и боты<br/>
+</h4><br/>
+Как я уже сказал ранее, крупные контент-провайдеры очень боятся, когда вы пишите пауков или граббинги, которые просто крадут информацию, которая предоставляется платно.<br/>
+<br/>
+В ход идут разные ухищрения. Есть статьи о том, как все-таки обнаруживать headless-браузеры. Могу сказать, что <strong>вы никак не сможете обнаружить headless-браузеры</strong>. Все методы, которые там описаны, обходятся. Например, там были способы обнаружения при помощи Canvas. Помню, даже был один скрипт, который смотрел, как движется мышка по экрану, и заполнял Canvas. Мы же люди и двигаем мышку довольно медленно, а Headless Chrome гораздо шустрее. Скрипт понимал, что слишком быстро заполняется Canvas — значит, это, скорее всего, безголовый Chrome. Мы это тоже обошли, просто замедлив браузер — не проблема.<br/>
+<br/>
+<h4>Нет стандартного (единого) API<br/>
+</h4><br/>
+Если вы смотрели headless-реализации в других браузерах — будь это Safari или FireFox — там это все реализовано при помощи webdriver API. В Chrome есть Chrome DevTools protocol. В Edge вообще ничего не понятно — что там есть, чего нет.<br/>
+<br/>
+<h4>WebGL?<br/>
+</h4><br/>
+Люди тоже просят WebGL в headless-режиме. По этой <a href="http://bit.ly/headlesswebgl">ссылке</a> вы можете попасть на багтрекер Google Chrome. Там разработчики активно голосуют за реализацию headless-режима для WebGL, и уже он может что-то рисовать. Их сейчас просто сдерживает аппаратный рендеринг. Как только закончат реализацию аппаратного рендеринга, то и WebGL автоматически будет доступен, то есть что-то можно будет делать в фоне.<br/>
+<br/>
+Но не все так плохо!<br/>
+<br/>
+У нас появляется второй игрок на рынке — 11 мая 2018 была <a href="https://blogs.windows.com/msedgedev/2018/05/11/introducing-edge-devtools-protocol/">новость</a>, что Microsoft в своем браузере Edge решил реализовать почти тот же самый протокол, который используется в Google Chrome. Они специально создали консорциум, где обсуждают протокол, который хотят довести до промышленного стандарта, чтобы вы могли взять свой скрипт и запустить его и под Edge, и под Chrome, и под FireFox.<br/>
+<br/>
+Но есть одно «но» — у Microsoft Edge нет headless-режима, к сожалению. У них есть голосовалка, где люди пишут: «Дайте нам headless-режим!» — но они молчат. Наверное, что-то пилят втайне.<br/>
+<br/>
+<h2><strong>TODO (заключение)</strong><br/>
+</h2><br/>
+Я рассказал это все для того, чтобы вы могли прийти к вашему менеджеру, или, если вы менеджер, к разработчику, и сказать: «Все! <strong>Мы не хотим больше Selenium — давайте нам Puppeteer!</strong> Будем в нем тестировать». Если это случится, я буду рад.<br/>
+<br/>
+Но если вы сможете изучать, как и я, браузеры, используя Puppeteer, активно постить баги, или отправлять pull request, то я буду рад еще больше. Этот <a href="https://github.com/GoogleChrome/puppeteer">инструмент</a> в OpenSource лежит на GitHub, написан на Node.js — вы можете просто в него брать и контрибьютить.<br/>
+<br/>
+Случай с Puppeteer уникален тем, что в Google работает две команды: одна занимается именно Puppeteer, вторая — именно headless-режимом. Если пользователь находит баг, пишет о нем наа GitHub, то, если этот баг не в Puppeteer, а в Headless Chrome, баг переходит в команду Headless Chrome. Если они его там фиксят, то Puppeteer очень быстро обновляется. За счет этого получается единая экосистема, когда сообщество помогает улучшать браузер.<br/>
+<br/>
+Поэтому я призываю вас помогать улучшать инструмент, который используете не только вы, но и другие разработчики и тестировщики.<br/>
+<br/>
+Контакты:<br/>
+<br/>
+<ul>
+<li>github.com/vitallium</li>
+<li>vk.com/vitallium</li>
+<li>twitter.com/vitalliumm</li>
+</ul><br/>
+<blockquote><a href="http://frontendconf.ru/moscow/2018/">Frontend Conf Moscow</a> — специализированная конференция фронтенд-разработчиков состоится <strong>4 и 5 октября в Москве</strong>, в Инфопространстве. <a href="http://frontendconf.ru/moscow/2018/abstracts/">Список</a> принятых докладов уже опубликован на сайте конференции.<br/>
+<br/>
+В нашей рассылке мы регулярно делаем тематические обзоры выступлений, рассказываем о вышедших расшифровках и будущих мероприятиях — <a href="http://eepurl.com/bb99tn">подписывайтесь</a>, чтобы получать новости первым.<br/>
+<br/>
+А это ссылка на наш <a href="https://www.youtube.com/c/FrontendChannel">Youtube-канал</a> по фронтенду, там собраны все выступления, относящиеся к разработке клиентской части проектов.<br/>
+</blockquote></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bheadless%20browser%5D" class="tm-tags-list__link">headless browser</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bheadless%20chrome%5D" class="tm-tags-list__link">headless chrome</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%82%D0%B5%D1%81%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%5D" class="tm-tags-list__link">тестирование</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BE%D0%BF%D1%82%D0%B8%D0%BC%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0%5D" class="tm-tags-list__link">оптимизация сайта</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bfrontendconf%5D" class="tm-tags-list__link">frontendconf</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/oleg-bunin/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании Конференции Олега Бунина (Онтико)
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/javascript/" class="tm-hubs-list__link">
+    JavaScript
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/nodejs/" class="tm-hubs-list__link">
+    Node.JS
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 42: ↑42 и ↓0</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 42: ↑42 и ↓0" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+42</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">71K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    189
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/oleg-bunin/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/add/eb3/e91/addeb3e91fe453f9d78c7b52b8dc6a90.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/oleg-bunin/profile/" class="tm-company-snippet__title">Конференции Олега Бунина (Онтико)</a> <div class="tm-company-snippet__description">Профессиональные конференции для IT-разработчиков</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="https://facebook.com/oleg.bunin" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Facebook
+    </a><a href="https://facebook.com/HighLoadConference" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Facebook
+    </a><a href="https://twitter.com/HighLoadConf" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Twitter
+    </a><a href="https://telegram.me/HighLoadTalks" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Telegram
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/Tenphi/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/264/963/782/2649637826e59ef5b879169db5526328.png" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 90 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    52
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Андрей Яманов</span> <a href="https://habr.com/ru/users/Tenphi/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @Tenphi
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">CSS Cheater, DX Advocate</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/oleg-bunin/blog/421137/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 14 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2007-12-31T21:00:00.000Z" title="2008-01-01, 00:00">1  января  2008</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="http://www.ontico.ru/" target="_blank" class="tm-company-basic-info__link">
+      www.ontico.ru
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    31–50 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2010-02-24T19:37:40.000Z" title="2010-02-24, 22:37">24  февраля  2010</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Представитель</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://habr.com/" class="tm-company-basic-info__link router-link-active">
+      
+    </a></dd></dl></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/oleg-bunin/blog/421137/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/oleg-bunin/blog/421137/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"421137":{"id":"421137","timePublished":"2018-09-05T13:01:29+00:00","isCorporative":true,"lang":"ru","titleHtml":"Как работает Headless Chrome","leadData":{"textHtml":"Уже из&nbsp;названия понятно, что headless-браузер&nbsp;&mdash; это нечто без головы. В&nbsp;контексте фронтенда&nbsp;&mdash; это незаменимый инструмент разработчика, с&nbsp;помощью которого можно тестировать код, проверять качество и&nbsp;соответствие верстке. Виталий Слободин на&nbsp;Frontend Conf решил, что необходимо познакомиться с&nbsp;устройством этого инструмента поближе.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПод катом компоненты и&nbsp;особенности работы Headless Chrome, интересные сценарии использования Headless Chrome. Вторая часть про Puppeteer&nbsp;&mdash; удобную Node.js-библиотеку для управления Headless-режимом в&nbsp;Google Chrome и&nbsp;Chromium.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"oembed\"\u003E\u003Cdiv\u003E\u003Cdiv style=\"left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.2493%;\"\u003E\u003Ciframe src=\"https:\u002F\u002Fwww.youtube.com\u002Fembed\u002FWPcahL2K27w?rel=0&amp;showinfo=1&amp;hl=en-US\" style=\"border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;\" allowfullscreen scrolling=\"no\"\u003E\u003C\u002Fiframe\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EО&nbsp;спикере: \u003C\u002Fstrong\u003E Виталий Слободин&nbsp;&mdash; бывший разработчик PhantomJS&nbsp;&mdash; тот, кто закрыл его и&nbsp;похоронил. Иногда помогает Константину Токареву ( \u003Cu\u003E\u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fannulen\"\u003Eannulen\u003C\u002Fa\u003E\u003C\u002Fu\u003E) в&nbsp;«воскрешенной» версии QtWebKit&nbsp;&mdash; том самом QtWebKit, где есть поддержка ES6, Flexbox и&nbsp;многие других современных стандартов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВиталий любит исследовать браузеры, в&nbsp;свободное время копаться в&nbsp;WebKit, Chrome и&nbsp;прочее, прочее. Про браузеры сегодня и&nbsp;поговорим, а&nbsp;именно про безголовые браузеры и&nbsp;всю их&nbsp;семейку призраков.","imageUrl":null,"buttonTextHtml":null,"image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":52,"votesCount":90},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"61752","alias":"Tenphi","fullname":"Андрей Яманов","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F264\u002F963\u002F782\u002F2649637826e59ef5b879169db5526328.png","speciality":"CSS Cheater, DX Advocate"},"statistics":{"commentsCount":14,"favoritesCount":189,"readingCount":71084,"score":42,"votesCount":42},"hubs":[{"relatedData":null,"id":"14332","alias":"oleg-bunin","type":"corporative","title":"Блог компании Конференции Олега Бунина (Онтико)","titleHtml":"Блог компании Конференции Олега Бунина (Онтико)","isProfiled":false},{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"357","alias":"javascript","type":"collective","title":"JavaScript","titleHtml":"JavaScript","isProfiled":true},{"relatedData":null,"id":"17110","alias":"nodejs","type":"collective","title":"Node.JS","titleHtml":"Node.JS","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EУже из названия понятно, что headless-браузер — это нечто без головы. В контексте фронтенда — это незаменимый инструмент разработчика, с помощью которого можно тестировать код, проверять качество и соответствие верстке. Виталий Слободин на Frontend Conf решил, что необходимо познакомиться с устройством этого инструмента поближе.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПод катом компоненты и особенности работы Headless Chrome, интересные сценарии использования Headless Chrome. Вторая часть про Puppeteer — удобную Node.js-библиотеку для управления Headless-режимом в Google Chrome и Chromium.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"oembed\"\u003E\u003Cdiv\u003E\u003Cdiv style=\"left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.2493%;\"\u003E\u003Cdiv class=\"tm-iframe_temp\" data-src=\"https:\u002F\u002Fwww.youtube.com\u002Fembed\u002FWPcahL2K27w?rel=0&amp;showinfo=1&amp;hl=en-US\" data-style=\"border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;\" id=\"\" width=\"\"\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EО спикере: \u003C\u002Fstrong\u003E Виталий Слободин — бывший разработчик PhantomJS — тот, кто закрыл его и похоронил. Иногда помогает Константину Токареву ( \u003Cu\u003E\u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fannulen\"\u003Eannulen\u003C\u002Fa\u003E\u003C\u002Fu\u003E) в «воскрешенной» версии QtWebKit — том самом QtWebKit, где есть поддержка ES6, Flexbox и многие других современных стандартов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВиталий любит исследовать браузеры, в свободное время копаться в WebKit, Chrome и прочее, прочее. Про браузеры сегодня и поговорим, а именно про безголовые браузеры и всю их семейку призраков.\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cstrong\u003EЧто такое безголовый браузер?\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nУже из названия понятно, что это нечто без головы. В контексте браузера это значит следующее.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EУ него \u003Cstrong\u003Eнет реальной отрисовки содержимого\u003C\u002Fstrong\u003E, то есть он все отрисовывает в памяти.\u003C\u002Fli\u003E\r\n\u003Cli\u003EЗа счет этого он \u003Cstrong\u003Eпотребляет меньше памяти\u003C\u002Fstrong\u003E, потому что не нужно отрисовывать картинки или гигабайтные PNG, которые люди пытаются при помощи бомбы положить в бэкенд.\u003C\u002Fli\u003E\r\n\u003Cli\u003EОн \u003Cstrong\u003Eработает быстрее\u003C\u002Fstrong\u003E, потому что ему ничего не нужно отрисовывать на реальном экране.\u003C\u002Fli\u003E\r\n\u003Cli\u003EИмеет \u003Cstrong\u003Eпрограммный интерфейс для управления\u003C\u002Fstrong\u003E. Вы спросите — у него же нет интерфейса, кнопочек, окошек? Как же им управлять? Поэтому конечно же он имеет интерфейс для управления.\u003C\u002Fli\u003E\r\n\u003Cli\u003EНемаловажное свойство — \u003Cstrong\u003Eвозможность установки на «голый» Linux-сервер\u003C\u002Fstrong\u003E. Это нужно для того, что, если у вас есть свежеустановленная Ubuntu или Red Hat, вы можете просто туда закинуть бинарник или поставить пакет, и браузер будет работать из коробки. Никакого шаманства или вуду-магии не понадобится.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nТак схематично выглядит обычной браузер на основе WebKit. Вы можете не вчитываться в компоненты — это просто наглядное изображение.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fun\u002F7p\u002Fzj\u002Fun7pzjwjsn1a3psu2augn59jmj0.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fun\u002F7p\u002Fzj\u002Fun7pzjwjsn1a3psu2augn59jmj0.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНас интересует только верхний компонент Browser UI. Это тот самый интерфейс пользователя — окошки, меню, всплывающие уведомления и все остальное.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F14\u002Fds\u002Foa\u002F14dsoabrnydhu5hb6iovu_gd2m8.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F14\u002Fds\u002Foa\u002F14dsoabrnydhu5hb6iovu_gd2m8.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак выглядит безголовый браузер. Заметили разницу? Мы полностью убираем интерфейс пользователя. Его больше нет. \u003Cstrong\u003EОстается только браузер\u003C\u002Fstrong\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСегодня мы будем говорить именно про Headless Chrome (). В чем между ними разница? На самом деле, Chrome — это брендированная версия Chromium, у которой есть проприетарные кодеки, тот же самый H.264, интеграции с сервисами Google и все остальное. Chromium — это просто открытая реализация.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fti\u002F14\u002F-e\u002Fti14-etgpuf8lm5euapnu1qk3rs.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fti\u002F14\u002F-e\u002Fti14-etgpuf8lm5euapnu1qk3rs.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДата рождения Headless Chrome: 2016 год. Если вы сталкивались с ним, то можете задать мне каверзный вопрос: «Как так, я помню новость 2017 года?» Дело в том, что команда инженеров из Google связывалась с разработчиками PhantomJS еще в 2016 году, когда они только-только начинали реализовывать Headless-режим в Chrome. Мы писали целые гуглдоки, как мы будем реализовывать интерфейс и прочее. Тогда Google хотели сделать интерфейс, полностью совместимый с PhantomJS. Это уже потом команда инженеров пришла к решению не делать таковую совместимость.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОб интерфейсе для управления (API), в качестве которого выступает Chrome DevTools protocol, поговорим позже и посмотрим, что с его помощью можно делать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭта статья будет строится по принципу пирамиды Puppeteer (с англ. кукловод). Хорошее название выбрано — кукловод — тот, кто управляет всеми остальными!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F4y\u002F2i\u002Flq\u002F4y2ilqrqu3fxx8lrinrjp90zgfq.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F4y\u002F2i\u002Flq\u002F4y2ilqrqu3fxx8lrinrjp90zgfq.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ основании пирамиды лежит Headless Chrome — безголовый Chrome — что это такое?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cstrong\u003EHeadless Chrome\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Ftx\u002Fid\u002Fql\u002Ftxidqlimkcdam_vcyah-fu4vlk0.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ftx\u002Fid\u002Fql\u002Ftxidqlimkcdam_vcyah-fu4vlk0.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ центре — Headless browser — тот самый Chromium или Chrome (обычно Chromium). У него есть так называемые отрисовщики (RENDERER) — процессы, которые отрисовывают содержимое страницы (ваше окно). Причем, каждой вкладке нужен свой отрисовщик, поэтому, если открыть много вкладок, то Chrome запустит столько же процессов для отрисовки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоверх всего этого — ваше приложение. Если мы берем Chromium или Headless Chrome, то поверх него будет Chrome, либо какое-то приложение, в которое вы можете встроить его. Ближайшим аналогом можно назвать Steam. Все знают, что по сути Steam — это просто браузер к сайту Steam. Он, конечно, не headless, но похож на эту схему.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсть 2 способа встраивать безголовый Chrome в ваше приложение (или его использовать):\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EСтандартный, когда вы берете \u003Cstrong\u003EPuppeteer\u003C\u002Fstrong\u003E и используете Headless Chrome.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003EКогда вы берете компонент \u003Cstrong\u003EHeadless library\u003C\u002Fstrong\u003E, то есть библиотеку, которая реализует безголовый режим, и встраиваете в свое приложение, допустим, на языке C++.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nВы спросите, зачем C++ на фронтенде? Ответ — DevTools C++ API. Вы можете по-разному реализовывать и использовать возможности безголового Chrome. Если вы используете Puppeteer, общение с безголовым браузером будет осуществляться через веб-сокеты. Если вы встраиваете Headless library в десктопное приложение, то будете использовать нативный интерфейс, который написан на C++.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо помимо всего этого у вас еще появляются дополнительные вещи, в том числе:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cstrong\u003ECustom networking\u003C\u002Fstrong\u003E — кастомная реализация взаимодействия с сетью. Допустим, вы работаете в банке или в госструктуре, которая состоит из трех букв и начинается на «Ф», и используете очень хитрый протокол аутентификации или авторизации, который не поддерживается браузерами. Поэтому вам может понадобиться кастомный обработчик для вашей сети. Вы можете просто взять вашу уже реализованную библиотеку и использовать ее в Chrome.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003EMojo modules\u003C\u002Fstrong\u003E. Ближайшим аналогом Mojo являются нативные биндинги в Node.js к вашим нативным библиотекам, написанные в C++. Mojo делает то же самое — вы берете свою нативную библиотеку, пишите для нее Mojo-интерфейс, и потом можете в вашем браузере вызывать методы вашей нативной библиотеки.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EКомпоненты Chromium\u003Cbr\u002F\u003E\r\n\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fzh\u002F-x\u002Fjf\u002Fzh-xjfbpq4mjz2ntcwr_tjriuhe.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fzh\u002F-x\u002Fjf\u002Fzh-xjfbpq4mjz2ntcwr_tjriuhe.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОпять слышу каверзный вопрос: «Зачем мне эта страшная схема? Я пишу под (вставьте название любимого фреймворка)».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EЯ считаю, что разработчик должен знать, как устроен его инструмент. Если вы пишите под React, вы должны знать, как работает React. Если вы пишите под Angular, вы должны знать, что у Angular под капотом.\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nПотому что в случае чего, допустим, фатальной ошибки или очень серьезного бага на продакшене, вам придется разбираться с «кишками», и вы просто можете потеряться там — где, что и как. Если вы, например, будете писать тесты или использовать Headless Chrome, вы тоже можете столкнуться с некоторыми его странностями поведения и багами. Поэтому я вам вкратце расскажу, какие у Chromium есть компоненты. Когда вы увидите большой stack trace, вы уже будете знать, в какую сторону копать и как вообще это можно поправить.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСамый низкий уровень \u003Cstrong\u003EPlatform layer\u003C\u002Fstrong\u003E. Его компоненты:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cstrong\u003EOzone\u003C\u002Fstrong\u003E — абстрактный менеджер окон в Chrome — то, с чем взаимодействует оконный менеджер операционной системы. На Linux это либо X-server, либо Wayland. На Windows это менеджер окон Windows.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003EScheduler\u003C\u002Fstrong\u003E — тот самый планировщик, без которого мы никуда, потому что мы все знаем, что Chrome — это многопроцессное приложение, и нам нужно как-то разруливать все потоки, процессы и все остальное.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003ENet \u003C\u002Fstrong\u003E— у браузера всегда должен быть компонент для работы с сетью, например, парсинг HTTP, создание заголовков, редактирование и т.д.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nУровень \u003Cstrong\u003EContent layer\u003C\u002Fstrong\u003E — самый большой компонент, который есть в Chrome. Он включает в себя:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cstrong\u003EBlink\u003C\u002Fstrong\u003E — веб-движок на основе WebCore из WebKit. Он может взять HTML в виде строки, распарсить, выполнить JavaScript — и все. Больше он вообще ничего не умеет: ни работать с сетью, ни отрисовывать — все это происходит поверх Blink.\u003Cbr\u002F\u003E\r\n Blink в себя включает: сильно модифицированную версию WebCore — веб-движка для работы с HTML и CSS; V8 (JavaScript движок); а также API для всех расширений, которые мы используем в Chrome, например, блокировщик рекламы. Туда же входит DevTools protocol.\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003Cli\u003E \u003Cstrong\u003EContent API\u003C\u002Fstrong\u003E — это интерфейс, при помощи которого можно очень легко использовать все возможности веб-движка. Поскольку внутри Blink так много всего (наверное, больше миллиона интерфейсов), то, чтобы не потеряться во всех этих методах и функциях, нужен Content API. Вы вводите HTML, движок его автоматически обработает, разберет DOM, построит CSS OM, выполнит JavaScript, запустит таймеры, обработчики и все остальное.\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nУровень \u003Cstrong\u003EHeadless layer\u003C\u002Fstrong\u003E — уровень безголового браузера:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Cstrong\u003EHeadless library\u003C\u002Fstrong\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003EEmbedder API\u003C\u002Fstrong\u003E интерфейс для встраивания Headless library в приложение.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Cstrong\u003EClient API\u003C\u002Fstrong\u003E — интерфейс, который использует Puppeteer.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nУровень приложения \u003Cstrong\u003EApplication layer\u003C\u002Fstrong\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EВаше приложение (\u003Cstrong\u003EEmbedding app\u003C\u002Fstrong\u003E);\u003C\u002Fli\u003E\r\n\u003Cli\u003EМини-приложения, например, \u003Cstrong\u003EHeadless shell\u003C\u002Fstrong\u003E.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nТеперь давайте поднимемся из глубин чуть выше, активизируемся — сейчас пойдет фронтенд.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F_p\u002Fp6\u002F10\u002F_pp610df2doffm9nfysj-62ioea.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F_p\u002Fp6\u002F10\u002F_pp610df2doffm9nfysj-62ioea.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EChrome DevTools protocol\u003Cbr\u002F\u003E\r\n\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nМы все сталкивались с Chrome DevTools protocol, поскольку пользуемся панелью разработчиков в Chrome или удаленным отладчиком — теми же самыми средствами разработки. Если вы запускаете средства разработчика в удаленном режиме, общение с браузером происходит при помощи именно DevTools protocol. Когда вы ставите debugger, смотрите code coverage, используете геолокацию или еще что-нибудь — все это управляется при помощи DevTools.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fqe\u002Fwy\u002F2b\u002Fqewy2b3vwphvwanus0zqqnnxeq4.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fqe\u002Fwy\u002F2b\u002Fqewy2b3vwphvwanus0zqqnnxeq4.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа самом деле сам DevTools protocol имеет огромное количество методов. Ваше средство разработчика не имеет доступа, наверное, к 80% из них. Реально там можно делать все!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДавайте разберем, что из себя представляет этот протокол. На самом деле он очень простой. В нем есть 2 компонента:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EDevTools target —вкладка, которую вы инспектируете;\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003EDevTools client — допустим, это панель разработчика, которая запущена в удаленном режиме.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F-a\u002Ft8\u002Fch\u002F-at8chx2k1wsarzbzqhxtftflay.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F-a\u002Ft8\u002Fch\u002F-at8chx2k1wsarzbzqhxtftflay.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОни общаются при помощи простого JSON:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EЕсть идентификатор команды, название метода, который нужно выполнить, и некоторые параметры.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПосылаем запрос и получаем ответ, который тоже выглядит очень просто: идентификатор, который нужен потому, что все команды, которые выполняются при помощи протокола, асинхронные. Для того, чтобы мы всегда могли сопоставить, какой ответ на какую команду нам пришел, нам и требуется идентификатор.\u003C\u002Fli\u003E\r\n\u003Cli\u003E Есть результат. В нашем случае он представляет собой объект result со следующими атрибутами: \u003Cstrong\u003Etype: \u003C\u002Fstrong\u003E\u003Cstrong\u003E«number», \u003C\u002Fstrong\u003E\u003Cstrong\u003Evalue: \u003C\u002Fstrong\u003E\u003Cstrong\u003E2, \u003C\u002Fstrong\u003E\u003Cstrong\u003Edescription: \u003C\u002Fstrong\u003E\u003Cstrong\u003E«2»\u003C\u002Fstrong\u003E, исключение брошено не было: \u003Cstrong\u003EwasThrown: \u003C\u002Fstrong\u003E\u003Cstrong\u003Efalse.\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n \u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nНо помимо всего прочего ваша вкладка может слать события вам обратно. Допустим, когда произошло какое-то событие на странице, или было исключение на странице, вы получите уведомление через этот протокол.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F-f\u002Fnc\u002F8g\u002F-fnc8gvu6h9dy5p5ovh3wf0v6ua.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F-f\u002Fnc\u002F8g\u002F-fnc8gvu6h9dy5p5ovh3wf0v6ua.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fh0\u002Ftx\u002Fud\u002Fh0txudupxhjb8brbckihbe7wzum.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fh0\u002Ftx\u002Fud\u002Fh0txudupxhjb8brbckihbe7wzum.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cstrong\u003EPuppeteer\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nУстановить Puppeteer можно при помощи любимого пакетного менеджера — будь то yarn, npm или любой другой.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИспользовать его тоже легко — просто запрашиваете его в своем Node.js-скрипте, и уже, по сути, можете использовать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fpi\u002Fia\u002For\u002Fpiiaoriro3hvbrm_yhvd1h-scq4.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fpi\u002Fia\u002For\u002Fpiiaoriro3hvbrm_yhvd1h-scq4.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПо ссылке \u003Ca href=\"https:\u002F\u002Ftry-puppeteer.appspot.com\u002F\"\u003Ehttps:\u002F\u002Ftry-puppeteer.appspot.com\u003C\u002Fa\u003E вы можете прямо на сайте написать скрипт, выполнить его и получить результат прямо в браузере. Все это будет реализовано при помощи Headless Chrome.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРассмотрим простейший скрипт под Node.js:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Econst puppeteer = require('puppeteer');\n\n(async() =\u003E {\n  const browser = await puppeteer.launch() ; \n  const page = await browser.newPage();\n\n  await page.goto('http:\u002F\u002Fdevconf.ru\u002F') ; \n  await page.emulateMedia('screen') ; \n  await page.pdf({\n    path: '.\u002Fdevconf.pdf, \n    printBackground: true \n  });\nawait browser.close() ;\n})();\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗдесь мы просто открываем страничку и печатаем ее в PDF. Посмотрим работу этого скрипта в режиме реального времени:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"oembed\"\u003E\u003Cdiv\u003E\u003Cdiv style=\"left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.2493%;\"\u003E\u003Cdiv class=\"tm-iframe_temp\" data-src=\"https:\u002F\u002Fwww.youtube.com\u002Fembed\u002FWPcahL2K27w?rel=0&amp;showinfo=1&amp;start=990&amp;hl=en-US\" data-style=\"border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;\" id=\"\" width=\"\"\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nВсе будет классно, но непонятно — что там внутри. Конечно, у нас же headless-браузер, мы же ничего не видим. Поэтому у Puppeteer есть специальный флаг, который называется headless: false:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Econst browser = await puppeteer.launch({\n  headless: false\n});\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nОн нужен для запуска headless-браузера в режиме headful, когда вы сможете увидеть какое-то окно и посмотреть, что же происходит с вашей страницей в режиме реального времени, то есть как ваш скрипт взаимодействует с вашей страницей.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fqz\u002Foo\u002Fie\u002Fqzooiejebek5gqaww2gw9tv0sgc.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fqz\u002Foo\u002Fie\u002Fqzooiejebek5gqaww2gw9tv0sgc.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак будет выглядеть тот же самый скрипт, когда мы добавим этот флаг. Слева появляется окно браузера — уже нагляднее.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"oembed\"\u003E\u003Cdiv\u003E\u003Cdiv style=\"left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.2493%;\"\u003E\u003Cdiv class=\"tm-iframe_temp\" data-src=\"https:\u002F\u002Fwww.youtube.com\u002Fembed\u002FWPcahL2K27w?rel=0&amp;showinfo=1&amp;start=1040&amp;hl=en-US\" data-style=\"border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;\" id=\"\" width=\"\"\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EПлюсы Puppeteer:\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n  + Это Node.js-библиотека для безголового Chrome.\u003Cbr\u002F\u003E\r\n  + Поддержка legacy-версий Node.js \u003E= 6.\u003Cbr\u002F\u003E\r\n  + Легкая установка.\u003Cbr\u002F\u003E\r\n  + Высокоуровневый API для управления всей этой гигантской машиной.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nБезголовый Chrome устанавливается легко и без вмешательства в систему. При первой установке Puppeteer скачивает версию Chromium и устанавливает ее прямо в папку node_modules именно под вашу архитектуру и ОС. Вам не нужно ничего скачивать дополнительно, он это делает автоматически. Вы также можете использовать и вашу любимую версию Chrome, которая установлена у вас в системе. Это тоже можно сделать — Puppeteer предоставляет вам такой API.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nК сожалению, есть и минусы, если брать именно базовую инсталляцию.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EМинусы Puppeteer\u003C\u002Fstrong\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n  − \u003Cstrong\u003EНет top-level функций\u003C\u002Fstrong\u003E: синхронизации закладок и паролей; поддержки профилей; аппаратного ускорения и т.д.\u003Cbr\u002F\u003E\r\n  − \u003Cstrong\u003EПрограммный рендеринг\u003C\u002Fstrong\u003E — наиболее весомый минус. Все вычисления и отрисовки происходят на вашем CPU. Но и тут инженеры Google нас скоро удивят — работы по реализации аппаратного ускорения уже ведутся. Уже сейчас можно попытаться его использовать, если вы смелы и отважны.\u003Cbr\u002F\u003E\r\n  − До недавнего времени не было поддержки расширений — теперь ЕСТЬ! Если вы хитрый разработчик, можете взять ваш любимый AdBlock, указать, как Puppeteer’у его использовать, и вся реклама будет заблокирована.\u003Cbr\u002F\u003E\r\n  − \u003Cstrong\u003EНет поддержки аудио\u002Fвидео\u003C\u002Fstrong\u003E. Потому что, ну зачем headless-браузеру аудио и видео.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EЧто может Puppeteer:\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EИзоляция сессий.\u003C\u002Fli\u003E\r\n\u003Cli\u003EВиртуальные таймеры.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПерехват сетевых запросов.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nИ еще пара клевых вещей, которые я покажу чуть дальше.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EИзоляция сессий\u003Cbr\u002F\u003E\r\n\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nЧто это такое, с чем ее едят, и не подавимся ли мы? — Не подавимся!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИзоляция сессий — это \u003Cstrong\u003Eотдельные «хранилища» для каждой вкладки\u003C\u002Fstrong\u003E. Когда вы запускаете Puppeteer, вы можете создать новую страницу, и у каждой новой страницы у вас может быть отдельное хранилище, в том числе:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Ecookes;\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003Elocal storage;\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003Cli\u003Ecache.\u003Cbr\u002F\u003E\r\n\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nВсе страницы будут жить независимо друг от друга. Это нужно, чтобы, например, поддерживать атомарность тестов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИзоляция сессий позволяет \u003Cstrong\u003Eсэкономить ресурсы и время при запуске параллельных сессий\u003C\u002Fstrong\u003E. Допустим, вы тестируете сайт, который собирается в development-режиме, то есть bundle не минимизированы, и весят 20 МБ. Если вы хотите просто его закэшировать, то можете указать Puppeteer использовать кэш общий для всех страниц, которые создаются, и этот bundle будет закэширован.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМожно \u003Cstrong\u003Eсериализовать сессии для последующего использования\u003C\u002Fstrong\u003E. Вы пишите тест, который проверяет некое действие у вас на сайте. Но у вас есть проблема — сайт требует авторизацию. Вы же не будете в каждом тесте постоянно добавлять before для авторизации на сайте. Puppeteer позволяет залогиниться на сайте один раз, и потом переиспользовать эту сессию в дальнейшем.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EВиртуальные таймеры\u003Cbr\u002F\u003E\r\n\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВозможно, вы уже используете виртуальные таймеры. Если вы двигали ползунок в средстве разработчика, который ускоряет или замедляет анимацию (и мыли после этого руки конечно же!), то в этот момент вы использовали виртуальные таймеры в браузере.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nБраузер может использовать виртуальные таймеры вместо реальных, чтобы \u003Cstrong\u003E«прокрутить» время вперед\u003C\u002Fstrong\u003E для ускорения загрузки страницы или завершения анимации. Допустим, у вас тот же самый тест, вы заходите на главную страницу, а там анимация на 30 секунд. Никому не выгодно, чтобы тест ждал все это время. Поэтому вы можете просто ускорить анимацию, чтобы она была завершена мгновенно при загрузке страницы, и ваш тест продолжил работу.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМожно \u003Cstrong\u003Eостановить время, пока выполняется сетевой запрос\u003C\u002Fstrong\u003E. Например, вы тестируете реакцию вашего приложения на то, когда запрос, ушедший на бэкенд, очень долго выполняется, либо возвращается с ошибкой. Вы можете остановить время — Puppeteer это позволяет.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа слайде ниже есть еще один вариант: \u003Cstrong\u003Eостановить и продолжить работу отрисовщика\u003C\u002Fstrong\u003E (renderer). В экспериментальном режиме была возможность сказать браузеру не заниматься отрисовкой, а позже, если понадобится, запросить скриншот. Тогда бы безголовый Chrome все бы быстро отрисовал, выдал скриншот, и снова перестал бы отрисовывать что-либо. К сожалению, разработчики уже успели поменять принцип работы этого API и такой функции больше нет.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСхематичный вид виртуальных таймеров ниже.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fdy\u002Fzm\u002Fbu\u002Fdyzmbucfttmfjlbsdkpmlk6bypq.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fdy\u002Fzm\u002Fbu\u002Fdyzmbucfttmfjlbsdkpmlk6bypq.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ верхней строке два обычных таймера: первый стартует в первую единицу времени и выполняется за одну единицу времени, второй стартует в третью единицу времени и выполняется за три единицы времени.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУскорение таймеров — они запускаются друг за другом. Когда мы их приостанавливаем, у нас появляется промежуток времени, после которого все таймеры стартанут.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРассмотрим это на примере. Ниже обрезанный кусок кода, который по сути просто загружает страницу с анимацией с codepen.io и ждет:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E(async() =\u003E {\n  const browser = await puppeteer.launch(); \n  const page = await browser.newPage();\n\n  const url = ‘https :\u002F\u002Fcodepen.o\u002Fajerez\u002Ffull\u002FEaEEOW\u002F'; \u002F\u002F # 1\n\n  await page.goto(url, { waitUnitl: 'load' }); \u002F\u002F # 2\n})();\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fwww.youtube.com\u002Fwatch?v=WPcahL2K27w&amp;amp;feature=youtu.be&amp;amp;t=1454\"\u003EЭто\u003C\u002Fa\u003E демонстрация выполнения в ходе доклада — просто анимация.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТеперь при помощи Chrome DevTools protocol отправим метод, который называется Animation.setPlaybackRate, передадим в качестве параметров ему playbackRate с значением 12:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Econst url = 'https:\u002F\u002Fcodepen.o\u002Fajerez\u002Ffull\u002FEaEEOW\u002F'; \u002F\u002F # 1\nawait page._client.send('Animation.setPlaybackRate', { playbackRate: 12 }); \u002F\u002F # 3\nawait page.goto(url, { waitUntil: 'load' }); \u002F\u002F # 2\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЗагружаем ту же самую ссылку, и анимашка стала работать гораздо быстрее. Это происходит за счет того, что мы использовали виртуальный таймер и ускорили проигрывание анимации в 12 раз.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДавайте теперь проведем эксперимент — передадим playbackRate: 0 — и посмотрим, что же будет. А будет вот \u003Ca href=\"https:\u002F\u002Fyoutu.be\u002FWPcahL2K27w?t=1507\"\u003Eчто\u003C\u002Fa\u003E: анимации вообще нет, она не проигрывается. Нулевое и отрицательные значения просто приостанавливают полностью всю анимацию.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EРабота с сетевыми запросами\u003Cbr\u002F\u003E\r\n\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВы можете \u003Cstrong\u003Eперехватывать сетевые запросы\u003C\u002Fstrong\u003E путем установки следующего флага:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eawait page.setRequestlnterception(true);\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ таком режиме появляется дополнительное событие, которое срабатывает, когда отправляется или приходит какой-то сетевой запрос.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВы можете \u003Cstrong\u003Eменять запрос на лету\u003C\u002Fstrong\u003E. Это значит, что вы можете полностью менять все его содержимое (body) и его заголовки, инспектировать, даже отменять запрос.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭто нужно для того, чтобы \u003Cstrong\u003Eобрабатывать авторизацию или аутентификацию\u003C\u002Fstrong\u003E, в том числе базовую аутентификацию по HTTP.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕще вы можете сделать \u003Cstrong\u003Eпокрытие кода (JS\u002FCSS)\u003C\u002Fstrong\u003E. При помощи Puppeteer можно все это автоматизировать. Все мы знаем утилиты, которые могут загрузить страничку, показать, какие классы в ней используются и т.д. Но довольны ли мы ими? Думаю, нет.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EБраузер знает лучше, какие селекторы и классы используются — он же браузер! Он всегда знает, какой JavaScript выполнился, какой нет, какой CSS используется, какой нет.\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nОпять на помощь приходит Chrome DevTools protocol:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eawait Promise.all ( [\n  page.coverage.startJSCoverage(), \n  page.coverage.startCSSCoverage()\n]);\n\nawait page.goto(’https:\u002F\u002Fexample.com’);\n\nconst [jsCoverage, cssCoverage] = await Promise,all([ \npage.coverage.stopJSCoverage(), page.coverage.stopCSSCoverage()\n]): \n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ первых двух строчках запускаем сравнительно новую фичу, которая позволяет узнать покрытие кода. Запускаем JS и CSS, переходим на какую-то страничку, потом говорим — стоп — и можем посмотреть результаты. Причем это не какие-то мнимые результаты, а те, которые видит браузер именно за счет движка.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПомимо всего прочего, уже есть плагин, который для Puppeteer это все экспортирует в istanbul.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа вершине пирамиды Puppeteer находится скрипт, который вы написали на Node.js — он как крестный отец всем нижним пунктам.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fgx\u002Fj6\u002Fxl\u002Fgxj6xlxcpfwiuekgcszpnijrzf8.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fgx\u002Fj6\u002Fxl\u002Fgxj6xlxcpfwiuekgcszpnijrzf8.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо… «не всё спокойно в датском королевстве...» — как писал Уильям Шекспир.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cstrong\u003EЧто не так с безголовыми браузерами?\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nУ безголовых браузеров есть проблемы несмотря на то, что все их крутые фичи могут так много.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EОтличие в рендеринге страницы на разных платформах\u003Cbr\u002F\u003E\r\n\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nЯ очень люблю этот пункт и постоянно про это рассказываю. Давайте посмотрим на эту картинку.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002F62\u002Fr2\u002Frj\u002F62r2rjsc0ggbgpedb5lhp_tceki.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F62\u002Fr2\u002Frj\u002F62r2rjsc0ggbgpedb5lhp_tceki.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗдесь обычная страничка с обычным текстом: справа — отрисовка в Chrome на Linux, слева — под Windows. Те, кто тестирует скриншотами, знают, что всегда устанавливается значение, называемое «порогом погрешности», которое определяет, когда скриншот считается идентичным, а когда нет.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа самом деле проблема в том, что как бы вы не старались установить этот порог, погрешность всегда будет выходить за эту грань, и вы все равно будете получать ложно позитивные результаты. Это связано с тем, что все страницы, и даже веб-шрифты рендерятся по-разному на всех трех платформах — на Windows по одному алгоритму, на MacOS по-другому, в Linux вообще зоопарк. \u003Cstrong\u003EВы не можете просто взять и тестировать скриншотами\u003C\u002Fstrong\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВы скажете: «Мне просто нужна эталонная машина, где я буду запускать все эти тесты и сравнивать скриншоты». Но на самом деле это дико неудобно, потому что вам придется ждать CI, а вы хотите здесь и сейчас локально на машине у себя проверить, не сломали ли вы что-нибудь. Если у вас эталонные скриншоты делаются на Linux-машине, а у вас Mac, то будут ложные результаты.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EПоэтому я и говорю, что не тестируйте скриншотами вообще — забудьте это.\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nКстати, если вы все-таки хотите тестировать скриншотами, есть замечательная статья Романа Дворнова \"\u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fcompany\u002Favito\u002Fblog\u002F350604\u002F\"\u003EUnit-тестирование скриншотами: преодолеваем звуковой барьер\u003C\u002Fa\u003E\". Это прямо детективное чтиво.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EБлокировки\u003Cbr\u002F\u003E\r\n\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nМногие крупные контент-провайдеры не любят, когда вы делаете scraping или получаете их контент нелегальным способом. Представим, что я крупный контент-провайдер, и хочу сыграть с вами в одну игру. Есть два GET-запроса в двух разных браузерах.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fku\u002Fys\u002F5e\u002Fkuys5eq81wzsqfci9kpddrd-ahm.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fku\u002Fys\u002F5e\u002Fkuys5eq81wzsqfci9kpddrd-ahm.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСможете ли вы угадать, где здесь Chrome? Вариант «оба» не принимается — Chrome тут только один. Скорее всего, вы не сможете ответить на этот вопрос, а я, как крупный контент-провайдер, могу: справа — PhantomJS, а слева — Chrome.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fl8\u002Fvc\u002Flt\u002Fl8vcltt3bh-ccdysbg3azvqjxxe.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fl8\u002Fvc\u002Flt\u002Fl8vcltt3bh-ccdysbg3azvqjxxe.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯ могу дойти до такой степени, что буду обнаруживать ваши браузеры (что это именно — Chrome или FireFox) путем сопоставления порядка HTTP заголовков в ваших запросах. Если хост идет первым — я четко знаю — это Chrome. Дальше могу не сравнивать. Да, конечно, есть более сложные алгоритмы — мы проверяем не только порядок, но еще и значения, и т.д. и т.п. Но важен факт, что я могу слепками сравнивать ваши заголовки, проверять, кто вы есть, а потом просто блокировать вас или не блокировать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EНевозможно реализовать некоторые функции (Flash)\u003Cbr\u002F\u003E\r\n\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВы когда-нибудь изучали углубленно, прямо хардкорно, Flash в браузерах? Как-то я заглянул — потом полгода не спал.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВсе мы помним, как мы раньше смотрели YouTube, когда еще был Flash: ролик крутится, все хорошо. Но в тот момент, когда создается встраиваемый объект на странице типа Flash, он всегда запрашивает реальное окно у вашей ОС. То есть помимо окна вашего браузера, внутри YouTube-окошка Flash было еще одно окно вашей ОС. Flash не может работать, если вы не дадите ему реальное окно — причем не просто реальное окно, а окно, которое видно у вас на экране. Поэтому некоторые функции в безголовых браузерах реализовать невозможно, в том числе, Flash.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EПолная автоматизация и боты\u003Cbr\u002F\u003E\r\n\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nКак я уже сказал ранее, крупные контент-провайдеры очень боятся, когда вы пишите пауков или граббинги, которые просто крадут информацию, которая предоставляется платно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ ход идут разные ухищрения. Есть статьи о том, как все-таки обнаруживать headless-браузеры. Могу сказать, что \u003Cstrong\u003Eвы никак не сможете обнаружить headless-браузеры\u003C\u002Fstrong\u003E. Все методы, которые там описаны, обходятся. Например, там были способы обнаружения при помощи Canvas. Помню, даже был один скрипт, который смотрел, как движется мышка по экрану, и заполнял Canvas. Мы же люди и двигаем мышку довольно медленно, а Headless Chrome гораздо шустрее. Скрипт понимал, что слишком быстро заполняется Canvas — значит, это, скорее всего, безголовый Chrome. Мы это тоже обошли, просто замедлив браузер — не проблема.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EНет стандартного (единого) API\u003Cbr\u002F\u003E\r\n\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nЕсли вы смотрели headless-реализации в других браузерах — будь это Safari или FireFox — там это все реализовано при помощи webdriver API. В Chrome есть Chrome DevTools protocol. В Edge вообще ничего не понятно — что там есть, чего нет.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EWebGL?\u003Cbr\u002F\u003E\r\n\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nЛюди тоже просят WebGL в headless-режиме. По этой \u003Ca href=\"http:\u002F\u002Fbit.ly\u002Fheadlesswebgl\"\u003Eссылке\u003C\u002Fa\u003E вы можете попасть на багтрекер Google Chrome. Там разработчики активно голосуют за реализацию headless-режима для WebGL, и уже он может что-то рисовать. Их сейчас просто сдерживает аппаратный рендеринг. Как только закончат реализацию аппаратного рендеринга, то и WebGL автоматически будет доступен, то есть что-то можно будет делать в фоне.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо не все так плохо!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУ нас появляется второй игрок на рынке — 11 мая 2018 была \u003Ca href=\"https:\u002F\u002Fblogs.windows.com\u002Fmsedgedev\u002F2018\u002F05\u002F11\u002Fintroducing-edge-devtools-protocol\u002F\"\u003Eновость\u003C\u002Fa\u003E, что Microsoft в своем браузере Edge решил реализовать почти тот же самый протокол, который используется в Google Chrome. Они специально создали консорциум, где обсуждают протокол, который хотят довести до промышленного стандарта, чтобы вы могли взять свой скрипт и запустить его и под Edge, и под Chrome, и под FireFox.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо есть одно «но» — у Microsoft Edge нет headless-режима, к сожалению. У них есть голосовалка, где люди пишут: «Дайте нам headless-режим!» — но они молчат. Наверное, что-то пилят втайне.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Cstrong\u003ETODO (заключение)\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nЯ рассказал это все для того, чтобы вы могли прийти к вашему менеджеру, или, если вы менеджер, к разработчику, и сказать: «Все! \u003Cstrong\u003EМы не хотим больше Selenium — давайте нам Puppeteer!\u003C\u002Fstrong\u003E Будем в нем тестировать». Если это случится, я буду рад.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо если вы сможете изучать, как и я, браузеры, используя Puppeteer, активно постить баги, или отправлять pull request, то я буду рад еще больше. Этот \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FGoogleChrome\u002Fpuppeteer\"\u003Eинструмент\u003C\u002Fa\u003E в OpenSource лежит на GitHub, написан на Node.js — вы можете просто в него брать и контрибьютить.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСлучай с Puppeteer уникален тем, что в Google работает две команды: одна занимается именно Puppeteer, вторая — именно headless-режимом. Если пользователь находит баг, пишет о нем наа GitHub, то, если этот баг не в Puppeteer, а в Headless Chrome, баг переходит в команду Headless Chrome. Если они его там фиксят, то Puppeteer очень быстро обновляется. За счет этого получается единая экосистема, когда сообщество помогает улучшать браузер.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоэтому я призываю вас помогать улучшать инструмент, который используете не только вы, но и другие разработчики и тестировщики.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКонтакты:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003Egithub.com\u002Fvitallium\u003C\u002Fli\u003E\r\n\u003Cli\u003Evk.com\u002Fvitallium\u003C\u002Fli\u003E\r\n\u003Cli\u003Etwitter.com\u002Fvitalliumm\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Ca href=\"http:\u002F\u002Ffrontendconf.ru\u002Fmoscow\u002F2018\u002F\"\u003EFrontend Conf Moscow\u003C\u002Fa\u003E — специализированная конференция фронтенд-разработчиков состоится \u003Cstrong\u003E4 и 5 октября в Москве\u003C\u002Fstrong\u003E, в Инфопространстве. \u003Ca href=\"http:\u002F\u002Ffrontendconf.ru\u002Fmoscow\u002F2018\u002Fabstracts\u002F\"\u003EСписок\u003C\u002Fa\u003E принятых докладов уже опубликован на сайте конференции.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ нашей рассылке мы регулярно делаем тематические обзоры выступлений, рассказываем о вышедших расшифровках и будущих мероприятиях — \u003Ca href=\"http:\u002F\u002Feepurl.com\u002Fbb99tn\"\u003Eподписывайтесь\u003C\u002Fa\u003E, чтобы получать новости первым.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nА это ссылка на наш \u003Ca href=\"https:\u002F\u002Fwww.youtube.com\u002Fc\u002FFrontendChannel\"\u003EYoutube-канал\u003C\u002Fa\u003E по фронтенду, там собраны все выступления, относящиеся к разработке клиентской части проектов.\u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"headless browser"},{"titleHtml":"headless chrome"},{"titleHtml":"тестирование"},{"titleHtml":"оптимизация сайта"},{"titleHtml":"frontendconf"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F421137\u002F4bc10aa66f1cbff1a72a2d6c2b63c1ca\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F421137\u002F4bc10aa66f1cbff1a72a2d6c2b63c1ca\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Foleg-bunin\\\u002Fblog\\\u002F421137\\\u002F\"},\"headline\":\"Как работает Headless Chrome\",\"datePublished\":\"2018-09-05T16:01:29+03:00\",\"dateModified\":\"2018-09-05T16:10:58+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Андрей Яманов\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Уже из&nbsp;названия понятно, что headless-браузер&nbsp;&mdash; это нечто без головы. В&nbsp;контексте фронтенда&nbsp;&mdash; это незаменимый инструмент разработчика, с&nbsp;помощью которого можно т...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Foleg-bunin\\\u002Fblog\\\u002F421137\\\u002F#post-content-body\",\"about\":[\"c_oleg-bunin\",\"h_webdev\",\"h_javascript\",\"h_nodejs\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fun\\\u002F7p\\\u002Fzj\\\u002Fun7pzjwjsn1a3psu2augn59jmj0.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F14\\\u002Fds\\\u002Foa\\\u002F14dsoabrnydhu5hb6iovu_gd2m8.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fti\\\u002F14\\\u002F-e\\\u002Fti14-etgpuf8lm5euapnu1qk3rs.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F4y\\\u002F2i\\\u002Flq\\\u002F4y2ilqrqu3fxx8lrinrjp90zgfq.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Ftx\\\u002Fid\\\u002Fql\\\u002Ftxidqlimkcdam_vcyah-fu4vlk0.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fzh\\\u002F-x\\\u002Fjf\\\u002Fzh-xjfbpq4mjz2ntcwr_tjriuhe.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F_p\\\u002Fp6\\\u002F10\\\u002F_pp610df2doffm9nfysj-62ioea.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fqe\\\u002Fwy\\\u002F2b\\\u002Fqewy2b3vwphvwanus0zqqnnxeq4.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F-a\\\u002Ft8\\\u002Fch\\\u002F-at8chx2k1wsarzbzqhxtftflay.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F-f\\\u002Fnc\\\u002F8g\\\u002F-fnc8gvu6h9dy5p5ovh3wf0v6ua.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fh0\\\u002Ftx\\\u002Fud\\\u002Fh0txudupxhjb8brbckihbe7wzum.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fpi\\\u002Fia\\\u002For\\\u002Fpiiaoriro3hvbrm_yhvd1h-scq4.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fqz\\\u002Foo\\\u002Fie\\\u002Fqzooiejebek5gqaww2gw9tv0sgc.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fdy\\\u002Fzm\\\u002Fbu\\\u002Fdyzmbucfttmfjlbsdkpmlk6bypq.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fgx\\\u002Fj6\\\u002Fxl\\\u002Fgxj6xlxcpfwiuekgcszpnijrzf8.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F62\\\u002Fr2\\\u002Frj\\\u002F62r2rjsc0ggbgpedb5lhp_tceki.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fku\\\u002Fys\\\u002F5e\\\u002Fkuys5eq81wzsqfci9kpddrd-ahm.jpeg\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fl8\\\u002Fvc\\\u002Flt\\\u002Fl8vcltt3bh-ccdysbg3azvqjxxe.jpeg\"]}","metaDescription":"Уже из&nbsp;названия понятно, что headless-браузер&nbsp;&mdash; это нечто без головы. В&nbsp;контексте фронтенда&nbsp;&mdash; это незаменимый инструмент разработчика, с&nbsp;помощью которого можно...","mainImageUrl":null,"amp":false,"customTrackerLinks":["https:\u002F\u002Fvk.com\u002Frtrg?p=VK-RTRG-200244-Qc4X"]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"oleg-bunin":{"alias":"oleg-bunin","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002Fadd\u002Feb3\u002Fe91\u002Faddeb3e91fe453f9d78c7b52b8dc6a90.png","titleHtml":"Конференции Олега Бунина (Онтико)","descriptionHtml":"Профессиональные конференции для IT-разработчиков","relatedData":null,"statistics":{"postsCount":727,"newsCount":9,"vacanciesCount":0,"employeesCount":104,"careerRating":null,"subscribersCount":50773,"rating":349.95,"invest":null},"foundationDate":{"year":"2008","month":"01","day":"01"},"location":{"city":{"id":"447159","title":"Москва"},"region":{"id":"1885","title":"Москва и Московская обл."},"country":{"id":"168","title":"Россия"}},"siteUrl":"http:\u002F\u002Fwww.ontico.ru\u002F","staffNumber":"31–50 человек","registrationDate":"2010-02-24T19:37:40+00:00","representativeUser":[],"contacts":[{"title":"Facebook","url":"https:\u002F\u002Ffacebook.com\u002Foleg.bunin"},{"title":"Facebook","url":"https:\u002F\u002Ffacebook.com\u002FHighLoadConference"},{"title":"Twitter","url":"https:\u002F\u002Ftwitter.com\u002FHighLoadConf"},{"title":"Telegram","url":"https:\u002F\u002Ftelegram.me\u002FHighLoadTalks"}],"settings":{"analyticsSettings":[{"type":"ym","trackingId":"55760638"}],"branding":null,"status":"active","isStartup":false},"metadata":{"titleHtml":"Конференции Олега Бунина (Онтико), Москва - Профессиональные конференции для IT-разработчиков с 1 января 2008 г.","title":"Конференции Олега Бунина (Онтико), Москва - Профессиональные конференции для IT-разработчиков с 1 января 2008 г.","keywords":["Конференции","Высокая производительность","Управление разработкой","Программирование","Управление персоналом","highload++","devops","конференции","highload","управление людьми","teamleadconf","python","frontendconf","appsconf","frontend","тимлид","конференция","рит++","интервью","devopsconf","php","управление командой","postgresql","программирование","javascript"],"descriptionHtml":"727 статей от авторов компании Конференции Олега Бунина (Онтико)","description":"727 статей от авторов компании Конференции Олега Бунина (Онтико)"},"aDeskSettings":null,"careerAlias":"ontico"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

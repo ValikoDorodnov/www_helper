@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Couchbase в телекоме / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/436762\/"},"headline":"Couchbase в телекоме","datePublished":"2019-01-20T11:53:20+03:00","dateModified":"2019-01-21T04:22:52+03:00","author":{"@type":"Person","name":"Ковальчук Егор"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Цифровая трансформация является мировым трендом для крупного бизнеса и жизненно важна для адаптации &nbsp;предприятия к современным потребностям клиента. Кроме обычно...","url":"https:\/\/habr.com\/ru\/post\/436762\/#post-content-body","about":["h_nosql","h_netdev","h_network_standarts","h_cellular","f_develop","f_admin","f_popsci"],"image":["https:\/\/habrastorage.org\/webt\/ai\/bq\/m-\/aibqm-rewdzdcsg-6vtcbcv36lw.gif","https:\/\/habrastorage.org\/webt\/lf\/to\/o5\/lftoo5voqj_ycrfngqgwo74_i6w.png","https:\/\/habrastorage.org\/webt\/5e\/jd\/3h\/5ejd3hwshvqdvwjeuqlovji9ocy.png","https:\/\/habrastorage.org\/webt\/79\/9c\/ne\/799cnegj-o20dtxdfcasl3ihm1u.png","https:\/\/habrastorage.org\/webt\/yf\/nf\/po\/yfnfpots5tbrzzew39w4xsehey8.png","https:\/\/habrastorage.org\/webt\/xe\/in\/ff\/xeinff0eawasua0xiu4ec3yon1y.png","https:\/\/habrastorage.org\/webt\/lv\/nq\/wc\/lvnqwc_jmlr5jukgm10-ibu7qd8.png","https:\/\/habrastorage.org\/webt\/df\/xn\/x2\/dfxnx2uou3mvgpgdvtetuzsshj0.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Couchbase в телекоме" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Couchbase в телекоме" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Couchbase в телекоме" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Цифровая трансформация является мировым трендом для крупного бизнеса и жизненно важна для адаптации  предприятия к современным потребностям клиента. Кроме обычной для крупных компаний проблематики..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Цифровая трансформация является мировым трендом для крупного бизнеса и жизненно важна для адаптации  предприятия к современным потребностям клиента. Кроме обычной для крупных компаний проблематики..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Цифровая трансформация является мировым трендом для крупного бизнеса и жизненно важна для адаптации  предприятия к современным потребностям клиента. Кроме обычной для крупных компаний проблематики..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Цифровая трансформация является мировым трендом для крупного бизнеса и жизненно важна для адаптации  предприятия к современным потребностям клиента. Кроме обычной для крупных компаний проблематики..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Цифровая трансформация является мировым трендом для крупного бизнеса и жизненно важна для адаптации  предприятия к современным потребностям клиента. Кроме обычной для крупных компаний проблематики..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/436762/2d2bbcfb217d18a7f1bf81eea6d849ae/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/436762/2d2bbcfb217d18a7f1bf81eea6d849ae/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/436762/2d2bbcfb217d18a7f1bf81eea6d849ae/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/436762/2d2bbcfb217d18a7f1bf81eea6d849ae/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/436762/2d2bbcfb217d18a7f1bf81eea6d849ae/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="436762" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2019-01-20T08:53:20.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/436762/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="МегаФон, nosql базы данных, couchbase">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/436762/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.140.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/436762/2d2bbcfb217d18a7f1bf81eea6d849ae/" data-vmid="image:href"><link data-vue-meta="ssr" rel="amphtml" href="https://habr.com/ru/amp/post/436762/">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/gorynko/" title="gorynko" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_pink"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/gorynko/" class="tm-user-info__username">
+      gorynko
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2019-01-20T08:53:20.000Z" title="2019-01-20, 11:53">20  января  2019 в 11:53</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Couchbase в телекоме</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/nosql/" class="tm-article-snippet__hubs-item-link"><span>NoSQL</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/netdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка систем связи</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/network_standarts/" class="tm-article-snippet__hubs-item-link"><span>Стандарты связи</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/cellular/" class="tm-article-snippet__hubs-item-link"><span>Сотовая связь</span> <!----></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-sandbox"><span>
+        Из песочницы
+      </span></div></div> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><p>Цифровая трансформация является мировым трендом для крупного бизнеса и жизненно важна для адаптации  предприятия к современным потребностям клиента. Кроме обычной для крупных компаний проблематики централизации систем и объединения биллинговых систем и абонентских БД добавляются требования к высокой доступности и режиму работы в реальном времени к которому клиенты уже привыкли у лидеров индустрии (Google, Amazon, Netflix).</p><br/>
+<p>Новые вызовы требуют новых технологий и подходов, которые необходимы для сокращения времени внедрения удобных клиенту функций, персонализированных коммерческих предложений, быстрой реакции на предложения конкурентов, а так же контроля затрат на системы, ИТ инфраструктуру, датацентры  и квалифицированного персонала. Эти тенденции несут и большой минус: усложнение архитектуры и раздутые транзакционные базы данных, которые не справляются с потоком и обработкой информации. Технологии предыдущего поколения имеют потолок вертикального масштабирования. К примеру, экземпляр СУБД Oracle работает на пределе самого мощного сервера на процессорах x86 при нагрузке в миллиард транзакций в сутки.</p><br/>
+<img src="https://habrastorage.org/r/w1560/webt/ai/bq/m-/aibqm-rewdzdcsg-6vtcbcv36lw.gif" data-src="https://habrastorage.org/webt/ai/bq/m-/aibqm-rewdzdcsg-6vtcbcv36lw.gif"/><br/>
+<p>Для того, чтобы выдержать подобную загрузку с которой уже давно сталкивается интернет индустрия используется новый стек технологий, таких как In-Memory кэши и NoSQL базы данных. Так, Apple применяет Cassandra, Сбербанк – Ignite (GridGain), в МегаФон мы применяем Couchbase и Tarantool.</p><br/>
+<p>В МегаФон используются разные архитектурные шаблоны для In-Memory СУБД:</p><br/>
+<ol>
+<li>Простой кэш, обновляемый по расписанию или по событию из БД и приложений</li>
+<li>Все изменения в БД осуществляются через кэш (write-through сценарий), например, подключение Oracle клиента к DCP Couchbase</li>
+</ol><br/>
+<p><a name="habracut"></a>Для одной из наших систем принятия решений по жизненному циклу абонента мы используем первый шаблон, так как только одно приложение по совокупности данных принимает решение и отправляет его на все системы, в том числе и БД Oracle. Один из ярких кейсов использования жизненного цикла абонента – это блокировка и разблокировка по отрицательному балансу. Ведь все абоненты сотовых операторов после пополнения баланса хотят сразу быть на связи и совершать звонки.  Благодаря вынесенному отдельному приложению и Couchbase, мы смогли сократить время выхода из блокировки с 90 секунд до 30 и это еще не предел. В основную базу попадет только запись об изменении статуса абонента (рис. 1)</p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/lf/to/o5/lftoo5voqj_ycrfngqgwo74_i6w.png" data-src="https://habrastorage.org/webt/lf/to/o5/lftoo5voqj_ycrfngqgwo74_i6w.png"/></div><br/>
+<i>Рисунок 1 (Пример взаимодействия)</i><br/>
+<br/>
+<p>С применением новых технологий нам удалось в 3 раза уменьшить время выхода из финансовой блокировки. Но для того, чтобы получить текущие результаты, нами был пройден долгий путь архитектурной трансформации биллингового контура и выбора NoSQL базы данных.</p><br/>
+<p>Почему мы остановили выбор именно на Couchbase? Для этого существует несколько причин.</p><br/>
+<p><strong>Требование к производительности</strong></p><br/>
+<ol>
+<li>Обработка до 200000 запросов в секунду.</li>
+<li>Среднее время отклика (50%) — до 5 мс (в рамках одного ЦОД).</li>
+<li>Максимальное время отклика (99%) — до 15 мс (в рамках одного ЦОД).</li>
+<li>Максимальная производительность вставки 500 MB/sec</li>
+<li>Максимальное количество операций вставок 100000/с</li>
+<li>Максимальное количество операций изменений (обновлений документов) 100000/с</li>
+<li>Максимальная производительность изменений (обновлений документов) 500 MB/sec</li>
+<li>Максимальное количество операций чтений 100000/с</li>
+<li>Максимальная скорость чтения 500 MB/sec</li>
+</ol><br/>
+<p><strong>Высокопроизводительный поиск по ключу и доступ к данным</strong></p><br/>
+<p>В основе Couchbase лежит распределенное хранилище ключей (KV). Хранилище KV представляет собой чрезвычайно простой подход к управлению данными, который хранит уникальный идентификатор (ключ) вместе с частью произвольной информации. Само хранилище KV может принимать любые данные, будь то бинарный blob или JSON-документ. Благодаря простоте реализации KV доступ к данным обеспечивается с минимальной задержкой. Как показывает наш опыт, чаще задержки по сети в 2-3 раза выше, чем предоставление данных по ключу на стороне Couchbase.</p><br/>
+<p><strong>Динамическая схема хранения(</strong><strong>JSON)</strong></p><br/>
+<p>Документы хранятся на сервере Couchbase в формате JSON. Формат поддерживает как базовые типы данных, такие как числа, строки и сложные типы, так и встроенные словари и массивы.</p><br/>
+<p>Схема данных в Couchbase является логической конструкцией, определяемой приложением и разработчиком. За счет ее гибкости и возможности использовать несколько вариантов, мы можем использовать в документе тег, например, с информацией о версии. Это дает возможность приложению определить, в каком режиме обрабатывать документ, а также обеспечить плавную миграцию базы на новую схему данных.</p><br/>
+<p><strong>Высокая доступность</strong></p><br/>
+<p>Одним из составляющих параметров информационной системы является ее доступность. Couchbase обеспечивает высокую доступность данных с помощью множества различных функций. Одной из них является репликация данных (распределение нескольких копий данных на разных серверах кластера), что позволяет предоставлять сервис при регламентных работах или же выходе части серверов из строя.</p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/5e/jd/3h/5ejd3hwshvqdvwjeuqlovji9ocy.png" data-src="https://habrastorage.org/webt/5e/jd/3h/5ejd3hwshvqdvwjeuqlovji9ocy.png"/></div><br/>
+<i>Рисунок 2 (Реплики сервера Couchbase)</i><br/>
+<br/>
+<p>Второй важной функцией для обеспечения высокой доступности является внутренний протокол DCP (Database Change Protocol). Он обеспечивает высокоскоростную передачу изменений во все копии данных, вторичные индексы (GSI), межкластерную репликацию (XDCR) и внешним потребителям.</p><br/>
+<p><strong>Двунаправленная репликация</strong></p><br/>
+<p>Правильной практикой в компаниях является использование резервирования всех бизнес-процессов и оборудования. В идеальном варианте это резервирование в режиме Active-Active, когда переключение между проблемными узлами происходит автоматически. Двунаправленная репликация в Couchbase позволяет обеспечить режим A-A. Но тестирование репликации показало, что она эффективна только в близко стоящих ЦОД. При разнесении более 100 км появляются конфликты. У Couchbase есть механизмы решения конфликтов: на основе Timestamp и Sequence Number. Однако, из-за временной задержки на сети, в базу попадают устаревшие данные. Мы отказались от использования двунаправленной репликации (cross-cluster consistency). Все изменения проводятся только на одном кластере. Доступность данных в режиме «чтение» обеспечивается во всех ЦОДах (A-A).</p><br/>
+<p><strong>Горизонтальное масштабирование</strong></p><br/>
+<p>Одной из важных характеристик большинства NoSQL БД является горизонтальное масштабирование (рис. 3). Основным отличием Couchbase является поддержка многомерного масштабирования, когда мы в кластере можем наращивать по производительности только нужную службу. Например, игра Pokemon GO использует разделение архитектуры. На старте проекта использовалось 5 серверов с совмещенными службами. После увеличения нагрузки ими была применена разнесенная архитектура: 5 серверов с данными и 55 серверов для обработки запросов и индексов. Одним из минусов масштабирования у Couchbase является возникновение проблем у оркестратора, при наличии в кластере свыше 50 дата нод. </p><br/>
+<p> </p><br/>
+<p></p><div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/79/9c/ne/799cnegj-o20dtxdfcasl3ihm1u.png" data-src="https://habrastorage.org/webt/79/9c/ne/799cnegj-o20dtxdfcasl3ihm1u.png"/></div><br/>
+<p><i>Рисунок 3 MDS</i></p><br/>
+<p><strong>Требования ИБ</strong></p><br/>
+<p>Требования информационной безопасности влияли на наш выбор в меньшей степени, но их наличие у системы выступило дополнительным аргументом в пользу той или иной БД. Так как в кэше могут содержаться персональные данные, то в обязательном порядке мы должны соблюдать требования регулятора. Стоит определиться: будем ли мы использовать дополнительное оборудование или сможем это обеспечить самой базой данных?!</p><br/>
+<p>В энтерпрайз версии Couchbase поддерживает шифрование трафика, шифрование данных и персонализированный доступ.  Это позволяет сэкономить на оборудовании, например Cisco ASA.</p><br/>
+<p><strong>Простота обновления</strong></p><br/>
+<p>Одним из существенных плюсов Couchbase является прозрачный механизм обновления и поддержка API старых версий. На время обновления кластера, он работает в режиме совместимости. Новые механизмы заработают только после полного обновления кластера. Влияния на работающие приложения минимальны за счет поддержки старого API.</p><br/>
+<p><strong>PS: </strong>Обновление/даунгрейд допускается только на соседних мажорных версиях</p><br/>
+<p><strong>Дополнительная функциональность</strong></p><br/>
+<p><em>Логическое распределение</em></p><br/>
+<p>Еще одной из интересных возможностей является объединение серверов в кластере в логические группы, с привязкой к ним реплик. Это позволяет распределять полные копии реплик одного кластера по разным автозалам. Что позволяет при выходе из строя одного из автозалов иметь полную копию данных во втором</p><br/>
+<p></p><div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/yf/nf/po/yfnfpots5tbrzzew39w4xsehey8.png" data-src="https://habrastorage.org/webt/yf/nf/po/yfnfpots5tbrzzew39w4xsehey8.png"/></div><br/>
+<i>Рисунок 4 Server Gropus</i><br/>
+<br/>
+<p><b>Резервное копирование и восстановление</b></p><br/>
+<p>Couchbase содержит в себе готовые инструменты для резервного копирования и восстановления. Процесс бекапа может работать в трёх режимах: полном, дифференциальном и накопительном. Это позволяет в некоторых случаях сэкономить место на дисках и процессорные ресурсы.</p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/xe/in/ff/xeinff0eawasua0xiu4ec3yon1y.png" data-src="https://habrastorage.org/webt/xe/in/ff/xeinff0eawasua0xiu4ec3yon1y.png"/></div><br/>
+<p><strong>Couchbase vs Mongo</strong></p><br/>
+<p>На вопрос выбора альтернативных NoSQL БД ответить сложно, и зачастую, лучший Unix – тот, который знает твой админ. Попытаемся сформулировать, почему мы отдали предпочтение Couchbase, а не другой очень популярной платформе – MongoDB.</p><br/>
+<p>Довольно сложно сравнивать два разных проекта с отличающейся архитектурой и функциональностью. Одним из параметров, на который мы обращали внимание, это простота обслуживания и возможности быстрой реконфигурации системы под потребности бизнеса.</p><br/>
+<p>Таблица 1 Сравнение</p><br/>
+<sup><table>
+<tbody>
+<tr>
+<td><p><strong> </strong></p><br/>
+</td>
+<td><p><strong>Couchbase</strong></p><br/>
+</td>
+<td><p><strong>MongoDB</strong></p><br/>
+</td>
+</tr>
+<tr>
+<td><p><strong>Масштабирование</strong></p><br/>
+</td>
+<td><p>Автоматическое для всего набора данных</p><br/>
+</td>
+<td><p>Ручной выбор ключа</p><br/>
+</td>
+</tr>
+<tr>
+<td><p><strong>Распределение данных</strong></p><br/>
+</td>
+<td><p>Данные всегда равномерно распределены по всем дата нодам</p><br/>
+</td>
+<td><p>Неправильная разметка может привести к перекосу распределения данных</p><br/>
+</td>
+</tr>
+<tr>
+<td><p><strong>Добавление/удаление узла или реплики</strong></p><br/>
+</td>
+<td><p>Добавляется в один шаг через GUI, с ребалансировкой</p><br/>
+</td>
+<td><p>Довольно сложная задача с расчетами веса для каждой коллекции</p><br/>
+</td>
+</tr>
+<tr>
+<td><p><strong>Распределение реплик по стойкам/ЦОД</strong></p><br/>
+</td>
+<td><p>Реализовано через логические группы</p><br/>
+</td>
+<td><p>Не реализовано</p><br/>
+</td>
+</tr>
+<tr>
+<td><p><strong>Автоматическое распределение нагрузки </strong></p><br/>
+</td>
+<td><p>Каждая нода имеет одинаковое количество активных записей доступных на чтение и запись</p><br/>
+</td>
+<td><p>Не сбалансировано. Вторичные узлы не поддерживают запись</p><br/>
+</td>
+</tr>
+<tr>
+<td><p><strong>Масштабирование индексов</strong></p><br/>
+</td>
+<td><p>Гибкое, можно добавлять отдельные индекс ноды за счет разнесенной архитектуры</p><br/>
+</td>
+<td><p>Жесткое, масштабирование индекса связано с масштабирование данных.</p><br/>
+</td>
+</tr>
+<tr>
+<td><p><strong>Метаданные кластера</strong></p><br/>
+</td>
+<td><p>Распределяются по всем узлам кластера</p><br/>
+</td>
+<td><p>Требуются сервера конфигурации</p><br/>
+</td>
+</tr>
+<tr>
+<td><p><strong>Интегрированный поиск</strong></p><br/>
+</td>
+<td><p>N1LQ(SQL++)</p><br/>
+</td>
+<td><p>JSON запрос</p><br/>
+</td>
+</tr>
+</tbody>
+</table></sup><br/>
+<p>Таблица 2 Сравнение репликации</p><br/>
+<sup><table>
+<tbody>
+<tr>
+<td><p><strong> </strong></p><br/>
+</td>
+<td><p><strong>Couchbase</strong></p><br/>
+</td>
+<td><p><strong>MongoDB</strong></p><br/>
+</td>
+</tr>
+<tr>
+<td><p><strong>Архитектура</strong></p><br/>
+</td>
+<td><p>Межкластерная репликация не имеет зависимостей, кластера независимы друг от друга</p><br/>
+</td>
+<td><p>Только внутрикластерное расширение</p><br/>
+</td>
+</tr>
+<tr>
+<td><p><strong>Гибкость настройки</strong></p><br/>
+</td>
+<td><p>Гибкая(настройка отдельных бакетов, фильтры, тюнинг)</p><br/>
+</td>
+<td><p>Тюнинг скорости</p><br/>
+</td>
+</tr>
+<tr>
+<td><p><strong>Топология</strong></p><br/>
+</td>
+<td><p>Двунаправленая репликация, звезда, цепь и т.д.</p><br/>
+</td>
+<td><p>Звезда</p><br/>
+</td>
+</tr>
+<tr>
+<td><p><strong>Режим Active-Active</strong></p><br/>
+</td>
+<td><p>Поддерживается</p><br/>
+</td>
+<td><p>Не поддерживается</p><br/>
+</td>
+</tr>
+</tbody>
+</table></sup><br/>
+<p>В целом, Couchbase гибче и проще в настройках, требуемых для наших задач и быстро меняющейся гибридной архитектуры.</p><br/>
+<p><strong>Опыт эксплуатации</strong></p><br/>
+<p>Для начала нам бы хотелось привести цифры, с которыми сейчас оперирует система и кластер на Couchbase.</p><br/>
+<ol>
+<li>Более 80 миллионов абонентов<a href="index.html.1.140.html#_edn1">[i]</a></li>
+<li>380 миллионов JSON документов с информацией о клиентах</li>
+<li>3,5 ТБ HDD (мы используем memcached, информация на диске хранится для быстрого старта)</li>
+<li>3 ТБ ОЗУ</li>
+<li>50 тыс. операций в секунду (рис 5)</li>
+<li>50 микросервисов, обрабатывающих весь поток сообщений</li>
+</ol><br/>
+<p> </p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/lv/nq/wc/lvnqwc_jmlr5jukgm10-ibu7qd8.png" data-src="https://habrastorage.org/webt/lv/nq/wc/lvnqwc_jmlr5jukgm10-ibu7qd8.png"/></div><br/>
+<i>Рисунок 5 Нагрузка</i><br/>
+<p>Первые вехи трансформации мы начинали с третьей версией Couchbase. На первом этапе, на запуске проекта, все приложения работали стабильно. Но при переводе дополнительной логики на новый механизм, мы столкнулись с тем, что механизм вьюх (View) стал работать непредсказуемо. Т.е. в какой-то момент процесс <strong>зависал</strong> и данные вьюхи с такой ноды переставали возвращаться. При этом доступ к данным и их обработки не прерывался. Проблема исправлялась достаточно легко – перезапуском ноды, что в целом снижало доступность сервиса. В ходе общения с техподдержкой Couchbase нам предложили недокументируемую команду, перезапускающую только процесс вьюх</p><br/>
+<p><em>curl -s --data 'cb_couch_sup:restart_couch().' -u Administrator:pass <a href="http://127.0.0.1:8091/diag/eval">http://127.0.0.1:8091/diag/eval</a><a href="index.html.1.140.html#_edn2"><strong>[ii]</strong></a></em></p><br/>
+<p>Команда действует только в версиях 3.x.</p><br/>
+<p><em>curl -s --data 'couch_server_sup:restart_core_server().'</em><em> -u Administrator:Administrator </em><em><a href="http://127.0.0.1:8091/diag/eval">http://127.0.0.1:8091/diag/eval</a></em></p><br/>
+<p>Команда действует только в версиях 4.x.</p><br/>
+<p>Еще одной проблемой третьей версии был ломающийся механизм сжатия данных (compaction). Его приходилось запускать вручную по сработавшим метрикам мониторинга. Обе проблемы держали в напряжении не только дежурную смену, но и функциональных инженеров.</p><br/>
+<p>В связи с этим, мы приняли решение о миграции на четвёртую версию. Миграция с минимальным влиянием на сервис заняла около двух недель. Сам процесс обновления не требует сложных действий и контроля, но при добавлении или удалении ноды запускается ребаланс занимающий не менее двух часов. В процессе работы мы нашли способ, как ускорить процесс обновления через буферный сервер: в этом случае запускается не чистый процесс ребалансировки, а перенос данных с одной ноды на другую. Это позволило сократить процесс обновления до 30 минут.</p><br/>
+<p>При обновлении промышленного кластера нужно учитывать следующий нюанс: работа в режиме совместимости, когда кластер работает в режиме самой младшей версии ПО. Положительной стороной выступает то, что процесс обновления идет плавно и безболезненно, но тем не менее новыми функциями, такими как новый механизм сжатия, N1QL, воспользоваться не получится, пока не обновится полностью весь кластер.</p><br/>
+<p>После обновления у нас получилось исправить только одну проблему – сжатие. Оно стало работать исправно. С механизмом View проблема всё же осталась, хотя повторялась гораздо реже. Скорректировать её удалось только силами разработчиков Couchbase в версии 4.6.4.</p><br/>
+<p>В рамках решения проблем с техподдержкой выяснилось: механизм вьюх больше обновляться не будет. Сделано это было на основании того, что большинство клиентов Couchbase используют вьюхи не для тех целей, для которых создавались, а Couchbase сделал новый механизм N1QL. Выполнен он отдельным сервисом и теперь не зависит от нод с данными (рис. 7)</p><br/>
+<p> </p><br/>
+<div style="text-align:center;"><img src="https://habrastorage.org/r/w1560/webt/df/xn/x2/dfxnx2uou3mvgpgdvtetuzsshj0.png" data-src="https://habrastorage.org/webt/df/xn/x2/dfxnx2uou3mvgpgdvtetuzsshj0.png"/></div><br/>
+<i>Рисунок 7 Роли нод</i><br/>
+<br/>
+<p>Все критичные проблемы мы закрыли версией 4.6.4. Но в связи с увеличением объема данных приняли решение о миграции на пятую версию, где добавили новую БД для индексов и на наших данных объем в памяти и дисках уменьшился в полтора раза. Но, к сожалению, уменьшения объема данных на дата-нодах мы не увидели.</p><br/>
+<p><strong>Выводы</strong></p><br/>
+<p>В целом, Couchbase показал себя зрелой системой, держащей высокую нагрузку, даже в неспецифичных кейсах (Viber – используется как БД). В рамках гибридной архитектуры МегаФона кластер можно легко адаптировать под любые цели без простоя оборудования и без серьезной реконфигурации серверов, что в целом дает возможность компании сократить затраты на персонал и сделать сервис для абонента максимально удобным.</p><br/>
+<p>ПАО МегаФон</p><br/>
+<p>2018 Ковальчук Егор</p><br/>
+<p><a href="index.html.1.140.html#_ednref1">[i]</a> Системой обрабатываются не только абоненты, но и устройства со встроенными симкартами, модемы и прочее</p><br/>
+<p><a href="index.html.1.140.html#_ednref2">[ii]</a> Перед употреблением проконсультируйтесь со специалистом</p></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%9C%D0%B5%D0%B3%D0%B0%D0%A4%D0%BE%D0%BD%5D" class="tm-tags-list__link">МегаФон</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bnosql%20%D0%B1%D0%B0%D0%B7%D1%8B%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%5D" class="tm-tags-list__link">nosql базы данных</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bcouchbase%5D" class="tm-tags-list__link">couchbase</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/nosql/" class="tm-hubs-list__link">
+    NoSQL
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/netdev/" class="tm-hubs-list__link">
+    Разработка систем связи
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/network_standarts/" class="tm-hubs-list__link">
+    Стандарты связи
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/cellular/" class="tm-hubs-list__link">
+    Сотовая связь
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 19: ↑19 и ↓0</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 19: ↑19 и ↓0" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+19</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">11K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    27
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/gorynko/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_pink"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 3 голоса " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    3
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Ковальчук Егор</span> <a href="https://habr.com/ru/users/gorynko/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @gorynko
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Эксперт</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/436762/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 29 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner6592" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner6593" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/436762/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/436762/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"436762":{"id":"436762","timePublished":"2019-01-20T08:53:20+00:00","isCorporative":false,"lang":"ru","titleHtml":"Couchbase в телекоме","leadData":{"textHtml":"\u003Cp\u003EЦифровая трансформация является мировым трендом для крупного бизнеса и жизненно важна для адаптации  предприятия к современным потребностям клиента. Кроме обычной для крупных компаний проблематики централизации систем и объединения биллинговых систем и абонентских БД добавляются требования к высокой доступности и режиму работы в реальном времени к которому клиенты уже привыкли у лидеров индустрии (Google, Amazon, Netflix).\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EНовые вызовы требуют новых технологий и подходов, которые необходимы для сокращения времени внедрения удобных клиенту функций, персонализированных коммерческих предложений, быстрой реакции на предложения конкурентов, а так же контроля затрат на системы, ИТ инфраструктуру, датацентры  и квалифицированного персонала. Эти тенденции несут и большой минус: усложнение архитектуры и раздутые транзакционные базы данных, которые не справляются с потоком и обработкой информации. Технологии предыдущего поколения имеют потолок вертикального масштабирования. К примеру, экземпляр СУБД Oracle работает на пределе самого мощного сервера на процессорах x86 при нагрузке в миллиард транзакций в сутки.\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fai\u002Fbq\u002Fm-\u002Faibqm-rewdzdcsg-6vtcbcv36lw.gif\"\u003E\u003Cbr\u003E\r\n\u003Cp\u003EДля того, чтобы выдержать подобную загрузку с которой уже давно сталкивается интернет индустрия используется новый стек технологий, таких как In-Memory кэши и NoSQL базы данных. Так, Apple применяет Cassandra, Сбербанк – Ignite (GridGain), в МегаФон мы применяем Couchbase и Tarantool.\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Cp\u003EВ МегаФон используются разные архитектурные шаблоны для In-Memory СУБД:\u003C\u002Fp\u003E\u003Cbr\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EПростой кэш, обновляемый по расписанию или по событию из БД и приложений\u003C\u002Fli\u003E\r\n\u003Cli\u003EВсе изменения в БД осуществляются через кэш (write-through сценарий), например, подключение Oracle клиента к DCP Couchbase\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"sandbox","data":null}],"author":{"scoreStats":{"score":3,"votesCount":3},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1756113","alias":"gorynko","fullname":"Ковальчук Егор","avatarUrl":null,"speciality":"Эксперт"},"statistics":{"commentsCount":29,"favoritesCount":27,"readingCount":11122,"score":19,"votesCount":19},"hubs":[{"relatedData":null,"id":"16848","alias":"nosql","type":"collective","title":"NoSQL","titleHtml":"NoSQL","isProfiled":true},{"relatedData":null,"id":"19395","alias":"netdev","type":"collective","title":"Разработка систем связи","titleHtml":"Разработка систем связи","isProfiled":true},{"relatedData":null,"id":"19429","alias":"network_standarts","type":"collective","title":"Стандарты связи","titleHtml":"Стандарты связи","isProfiled":false},{"relatedData":null,"id":"22008","alias":"cellular","type":"collective","title":"Сотовая связь","titleHtml":"Сотовая связь","isProfiled":false}],"flows":[{"id":"1","alias":"develop","title":"Разработка"},{"id":"6","alias":"admin","title":"Администрирование"},{"id":"7","alias":"popsci","title":"Научпоп"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cp\u003EЦифровая трансформация является мировым трендом для крупного бизнеса и жизненно важна для адаптации  предприятия к современным потребностям клиента. Кроме обычной для крупных компаний проблематики централизации систем и объединения биллинговых систем и абонентских БД добавляются требования к высокой доступности и режиму работы в реальном времени к которому клиенты уже привыкли у лидеров индустрии (Google, Amazon, Netflix).\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНовые вызовы требуют новых технологий и подходов, которые необходимы для сокращения времени внедрения удобных клиенту функций, персонализированных коммерческих предложений, быстрой реакции на предложения конкурентов, а так же контроля затрат на системы, ИТ инфраструктуру, датацентры  и квалифицированного персонала. Эти тенденции несут и большой минус: усложнение архитектуры и раздутые транзакционные базы данных, которые не справляются с потоком и обработкой информации. Технологии предыдущего поколения имеют потолок вертикального масштабирования. К примеру, экземпляр СУБД Oracle работает на пределе самого мощного сервера на процессорах x86 при нагрузке в миллиард транзакций в сутки.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fai\u002Fbq\u002Fm-\u002Faibqm-rewdzdcsg-6vtcbcv36lw.gif\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fai\u002Fbq\u002Fm-\u002Faibqm-rewdzdcsg-6vtcbcv36lw.gif\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДля того, чтобы выдержать подобную загрузку с которой уже давно сталкивается интернет индустрия используется новый стек технологий, таких как In-Memory кэши и NoSQL базы данных. Так, Apple применяет Cassandra, Сбербанк – Ignite (GridGain), в МегаФон мы применяем Couchbase и Tarantool.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ МегаФон используются разные архитектурные шаблоны для In-Memory СУБД:\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EПростой кэш, обновляемый по расписанию или по событию из БД и приложений\u003C\u002Fli\u003E\r\n\u003Cli\u003EВсе изменения в БД осуществляются через кэш (write-through сценарий), например, подключение Oracle клиента к DCP Couchbase\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003EДля одной из наших систем принятия решений по жизненному циклу абонента мы используем первый шаблон, так как только одно приложение по совокупности данных принимает решение и отправляет его на все системы, в том числе и БД Oracle. Один из ярких кейсов использования жизненного цикла абонента – это блокировка и разблокировка по отрицательному балансу. Ведь все абоненты сотовых операторов после пополнения баланса хотят сразу быть на связи и совершать звонки.  Благодаря вынесенному отдельному приложению и Couchbase, мы смогли сократить время выхода из блокировки с 90 секунд до 30 и это еще не предел. В основную базу попадет только запись об изменении статуса абонента (рис. 1)\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Flf\u002Fto\u002Fo5\u002Flftoo5voqj_ycrfngqgwo74_i6w.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Flf\u002Fto\u002Fo5\u002Flftoo5voqj_ycrfngqgwo74_i6w.png\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EРисунок 1 (Пример взаимодействия)\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cp\u003EС применением новых технологий нам удалось в 3 раза уменьшить время выхода из финансовой блокировки. Но для того, чтобы получить текущие результаты, нами был пройден долгий путь архитектурной трансформации биллингового контура и выбора NoSQL базы данных.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПочему мы остановили выбор именно на Couchbase? Для этого существует несколько причин.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EТребование к производительности\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EОбработка до 200000 запросов в секунду.\u003C\u002Fli\u003E\r\n\u003Cli\u003EСреднее время отклика (50%) — до 5 мс (в рамках одного ЦОД).\u003C\u002Fli\u003E\r\n\u003Cli\u003EМаксимальное время отклика (99%) — до 15 мс (в рамках одного ЦОД).\u003C\u002Fli\u003E\r\n\u003Cli\u003EМаксимальная производительность вставки 500 MB\u002Fsec\u003C\u002Fli\u003E\r\n\u003Cli\u003EМаксимальное количество операций вставок 100000\u002Fс\u003C\u002Fli\u003E\r\n\u003Cli\u003EМаксимальное количество операций изменений (обновлений документов) 100000\u002Fс\u003C\u002Fli\u003E\r\n\u003Cli\u003EМаксимальная производительность изменений (обновлений документов) 500 MB\u002Fsec\u003C\u002Fli\u003E\r\n\u003Cli\u003EМаксимальное количество операций чтений 100000\u002Fс\u003C\u002Fli\u003E\r\n\u003Cli\u003EМаксимальная скорость чтения 500 MB\u002Fsec\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EВысокопроизводительный поиск по ключу и доступ к данным\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ основе Couchbase лежит распределенное хранилище ключей (KV). Хранилище KV представляет собой чрезвычайно простой подход к управлению данными, который хранит уникальный идентификатор (ключ) вместе с частью произвольной информации. Само хранилище KV может принимать любые данные, будь то бинарный blob или JSON-документ. Благодаря простоте реализации KV доступ к данным обеспечивается с минимальной задержкой. Как показывает наш опыт, чаще задержки по сети в 2-3 раза выше, чем предоставление данных по ключу на стороне Couchbase.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EДинамическая схема хранения(\u003C\u002Fstrong\u003E\u003Cstrong\u003EJSON)\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДокументы хранятся на сервере Couchbase в формате JSON. Формат поддерживает как базовые типы данных, такие как числа, строки и сложные типы, так и встроенные словари и массивы.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EСхема данных в Couchbase является логической конструкцией, определяемой приложением и разработчиком. За счет ее гибкости и возможности использовать несколько вариантов, мы можем использовать в документе тег, например, с информацией о версии. Это дает возможность приложению определить, в каком режиме обрабатывать документ, а также обеспечить плавную миграцию базы на новую схему данных.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EВысокая доступность\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОдним из составляющих параметров информационной системы является ее доступность. Couchbase обеспечивает высокую доступность данных с помощью множества различных функций. Одной из них является репликация данных (распределение нескольких копий данных на разных серверах кластера), что позволяет предоставлять сервис при регламентных работах или же выходе части серверов из строя.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002F5e\u002Fjd\u002F3h\u002F5ejd3hwshvqdvwjeuqlovji9ocy.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F5e\u002Fjd\u002F3h\u002F5ejd3hwshvqdvwjeuqlovji9ocy.png\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EРисунок 2 (Реплики сервера Couchbase)\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВторой важной функцией для обеспечения высокой доступности является внутренний протокол DCP (Database Change Protocol). Он обеспечивает высокоскоростную передачу изменений во все копии данных, вторичные индексы (GSI), межкластерную репликацию (XDCR) и внешним потребителям.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EДвунаправленная репликация\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПравильной практикой в компаниях является использование резервирования всех бизнес-процессов и оборудования. В идеальном варианте это резервирование в режиме Active-Active, когда переключение между проблемными узлами происходит автоматически. Двунаправленная репликация в Couchbase позволяет обеспечить режим A-A. Но тестирование репликации показало, что она эффективна только в близко стоящих ЦОД. При разнесении более 100 км появляются конфликты. У Couchbase есть механизмы решения конфликтов: на основе Timestamp и Sequence Number. Однако, из-за временной задержки на сети, в базу попадают устаревшие данные. Мы отказались от использования двунаправленной репликации (cross-cluster consistency). Все изменения проводятся только на одном кластере. Доступность данных в режиме «чтение» обеспечивается во всех ЦОДах (A-A).\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EГоризонтальное масштабирование\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОдной из важных характеристик большинства NoSQL БД является горизонтальное масштабирование (рис. 3). Основным отличием Couchbase является поддержка многомерного масштабирования, когда мы в кластере можем наращивать по производительности только нужную службу. Например, игра Pokemon GO использует разделение архитектуры. На старте проекта использовалось 5 серверов с совмещенными службами. После увеличения нагрузки ими была применена разнесенная архитектура: 5 серверов с данными и 55 серверов для обработки запросов и индексов. Одним из минусов масштабирования у Couchbase является возникновение проблем у оркестратора, при наличии в кластере свыше 50 дата нод. \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003C\u002Fp\u003E\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002F79\u002F9c\u002Fne\u002F799cnegj-o20dtxdfcasl3ihm1u.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F79\u002F9c\u002Fne\u002F799cnegj-o20dtxdfcasl3ihm1u.png\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ci\u003EРисунок 3 MDS\u003C\u002Fi\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EТребования ИБ\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТребования информационной безопасности влияли на наш выбор в меньшей степени, но их наличие у системы выступило дополнительным аргументом в пользу той или иной БД. Так как в кэше могут содержаться персональные данные, то в обязательном порядке мы должны соблюдать требования регулятора. Стоит определиться: будем ли мы использовать дополнительное оборудование или сможем это обеспечить самой базой данных?!\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ энтерпрайз версии Couchbase поддерживает шифрование трафика, шифрование данных и персонализированный доступ.  Это позволяет сэкономить на оборудовании, например Cisco ASA.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EПростота обновления\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EОдним из существенных плюсов Couchbase является прозрачный механизм обновления и поддержка API старых версий. На время обновления кластера, он работает в режиме совместимости. Новые механизмы заработают только после полного обновления кластера. Влияния на работающие приложения минимальны за счет поддержки старого API.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EPS: \u003C\u002Fstrong\u003EОбновление\u002Fдаунгрейд допускается только на соседних мажорных версиях\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EДополнительная функциональность\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cem\u003EЛогическое распределение\u003C\u002Fem\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕще одной из интересных возможностей является объединение серверов в кластере в логические группы, с привязкой к ним реплик. Это позволяет распределять полные копии реплик одного кластера по разным автозалам. Что позволяет при выходе из строя одного из автозалов иметь полную копию данных во втором\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003C\u002Fp\u003E\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fyf\u002Fnf\u002Fpo\u002Fyfnfpots5tbrzzew39w4xsehey8.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fyf\u002Fnf\u002Fpo\u002Fyfnfpots5tbrzzew39w4xsehey8.png\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EРисунок 4 Server Gropus\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cb\u003EРезервное копирование и восстановление\u003C\u002Fb\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003ECouchbase содержит в себе готовые инструменты для резервного копирования и восстановления. Процесс бекапа может работать в трёх режимах: полном, дифференциальном и накопительном. Это позволяет в некоторых случаях сэкономить место на дисках и процессорные ресурсы.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fxe\u002Fin\u002Fff\u002Fxeinff0eawasua0xiu4ec3yon1y.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fxe\u002Fin\u002Fff\u002Fxeinff0eawasua0xiu4ec3yon1y.png\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003ECouchbase vs Mongo\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EНа вопрос выбора альтернативных NoSQL БД ответить сложно, и зачастую, лучший Unix – тот, который знает твой админ. Попытаемся сформулировать, почему мы отдали предпочтение Couchbase, а не другой очень популярной платформе – MongoDB.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДовольно сложно сравнивать два разных проекта с отличающейся архитектурой и функциональностью. Одним из параметров, на который мы обращали внимание, это простота обслуживания и возможности быстрой реконфигурации системы под потребности бизнеса.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТаблица 1 Сравнение\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Csup\u003E\u003Ctable\u003E\r\n\u003Ctbody\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003E \u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003ECouchbase\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003EMongoDB\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003EМасштабирование\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EАвтоматическое для всего набора данных\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EРучной выбор ключа\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003EРаспределение данных\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EДанные всегда равномерно распределены по всем дата нодам\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EНеправильная разметка может привести к перекосу распределения данных\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003EДобавление\u002Fудаление узла или реплики\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EДобавляется в один шаг через GUI, с ребалансировкой\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EДовольно сложная задача с расчетами веса для каждой коллекции\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003EРаспределение реплик по стойкам\u002FЦОД\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EРеализовано через логические группы\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EНе реализовано\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003EАвтоматическое распределение нагрузки \u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EКаждая нода имеет одинаковое количество активных записей доступных на чтение и запись\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EНе сбалансировано. Вторичные узлы не поддерживают запись\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003EМасштабирование индексов\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EГибкое, можно добавлять отдельные индекс ноды за счет разнесенной архитектуры\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EЖесткое, масштабирование индекса связано с масштабирование данных.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003EМетаданные кластера\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EРаспределяются по всем узлам кластера\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EТребуются сервера конфигурации\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003EИнтегрированный поиск\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EN1LQ(SQL++)\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EJSON запрос\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftbody\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fsup\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EТаблица 2 Сравнение репликации\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Csup\u003E\u003Ctable\u003E\r\n\u003Ctbody\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003E \u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003ECouchbase\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003EMongoDB\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003EАрхитектура\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EМежкластерная репликация не имеет зависимостей, кластера независимы друг от друга\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EТолько внутрикластерное расширение\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003EГибкость настройки\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EГибкая(настройка отдельных бакетов, фильтры, тюнинг)\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EТюнинг скорости\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003EТопология\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EДвунаправленая репликация, звезда, цепь и т.д.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EЗвезда\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cp\u003E\u003Cstrong\u003EРежим Active-Active\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EПоддерживается\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cp\u003EНе поддерживается\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftbody\u003E\r\n\u003C\u002Ftable\u003E\u003C\u002Fsup\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ целом, Couchbase гибче и проще в настройках, требуемых для наших задач и быстро меняющейся гибридной архитектуры.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EОпыт эксплуатации\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EДля начала нам бы хотелось привести цифры, с которыми сейчас оперирует система и кластер на Couchbase.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EБолее 80 миллионов абонентов\u003Ca href=\"#_edn1\"\u003E[i]\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E380 миллионов JSON документов с информацией о клиентах\u003C\u002Fli\u003E\r\n\u003Cli\u003E3,5 ТБ HDD (мы используем memcached, информация на диске хранится для быстрого старта)\u003C\u002Fli\u003E\r\n\u003Cli\u003E3 ТБ ОЗУ\u003C\u002Fli\u003E\r\n\u003Cli\u003E50 тыс. операций в секунду (рис 5)\u003C\u002Fli\u003E\r\n\u003Cli\u003E50 микросервисов, обрабатывающих весь поток сообщений\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Flv\u002Fnq\u002Fwc\u002Flvnqwc_jmlr5jukgm10-ibu7qd8.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Flv\u002Fnq\u002Fwc\u002Flvnqwc_jmlr5jukgm10-ibu7qd8.png\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EРисунок 5 Нагрузка\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПервые вехи трансформации мы начинали с третьей версией Couchbase. На первом этапе, на запуске проекта, все приложения работали стабильно. Но при переводе дополнительной логики на новый механизм, мы столкнулись с тем, что механизм вьюх (View) стал работать непредсказуемо. Т.е. в какой-то момент процесс \u003Cstrong\u003Eзависал\u003C\u002Fstrong\u003E и данные вьюхи с такой ноды переставали возвращаться. При этом доступ к данным и их обработки не прерывался. Проблема исправлялась достаточно легко – перезапуском ноды, что в целом снижало доступность сервиса. В ходе общения с техподдержкой Couchbase нам предложили недокументируемую команду, перезапускающую только процесс вьюх\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cem\u003Ecurl -s --data 'cb_couch_sup:restart_couch().' -u Administrator:pass \u003Ca href=\"http:\u002F\u002F127.0.0.1:8091\u002Fdiag\u002Feval\"\u003Ehttp:\u002F\u002F127.0.0.1:8091\u002Fdiag\u002Feval\u003C\u002Fa\u003E\u003Ca href=\"#_edn2\"\u003E\u003Cstrong\u003E[ii]\u003C\u002Fstrong\u003E\u003C\u002Fa\u003E\u003C\u002Fem\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКоманда действует только в версиях 3.x.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cem\u003Ecurl -s --data 'couch_server_sup:restart_core_server().'\u003C\u002Fem\u003E\u003Cem\u003E -u Administrator:Administrator \u003C\u002Fem\u003E\u003Cem\u003E\u003Ca href=\"http:\u002F\u002F127.0.0.1:8091\u002Fdiag\u002Feval\"\u003Ehttp:\u002F\u002F127.0.0.1:8091\u002Fdiag\u002Feval\u003C\u002Fa\u003E\u003C\u002Fem\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EКоманда действует только в версиях 4.x.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EЕще одной проблемой третьей версии был ломающийся механизм сжатия данных (compaction). Его приходилось запускать вручную по сработавшим метрикам мониторинга. Обе проблемы держали в напряжении не только дежурную смену, но и функциональных инженеров.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ связи с этим, мы приняли решение о миграции на четвёртую версию. Миграция с минимальным влиянием на сервис заняла около двух недель. Сам процесс обновления не требует сложных действий и контроля, но при добавлении или удалении ноды запускается ребаланс занимающий не менее двух часов. В процессе работы мы нашли способ, как ускорить процесс обновления через буферный сервер: в этом случае запускается не чистый процесс ребалансировки, а перенос данных с одной ноды на другую. Это позволило сократить процесс обновления до 30 минут.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПри обновлении промышленного кластера нужно учитывать следующий нюанс: работа в режиме совместимости, когда кластер работает в режиме самой младшей версии ПО. Положительной стороной выступает то, что процесс обновления идет плавно и безболезненно, но тем не менее новыми функциями, такими как новый механизм сжатия, N1QL, воспользоваться не получится, пока не обновится полностью весь кластер.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПосле обновления у нас получилось исправить только одну проблему – сжатие. Оно стало работать исправно. С механизмом View проблема всё же осталась, хотя повторялась гораздо реже. Скорректировать её удалось только силами разработчиков Couchbase в версии 4.6.4.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ рамках решения проблем с техподдержкой выяснилось: механизм вьюх больше обновляться не будет. Сделано это было на основании того, что большинство клиентов Couchbase используют вьюхи не для тех целей, для которых создавались, а Couchbase сделал новый механизм N1QL. Выполнен он отдельным сервисом и теперь не зависит от нод с данными (рис. 7)\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E \u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv style=\"text-align:center;\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fdf\u002Fxn\u002Fx2\u002Fdfxnx2uou3mvgpgdvtetuzsshj0.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fdf\u002Fxn\u002Fx2\u002Fdfxnx2uou3mvgpgdvtetuzsshj0.png\"\u002F\u003E\u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EРисунок 7 Роли нод\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВсе критичные проблемы мы закрыли версией 4.6.4. Но в связи с увеличением объема данных приняли решение о миграции на пятую версию, где добавили новую БД для индексов и на наших данных объем в памяти и дисках уменьшился в полтора раза. Но, к сожалению, уменьшения объема данных на дата-нодах мы не увидели.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Cstrong\u003EВыводы\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EВ целом, Couchbase показал себя зрелой системой, держащей высокую нагрузку, даже в неспецифичных кейсах (Viber – используется как БД). В рамках гибридной архитектуры МегаФона кластер можно легко адаптировать под любые цели без простоя оборудования и без серьезной реконфигурации серверов, что в целом дает возможность компании сократить затраты на персонал и сделать сервис для абонента максимально удобным.\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003EПАО МегаФон\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E2018 Ковальчук Егор\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ca href=\"#_ednref1\"\u003E[i]\u003C\u002Fa\u003E Системой обрабатываются не только абоненты, но и устройства со встроенными симкартами, модемы и прочее\u003C\u002Fp\u003E\u003Cbr\u002F\u003E\r\n\u003Cp\u003E\u003Ca href=\"#_ednref2\"\u003E[ii]\u003C\u002Fa\u003E Перед употреблением проконсультируйтесь со специалистом\u003C\u002Fp\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"МегаФон"},{"titleHtml":"nosql базы данных"},{"titleHtml":"couchbase"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F436762\u002F2d2bbcfb217d18a7f1bf81eea6d849ae\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F436762\u002F2d2bbcfb217d18a7f1bf81eea6d849ae\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F436762\\\u002F\"},\"headline\":\"Couchbase в телекоме\",\"datePublished\":\"2019-01-20T11:53:20+03:00\",\"dateModified\":\"2019-01-21T04:22:52+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Ковальчук Егор\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Цифровая трансформация является мировым трендом для крупного бизнеса и жизненно важна для адаптации &nbsp;предприятия к современным потребностям клиента. Кроме обычно...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F436762\\\u002F#post-content-body\",\"about\":[\"h_nosql\",\"h_netdev\",\"h_network_standarts\",\"h_cellular\",\"f_develop\",\"f_admin\",\"f_popsci\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fai\\\u002Fbq\\\u002Fm-\\\u002Faibqm-rewdzdcsg-6vtcbcv36lw.gif\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Flf\\\u002Fto\\\u002Fo5\\\u002Flftoo5voqj_ycrfngqgwo74_i6w.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F5e\\\u002Fjd\\\u002F3h\\\u002F5ejd3hwshvqdvwjeuqlovji9ocy.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F79\\\u002F9c\\\u002Fne\\\u002F799cnegj-o20dtxdfcasl3ihm1u.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fyf\\\u002Fnf\\\u002Fpo\\\u002Fyfnfpots5tbrzzew39w4xsehey8.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fxe\\\u002Fin\\\u002Fff\\\u002Fxeinff0eawasua0xiu4ec3yon1y.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Flv\\\u002Fnq\\\u002Fwc\\\u002Flvnqwc_jmlr5jukgm10-ibu7qd8.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fdf\\\u002Fxn\\\u002Fx2\\\u002Fdfxnx2uou3mvgpgdvtetuzsshj0.png\"]}","metaDescription":"Цифровая трансформация является мировым трендом для крупного бизнеса и жизненно важна для адаптации  предприятия к современным потребностям клиента. Кроме обычной для крупных компаний проблематики...","mainImageUrl":null,"amp":true,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":"nosql,netdev,network_standarts,cellular"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

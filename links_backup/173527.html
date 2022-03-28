@@ -1,0 +1,2078 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <base href="">
+<title>Зачем в PHP нужна рефлексия? &mdash; Хабр Q&A</title><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="description" content="Добрый день. Вопрос, собственно, отражен уже в названии топиа: Зачем в PHP нужна рефлексия. Я понимаю, например, в джаве зачем она нужна. Там есть рантайм во время которого нельзя что-либо перекомпилировать (изменять) и рефлексия это практически единственный способ вызвать метод, имя которого тебе не известно при компиляции. Ну а в пхп-то это зачем. Это же скриптовый язык и ты там вообще можешь имя любого метода вписать и в худшем случае он просто выдаст ошибку, но все равно попытается запустить">
+<meta property="og:image" content="http://habrastorage.org/files/373/e8b/dd3/373e8bdd3cb644d3bbeba47d34d1876d.png">
+<meta property="og:title" content="Зачем в PHP нужна рефлексия?">
+<meta property="og:description" content="Ответили на вопрос 7 человек. Оцените лучшие ответы! И подпишитесь на вопрос, чтобы узнавать о появлении новых ответов.">
+<meta property="og:keywords" content="php">
+<meta property="og:url" content="https://qna.habr.com/q/173527">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:domain" content="toster.ru">
+<meta name="twitter:site" content="@toster_ru">
+<meta name="twitter:creator" content="@toster_ru">
+<meta name="twitter:title" content="Зачем в PHP нужна рефлексия?">
+<meta name="twitter:description" content="Ответили на вопрос 7 человек. Оцените лучшие ответы! И подпишитесь на вопрос, чтобы узнавать о появлении новых ответов.">
+<meta name="twitter:url" content="https://qna.habr.com/q/173527">
+<meta name="keywords" content="Хабр Q&amp;A, вопросы, ответы, ИТ, информационные технологии, habr qna, qna.habr.com, IT">
+<meta property="og:site_name" content="Хабр Q&amp;A — вопросы и ответы">
+<meta property="og:type" content="website">
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="format-detection" content="telephone=no">
+<meta http-equiv="cleartype" content="on">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="sbu" content="62050f07/">
+<meta name="heu" content="https://effect.habr.com/a">
+  <meta name="tsa" content="ga,ym,vk">
+<link rel="stylesheet" href="https://dr.habracdn.net/qna/62050f07/frontend.css">
+
+<link rel="icon" href="https://dr.habracdn.net/qna/62050f07/images/favicons/favicon.ico" type="image/x-icon">
+<link href="https://dr.habracdn.net/qna/62050f07/images/favicons/apple-touch-icon-57x57.png" rel="apple-touch-icon" sizes="57x57">
+<link href="https://dr.habracdn.net/qna/62050f07/images/favicons/apple-touch-icon-114x114.png" rel="apple-touch-icon" sizes="114x114">
+<link href="https://dr.habracdn.net/qna/62050f07/images/favicons/apple-touch-icon-72x72.png" rel="apple-touch-icon" sizes="72x72">
+<link href="https://dr.habracdn.net/qna/62050f07/images/favicons/apple-touch-icon-144x144.png" rel="apple-touch-icon" sizes="144x144">
+<link href="https://dr.habracdn.net/qna/62050f07/images/favicons/apple-touch-icon-60x60.png" rel="apple-touch-icon" sizes="60x60">
+<link href="https://dr.habracdn.net/qna/62050f07/images/favicons/apple-touch-icon-120x120.png" rel="apple-touch-icon" sizes="120x120">
+<link href="https://dr.habracdn.net/qna/62050f07/images/favicons/apple-touch-icon-76x76.png" rel="apple-touch-icon" sizes="76x76">
+<link href="https://dr.habracdn.net/qna/62050f07/images/favicons/apple-touch-icon-152x152.png" rel="apple-touch-icon" sizes="152x152">
+<link href="https://dr.habracdn.net/qna/62050f07/images/favicons/apple-touch-icon-180x180.png" rel="apple-touch-icon" sizes="180x180">
+<link href="https://dr.habracdn.net/qna/62050f07/images/favicons/favicon-96x96.png" rel="icon" sizes="96x96" type="image/png">
+<link href="https://dr.habracdn.net/qna/62050f07/images/favicons/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png">
+<link href="https://dr.habracdn.net/qna/62050f07/images/favicons/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png">
+<meta content="#434d61" name="msapplication-TileColor">
+<meta content="https://dr.habracdn.net/qna/62050f07/images/favicons/mstile-144x144.png" name="msapplication-TileImage">
+<meta content="Хабр Q&A" name="application-name">
+<meta content="Хабр Q&A" name="apple-mobile-web-app-title">
+  </head>
+  <body>
+    <div id="TMpanel" role="TMpanel">
+  <div class="container">
+    <div class="logo-wrapper">
+      <a class="logo" href="https://qna.habr.com/" title="">
+        <svg fill="none" height="24" viewbox="0 0 121 24" width="121" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16.875 19L11.075 10.225L16.825 1.4H12.6L8.75 7.4L4.94999 1.4H0.574994L6.32499 10.15L0.524994 19H4.79999L8.64999 12.975L12.525 19H16.875Z" fill="white"></path>
+          <path d="M24.2607 5.775C20.8857 5.775 18.9607 7.625 18.6107 9.85H22.0107C22.2107 9.175 22.8607 8.6 24.1107 8.6C25.3357 8.6 26.2357 9.225 26.2357 10.425V11.025H23.4107C20.1107 11.025 18.1107 12.55 18.1107 15.2C18.1107 17.8 20.1107 19.3 22.6107 19.3C24.2857 19.3 25.6357 18.65 26.4357 17.6V19H29.8107V10.55C29.8107 7.4 27.5857 5.775 24.2607 5.775ZM23.6107 16.475C22.4857 16.475 21.7607 15.925 21.7607 15.025C21.7607 14.1 22.5607 13.55 23.6857 13.55H26.2357V14.125C26.2357 15.625 25.0107 16.475 23.6107 16.475Z" fill="white"></path>
+          <path d="M39.925 6.3C38.125 6.3 36.65 6.95 35.7 8.275C35.95 5.85 36.925 4.65 39.375 4.275L44.3 3.55V0.375L39.025 1.25C33.925 2.1 32.35 5.5 32.35 11.175C32.35 16.275 34.825 19.3 39.2 19.3C43.125 19.3 45.55 16.3 45.55 12.7C45.55 8.825 43.3 6.3 39.925 6.3ZM39.025 16.25C37.125 16.25 36.075 14.725 36.075 12.675C36.075 10.7 37.175 9.275 39.05 9.275C40.875 9.275 41.9 10.75 41.9 12.7C41.9 14.65 40.9 16.25 39.025 16.25Z" fill="white"></path>
+          <path d="M55.2855 5.775C53.3855 5.775 52.1605 6.6 51.5105 7.575V6.075H48.0105V23.775H51.6605V17.75C52.3105 18.65 53.5355 19.3 55.1855 19.3C58.3605 19.3 60.8855 16.8 60.8855 12.55C60.8855 8.225 58.3605 5.775 55.2855 5.775ZM54.4105 16.15C52.7105 16.15 51.5855 14.775 51.5855 12.6V12.5C51.5855 10.325 52.7105 8.925 54.4105 8.925C56.1105 8.925 57.2105 10.35 57.2105 12.55C57.2105 14.75 56.1105 16.15 54.4105 16.15Z" fill="white"></path>
+          <path d="M84.6631 10.2C84.6631 4.975 81.4881 1.125 76.5631 1.125C71.6381 1.125 68.4631 4.975 68.4631 10.2C68.4631 15.425 71.6381 19.275 76.5631 19.275C77.8631 19.275 79.0381 19.025 80.0631 18.55L81.3881 20.525H83.8631L81.7631 17.425C83.6131 15.8 84.6631 13.225 84.6631 10.2ZM76.5631 17.2C72.9631 17.2 70.7381 14.3 70.7381 10.2C70.7381 6.1 72.9631 3.2 76.5631 3.2C80.1631 3.2 82.3881 6.1 82.3881 10.2C82.3881 12.45 81.7381 14.35 80.5381 15.575L79.2631 13.675H76.7881L78.8631 16.75C78.1881 17.05 77.4131 17.2 76.5631 17.2Z" fill="white"></path>
+          <path d="M103.487 19L100.087 15.325L103.437 11.175H100.912L98.7869 13.925L94.8119 9.65C97.1369 8.55 98.3619 7.175 98.3619 5.2C98.3619 2.85 96.5619 1.125 93.9619 1.125C91.2619 1.125 89.3619 2.975 89.3619 5.225C89.3619 6.725 90.2369 7.775 91.2119 8.775L91.5119 9.075C88.7369 10.2 87.3369 11.875 87.3369 14.15C87.3369 16.95 89.5119 19.275 93.1119 19.275C95.2869 19.275 97.0619 18.425 98.4869 17L98.7119 16.775L100.762 19H103.487ZM93.9119 3C95.2369 3 96.2869 3.8 96.2869 5.175C96.2869 6.5 95.3369 7.525 93.5119 8.35L92.8119 7.65C92.2869 7.125 91.4869 6.3 91.4869 5.15C91.4869 3.85 92.5369 3 93.9119 3ZM93.2369 17.3C90.8869 17.3 89.6119 15.95 89.6119 14.075C89.6119 12.475 90.5619 11.275 92.8369 10.4L97.4369 15.4L97.2869 15.55C96.1869 16.7 94.7869 17.3 93.2369 17.3Z" fill="white"></path>
+          <path d="M117.802 19H120.202L113.552 1.4H111.252L104.602 19H107.002L108.702 14.35H116.077L117.802 19ZM112.377 4.2L115.327 12.3H109.452L112.377 4.2Z" fill="white"></path>
+        </svg>
+      </a>
+      <span id="dropdown-control" class="projects-dropdown">
+        <svg fill="none" height="6" viewbox="0 0 10 6" width="10" xmlns="http://www.w3.org/2000/svg">
+          <path clip-rule="evenodd" d="M5.70711 5.70711C5.31658 6.09763 4.68342 6.09763 4.29289 5.70711L0.292892 1.70711C-0.097632 1.31658 -0.0976319 0.683417 0.292892 0.292893C0.683417 -0.0976308 1.31658 -0.0976308 1.70711 0.292893L5 3.58579L8.29289 0.292894C8.68342 -0.0976301 9.31658 -0.0976301 9.70711 0.292894C10.0976 0.683418 10.0976 1.31658 9.70711 1.70711L5.70711 5.70711Z" fill-rule="evenodd"></path>
+        </svg>
+      </span>
+      <div id="dropdown" class="dropdown hidden">
+        <div class="dropdown-heading">
+          Все сервисы Хабра
+        </div>
+        <a class="service" href="https://habr.com/?utm_source=habr_qna&utm_medium=habr_top_panel">
+          <div class="service-title">
+            <svg fill="none" height="22" viewbox="0 0 52 22" width="52" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13.86 17.0001L8.514 9.23405L13.816 1.51205H11.528L7.26 7.76005L2.97 1.51205H0.659997L5.984 9.19005L0.615997 17.0001H2.926L7.194 10.6861L11.528 17.0001H13.86Z" fill="#333333"></path>
+              <path d="M20.181 5.67005C17.651 5.67005 16.111 7.10005 15.759 8.81605H17.585C17.893 8.00205 18.685 7.34205 20.137 7.34205C21.567 7.34205 22.645 8.11205 22.645 9.65205V10.4001H19.697C16.991 10.4001 15.341 11.6981 15.341 13.8321C15.341 15.9441 17.013 17.2421 19.169 17.2421C20.577 17.2421 21.897 16.7141 22.733 15.6801V17.0001H24.515V9.65205C24.515 7.16605 22.777 5.67005 20.181 5.67005ZM19.411 15.5921C18.179 15.5921 17.255 14.9761 17.255 13.8101C17.255 12.6221 18.289 12.0061 19.807 12.0061H22.645V12.8201C22.645 14.5141 21.171 15.5921 19.411 15.5921Z" fill="#333333"></path>
+              <path d="M32.9685 5.91205C31.2965 5.91205 29.9545 6.55005 29.1185 7.78205C29.3825 5.27405 30.3945 3.88805 32.9025 3.42605L36.9505 2.67805V0.852051L32.5065 1.75405C28.7665 2.52405 27.2045 4.96605 27.2045 10.5101C27.2045 14.8001 29.4045 17.2421 32.7925 17.2421C36.0265 17.2421 38.0505 14.7121 38.0505 11.5441C38.0505 7.91405 35.8285 5.91205 32.9685 5.91205ZM32.7045 15.5261C30.6145 15.5261 29.2065 13.9641 29.2065 11.4561C29.2065 8.97005 30.7685 7.60605 32.7265 7.60605C34.7725 7.60605 36.1145 9.23405 36.1145 11.5441C36.1145 13.8541 34.7945 15.5261 32.7045 15.5261Z" fill="#333333"></path>
+              <path d="M46.1431 5.67005C44.2291 5.67005 43.0631 6.55005 42.5131 7.49605V5.91205H40.6871V21.2021H42.5791V15.6361C43.1071 16.4501 44.2951 17.2421 46.0771 17.2421C48.6291 17.2421 51.1371 15.3721 51.1371 11.4561C51.1371 7.56205 48.6511 5.67005 46.1431 5.67005ZM45.9011 15.5261C43.8551 15.5261 42.5131 13.9641 42.5131 11.5001V11.4121C42.5131 8.94805 43.8551 7.38605 45.9011 7.38605C47.8811 7.38605 49.2011 9.03605 49.2011 11.4561C49.2011 13.8761 47.8811 15.5261 45.9011 15.5261Z" fill="#333333"></path>
+            </svg>
+          </div>
+          <p class="service-description">
+            Сообщество IT-специалистов
+          </p>
+        </a>
+        <a class="service" href="https://qna.habr.com/">
+          <div class="service-title">
+            <svg fill="none" height="18" viewbox="0 0 46 18" width="46" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14.4 8.25602C14.4 3.65802 11.606 0.27002 7.27201 0.27002C2.93801 0.27002 0.144012 3.65802 0.144012 8.25602C0.144012 12.854 2.93801 16.242 7.27201 16.242C8.41601 16.242 9.45001 16.022 10.352 15.604L11.518 17.342H13.696L11.848 14.614C13.476 13.184 14.4 10.918 14.4 8.25602ZM7.27201 14.416C4.10401 14.416 2.14601 11.864 2.14601 8.25602C2.14601 4.64802 4.10401 2.09602 7.27201 2.09602C10.44 2.09602 12.398 4.64802 12.398 8.25602C12.398 10.236 11.826 11.908 10.77 12.986L9.64801 11.314H7.47001L9.29601 14.02C8.70201 14.284 8.02001 14.416 7.27201 14.416Z" fill="#333333"></path>
+              <path d="M30.965 16L27.973 12.766L30.921 9.11402H28.699L26.829 11.534L23.331 7.77202C25.377 6.80402 26.455 5.59402 26.455 3.85602C26.455 1.78802 24.871 0.27002 22.583 0.27002C20.207 0.27002 18.535 1.89802 18.535 3.87802C18.535 5.19802 19.305 6.12202 20.163 7.00202L20.427 7.26602C17.985 8.25602 16.753 9.73002 16.753 11.732C16.753 14.196 18.667 16.242 21.835 16.242C23.749 16.242 25.311 15.494 26.565 14.24L26.763 14.042L28.567 16H30.965ZM22.539 1.92002C23.705 1.92002 24.629 2.62402 24.629 3.83402C24.629 5.00002 23.793 5.90202 22.187 6.62802L21.571 6.01202C21.109 5.55002 20.405 4.82402 20.405 3.81202C20.405 2.66802 21.329 1.92002 22.539 1.92002ZM21.945 14.504C19.877 14.504 18.755 13.316 18.755 11.666C18.755 10.258 19.591 9.20202 21.593 8.43202L25.641 12.832L25.509 12.964C24.541 13.976 23.309 14.504 21.945 14.504Z" fill="#333333"></path>
+              <path d="M43.5619 16H45.6739L39.8219 0.512019H37.7979L31.9459 16H34.0579L35.5539 11.908H42.0439L43.5619 16ZM38.7879 2.97602L41.3839 10.104H36.2139L38.7879 2.97602Z" fill="#333333"></path>
+            </svg>
+          </div>
+          <p class="service-description">
+            Ответы на любые вопросы об IT
+          </p>
+        </a>
+        <a class="service" href="https://career.habr.com?utm_source=habr_qna&utm_medium=habr_top_panel">
+          <div class="service-title">
+            <svg fill="none" height="21" viewbox="0 0 84 21" width="84" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12.442 16L4.96201 7.92596L12.31 0.511963H9.78001L2.894 7.41996V0.511963H0.936005V16H2.894V8.60796L9.84601 16H12.442Z" fill="#333333"></path>
+              <path d="M18.3646 4.66996C15.8346 4.66996 14.2946 6.09996 13.9426 7.81596H15.7686C16.0766 7.00196 16.8686 6.34196 18.3206 6.34196C19.7506 6.34196 20.8286 7.11196 20.8286 8.65196V9.39996H17.8806C15.1746 9.39996 13.5246 10.698 13.5246 12.832C13.5246 14.944 15.1966 16.242 17.3526 16.242C18.7606 16.242 20.0806 15.714 20.9166 14.68V16H22.6986V8.65196C22.6986 6.16596 20.9606 4.66996 18.3646 4.66996ZM17.5946 14.592C16.3626 14.592 15.4386 13.976 15.4386 12.81C15.4386 11.622 16.4726 11.006 17.9906 11.006H20.8286V11.82C20.8286 13.514 19.3546 14.592 17.5946 14.592Z" fill="#333333"></path>
+              <path d="M31.3501 4.66996C29.4361 4.66996 28.2701 5.54996 27.7201 6.49596V4.91196H25.8941V20.202H27.7861V14.636C28.3141 15.45 29.5021 16.242 31.2841 16.242C33.8361 16.242 36.3441 14.372 36.3441 10.456C36.3441 6.56196 33.8581 4.66996 31.3501 4.66996ZM31.1081 14.526C29.0621 14.526 27.7201 12.964 27.7201 10.5V10.412C27.7201 7.94796 29.0621 6.38596 31.1081 6.38596C33.0881 6.38596 34.4081 8.03596 34.4081 10.456C34.4081 12.876 33.0881 14.526 31.1081 14.526Z" fill="#333333"></path>
+              <path d="M43.3561 8.49796H40.8701V4.91196H38.9781V16H43.3341C45.7101 16 47.2501 14.372 47.2501 12.216C47.2501 10.06 45.7101 8.49796 43.3561 8.49796ZM43.1141 14.328H40.8701V10.17H43.1141C44.5661 10.17 45.3581 11.028 45.3581 12.216C45.3581 13.404 44.5661 14.328 43.1141 14.328Z" fill="#333333"></path>
+              <path d="M59.1788 11.028V10.06C59.1788 6.75996 57.2868 4.66996 54.3388 4.66996C51.3028 4.66996 49.1248 6.86996 49.1248 10.456C49.1248 14.02 51.2808 16.242 54.4928 16.242C57.3748 16.242 58.7608 14.438 59.0468 13.14H57.1328C56.9348 13.712 56.0548 14.548 54.5148 14.548C52.4688 14.548 51.1048 13.052 51.1048 11.072V11.028H59.1788ZM54.2948 6.36396C56.0768 6.36396 57.1768 7.50796 57.2648 9.42196H51.1268C51.2808 7.59596 52.4468 6.36396 54.2948 6.36396Z" fill="#333333"></path>
+              <path d="M67.272 4.66996C65.358 4.66996 64.192 5.54996 63.642 6.49596V4.91196H61.816V20.202H63.708V14.636C64.236 15.45 65.424 16.242 67.206 16.242C69.758 16.242 72.266 14.372 72.266 10.456C72.266 6.56196 69.78 4.66996 67.272 4.66996ZM67.03 14.526C64.984 14.526 63.642 12.964 63.642 10.5V10.412C63.642 7.94796 64.984 6.38596 67.03 6.38596C69.01 6.38596 70.33 8.03596 70.33 10.456C70.33 12.876 69.01 14.526 67.03 14.526Z" fill="#333333"></path>
+              <path d="M79.058 4.66996C76.528 4.66996 74.988 6.09996 74.636 7.81596H76.462C76.77 7.00196 77.562 6.34196 79.014 6.34196C80.444 6.34196 81.522 7.11196 81.522 8.65196V9.39996H78.574C75.868 9.39996 74.218 10.698 74.218 12.832C74.218 14.944 75.89 16.242 78.046 16.242C79.454 16.242 80.774 15.714 81.61 14.68V16H83.392V8.65196C83.392 6.16596 81.654 4.66996 79.058 4.66996ZM78.288 14.592C77.056 14.592 76.132 13.976 76.132 12.81C76.132 11.622 77.166 11.006 78.684 11.006H81.522V11.82C81.522 13.514 80.048 14.592 78.288 14.592Z" fill="#333333"></path>
+            </svg>
+          </div>
+          <p class="service-description">
+            Профессиональное развитие в IT
+          </p>
+        </a>
+        <a class="service" href="https://freelance.habr.com?utm_source=habr_qna&utm_medium=habr_top_panel">
+          <div class="service-title">
+            <svg fill="none" height="21" viewbox="0 0 91 21" width="91" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9.032 1.65602V0.0720215H7.118V1.65602C3.268 1.72202 0.0339966 4.01002 0.0339966 8.16802C0.0339966 12.304 3.268 14.592 7.118 14.658V16.242H9.032V14.658C12.882 14.592 16.116 12.304 16.116 8.16802C16.116 4.01002 12.882 1.72202 9.032 1.65602ZM7.118 12.898C4.082 12.832 2.014 11.05 2.014 8.16802C2.014 5.26402 4.082 3.48202 7.118 3.41602V12.898ZM9.032 12.898V3.41602C12.068 3.48202 14.136 5.26402 14.136 8.16802C14.136 11.05 12.068 12.832 9.032 12.898Z" fill="#333333"></path>
+              <path d="M24.2603 4.67002C22.3463 4.67002 21.1803 5.55002 20.6303 6.49602V4.91202H18.8043V20.202H20.6963V14.636C21.2243 15.45 22.4123 16.242 24.1943 16.242C26.7463 16.242 29.2543 14.372 29.2543 10.456C29.2543 6.56202 26.7683 4.67002 24.2603 4.67002ZM24.0183 14.526C21.9723 14.526 20.6303 12.964 20.6303 10.5V10.412C20.6303 7.94802 21.9723 6.38602 24.0183 6.38602C25.9983 6.38602 27.3183 8.03602 27.3183 10.456C27.3183 12.876 25.9983 14.526 24.0183 14.526Z" fill="#333333"></path>
+              <path d="M39.4123 4.91202L33.7583 13.074V4.91202H31.8883V16H33.7583L39.4123 7.83802V16H41.2823V4.91202H39.4123Z" fill="#333333"></path>
+              <path d="M46.0815 4.91202L45.5095 11.71C45.3555 13.624 44.9595 14.328 43.5735 14.328H43.2655V16.044H43.7935C46.0595 16.044 47.0935 14.856 47.3355 11.842L47.7755 6.60602H51.8455V16H53.7375V4.91202H46.0815Z" fill="#333333"></path>
+              <path d="M61.2045 4.67002C58.6745 4.67002 57.1345 6.10002 56.7825 7.81602H58.6085C58.9165 7.00202 59.7085 6.34202 61.1605 6.34202C62.5905 6.34202 63.6685 7.11202 63.6685 8.65202V9.40002H60.7205C58.0145 9.40002 56.3645 10.698 56.3645 12.832C56.3645 14.944 58.0365 16.242 60.1925 16.242C61.6005 16.242 62.9205 15.714 63.7565 14.68V16H65.5385V8.65202C65.5385 6.16602 63.8005 4.67002 61.2045 4.67002ZM60.4345 14.592C59.2025 14.592 58.2785 13.976 58.2785 12.81C58.2785 11.622 59.3125 11.006 60.8305 11.006H63.6685V11.82C63.6685 13.514 62.1945 14.592 60.4345 14.592Z" fill="#333333"></path>
+              <path d="M76.104 4.91202V9.37802H70.626V4.91202H68.734V16H70.626V11.094H76.104V16H77.996V4.91202H76.104Z" fill="#333333"></path>
+              <path d="M85.9003 14.526C83.8983 14.526 82.5783 12.876 82.5783 10.456C82.5783 8.05802 83.8543 6.38602 85.8783 6.38602C87.6383 6.38602 88.4523 7.53002 88.7383 8.45402H90.6303C90.3443 6.69402 88.8263 4.67002 85.8783 4.67002C82.6883 4.67002 80.6423 7.13402 80.6423 10.456C80.6423 13.844 82.7323 16.242 85.8783 16.242C88.6283 16.242 90.3883 14.394 90.6303 12.414H88.7383C88.4963 13.36 87.7483 14.526 85.9003 14.526Z" fill="#333333"></path>
+            </svg>
+          </div>
+          <p class="service-description">
+            Удаленная работа для IT-специалистов
+          </p>
+        </a>
+      </div>
+    </div>
+      <template id="habr_effect_featurer">
+    <div class="bmenu">
+      <a class="bmenu__theme" rel="noopener" target="_blank">
+        <img class="featurer-img">
+      </a>
+    </div>
+  </template>
+      <template id="habr_effect_megapost">
+    <div class="bmenu_inner" role="bmenu_inner">
+      <span class="bmenu slink">
+        <a></a>
+      </span>
+    </div>
+  </template>
+  </div>
+</div>
+    <div class="layout">
+      <div class="layout__canvas" id="js-canvas">
+        <aside class="layout__navbar" role="navbar">
+          <section class="user-panel" role="user_expand_menu">
+      <div class="user-panel_head">
+      <svg class="icon_svg icon_menu_lock" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_menu_lock"></use>
+</svg>
+      <a class="user-panel__login-link" href="https://qna.habr.com/auth/tmid?ret=@referer">Войти на сайт</a>
+    </div>
+    </section>
+<ul class="main-menu">
+    <li class="main-menu__item">
+    <a class="main-menu__link " id="item_questions" href="https://qna.habr.com/questions">
+      <svg class="icon_svg icon_menu_questions" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_menu_questions"></use>
+</svg>
+      Все вопросы
+    </a>
+  </li>
+  <li class="main-menu__item">
+    <a class="main-menu__link " href="https://qna.habr.com/tags">
+      <svg class="icon_svg icon_menu_tags" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_menu_tags"></use>
+</svg>
+      Все теги
+    </a>
+  </li>
+  <li class="main-menu__item">
+    <a class="main-menu__link " href="https://qna.habr.com/users">
+      <svg class="icon_svg icon_menu_users" viewBox="0 0 34 32">
+  <use href="62050f07/images/sprite.svg#icon_menu_users"></use>
+</svg>
+      Пользователи
+    </a>
+  </li>
+  </ul>
+  <section class="promo-block promo-block_sticky-bottom">
+    <h3 class="promo-block__title">Хабр Q&A&nbsp;&mdash; вопросы и&nbsp;ответы для IT-специалистов</h3>
+    <p class="promo-block__desc">Получайте ответы на&nbsp;вопросы по&nbsp;любой теме из&nbsp;области&nbsp;IT от&nbsp;специалистов в&nbsp;этой теме.</p>
+    <a class="btn btn_green" href="https://qna.habr.com/help/about">Узнать больше</a>
+  </section>
+<section class="other-projects">
+  <h6 class="other-projects__title">другие проекты хабра</h6>
+  <ul class="other-projects__list">
+    <li class="other-projects__item">
+      <a href="https://habr.com/?utm_source=habr_qna&utm_medium=habr_top_panel">
+        Хабр
+      </a>
+    </li>
+    <li class="other-projects__item">
+      <a href="https://career.habr.com?utm_source=habr_qna&utm_medium=habr_top_panel">
+        Карьера
+      </a>
+    </li>
+    <li class="other-projects__item">
+      <a href="https://freelance.habr.com?utm_source=habr_qna&utm_medium=habr_top_panel">
+        Фриланс
+      </a>
+    </li>
+  </ul>
+</section>
+        </aside>
+        <div class="layout__body">
+          <header class="layout__topbar">
+            <div class="layout__topbar_suggest">
+              <div class="layout__topbar_wrap">
+                <form class="suggest" action="https://qna.habr.com/search" method="get" id="header_search_form">
+  <div class="suggest__field_wrap">
+    <div class="suggest__wrap_fluid">
+      <input class="suggest__field" type="search" autocomplete="off" name="q" placeholder="Найти вопрос, ответ, тег или пользователя" value="">
+    </div>
+    <button class="btn btn_link" type="button" role="btn_suggest_close">
+      <span>Закрыть</span>
+    </button>
+  </div>
+  <button class="btn btn_suggest" type="button" role="btn_suggest">
+    <svg class="icon_svg icon_search" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_search"></use>
+</svg>
+  </button>
+</form>
+                <div class="layout__topbar_add-question">
+                  <a class="btn btn_green btn_add-question" href="https://qna.habr.com/question/new" role="auth_popup_trigger" data-value="Чтобы задать вопрос и&nbsp;получить на&nbsp;него квалифицированный ответ." data-title="" data-auth-ret="question/new" data-no-button="">
+                    <svg class="icon_svg icon_plus" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_plus"></use>
+</svg>
+                    <span>Задать вопрос</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="layout__topbar_canvas-toggler">
+              <button class="btn btn_navbar_toggle" role="toggle_navbar" type="button">
+                <svg class="icon_svg icon_burger" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_burger"></use>
+</svg>
+                              </button>
+              <a class="logo logo_topbar" href="https://qna.habr.com/">
+                <svg class="icon_svg icon_logo" >
+  <use href="62050f07/images/sprite.svg#icon_logo"></use>
+</svg>
+              </a>
+            </div>
+          </header>
+          <div class="column column_wrap" role="wrap_section">
+            <div class="column_main">
+              <div class="page">
+                <div class="flash-notices" role="notices_container_flash"></div>
+                <div class="notices-container" role="notice_container">
+                                  </div>
+                    <div class="page__qa-wrapper" itemscope itemtype="http://schema.org/QAPage">
+  <div class="page__body" id="question_show" itemscope itemprop="mainEntity" itemtype="http://schema.org/Question">
+    <div class="question question_full">
+      <div class="question-head">
+  <div class="user-summary user-summary_question" itemprop="author creator" itemscope itemtype="http://schema.org/Person">
+  <a class="user-summary__avatar" href="https://qna.habr.com/user/stp008">
+    <meta itemprop="image" content="https://qna.habr.com/images/no_avatar.png">
+      <svg class="icon_userpic" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_userpic"></use>
+</svg>
+  </a>
+  <div class="user-summary__desc">
+    <a class="user-summary__name" href="https://qna.habr.com/user/stp008" itemprop="url"><meta itemprop="name" content="stp008">stp008</a>
+    <span class="user-summary__nickname">
+      <meta itemprop="alternateName" content="stp008">
+      @stp008                                  </span>
+      </div>
+</div>
+        <div class="question-head_subscribers">
+      <ul class="subscribers-list subscribers-list_short">
+                  <li class="subscribers-list__item" title="3ton подписан">
+            <a class="subscribers-list__user-avatar" href="https://qna.habr.com/user/3ton">
+                <svg class="icon_userpic" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_userpic"></use>
+</svg>
+            </a>
+          </li>
+                          <li class="subscribers-list__item" title="VirmarY подписан">
+            <a class="subscribers-list__user-avatar" href="https://qna.habr.com/user/VirmarY">
+                <img src="https://habrastorage.org/r/w60/files/25c/cc0/f74/25ccc0f7481e4469b59836fb08b79b75.jpg" alt="VirmarY">
+            </a>
+          </li>
+                          <li class="subscribers-list__item" title="latteo подписан">
+            <a class="subscribers-list__user-avatar" href="https://qna.habr.com/user/latteo">
+                <img src="https://habrastorage.org/r/w60/getpro/toster/avatars/79b/ef5/b4b/79bef5b4bc9808bb2db4a3425766cb7c.png" alt="latteo">
+            </a>
+          </li>
+                          <li class="subscribers-list__item" title="syamskoy подписан">
+            <a class="subscribers-list__user-avatar" href="https://qna.habr.com/user/syamskoy">
+                <img src="https://habrastorage.org/r/w60/webt/5d/f7/53/5df7538317996374546770.jpeg" alt="syamskoy">
+            </a>
+          </li>
+                          <li class="subscribers-list__item" title="Div-Man подписан">
+            <a class="subscribers-list__user-avatar" href="https://qna.habr.com/user/Div-Man">
+                <svg class="icon_userpic" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_userpic"></use>
+</svg>
+            </a>
+          </li>
+                        <li class="subscribers-list__item subscribers-list__item_more" title="Все подписчики на вопрос">
+          <a role="link_subscribers" href="https://qna.habr.com/question/subscribers?question_id=173527#question_subscribers">
+            <svg class="icon_svg icon_dots" viewBox="0 0 131 32">
+  <use href="62050f07/images/sprite.svg#icon_dots"></use>
+</svg>
+          </a>
+        </li>
+      </ul>
+    </div>
+    </div>
+      <div class="question__tags">
+      <a class="question__tags-image" href="https://qna.habr.com/tag/php">
+            <img class="tag__image tag__image_bg" src="https://habrastorage.org/r/w32/files/373/e8b/dd3/373e8bdd3cb644d3bbeba47d34d1876d.png" alt="php">
+    </a>
+      <ul class="tags-list">
+              <li class="tags-list__item  tag_260" data-tagname="php">
+          <a href="https://qna.habr.com/tag/php">
+            PHP          </a>
+        </li>
+                </ul>
+    </div>
+<h1 class="question__title" itemprop="name ">
+  Зачем в PHP нужна рефлексия?</h1>
+<div class="question__body">
+  <div class="question__text js-question-text" itemprop="text description">
+    Добрый день. Вопрос, собственно, отражен уже в названии топиа: Зачем в PHP нужна рефлексия. Я понимаю, например, в джаве зачем она нужна. Там есть рантайм во время которого нельзя что-либо перекомпилировать (изменять) и рефлексия это практически единственный способ вызвать метод, имя которого тебе не известно при компиляции. Ну а в пхп-то это зачем. Это же скриптовый язык и ты там вообще можешь имя любого метода вписать и в худшем случае он просто выдаст ошибку, но все равно попытается запустить скрипт. Если только она нужна для исследования класса, но для этого в пхп полно своих методов и без рефлексии. Вот один: <a href="http://php.net/manual/ru/function.get-class-methods.php" rel="nofollow" target="_blank">php.net/manual/ru/function.get-class-methods.php</a> . Поэтому я не понимаю зачем в скриптовом языке нужна рефлексия. Просветите? Заранее спасибо.  </div>
+      <ul class="question__attrs inline-list">
+      <li class="inline-list__item inline-list__item_bullet">
+        <span class="question__pub-date">
+          Вопрос задан
+          <time pubdate="" itemprop="dateCreated" datetime="2015-01-13 09:29:27" title="Дата публикации: 13 янв. 2015, в 09:29">
+            более трёх лет назад          </time>
+                  </span>
+      </li>
+              <li class="inline-list__item inline-list__item_bullet">
+          <span class="question__views-count question__views-count_full">
+            <meta itemprop="interactionCount" content="14995 views">
+            14995             просмотров          </span>
+        </li>
+                </ul>
+    </div>
+      <div class="question__comments-link">
+          <span class="btn btn_link btn_comments-toggle" role="auth_popup_trigger" title="Необходимо авторизоваться на сайте" data-value="Чтобы написать комментарий">
+    <span>Комментировать</span>
+  </span>
+      </div>
+      <div class="buttons-group buttons-group_question">
+          <a class="btn btn_subscribe" href="https://qna.habr.com/#" role="auth_popup_trigger" title="Подписаться на вопрос" data-value="Чтобы получать уведомления о&nbsp;новых ответах на&nbsp;вопрос.">
+    Подписаться
+          <span class="btn__counter" role="subscribers_count">
+        <meta itemprop="interactionCount" content="7 UserSubscriptions">
+        7      </span>
+          </a>
+          <span class="btn btn_outline_grey btn_complexity" title="Проголосовало: 0" disabled="true">
+    <span class="svg-icon_level svg-icon_level-0">
+      <svg class="svg-icon" width="51" height="32" viewBox="0 0 51 32"><path d="M20.806 24.295c-1.767 2.88-.575 5.249 1.874 6.579s5.227 1.116 6.994-1.763 12.92-28.574 11.95-29.102c-.971-.526-19.051 21.406-20.818 24.285zm4.794-18.301c1.119 0 2.213.091 3.279.261 1.122-1.32 2.377-2.776 3.599-4.159-2.182-.594-4.486-.917-6.878-.917-14.355 0-25.6 11.386-25.6 25.921 0 .894.042 1.789.125 2.66.126 1.325 1.383 2.3 2.777 2.185 1.409-.118 2.448-1.288 2.322-2.613-.069-.73-.104-1.48-.104-2.232 0-11.835 8.996-21.105 20.48-21.105zm18.479 3.008c-.714 1.805-1.47 3.646-2.135 5.237 2.603 3.537 4.135 7.979 4.135 12.859 0 .763-.036 1.529-.109 2.276-.128 1.324.91 2.496 2.318 2.617l.235.01c1.309 0 2.425-.94 2.546-2.189.086-.891.13-1.804.13-2.712 0-7.108-2.694-13.458-7.121-18.096z"/></svg>
+    </span>
+          Оценить
+          </span>
+          <span class="btn btn_link btn_comments-toggle" role="auth_popup_trigger" title="Необходимо авторизоваться на сайте" data-value="Чтобы написать комментарий">
+    <span>Комментировать</span>
+  </span>
+                <div class="dropdown dropdown_share" role="dropdown">
+  <button class="btn btn_share" role="dropdown_trigger" data-toggle="dropdown" type="button" title="Поделиться вопросом">
+    <svg class="icon_svg icon_sharing" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_sharing"></use>
+</svg>
+  </button>
+  <div class="dropdown__menu">
+        <ul class="menu menu_dropdown">
+  <li class="menu__item">
+    <a class="menu__item-link link_fb" href="https://www.facebook.com/sharer/sharer.php?u=https://qna.habr.com/q/173527" title="Опубликовать ссылку в Facebook" target="_blank" data-share="facebook" data-link="https://qna.habr.com/q/173527">
+      Facebook
+    </a>
+  </li>
+  <li class="menu__item menu__item">
+    <a class="menu__item-link link_vk" href="http://vk.com/share.php?url=https://qna.habr.com/q/173527" title="Опубликовать ссылку во ВКонтакте" target="_blank" data-share="vkontakte" data-link="https://qna.habr.com/q/173527">
+      Вконтакте
+    </a>
+  </li>
+  <li class="menu__item">
+                  <a class="menu__item-link link_tw" href="http://twitter.com/intent/tweet?text=stp008 спрашивает «%D0%97%D0%B0%D1%87%D0%B5%D0%BC+%D0%B2+PHP+%D0%BD%D1%83%D0%B6%D0%BD%D0%B0+%D1%80%D0%B5%D1%84%D0%BB%D0%B5%D0%BA%D1%81%D0%B8%D1%8F%3F» https://qna.habr.com/q/173527+via+@toster_ru+%23toster" title="Опубликовать ссылку в Twitter" target="_blank" data-share="twitter" data-link="https://qna.habr.com/q/173527">
+      Twitter
+    </a>
+  </li>
+</ul>
+  </div>
+</div>
+      </div>
+      <div class="question__comments hidden" role="question_comments">
+  <ul class="content-list content-list_comments " role="question_comments_list">
+                        </ul>
+</div>
+    </div>
+            <div id="div-gpt-ts020_infeed" class="dfp_banner" data-dfp-banner=""></div>
+            <div class="question__additionals">
+                        <div class="section section_solutions  " id="solutions" role="solutions_section">
+                        <header class="section-header">
+  <strong class="section-header__title">
+    Решения вопроса          <span class="section-header__counter" role="answers_counter">1</span>
+          </strong>
+</header>
+        <div class="content-list content-list_answers" id="solutions_list">
+        <div class="content-list__item" role="answer_item " id="answer_item_479105">
+    <div class="answer_wrapper " id="answer_479105" role="toggle_delete_answer" itemprop="suggestedAnswer acceptedAnswer" itemscope itemtype="http://schema.org/Answer">
+      <div class="answer answer_solution" data-created_at="1421133543">
+  <div class="answer__header">
+    <div class="user-summary " itemprop="author creator" itemscope itemtype="http://schema.org/Person">
+  <a class="user-summary__avatar" href="https://qna.habr.com/user/Nc_Soft">
+    <meta itemprop="image" content="https://qna.habr.com/images/no_avatar.png">
+      <svg class="icon_userpic" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_userpic"></use>
+</svg>
+  </a>
+  <div class="user-summary__desc">
+    <a class="user-summary__name" href="https://qna.habr.com/user/Nc_Soft" itemprop="url"><meta itemprop="name" content="Евгений">Евгений</a>
+    <span class="user-summary__nickname">
+      <meta itemprop="alternateName" content="Nc_Soft">
+      @Nc_Soft                                  </span>
+      </div>
+</div>
+  </div>
+  <div class="answer__body">
+        <div class="answer__body_inner">
+      <div class="answer__text js-answer-text" itemprop="text">
+        <pre><code lang="php">&lt;?php
+
+class Stp008 {
+   /**
+    * Вытащи этот текст проще, че это сделал я
+    */
+	public function get() {
+
+	}
+}
+
+$reflection = new ReflectionClass('Stp008');
+$method = $reflection-&gt;getMethod('get');
+echo $method-&gt;getDocComment();</code></pre>      </div>
+      <div class="answer__date">
+        Ответ написан
+        <meta itemprop="url" content="https://qna.habr.com/answer?answer_id=479105#answers_list_answer">
+        <a class="date" href="https://qna.habr.com/answer?answer_id=479105#answers_list_answer">
+          <time itemprop="dateCreated" datetime="2015-01-13 10:19:03" title="Дата публикации: 13 янв. 2015, в 10:19">
+            более трёх лет назад          </time>
+        </a>
+              </div>
+      <div class="answer__comments-link" role="mobile_answers_link">
+          <span class="btn btn_link btn_comments-toggle" role="auth_popup_trigger" title="Необходимо авторизоваться на сайте" data-value="Чтобы написать комментарий">
+    <span>Комментировать</span>
+  </span>
+      </div>
+                </div>
+    <svg class="icon_svg icon_check_answer" viewBox="0 0 45 32">
+  <use href="62050f07/images/sprite.svg#icon_check_answer"></use>
+</svg>
+  </div>
+</div>
+      <div class="buttons-group buttons-group_answer" role="desktop_answers_link">
+                          <button class="btn btn_like" role="auth_popup_trigger" title="Необходимо авторизоваться на сайте" data-value="Чтобы поблагодарить автора ответа.">
+    Нравится
+    <meta itemprop="upvoteCount" content="18">
+    <span class="btn__counter" role="likes_count">18</span>  </button>
+          <span class="btn btn_link btn_comments-toggle" role="auth_popup_trigger" title="Необходимо авторизоваться на сайте" data-value="Чтобы написать комментарий">
+    <span>Комментировать</span>
+  </span>
+                <div class="dropdown dropdown_share" role="dropdown">
+  <button class="btn btn_share" role="dropdown_trigger" data-toggle="dropdown" type="button" title=" Поделиться ответом">
+    <svg class="icon_svg icon_sharing" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_sharing"></use>
+</svg>
+  </button>
+  <div class="dropdown__menu">
+        <ul class="menu menu_dropdown">
+  <li class="menu__item">
+    <a class="menu__item-link link_fb" href="https://www.facebook.com/sharer/sharer.php?u=https://qna.habr.com/answer?answer_id=479105" title="Опубликовать ссылку в Facebook" target="_blank" data-share="facebook" data-link="https://qna.habr.com/answer?answer_id=479105">
+      Facebook
+    </a>
+  </li>
+  <li class="menu__item menu__item">
+    <a class="menu__item-link link_vk" href="http://vk.com/share.php?url=https://qna.habr.com/answer?answer_id=479105" title="Опубликовать ссылку во ВКонтакте" target="_blank" data-share="vkontakte" data-link="https://qna.habr.com/answer?answer_id=479105">
+      Вконтакте
+    </a>
+  </li>
+  <li class="menu__item">
+                      <a class="menu__item-link link_tw" href="http://twitter.com/intent/tweet?text=Евгений ответил на вопрос «%D0%97%D0%B0%D1%87%D0%B5%D0%BC+%D0%B2+PHP+%D0%BD%D1%83%D0%B6%D0%BD%D0%B0+%D1%80%D0%B5%D1%84%D0%BB%D0%B5%D0%BA%D1%81%D0%B8%D1%8F%3F» https://qna.habr.com/answer?answer_id=479105+via+@toster_ru+%23toster" title="Опубликовать ссылку в Twitter" target="_blank" data-share="twitter" data-link="https://qna.habr.com/answer?answer_id=479105">
+      Twitter
+    </a>
+  </li>
+</ul>
+  </div>
+</div>
+      </div>
+          </div>
+  </div>
+    </div>
+      </div>
+      <a class="question__invate-expert" href="https://qna.habr.com/#" role="auth_popup_trigger" data-value="Чтобы пригласить эксперта, который сможет ответить на вопрос" data-question="173527">
+        Пригласить эксперта
+      </a>
+                              <div class="section section_answers " id="answers" role="answers_section ">
+        <meta itemprop="answerCount" content="6">
+                        <header class="section-header">
+  <strong class="section-header__title">
+    Ответы на вопрос          <span class="section-header__counter" role="answers_counter">5</span>
+          </strong>
+</header>
+        <div class="content-list content-list_answers" id="answers_list">
+        <div class="content-list__item" role="answer_item " id="answer_item_479045">
+    <div class="answer_wrapper " id="answer_479045" role="toggle_delete_answer" itemprop="suggestedAnswer " itemscope itemtype="http://schema.org/Answer">
+      <div class="answer " data-created_at="1421130777">
+  <div class="answer__header">
+    <div class="user-summary " itemprop="author creator" itemscope itemtype="http://schema.org/Person">
+  <a class="user-summary__avatar" href="https://qna.habr.com/user/fornit1917">
+    <meta itemprop="image" content="//www.gravatar.com/avatar/57df2ff3505cd63f43d9ba517b5b0816?d=wavatar&amp;s=256">
+      <img src="https://www.gravatar.com/avatar/57df2ff3505cd63f43d9ba517b5b0816?d=wavatar&amp;s=60" alt="fornit1917">
+  </a>
+  <div class="user-summary__desc">
+    <a class="user-summary__name" href="https://qna.habr.com/user/fornit1917" itemprop="url"><meta itemprop="name" content="Vit">Vit</a>
+    <span class="user-summary__nickname">
+      <meta itemprop="alternateName" content="fornit1917">
+      @fornit1917                                  </span>
+      </div>
+</div>
+  </div>
+  <div class="answer__body">
+        <div class="answer__body_inner">
+      <div class="answer__text js-answer-text" itemprop="text">
+        Например для аннотаций (получения данных из phpdoc) <a href="http://php.net/manual/ru/reflectionclass.getdoccomment.php" rel="nofollow" target="_blank">php.net/manual/ru/reflectionclass.getdoccomment.php</a>      </div>
+      <div class="answer__date">
+        Ответ написан
+        <meta itemprop="url" content="https://qna.habr.com/answer?answer_id=479045#answers_list_answer">
+        <a class="date" href="https://qna.habr.com/answer?answer_id=479045#answers_list_answer">
+          <time itemprop="dateCreated" datetime="2015-01-13 09:32:57" title="Дата публикации: 13 янв. 2015, в 09:32">
+            более трёх лет назад          </time>
+        </a>
+              </div>
+      <div class="answer__comments-link" role="mobile_answers_link">
+          <a class="btn btn_link btn_comments-toggle" href="https://qna.habr.com/answer?answer_id=479045#comments_list_479045" id="reply_answer_comment_link_479045" title="Написать комментарий" role="toggle_answer_comments">
+    <span>
+              <meta itemprop="interactionCount" content="2 Comment">
+        <strong>
+          2        </strong>
+        комментария          </span>
+  </a>
+      </div>
+                </div>
+    <svg class="icon_svg icon_check_answer" viewBox="0 0 45 32">
+  <use href="62050f07/images/sprite.svg#icon_check_answer"></use>
+</svg>
+  </div>
+</div>
+      <div class="buttons-group buttons-group_answer" role="desktop_answers_link">
+                          <button class="btn btn_like" role="auth_popup_trigger" title="Необходимо авторизоваться на сайте" data-value="Чтобы поблагодарить автора ответа.">
+    Нравится
+    <meta itemprop="upvoteCount" content="3">
+    <span class="btn__counter" role="likes_count">3</span>  </button>
+          <a class="btn btn_link btn_comments-toggle" href="https://qna.habr.com/answer?answer_id=479045#comments_list_479045" id="reply_answer_comment_link_479045" title="Написать комментарий" role="toggle_answer_comments">
+    <span>
+              <meta itemprop="interactionCount" content="2 Comment">
+        <strong>
+          2        </strong>
+        комментария          </span>
+  </a>
+                <div class="dropdown dropdown_share" role="dropdown">
+  <button class="btn btn_share" role="dropdown_trigger" data-toggle="dropdown" type="button" title=" Поделиться ответом">
+    <svg class="icon_svg icon_sharing" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_sharing"></use>
+</svg>
+  </button>
+  <div class="dropdown__menu">
+        <ul class="menu menu_dropdown">
+  <li class="menu__item">
+    <a class="menu__item-link link_fb" href="https://www.facebook.com/sharer/sharer.php?u=https://qna.habr.com/answer?answer_id=479045" title="Опубликовать ссылку в Facebook" target="_blank" data-share="facebook" data-link="https://qna.habr.com/answer?answer_id=479045">
+      Facebook
+    </a>
+  </li>
+  <li class="menu__item menu__item">
+    <a class="menu__item-link link_vk" href="http://vk.com/share.php?url=https://qna.habr.com/answer?answer_id=479045" title="Опубликовать ссылку во ВКонтакте" target="_blank" data-share="vkontakte" data-link="https://qna.habr.com/answer?answer_id=479045">
+      Вконтакте
+    </a>
+  </li>
+  <li class="menu__item">
+                      <a class="menu__item-link link_tw" href="http://twitter.com/intent/tweet?text=Vit ответил на вопрос «%D0%97%D0%B0%D1%87%D0%B5%D0%BC+%D0%B2+PHP+%D0%BD%D1%83%D0%B6%D0%BD%D0%B0+%D1%80%D0%B5%D1%84%D0%BB%D0%B5%D0%BA%D1%81%D0%B8%D1%8F%3F» https://qna.habr.com/answer?answer_id=479045+via+@toster_ru+%23toster" title="Опубликовать ссылку в Twitter" target="_blank" data-share="twitter" data-link="https://qna.habr.com/answer?answer_id=479045">
+      Twitter
+    </a>
+  </li>
+</ul>
+  </div>
+</div>
+      </div>
+            <div class="answer__comments hidden" id="answer_comments_479045" role="answer_comments">
+      <ul class="content-list content-list_comments " role="answer_comments_list" id="comments_list_479045" itemscope itemtype="http://schema.org/Comment">
+                    <li class="content-list__item" role="comments_item">
+    <div class="comment " id="comment_591771" role="comment toggle_delete_comment" itemscope itemtype="http://schema.org/Comment">
+      <div class="comment__header">
+        <div class="user-summary user-summary_comment" itemprop="author creator" itemscope itemtype="http://schema.org/Person">
+  <a class="user-summary__avatar" href="https://qna.habr.com/user/stp008">
+    <meta itemprop="image" content="https://qna.habr.com/images/no_avatar.png">
+      <svg class="icon_userpic" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_userpic"></use>
+</svg>
+  </a>
+  <div class="user-summary__desc">
+    <a class="user-summary__name" href="https://qna.habr.com/user/stp008" itemprop="url"><meta itemprop="name" content="stp008">stp008</a>
+    <span class="user-summary__nickname">
+      <meta itemprop="alternateName" content="stp008">
+      @stp008                                                          <span class="author_mark">Автор вопроса</span>
+                </span>
+      </div>
+</div>
+      </div>
+      <div class="comment__body">
+                <div class="comment__body_inner">
+          <div class="comment__text js-comment-text" itemprop="about text">
+            Получаешь методы класса функцией get_class_methods и вызываешь <a href="http://php.net/manual/ru/function.call-user-func.php" rel="nofollow" target="_blank">php.net/manual/ru/function.call-user-func.php</a> . Это для декларативного. И потом ловишь эксепнш, если что-то пошло не так. А способов найти ключевые слова в пхп и до этого расширения было много. Да и зачем мне получать все аннотации, если мне нужно проверить существует ли определенная. А если их там очень много. А метода на проверку этого я не нашел и поэтому в любом случае придется писать что-то свое. Я не понимаю зачем надо было плодить такое огромное количество одинаковых по сути функций, которые делают одно и то же. Под рефлексией в пхп я понимаю вот это расширение <a href="http://php.net/manual/ru/book.reflection.php" rel="nofollow" target="_blank">php.net/manual/ru/book.reflection.php</a> . По сути она там была и раньше.          </div>
+          <div class="comment__date">
+            Написано
+            <a class="date date_comment" href="173527.html#comment_591771">
+              <time title="Дата публикации: 13 янв. 2015, в 09:44" itemprop="dateCreated" datetime="2015-01-13 09:44:15">
+                более трёх лет назад              </time>
+            </a>
+                      </div>
+        </div>
+      </div>
+          </div>
+  </li>
+                            <li class="content-list__item" role="comments_item">
+    <div class="comment " id="comment_591785" role="comment toggle_delete_comment" itemscope itemtype="http://schema.org/Comment">
+      <div class="comment__header">
+        <div class="user-summary user-summary_comment" itemprop="author creator" itemscope itemtype="http://schema.org/Person">
+  <a class="user-summary__avatar" href="https://qna.habr.com/user/Nc_Soft">
+    <meta itemprop="image" content="https://qna.habr.com/images/no_avatar.png">
+      <svg class="icon_userpic" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_userpic"></use>
+</svg>
+  </a>
+  <div class="user-summary__desc">
+    <a class="user-summary__name" href="https://qna.habr.com/user/Nc_Soft" itemprop="url"><meta itemprop="name" content="Евгений">Евгений</a>
+    <span class="user-summary__nickname">
+      <meta itemprop="alternateName" content="Nc_Soft">
+      @Nc_Soft                                  </span>
+      </div>
+</div>
+      </div>
+      <div class="comment__body">
+                <div class="comment__body_inner">
+          <div class="comment__text js-comment-text" itemprop="about text">
+            <a href="http://toster.ru/user/stp008">stp008</a>: ты, конечно, можешь лексемы наяривать для генерации документации, но это не так удобно          </div>
+          <div class="comment__date">
+            Написано
+            <a class="date date_comment" href="173527.html#comment_591785">
+              <time title="Дата публикации: 13 янв. 2015, в 09:52" itemprop="dateCreated" datetime="2015-01-13 09:52:57">
+                более трёх лет назад              </time>
+            </a>
+                      </div>
+        </div>
+      </div>
+          </div>
+  </li>
+                              </ul>
+    </div>
+        </div>
+  </div>
+          <div class="content-list__item" role="answer_item " id="answer_item_479167">
+    <div class="answer_wrapper " id="answer_479167" role="toggle_delete_answer" itemprop="suggestedAnswer " itemscope itemtype="http://schema.org/Answer">
+      <div class="answer " data-created_at="1421137497">
+  <div class="answer__header">
+    <div class="user-summary " itemprop="author creator" itemscope itemtype="http://schema.org/Person">
+  <a class="user-summary__avatar" href="https://qna.habr.com/user/index0h">
+    <meta itemprop="image" content="https://habrastorage.org/webt/5e/16/22/5e16228e3a232472269416.jpeg">
+      <img src="https://habrastorage.org/r/w60/webt/5e/16/22/5e16228e3a232472269416.jpeg" alt="index0h">
+  </a>
+  <div class="user-summary__desc">
+    <a class="user-summary__name" href="https://qna.habr.com/user/index0h" itemprop="url"><meta itemprop="name" content="index0h">index0h</a>
+    <span class="user-summary__nickname">
+      <meta itemprop="alternateName" content="index0h">
+      @index0h                                  </span>
+          <div class="user-summary__about" itemprop="description">
+        PHP, Golang. https://github.com/index0h      </div>
+          </div>
+</div>
+  </div>
+  <div class="answer__body">
+        <div class="answer__body_inner">
+      <div class="answer__text js-answer-text" itemprop="text">
+        Мок объекты классов при тестировании. В случае белого ящика без рефлексии тяжко.      </div>
+      <div class="answer__date">
+        Ответ написан
+        <meta itemprop="url" content="https://qna.habr.com/answer?answer_id=479167#answers_list_answer">
+        <a class="date" href="https://qna.habr.com/answer?answer_id=479167#answers_list_answer">
+          <time itemprop="dateCreated" datetime="2015-01-13 11:24:57" title="Дата публикации: 13 янв. 2015, в 11:24">
+            более трёх лет назад          </time>
+        </a>
+              </div>
+      <div class="answer__comments-link" role="mobile_answers_link">
+          <span class="btn btn_link btn_comments-toggle" role="auth_popup_trigger" title="Необходимо авторизоваться на сайте" data-value="Чтобы написать комментарий">
+    <span>Комментировать</span>
+  </span>
+      </div>
+                </div>
+    <svg class="icon_svg icon_check_answer" viewBox="0 0 45 32">
+  <use href="62050f07/images/sprite.svg#icon_check_answer"></use>
+</svg>
+  </div>
+</div>
+      <div class="buttons-group buttons-group_answer" role="desktop_answers_link">
+                          <button class="btn btn_like" role="auth_popup_trigger" title="Необходимо авторизоваться на сайте" data-value="Чтобы поблагодарить автора ответа.">
+    Нравится
+    <meta itemprop="upvoteCount" content="2">
+    <span class="btn__counter" role="likes_count">2</span>  </button>
+          <span class="btn btn_link btn_comments-toggle" role="auth_popup_trigger" title="Необходимо авторизоваться на сайте" data-value="Чтобы написать комментарий">
+    <span>Комментировать</span>
+  </span>
+                <div class="dropdown dropdown_share" role="dropdown">
+  <button class="btn btn_share" role="dropdown_trigger" data-toggle="dropdown" type="button" title=" Поделиться ответом">
+    <svg class="icon_svg icon_sharing" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_sharing"></use>
+</svg>
+  </button>
+  <div class="dropdown__menu">
+        <ul class="menu menu_dropdown">
+  <li class="menu__item">
+    <a class="menu__item-link link_fb" href="https://www.facebook.com/sharer/sharer.php?u=https://qna.habr.com/answer?answer_id=479167" title="Опубликовать ссылку в Facebook" target="_blank" data-share="facebook" data-link="https://qna.habr.com/answer?answer_id=479167">
+      Facebook
+    </a>
+  </li>
+  <li class="menu__item menu__item">
+    <a class="menu__item-link link_vk" href="http://vk.com/share.php?url=https://qna.habr.com/answer?answer_id=479167" title="Опубликовать ссылку во ВКонтакте" target="_blank" data-share="vkontakte" data-link="https://qna.habr.com/answer?answer_id=479167">
+      Вконтакте
+    </a>
+  </li>
+  <li class="menu__item">
+                      <a class="menu__item-link link_tw" href="http://twitter.com/intent/tweet?text=index0h ответил на вопрос «%D0%97%D0%B0%D1%87%D0%B5%D0%BC+%D0%B2+PHP+%D0%BD%D1%83%D0%B6%D0%BD%D0%B0+%D1%80%D0%B5%D1%84%D0%BB%D0%B5%D0%BA%D1%81%D0%B8%D1%8F%3F» https://qna.habr.com/answer?answer_id=479167+via+@toster_ru+%23toster" title="Опубликовать ссылку в Twitter" target="_blank" data-share="twitter" data-link="https://qna.habr.com/answer?answer_id=479167">
+      Twitter
+    </a>
+  </li>
+</ul>
+  </div>
+</div>
+      </div>
+          </div>
+  </div>
+          <div class="content-list__item" role="answer_item " id="answer_item_479139">
+    <div class="answer_wrapper " id="answer_479139" role="toggle_delete_answer" itemprop="suggestedAnswer " itemscope itemtype="http://schema.org/Answer">
+      <div class="answer " data-created_at="1421135416">
+  <div class="answer__header">
+    <div class="user-summary " itemprop="author creator" itemscope itemtype="http://schema.org/Person">
+  <a class="user-summary__avatar" href="https://qna.habr.com/user/Tyranron">
+    <meta itemprop="image" content="//habrastorage.org/getpro/toster/058f6f18/bd3f/42c6/058f6f18-bd3f-42c6-a401-2fb2e7312e58/av3.jpg">
+      <img src="https://habrastorage.org/r/w60/getpro/toster/058f6f18/bd3f/42c6/058f6f18-bd3f-42c6-a401-2fb2e7312e58/av3.jpg" alt="Tyranron">
+  </a>
+  <div class="user-summary__desc">
+    <a class="user-summary__name" href="https://qna.habr.com/user/Tyranron" itemprop="url"><meta itemprop="name" content="Tyranron">Tyranron</a>
+    <span class="user-summary__nickname">
+      <meta itemprop="alternateName" content="Tyranron">
+      @Tyranron                                  </span>
+      </div>
+</div>
+  </div>
+  <div class="answer__body">
+        <div class="answer__body_inner">
+      <div class="answer__text js-answer-text" itemprop="text">
+        Еще с помощью нее делают удобние IoC-контейнеры, например, в Laravel.<br/>
+А еще она позволяет тестировать private методы классов напрямую.<br/>
+В общем-то, дальше дело фантазии, рефлексия всего лишь позволяет программе отслеживать свою структуру и поведение во время выполнения.      </div>
+      <div class="answer__date">
+        Ответ написан
+        <meta itemprop="url" content="https://qna.habr.com/answer?answer_id=479139#answers_list_answer">
+        <a class="date" href="https://qna.habr.com/answer?answer_id=479139#answers_list_answer">
+          <time itemprop="dateCreated" datetime="2015-01-13 10:50:16" title="Дата публикации: 13 янв. 2015, в 10:50">
+            более трёх лет назад          </time>
+        </a>
+              </div>
+      <div class="answer__comments-link" role="mobile_answers_link">
+          <a class="btn btn_link btn_comments-toggle" href="https://qna.habr.com/answer?answer_id=479139#comments_list_479139" id="reply_answer_comment_link_479139" title="Написать комментарий" role="toggle_answer_comments">
+    <span>
+              <meta itemprop="interactionCount" content="2 Comment">
+        <strong>
+          2        </strong>
+        комментария          </span>
+  </a>
+      </div>
+                </div>
+    <svg class="icon_svg icon_check_answer" viewBox="0 0 45 32">
+  <use href="62050f07/images/sprite.svg#icon_check_answer"></use>
+</svg>
+  </div>
+</div>
+      <div class="buttons-group buttons-group_answer" role="desktop_answers_link">
+                          <button class="btn btn_like" role="auth_popup_trigger" title="Необходимо авторизоваться на сайте" data-value="Чтобы поблагодарить автора ответа.">
+    Нравится
+    <meta itemprop="upvoteCount" content="1">
+    <span class="btn__counter" role="likes_count">1</span>  </button>
+          <a class="btn btn_link btn_comments-toggle" href="https://qna.habr.com/answer?answer_id=479139#comments_list_479139" id="reply_answer_comment_link_479139" title="Написать комментарий" role="toggle_answer_comments">
+    <span>
+              <meta itemprop="interactionCount" content="2 Comment">
+        <strong>
+          2        </strong>
+        комментария          </span>
+  </a>
+                <div class="dropdown dropdown_share" role="dropdown">
+  <button class="btn btn_share" role="dropdown_trigger" data-toggle="dropdown" type="button" title=" Поделиться ответом">
+    <svg class="icon_svg icon_sharing" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_sharing"></use>
+</svg>
+  </button>
+  <div class="dropdown__menu">
+        <ul class="menu menu_dropdown">
+  <li class="menu__item">
+    <a class="menu__item-link link_fb" href="https://www.facebook.com/sharer/sharer.php?u=https://qna.habr.com/answer?answer_id=479139" title="Опубликовать ссылку в Facebook" target="_blank" data-share="facebook" data-link="https://qna.habr.com/answer?answer_id=479139">
+      Facebook
+    </a>
+  </li>
+  <li class="menu__item menu__item">
+    <a class="menu__item-link link_vk" href="http://vk.com/share.php?url=https://qna.habr.com/answer?answer_id=479139" title="Опубликовать ссылку во ВКонтакте" target="_blank" data-share="vkontakte" data-link="https://qna.habr.com/answer?answer_id=479139">
+      Вконтакте
+    </a>
+  </li>
+  <li class="menu__item">
+                      <a class="menu__item-link link_tw" href="http://twitter.com/intent/tweet?text=Tyranron ответил на вопрос «%D0%97%D0%B0%D1%87%D0%B5%D0%BC+%D0%B2+PHP+%D0%BD%D1%83%D0%B6%D0%BD%D0%B0+%D1%80%D0%B5%D1%84%D0%BB%D0%B5%D0%BA%D1%81%D0%B8%D1%8F%3F» https://qna.habr.com/answer?answer_id=479139+via+@toster_ru+%23toster" title="Опубликовать ссылку в Twitter" target="_blank" data-share="twitter" data-link="https://qna.habr.com/answer?answer_id=479139">
+      Twitter
+    </a>
+  </li>
+</ul>
+  </div>
+</div>
+      </div>
+            <div class="answer__comments hidden" id="answer_comments_479139" role="answer_comments">
+      <ul class="content-list content-list_comments " role="answer_comments_list" id="comments_list_479139" itemscope itemtype="http://schema.org/Comment">
+                    <li class="content-list__item" role="comments_item">
+    <div class="comment " id="comment_591947" role="comment toggle_delete_comment" itemscope itemtype="http://schema.org/Comment">
+      <div class="comment__header">
+        <div class="user-summary user-summary_comment" itemprop="author creator" itemscope itemtype="http://schema.org/Person">
+  <a class="user-summary__avatar" href="https://qna.habr.com/user/stp008">
+    <meta itemprop="image" content="https://qna.habr.com/images/no_avatar.png">
+      <svg class="icon_userpic" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_userpic"></use>
+</svg>
+  </a>
+  <div class="user-summary__desc">
+    <a class="user-summary__name" href="https://qna.habr.com/user/stp008" itemprop="url"><meta itemprop="name" content="stp008">stp008</a>
+    <span class="user-summary__nickname">
+      <meta itemprop="alternateName" content="stp008">
+      @stp008                                                          <span class="author_mark">Автор вопроса</span>
+                </span>
+      </div>
+</div>
+      </div>
+      <div class="comment__body">
+                <div class="comment__body_inner">
+          <div class="comment__text js-comment-text" itemprop="about text">
+            их и без этого расширения можно сделать. отслеживать структуру и поведение во время рантайма можно было и до появления этого расширения.          </div>
+          <div class="comment__date">
+            Написано
+            <a class="date date_comment" href="173527.html#comment_591947">
+              <time title="Дата публикации: 13 янв. 2015, в 12:04" itemprop="dateCreated" datetime="2015-01-13 12:04:04">
+                более трёх лет назад              </time>
+            </a>
+                      </div>
+        </div>
+      </div>
+          </div>
+  </li>
+                                                      <li class="content-list__item" role="comments_item">
+    <div class="comment " id="comment_592987" role="comment toggle_delete_comment" itemscope itemtype="http://schema.org/Comment">
+      <div class="comment__header">
+        <div class="user-summary user-summary_comment" itemprop="author creator" itemscope itemtype="http://schema.org/Person">
+  <a class="user-summary__avatar" href="https://qna.habr.com/user/Tyranron">
+    <meta itemprop="image" content="//habrastorage.org/getpro/toster/058f6f18/bd3f/42c6/058f6f18-bd3f-42c6-a401-2fb2e7312e58/av3.jpg">
+      <img src="https://habrastorage.org/r/w60/getpro/toster/058f6f18/bd3f/42c6/058f6f18-bd3f-42c6-a401-2fb2e7312e58/av3.jpg" alt="Tyranron">
+  </a>
+  <div class="user-summary__desc">
+    <a class="user-summary__name" href="https://qna.habr.com/user/Tyranron" itemprop="url"><meta itemprop="name" content="Tyranron">Tyranron</a>
+    <span class="user-summary__nickname">
+      <meta itemprop="alternateName" content="Tyranron">
+      @Tyranron                                  </span>
+      </div>
+</div>
+      </div>
+      <div class="comment__body">
+                <div class="comment__body_inner">
+          <div class="comment__text js-comment-text" itemprop="about text">
+            <a href="http://toster.ru/user/stp008">stp008</a>: Значит можно было недостаточно хорошо. Каких-то возможностей не хватало. Плюс Reflection запилена в ООП-стиле, что, вообщем, становится трендом в стандартной билиотеке PHP.          </div>
+          <div class="comment__date">
+            Написано
+            <a class="date date_comment" href="173527.html#comment_592987">
+              <time title="Дата публикации: 13 янв. 2015, в 22:21" itemprop="dateCreated" datetime="2015-01-13 22:21:16">
+                более трёх лет назад              </time>
+            </a>
+                      </div>
+        </div>
+      </div>
+          </div>
+  </li>
+                              </ul>
+    </div>
+        </div>
+  </div>
+                  <div class="content-list__item" role="answer_item " id="answer_item_479083">
+    <div class="answer_wrapper " id="answer_479083" role="toggle_delete_answer" itemprop="suggestedAnswer " itemscope itemtype="http://schema.org/Answer">
+      <div class="answer " data-created_at="1421132268">
+  <div class="answer__header">
+    <div class="user-summary " itemprop="author creator" itemscope itemtype="http://schema.org/Person">
+  <a class="user-summary__avatar" href="https://qna.habr.com/user/rdifb0">
+    <meta itemprop="image" content="//www.gravatar.com/avatar/30e2876e3f831028a13252a5b3a97ebf?d=wavatar&amp;s=256">
+      <img src="https://www.gravatar.com/avatar/30e2876e3f831028a13252a5b3a97ebf?d=wavatar&amp;s=60" alt="rdifb0">
+  </a>
+  <div class="user-summary__desc">
+    <a class="user-summary__name" href="https://qna.habr.com/user/rdifb0" itemprop="url"><meta itemprop="name" content="Алексей">Алексей</a>
+    <span class="user-summary__nickname">
+      <meta itemprop="alternateName" content="rdifb0">
+      @rdifb0                                  </span>
+          <div class="user-summary__about" itemprop="description">
+        Программист, реалист      </div>
+          </div>
+</div>
+  </div>
+  <div class="answer__body">
+        <div class="answer__body_inner">
+      <div class="answer__text js-answer-text" itemprop="text">
+        Потому что больше возможностей и ООП      </div>
+      <div class="answer__date">
+        Ответ написан
+        <meta itemprop="url" content="https://qna.habr.com/answer?answer_id=479083#answers_list_answer">
+        <a class="date" href="https://qna.habr.com/answer?answer_id=479083#answers_list_answer">
+          <time itemprop="dateCreated" datetime="2015-01-13 09:57:48" title="Дата публикации: 13 янв. 2015, в 09:57">
+            более трёх лет назад          </time>
+        </a>
+              </div>
+      <div class="answer__comments-link" role="mobile_answers_link">
+          <span class="btn btn_link btn_comments-toggle" role="auth_popup_trigger" title="Необходимо авторизоваться на сайте" data-value="Чтобы написать комментарий">
+    <span>Комментировать</span>
+  </span>
+      </div>
+                </div>
+    <svg class="icon_svg icon_check_answer" viewBox="0 0 45 32">
+  <use href="62050f07/images/sprite.svg#icon_check_answer"></use>
+</svg>
+  </div>
+</div>
+      <div class="buttons-group buttons-group_answer" role="desktop_answers_link">
+                          <button class="btn btn_like" role="auth_popup_trigger" title="Необходимо авторизоваться на сайте" data-value="Чтобы поблагодарить автора ответа.">
+    Нравится
+    <meta itemprop="upvoteCount" content="0">
+      </button>
+          <span class="btn btn_link btn_comments-toggle" role="auth_popup_trigger" title="Необходимо авторизоваться на сайте" data-value="Чтобы написать комментарий">
+    <span>Комментировать</span>
+  </span>
+                <div class="dropdown dropdown_share" role="dropdown">
+  <button class="btn btn_share" role="dropdown_trigger" data-toggle="dropdown" type="button" title=" Поделиться ответом">
+    <svg class="icon_svg icon_sharing" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_sharing"></use>
+</svg>
+  </button>
+  <div class="dropdown__menu">
+        <ul class="menu menu_dropdown">
+  <li class="menu__item">
+    <a class="menu__item-link link_fb" href="https://www.facebook.com/sharer/sharer.php?u=https://qna.habr.com/answer?answer_id=479083" title="Опубликовать ссылку в Facebook" target="_blank" data-share="facebook" data-link="https://qna.habr.com/answer?answer_id=479083">
+      Facebook
+    </a>
+  </li>
+  <li class="menu__item menu__item">
+    <a class="menu__item-link link_vk" href="http://vk.com/share.php?url=https://qna.habr.com/answer?answer_id=479083" title="Опубликовать ссылку во ВКонтакте" target="_blank" data-share="vkontakte" data-link="https://qna.habr.com/answer?answer_id=479083">
+      Вконтакте
+    </a>
+  </li>
+  <li class="menu__item">
+                      <a class="menu__item-link link_tw" href="http://twitter.com/intent/tweet?text=Алексей ответил на вопрос «%D0%97%D0%B0%D1%87%D0%B5%D0%BC+%D0%B2+PHP+%D0%BD%D1%83%D0%B6%D0%BD%D0%B0+%D1%80%D0%B5%D1%84%D0%BB%D0%B5%D0%BA%D1%81%D0%B8%D1%8F%3F» https://qna.habr.com/answer?answer_id=479083+via+@toster_ru+%23toster" title="Опубликовать ссылку в Twitter" target="_blank" data-share="twitter" data-link="https://qna.habr.com/answer?answer_id=479083">
+      Twitter
+    </a>
+  </li>
+</ul>
+  </div>
+</div>
+      </div>
+          </div>
+  </div>
+          <div class="content-list__item" role="answer_item " id="answer_item_479089">
+    <div class="answer_wrapper " id="answer_479089" role="toggle_delete_answer" itemprop="suggestedAnswer " itemscope itemtype="http://schema.org/Answer">
+      <div class="answer " data-created_at="1421132526">
+  <div class="answer__header">
+    <div class="user-summary " itemprop="author creator" itemscope itemtype="http://schema.org/Person">
+  <a class="user-summary__avatar" href="https://qna.habr.com/user/SilenceOfWinter">
+    <meta itemprop="image" content="//www.gravatar.com/avatar/dce9d3931c54deb036fc478c4460a40f?d=wavatar&amp;s=256">
+      <img src="https://www.gravatar.com/avatar/dce9d3931c54deb036fc478c4460a40f?d=wavatar&amp;s=60" alt="SilenceOfWinter">
+  </a>
+  <div class="user-summary__desc">
+    <a class="user-summary__name" href="https://qna.habr.com/user/SilenceOfWinter" itemprop="url"><meta itemprop="name" content="Антон Шаманов">Антон Шаманов</a>
+    <span class="user-summary__nickname">
+      <meta itemprop="alternateName" content="SilenceOfWinter">
+      @SilenceOfWinter                                  </span>
+          <div class="user-summary__about" itemprop="description">
+        та еще зажигалка...      </div>
+          </div>
+</div>
+  </div>
+  <div class="answer__body">
+        <div class="answer__body_inner">
+      <div class="answer__text js-answer-text" itemprop="text">
+        reflexion — отражение, симметрия. И как верно пометил <a href="http://toster.ru/user/fornit1917">Vit</a> для этого и используется.      </div>
+      <div class="answer__date">
+        Ответ написан
+        <meta itemprop="url" content="https://qna.habr.com/answer?answer_id=479089#answers_list_answer">
+        <a class="date" href="https://qna.habr.com/answer?answer_id=479089#answers_list_answer">
+          <time itemprop="dateCreated" datetime="2015-01-13 10:02:06" title="Дата публикации: 13 янв. 2015, в 10:02">
+            более трёх лет назад          </time>
+        </a>
+              </div>
+      <div class="answer__comments-link" role="mobile_answers_link">
+          <a class="btn btn_link btn_comments-toggle" href="https://qna.habr.com/answer?answer_id=479089#comments_list_479089" id="reply_answer_comment_link_479089" title="Написать комментарий" role="toggle_answer_comments">
+    <span>
+              <meta itemprop="interactionCount" content="2 Comment">
+        <strong>
+          2        </strong>
+        комментария          </span>
+  </a>
+      </div>
+                </div>
+    <svg class="icon_svg icon_check_answer" viewBox="0 0 45 32">
+  <use href="62050f07/images/sprite.svg#icon_check_answer"></use>
+</svg>
+  </div>
+</div>
+      <div class="buttons-group buttons-group_answer" role="desktop_answers_link">
+                          <button class="btn btn_like" role="auth_popup_trigger" title="Необходимо авторизоваться на сайте" data-value="Чтобы поблагодарить автора ответа.">
+    Нравится
+    <meta itemprop="upvoteCount" content="0">
+      </button>
+          <a class="btn btn_link btn_comments-toggle" href="https://qna.habr.com/answer?answer_id=479089#comments_list_479089" id="reply_answer_comment_link_479089" title="Написать комментарий" role="toggle_answer_comments">
+    <span>
+              <meta itemprop="interactionCount" content="2 Comment">
+        <strong>
+          2        </strong>
+        комментария          </span>
+  </a>
+                <div class="dropdown dropdown_share" role="dropdown">
+  <button class="btn btn_share" role="dropdown_trigger" data-toggle="dropdown" type="button" title=" Поделиться ответом">
+    <svg class="icon_svg icon_sharing" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_sharing"></use>
+</svg>
+  </button>
+  <div class="dropdown__menu">
+        <ul class="menu menu_dropdown">
+  <li class="menu__item">
+    <a class="menu__item-link link_fb" href="https://www.facebook.com/sharer/sharer.php?u=https://qna.habr.com/answer?answer_id=479089" title="Опубликовать ссылку в Facebook" target="_blank" data-share="facebook" data-link="https://qna.habr.com/answer?answer_id=479089">
+      Facebook
+    </a>
+  </li>
+  <li class="menu__item menu__item">
+    <a class="menu__item-link link_vk" href="http://vk.com/share.php?url=https://qna.habr.com/answer?answer_id=479089" title="Опубликовать ссылку во ВКонтакте" target="_blank" data-share="vkontakte" data-link="https://qna.habr.com/answer?answer_id=479089">
+      Вконтакте
+    </a>
+  </li>
+  <li class="menu__item">
+                      <a class="menu__item-link link_tw" href="http://twitter.com/intent/tweet?text=Антон Шаманов ответил на вопрос «%D0%97%D0%B0%D1%87%D0%B5%D0%BC+%D0%B2+PHP+%D0%BD%D1%83%D0%B6%D0%BD%D0%B0+%D1%80%D0%B5%D1%84%D0%BB%D0%B5%D0%BA%D1%81%D0%B8%D1%8F%3F» https://qna.habr.com/answer?answer_id=479089+via+@toster_ru+%23toster" title="Опубликовать ссылку в Twitter" target="_blank" data-share="twitter" data-link="https://qna.habr.com/answer?answer_id=479089">
+      Twitter
+    </a>
+  </li>
+</ul>
+  </div>
+</div>
+      </div>
+            <div class="answer__comments hidden" id="answer_comments_479089" role="answer_comments">
+      <ul class="content-list content-list_comments " role="answer_comments_list" id="comments_list_479089" itemscope itemtype="http://schema.org/Comment">
+                    <li class="content-list__item" role="comments_item">
+    <div class="comment " id="comment_591805" role="comment toggle_delete_comment" itemscope itemtype="http://schema.org/Comment">
+      <div class="comment__header">
+        <div class="user-summary user-summary_comment" itemprop="author creator" itemscope itemtype="http://schema.org/Person">
+  <a class="user-summary__avatar" href="https://qna.habr.com/user/stp008">
+    <meta itemprop="image" content="https://qna.habr.com/images/no_avatar.png">
+      <svg class="icon_userpic" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_userpic"></use>
+</svg>
+  </a>
+  <div class="user-summary__desc">
+    <a class="user-summary__name" href="https://qna.habr.com/user/stp008" itemprop="url"><meta itemprop="name" content="stp008">stp008</a>
+    <span class="user-summary__nickname">
+      <meta itemprop="alternateName" content="stp008">
+      @stp008                                                          <span class="author_mark">Автор вопроса</span>
+                </span>
+      </div>
+</div>
+      </div>
+      <div class="comment__body">
+                <div class="comment__body_inner">
+          <div class="comment__text js-comment-text" itemprop="about text">
+            call_user_func, get_class_methods и еще куча других, которые были до этого для исследования классов, по сути являются рефлексией. Под рефлексией я имею ввиду само расширение с этим названием.          </div>
+          <div class="comment__date">
+            Написано
+            <a class="date date_comment" href="173527.html#comment_591805">
+              <time title="Дата публикации: 13 янв. 2015, в 10:07" itemprop="dateCreated" datetime="2015-01-13 10:07:27">
+                более трёх лет назад              </time>
+            </a>
+                      </div>
+        </div>
+      </div>
+          </div>
+  </li>
+                            <li class="content-list__item" role="comments_item">
+    <div class="comment " id="comment_591807" role="comment toggle_delete_comment" itemscope itemtype="http://schema.org/Comment">
+      <div class="comment__header">
+        <div class="user-summary user-summary_comment" itemprop="author creator" itemscope itemtype="http://schema.org/Person">
+  <a class="user-summary__avatar" href="https://qna.habr.com/user/SilenceOfWinter">
+    <meta itemprop="image" content="//www.gravatar.com/avatar/dce9d3931c54deb036fc478c4460a40f?d=wavatar&amp;s=256">
+      <img src="https://www.gravatar.com/avatar/dce9d3931c54deb036fc478c4460a40f?d=wavatar&amp;s=60" alt="SilenceOfWinter">
+  </a>
+  <div class="user-summary__desc">
+    <a class="user-summary__name" href="https://qna.habr.com/user/SilenceOfWinter" itemprop="url"><meta itemprop="name" content="Антон Шаманов">Антон Шаманов</a>
+    <span class="user-summary__nickname">
+      <meta itemprop="alternateName" content="SilenceOfWinter">
+      @SilenceOfWinter                                  </span>
+      </div>
+</div>
+      </div>
+      <div class="comment__body">
+                <div class="comment__body_inner">
+          <div class="comment__text js-comment-text" itemprop="about text">
+            <a href="http://toster.ru/user/stp008">stp008</a>:  PHP плавно переезжает с процедурного подхода на ООП, отсюда и расширение          </div>
+          <div class="comment__date">
+            Написано
+            <a class="date date_comment" href="173527.html#comment_591807">
+              <time title="Дата публикации: 13 янв. 2015, в 10:09" itemprop="dateCreated" datetime="2015-01-13 10:09:51">
+                более трёх лет назад              </time>
+            </a>
+                      </div>
+        </div>
+      </div>
+          </div>
+  </li>
+                              </ul>
+    </div>
+        </div>
+  </div>
+    </div>
+      </div>
+      <div class="section section_form-answers" id="answer-form">
+                <header class="section-header">
+  <strong class="section-header__title">
+    Ваш ответ на вопрос      </strong>
+</header>
+              <div class="empty-block">
+  <div class="empty-block__inner">
+    <h3 class="empty-block__title icon_unauthorized" role="title_replace">
+      Войдите, чтобы написать ответ    </h3>
+              <a class="empty-block__button" href="https://qna.habr.com/auth/tmid?ret=@referer">
+        Войти через центр авторизации      </a>
+          </div>
+</div>
+      </div>
+                      <header class="section-header">
+  <strong class="section-header__title">
+    Похожие вопросы      </strong>
+</header>
+          <ul class="content-list" id="related_questions_173527">
+          <li class="content-list__item" role="content-list_item">
+  <div class="question question_short">
+    <div class="question__content">
+      <div class="question__content_fluid">
+                <div class="question__tags">
+                      <a class="question__tags-image" href="https://qna.habr.com/tag/php">
+                      <img class="tag__image tag__image_bg" src="https://habrastorage.org/r/w32/files/373/e8b/dd3/373e8bdd3cb644d3bbeba47d34d1876d.png" alt="php">
+              </a>
+                                          <ul class="tags-list tags-list_short">
+                            <li class="tags-list__item  tag_260">
+                <a href="https://qna.habr.com/tag/php">
+                  PHP                </a>
+              </li>
+                          </ul>
+                                          <span class="question__complexity">
+              <span class="svg-icon_level svg-icon_level-2">
+                <svg class="svg-icon" width="51" height="32" viewBox="0 0 51 32"><path d="M20.806 24.295c-1.767 2.88-.575 5.249 1.874 6.579s5.227 1.116 6.994-1.763 12.92-28.574 11.95-29.102c-.971-.526-19.051 21.406-20.818 24.285zm4.794-18.301c1.119 0 2.213.091 3.279.261 1.122-1.32 2.377-2.776 3.599-4.159-2.182-.594-4.486-.917-6.878-.917-14.355 0-25.6 11.386-25.6 25.921 0 .894.042 1.789.125 2.66.126 1.325 1.383 2.3 2.777 2.185 1.409-.118 2.448-1.288 2.322-2.613-.069-.73-.104-1.48-.104-2.232 0-11.835 8.996-21.105 20.48-21.105zm18.479 3.008c-.714 1.805-1.47 3.646-2.135 5.237 2.603 3.537 4.135 7.979 4.135 12.859 0 .763-.036 1.529-.109 2.276-.128 1.324.91 2.496 2.318 2.617l.235.01c1.309 0 2.425-.94 2.546-2.189.086-.891.13-1.804.13-2.712 0-7.108-2.694-13.458-7.121-18.096z"/></svg>
+              </span>
+              <span class="question__complexity-text">
+                Простой              </span>
+            </span>
+                            </div>
+        <h2 class="question__title">
+          <a class="question__title-link question__title-link_list" href="https://qna.habr.com/q/1121950?from=questions_similar">
+            Почему возникает ошибка «str_replace(): Argument #4 ($count) cannot be passed by reference»?          </a>
+        </h2>
+        <ul class="question__attrs inline-list">
+          <li class="inline-list__item inline-list__item_bullet">
+            <span class="question__views-count" title="Количество подписавшихся на вопрос">
+                              1                 подписчик                          </span>
+          </li>
+          <li class="inline-list__item inline-list__item_bullet">
+            <time class="question__date question__date_publish" pubdate="" title="Дата публикации: 01 мар. 2022, в 18:45" datetime="2022-03-01 18:45:56">
+              час назад            </time>
+          </li>
+                      <li class="inline-list__item inline-list__item_bullet">
+              <span class="question__views-count">
+                15                 просмотров              </span>
+            </li>
+                                      </ul>
+      </div>
+    </div>
+    <div class="question__answers-count question__answers_has-solution">
+      <a class="mini-counter" href="https://qna.habr.com/q/1121950#answers" title="Количество ответов на вопрос" role="lazy_anchor">
+        <div class="mini-counter__count mini-counter__count_grey">
+                      <svg class="icon_svg icon_check" viewBox="0 0 45 32">
+  <use href="62050f07/images/sprite.svg#icon_check"></use>
+</svg>
+                              1        </div>
+        <div class="mini-counter__value">
+          ответ        </div>
+      </a>
+    </div>
+  </div>
+</li>
+          <li class="content-list__item" role="content-list_item">
+  <div class="question question_short">
+    <div class="question__content">
+      <div class="question__content_fluid">
+                <div class="question__tags">
+                      <a class="question__tags-image" href="https://qna.habr.com/tag/php">
+                      <img class="tag__image tag__image_bg" src="https://habrastorage.org/r/w32/files/373/e8b/dd3/373e8bdd3cb644d3bbeba47d34d1876d.png" alt="php">
+              </a>
+                                          <ul class="tags-list tags-list_short">
+                            <li class="tags-list__item  tag_260">
+                <a href="https://qna.habr.com/tag/php">
+                  PHP                </a>
+              </li>
+                              <li class="tags-list__item tags-list__item_more">
+                  +1                  ещё
+                </li>
+                                        </ul>
+                                          <span class="question__complexity">
+              <span class="svg-icon_level svg-icon_level-2">
+                <svg class="svg-icon" width="51" height="32" viewBox="0 0 51 32"><path d="M20.806 24.295c-1.767 2.88-.575 5.249 1.874 6.579s5.227 1.116 6.994-1.763 12.92-28.574 11.95-29.102c-.971-.526-19.051 21.406-20.818 24.285zm4.794-18.301c1.119 0 2.213.091 3.279.261 1.122-1.32 2.377-2.776 3.599-4.159-2.182-.594-4.486-.917-6.878-.917-14.355 0-25.6 11.386-25.6 25.921 0 .894.042 1.789.125 2.66.126 1.325 1.383 2.3 2.777 2.185 1.409-.118 2.448-1.288 2.322-2.613-.069-.73-.104-1.48-.104-2.232 0-11.835 8.996-21.105 20.48-21.105zm18.479 3.008c-.714 1.805-1.47 3.646-2.135 5.237 2.603 3.537 4.135 7.979 4.135 12.859 0 .763-.036 1.529-.109 2.276-.128 1.324.91 2.496 2.318 2.617l.235.01c1.309 0 2.425-.94 2.546-2.189.086-.891.13-1.804.13-2.712 0-7.108-2.694-13.458-7.121-18.096z"/></svg>
+              </span>
+              <span class="question__complexity-text">
+                Простой              </span>
+            </span>
+                            </div>
+        <h2 class="question__title">
+          <a class="question__title-link question__title-link_list" href="https://qna.habr.com/q/1121936?from=questions_similar">
+            Какую книгу по PHP прочесть?          </a>
+        </h2>
+        <ul class="question__attrs inline-list">
+          <li class="inline-list__item inline-list__item_bullet">
+            <span class="question__views-count" title="Количество подписавшихся на вопрос">
+                              1                 подписчик                          </span>
+          </li>
+          <li class="inline-list__item inline-list__item_bullet">
+            <time class="question__date question__date_publish" pubdate="" title="Дата публикации: 01 мар. 2022, в 18:26" datetime="2022-03-01 18:26:33">
+              час назад            </time>
+          </li>
+                      <li class="inline-list__item inline-list__item_bullet">
+              <span class="question__views-count">
+                47                 просмотров              </span>
+            </li>
+                                      </ul>
+      </div>
+    </div>
+    <div class="question__answers-count ">
+      <a class="mini-counter" href="https://qna.habr.com/q/1121936#answers" title="Количество ответов на вопрос" role="lazy_anchor">
+        <div class="mini-counter__count mini-counter__count_grey">
+                    0        </div>
+        <div class="mini-counter__value">
+          ответов        </div>
+      </a>
+    </div>
+  </div>
+</li>
+          <li class="content-list__item" role="content-list_item">
+  <div class="question question_short">
+    <div class="question__content">
+      <div class="question__content_fluid">
+                <div class="question__tags">
+                      <a class="question__tags-image" href="https://qna.habr.com/tag/php">
+                      <img class="tag__image tag__image_bg" src="https://habrastorage.org/r/w32/files/373/e8b/dd3/373e8bdd3cb644d3bbeba47d34d1876d.png" alt="php">
+              </a>
+                                          <ul class="tags-list tags-list_short">
+                            <li class="tags-list__item  tag_260">
+                <a href="https://qna.habr.com/tag/php">
+                  PHP                </a>
+              </li>
+                              <li class="tags-list__item tags-list__item_more">
+                  +1                  ещё
+                </li>
+                                        </ul>
+                                          <span class="question__complexity">
+              <span class="svg-icon_level svg-icon_level-3">
+                <svg class="svg-icon" width="51" height="32" viewBox="0 0 51 32"><path d="M20.806 24.295c-1.767 2.88-.575 5.249 1.874 6.579s5.227 1.116 6.994-1.763 12.92-28.574 11.95-29.102c-.971-.526-19.051 21.406-20.818 24.285zm4.794-18.301c1.119 0 2.213.091 3.279.261 1.122-1.32 2.377-2.776 3.599-4.159-2.182-.594-4.486-.917-6.878-.917-14.355 0-25.6 11.386-25.6 25.921 0 .894.042 1.789.125 2.66.126 1.325 1.383 2.3 2.777 2.185 1.409-.118 2.448-1.288 2.322-2.613-.069-.73-.104-1.48-.104-2.232 0-11.835 8.996-21.105 20.48-21.105zm18.479 3.008c-.714 1.805-1.47 3.646-2.135 5.237 2.603 3.537 4.135 7.979 4.135 12.859 0 .763-.036 1.529-.109 2.276-.128 1.324.91 2.496 2.318 2.617l.235.01c1.309 0 2.425-.94 2.546-2.189.086-.891.13-1.804.13-2.712 0-7.108-2.694-13.458-7.121-18.096z"/></svg>
+              </span>
+              <span class="question__complexity-text">
+                Средний              </span>
+            </span>
+                            </div>
+        <h2 class="question__title">
+          <a class="question__title-link question__title-link_list" href="https://qna.habr.com/q/1121834?from=questions_similar">
+            Как удалить первое слово?          </a>
+        </h2>
+        <ul class="question__attrs inline-list">
+          <li class="inline-list__item inline-list__item_bullet">
+            <span class="question__views-count" title="Количество подписавшихся на вопрос">
+                              1                 подписчик                          </span>
+          </li>
+          <li class="inline-list__item inline-list__item_bullet">
+            <time class="question__date question__date_publish" pubdate="" title="Дата публикации: 01 мар. 2022, в 14:25" datetime="2022-03-01 14:25:02">
+              5 часов назад            </time>
+          </li>
+                      <li class="inline-list__item inline-list__item_bullet">
+              <span class="question__views-count">
+                84                 просмотра              </span>
+            </li>
+                                      </ul>
+      </div>
+    </div>
+    <div class="question__answers-count question__answers_has-solution">
+      <a class="mini-counter" href="https://qna.habr.com/q/1121834#answers" title="Количество ответов на вопрос" role="lazy_anchor">
+        <div class="mini-counter__count mini-counter__count_grey">
+                      <svg class="icon_svg icon_check" viewBox="0 0 45 32">
+  <use href="62050f07/images/sprite.svg#icon_check"></use>
+</svg>
+                              3        </div>
+        <div class="mini-counter__value">
+          ответа        </div>
+      </a>
+    </div>
+  </div>
+</li>
+          <li class="content-list__item" role="content-list_item">
+  <div class="question question_short">
+    <div class="question__content">
+      <div class="question__content_fluid">
+                <div class="question__tags">
+                      <a class="question__tags-image" href="https://qna.habr.com/tag/php">
+                      <img class="tag__image tag__image_bg" src="https://habrastorage.org/r/w32/files/373/e8b/dd3/373e8bdd3cb644d3bbeba47d34d1876d.png" alt="php">
+              </a>
+                                          <ul class="tags-list tags-list_short">
+                            <li class="tags-list__item  tag_260">
+                <a href="https://qna.habr.com/tag/php">
+                  PHP                </a>
+              </li>
+                          </ul>
+                                          <span class="question__complexity">
+              <span class="svg-icon_level svg-icon_level-3">
+                <svg class="svg-icon" width="51" height="32" viewBox="0 0 51 32"><path d="M20.806 24.295c-1.767 2.88-.575 5.249 1.874 6.579s5.227 1.116 6.994-1.763 12.92-28.574 11.95-29.102c-.971-.526-19.051 21.406-20.818 24.285zm4.794-18.301c1.119 0 2.213.091 3.279.261 1.122-1.32 2.377-2.776 3.599-4.159-2.182-.594-4.486-.917-6.878-.917-14.355 0-25.6 11.386-25.6 25.921 0 .894.042 1.789.125 2.66.126 1.325 1.383 2.3 2.777 2.185 1.409-.118 2.448-1.288 2.322-2.613-.069-.73-.104-1.48-.104-2.232 0-11.835 8.996-21.105 20.48-21.105zm18.479 3.008c-.714 1.805-1.47 3.646-2.135 5.237 2.603 3.537 4.135 7.979 4.135 12.859 0 .763-.036 1.529-.109 2.276-.128 1.324.91 2.496 2.318 2.617l.235.01c1.309 0 2.425-.94 2.546-2.189.086-.891.13-1.804.13-2.712 0-7.108-2.694-13.458-7.121-18.096z"/></svg>
+              </span>
+              <span class="question__complexity-text">
+                Средний              </span>
+            </span>
+                            </div>
+        <h2 class="question__title">
+          <a class="question__title-link question__title-link_list" href="https://qna.habr.com/q/1121808?from=questions_similar">
+            Как через PUT (CURL) отправить данные или что не так?          </a>
+        </h2>
+        <ul class="question__attrs inline-list">
+          <li class="inline-list__item inline-list__item_bullet">
+            <span class="question__views-count" title="Количество подписавшихся на вопрос">
+                              1                 подписчик                          </span>
+          </li>
+          <li class="inline-list__item inline-list__item_bullet">
+            <time class="question__date question__date_publish" pubdate="" title="Дата публикации: 01 мар. 2022, в 13:15" datetime="2022-03-01 13:15:06">
+              6 часов назад            </time>
+          </li>
+                      <li class="inline-list__item inline-list__item_bullet">
+              <span class="question__views-count">
+                43                 просмотра              </span>
+            </li>
+                                      </ul>
+      </div>
+    </div>
+    <div class="question__answers-count ">
+      <a class="mini-counter" href="https://qna.habr.com/q/1121808#answers" title="Количество ответов на вопрос" role="lazy_anchor">
+        <div class="mini-counter__count mini-counter__count_grey">
+                    0        </div>
+        <div class="mini-counter__value">
+          ответов        </div>
+      </a>
+    </div>
+  </div>
+</li>
+          <li class="content-list__item" role="content-list_item">
+  <div class="question question_short">
+    <div class="question__content">
+      <div class="question__content_fluid">
+                <div class="question__tags">
+                      <a class="question__tags-image" href="https://qna.habr.com/tag/php">
+                      <img class="tag__image tag__image_bg" src="https://habrastorage.org/r/w32/files/373/e8b/dd3/373e8bdd3cb644d3bbeba47d34d1876d.png" alt="php">
+              </a>
+                                          <ul class="tags-list tags-list_short">
+                            <li class="tags-list__item  tag_260">
+                <a href="https://qna.habr.com/tag/php">
+                  PHP                </a>
+              </li>
+                              <li class="tags-list__item tags-list__item_more">
+                  +2                  ещё
+                </li>
+                                        </ul>
+                                          <span class="question__complexity">
+              <span class="svg-icon_level svg-icon_level-2">
+                <svg class="svg-icon" width="51" height="32" viewBox="0 0 51 32"><path d="M20.806 24.295c-1.767 2.88-.575 5.249 1.874 6.579s5.227 1.116 6.994-1.763 12.92-28.574 11.95-29.102c-.971-.526-19.051 21.406-20.818 24.285zm4.794-18.301c1.119 0 2.213.091 3.279.261 1.122-1.32 2.377-2.776 3.599-4.159-2.182-.594-4.486-.917-6.878-.917-14.355 0-25.6 11.386-25.6 25.921 0 .894.042 1.789.125 2.66.126 1.325 1.383 2.3 2.777 2.185 1.409-.118 2.448-1.288 2.322-2.613-.069-.73-.104-1.48-.104-2.232 0-11.835 8.996-21.105 20.48-21.105zm18.479 3.008c-.714 1.805-1.47 3.646-2.135 5.237 2.603 3.537 4.135 7.979 4.135 12.859 0 .763-.036 1.529-.109 2.276-.128 1.324.91 2.496 2.318 2.617l.235.01c1.309 0 2.425-.94 2.546-2.189.086-.891.13-1.804.13-2.712 0-7.108-2.694-13.458-7.121-18.096z"/></svg>
+              </span>
+              <span class="question__complexity-text">
+                Простой              </span>
+            </span>
+                            </div>
+        <h2 class="question__title">
+          <a class="question__title-link question__title-link_list" href="https://qna.habr.com/q/1121700?from=questions_similar">
+            Где найти мульти фоторедактор на Js php?          </a>
+        </h2>
+        <ul class="question__attrs inline-list">
+          <li class="inline-list__item inline-list__item_bullet">
+            <span class="question__views-count" title="Количество подписавшихся на вопрос">
+                              1                 подписчик                          </span>
+          </li>
+          <li class="inline-list__item inline-list__item_bullet">
+            <time class="question__date question__date_publish" pubdate="" title="Дата публикации: 01 мар. 2022, в 01:18" datetime="2022-03-01 01:18:30">
+              18 часов назад            </time>
+          </li>
+                      <li class="inline-list__item inline-list__item_bullet">
+              <span class="question__views-count">
+                78                 просмотров              </span>
+            </li>
+                                      </ul>
+      </div>
+    </div>
+    <div class="question__answers-count ">
+      <a class="mini-counter" href="https://qna.habr.com/q/1121700#answers" title="Количество ответов на вопрос" role="lazy_anchor">
+        <div class="mini-counter__count mini-counter__count_grey">
+                    1        </div>
+        <div class="mini-counter__value">
+          ответ        </div>
+      </a>
+    </div>
+  </div>
+</li>
+          <li class="content-list__item" role="content-list_item">
+  <div class="question question_short">
+    <div class="question__content">
+      <div class="question__content_fluid">
+                <div class="question__tags">
+                      <a class="question__tags-image" href="https://qna.habr.com/tag/php">
+                      <img class="tag__image tag__image_bg" src="https://habrastorage.org/r/w32/files/373/e8b/dd3/373e8bdd3cb644d3bbeba47d34d1876d.png" alt="php">
+              </a>
+                                          <ul class="tags-list tags-list_short">
+                            <li class="tags-list__item  tag_260">
+                <a href="https://qna.habr.com/tag/php">
+                  PHP                </a>
+              </li>
+                              <li class="tags-list__item tags-list__item_more">
+                  +2                  ещё
+                </li>
+                                        </ul>
+                                          <span class="question__complexity">
+              <span class="svg-icon_level svg-icon_level-3">
+                <svg class="svg-icon" width="51" height="32" viewBox="0 0 51 32"><path d="M20.806 24.295c-1.767 2.88-.575 5.249 1.874 6.579s5.227 1.116 6.994-1.763 12.92-28.574 11.95-29.102c-.971-.526-19.051 21.406-20.818 24.285zm4.794-18.301c1.119 0 2.213.091 3.279.261 1.122-1.32 2.377-2.776 3.599-4.159-2.182-.594-4.486-.917-6.878-.917-14.355 0-25.6 11.386-25.6 25.921 0 .894.042 1.789.125 2.66.126 1.325 1.383 2.3 2.777 2.185 1.409-.118 2.448-1.288 2.322-2.613-.069-.73-.104-1.48-.104-2.232 0-11.835 8.996-21.105 20.48-21.105zm18.479 3.008c-.714 1.805-1.47 3.646-2.135 5.237 2.603 3.537 4.135 7.979 4.135 12.859 0 .763-.036 1.529-.109 2.276-.128 1.324.91 2.496 2.318 2.617l.235.01c1.309 0 2.425-.94 2.546-2.189.086-.891.13-1.804.13-2.712 0-7.108-2.694-13.458-7.121-18.096z"/></svg>
+              </span>
+              <span class="question__complexity-text">
+                Средний              </span>
+            </span>
+                            </div>
+        <h2 class="question__title">
+          <a class="question__title-link question__title-link_list" href="https://qna.habr.com/q/1121684?from=questions_similar">
+            Почему 30 процессов fpm создают 60 постоянных коннектов к бд?          </a>
+        </h2>
+        <ul class="question__attrs inline-list">
+          <li class="inline-list__item inline-list__item_bullet">
+            <span class="question__views-count" title="Количество подписавшихся на вопрос">
+                              3                 подписчика                          </span>
+          </li>
+          <li class="inline-list__item inline-list__item_bullet">
+            <time class="question__date question__date_publish" pubdate="" title="Дата публикации: 28 февр. 2022, в 23:00" datetime="2022-02-28 23:00:13">
+              21 час назад            </time>
+          </li>
+                      <li class="inline-list__item inline-list__item_bullet">
+              <span class="question__views-count">
+                156                 просмотров              </span>
+            </li>
+                                      </ul>
+      </div>
+    </div>
+    <div class="question__answers-count ">
+      <a class="mini-counter" href="https://qna.habr.com/q/1121684#answers" title="Количество ответов на вопрос" role="lazy_anchor">
+        <div class="mini-counter__count mini-counter__count_grey">
+                    0        </div>
+        <div class="mini-counter__value">
+          ответов        </div>
+      </a>
+    </div>
+  </div>
+</li>
+          <li class="content-list__item" role="content-list_item">
+  <div class="question question_short">
+    <div class="question__content">
+      <div class="question__content_fluid">
+                <div class="question__tags">
+                      <a class="question__tags-image" href="https://qna.habr.com/tag/php">
+                      <img class="tag__image tag__image_bg" src="https://habrastorage.org/r/w32/files/373/e8b/dd3/373e8bdd3cb644d3bbeba47d34d1876d.png" alt="php">
+              </a>
+                                          <ul class="tags-list tags-list_short">
+                            <li class="tags-list__item  tag_260">
+                <a href="https://qna.habr.com/tag/php">
+                  PHP                </a>
+              </li>
+                          </ul>
+                                          <span class="question__complexity">
+              <span class="svg-icon_level svg-icon_level-2">
+                <svg class="svg-icon" width="51" height="32" viewBox="0 0 51 32"><path d="M20.806 24.295c-1.767 2.88-.575 5.249 1.874 6.579s5.227 1.116 6.994-1.763 12.92-28.574 11.95-29.102c-.971-.526-19.051 21.406-20.818 24.285zm4.794-18.301c1.119 0 2.213.091 3.279.261 1.122-1.32 2.377-2.776 3.599-4.159-2.182-.594-4.486-.917-6.878-.917-14.355 0-25.6 11.386-25.6 25.921 0 .894.042 1.789.125 2.66.126 1.325 1.383 2.3 2.777 2.185 1.409-.118 2.448-1.288 2.322-2.613-.069-.73-.104-1.48-.104-2.232 0-11.835 8.996-21.105 20.48-21.105zm18.479 3.008c-.714 1.805-1.47 3.646-2.135 5.237 2.603 3.537 4.135 7.979 4.135 12.859 0 .763-.036 1.529-.109 2.276-.128 1.324.91 2.496 2.318 2.617l.235.01c1.309 0 2.425-.94 2.546-2.189.086-.891.13-1.804.13-2.712 0-7.108-2.694-13.458-7.121-18.096z"/></svg>
+              </span>
+              <span class="question__complexity-text">
+                Простой              </span>
+            </span>
+                            </div>
+        <h2 class="question__title">
+          <a class="question__title-link question__title-link_list" href="https://qna.habr.com/q/1121674?from=questions_similar">
+            Как в php вытащаить в переменную из input значение?          </a>
+        </h2>
+        <ul class="question__attrs inline-list">
+          <li class="inline-list__item inline-list__item_bullet">
+            <span class="question__views-count" title="Количество подписавшихся на вопрос">
+                              1                 подписчик                          </span>
+          </li>
+          <li class="inline-list__item inline-list__item_bullet">
+            <time class="question__date question__date_publish" pubdate="" title="Дата публикации: 28 февр. 2022, в 22:50" datetime="2022-02-28 22:50:25">
+              21 час назад            </time>
+          </li>
+                      <li class="inline-list__item inline-list__item_bullet">
+              <span class="question__views-count">
+                68                 просмотров              </span>
+            </li>
+                                      </ul>
+      </div>
+    </div>
+    <div class="question__answers-count ">
+      <a class="mini-counter" href="https://qna.habr.com/q/1121674#answers" title="Количество ответов на вопрос" role="lazy_anchor">
+        <div class="mini-counter__count mini-counter__count_grey">
+                    2        </div>
+        <div class="mini-counter__value">
+          ответа        </div>
+      </a>
+    </div>
+  </div>
+</li>
+          <li class="content-list__item" role="content-list_item">
+  <div class="question question_short">
+    <div class="question__content">
+      <div class="question__content_fluid">
+                <div class="question__tags">
+                      <a class="question__tags-image" href="https://qna.habr.com/tag/php">
+                      <img class="tag__image tag__image_bg" src="https://habrastorage.org/r/w32/files/373/e8b/dd3/373e8bdd3cb644d3bbeba47d34d1876d.png" alt="php">
+              </a>
+                                          <ul class="tags-list tags-list_short">
+                            <li class="tags-list__item  tag_260">
+                <a href="https://qna.habr.com/tag/php">
+                  PHP                </a>
+              </li>
+                              <li class="tags-list__item tags-list__item_more">
+                  +1                  ещё
+                </li>
+                                        </ul>
+                                          <span class="question__complexity">
+              <span class="svg-icon_level svg-icon_level-2">
+                <svg class="svg-icon" width="51" height="32" viewBox="0 0 51 32"><path d="M20.806 24.295c-1.767 2.88-.575 5.249 1.874 6.579s5.227 1.116 6.994-1.763 12.92-28.574 11.95-29.102c-.971-.526-19.051 21.406-20.818 24.285zm4.794-18.301c1.119 0 2.213.091 3.279.261 1.122-1.32 2.377-2.776 3.599-4.159-2.182-.594-4.486-.917-6.878-.917-14.355 0-25.6 11.386-25.6 25.921 0 .894.042 1.789.125 2.66.126 1.325 1.383 2.3 2.777 2.185 1.409-.118 2.448-1.288 2.322-2.613-.069-.73-.104-1.48-.104-2.232 0-11.835 8.996-21.105 20.48-21.105zm18.479 3.008c-.714 1.805-1.47 3.646-2.135 5.237 2.603 3.537 4.135 7.979 4.135 12.859 0 .763-.036 1.529-.109 2.276-.128 1.324.91 2.496 2.318 2.617l.235.01c1.309 0 2.425-.94 2.546-2.189.086-.891.13-1.804.13-2.712 0-7.108-2.694-13.458-7.121-18.096z"/></svg>
+              </span>
+              <span class="question__complexity-text">
+                Простой              </span>
+            </span>
+                            </div>
+        <h2 class="question__title">
+          <a class="question__title-link question__title-link_list" href="https://qna.habr.com/q/1121652?from=questions_similar">
+            Как поменять версию PHP на Windows 11?          </a>
+        </h2>
+        <ul class="question__attrs inline-list">
+          <li class="inline-list__item inline-list__item_bullet">
+            <span class="question__views-count" title="Количество подписавшихся на вопрос">
+                              1                 подписчик                          </span>
+          </li>
+          <li class="inline-list__item inline-list__item_bullet">
+            <time class="question__date question__date_publish" pubdate="" title="Дата публикации: 28 февр. 2022, в 21:52" datetime="2022-02-28 21:52:37">
+              22 часа назад            </time>
+          </li>
+                      <li class="inline-list__item inline-list__item_bullet">
+              <span class="question__views-count">
+                72                 просмотра              </span>
+            </li>
+                                      </ul>
+      </div>
+    </div>
+    <div class="question__answers-count ">
+      <a class="mini-counter" href="https://qna.habr.com/q/1121652#answers" title="Количество ответов на вопрос" role="lazy_anchor">
+        <div class="mini-counter__count mini-counter__count_grey">
+                    1        </div>
+        <div class="mini-counter__value">
+          ответ        </div>
+      </a>
+    </div>
+  </div>
+</li>
+          <li class="content-list__item" role="content-list_item">
+  <div class="question question_short">
+    <div class="question__content">
+      <div class="question__content_fluid">
+                <div class="question__tags">
+                      <a class="question__tags-image" href="https://qna.habr.com/tag/php">
+                      <img class="tag__image tag__image_bg" src="https://habrastorage.org/r/w32/files/373/e8b/dd3/373e8bdd3cb644d3bbeba47d34d1876d.png" alt="php">
+              </a>
+                                          <ul class="tags-list tags-list_short">
+                            <li class="tags-list__item  tag_260">
+                <a href="https://qna.habr.com/tag/php">
+                  PHP                </a>
+              </li>
+                          </ul>
+                                          <span class="question__complexity">
+              <span class="svg-icon_level svg-icon_level-2">
+                <svg class="svg-icon" width="51" height="32" viewBox="0 0 51 32"><path d="M20.806 24.295c-1.767 2.88-.575 5.249 1.874 6.579s5.227 1.116 6.994-1.763 12.92-28.574 11.95-29.102c-.971-.526-19.051 21.406-20.818 24.285zm4.794-18.301c1.119 0 2.213.091 3.279.261 1.122-1.32 2.377-2.776 3.599-4.159-2.182-.594-4.486-.917-6.878-.917-14.355 0-25.6 11.386-25.6 25.921 0 .894.042 1.789.125 2.66.126 1.325 1.383 2.3 2.777 2.185 1.409-.118 2.448-1.288 2.322-2.613-.069-.73-.104-1.48-.104-2.232 0-11.835 8.996-21.105 20.48-21.105zm18.479 3.008c-.714 1.805-1.47 3.646-2.135 5.237 2.603 3.537 4.135 7.979 4.135 12.859 0 .763-.036 1.529-.109 2.276-.128 1.324.91 2.496 2.318 2.617l.235.01c1.309 0 2.425-.94 2.546-2.189.086-.891.13-1.804.13-2.712 0-7.108-2.694-13.458-7.121-18.096z"/></svg>
+              </span>
+              <span class="question__complexity-text">
+                Простой              </span>
+            </span>
+                            </div>
+        <h2 class="question__title">
+          <a class="question__title-link question__title-link_list" href="https://qna.habr.com/q/1121624?from=questions_similar">
+            Как генерировать уникальные логины для автоматически регистрируемых пользователей?          </a>
+        </h2>
+        <ul class="question__attrs inline-list">
+          <li class="inline-list__item inline-list__item_bullet">
+            <span class="question__views-count" title="Количество подписавшихся на вопрос">
+                              2                 подписчика                          </span>
+          </li>
+          <li class="inline-list__item inline-list__item_bullet">
+            <time class="question__date question__date_publish" pubdate="" title="Дата публикации: 28 февр. 2022, в 20:29" datetime="2022-02-28 20:29:18">
+              23 часа назад            </time>
+          </li>
+                      <li class="inline-list__item inline-list__item_bullet">
+              <span class="question__views-count">
+                64                 просмотра              </span>
+            </li>
+                                      </ul>
+      </div>
+    </div>
+    <div class="question__answers-count question__answers_has-solution">
+      <a class="mini-counter" href="https://qna.habr.com/q/1121624#answers" title="Количество ответов на вопрос" role="lazy_anchor">
+        <div class="mini-counter__count mini-counter__count_grey">
+                      <svg class="icon_svg icon_check" viewBox="0 0 45 32">
+  <use href="62050f07/images/sprite.svg#icon_check"></use>
+</svg>
+                              1        </div>
+        <div class="mini-counter__value">
+          ответ        </div>
+      </a>
+    </div>
+  </div>
+</li>
+          <li class="content-list__item" role="content-list_item">
+  <div class="question question_short">
+    <div class="question__content">
+      <div class="question__content_fluid">
+                <div class="question__tags">
+                      <a class="question__tags-image" href="https://qna.habr.com/tag/php">
+                      <img class="tag__image tag__image_bg" src="https://habrastorage.org/r/w32/files/373/e8b/dd3/373e8bdd3cb644d3bbeba47d34d1876d.png" alt="php">
+              </a>
+                                          <ul class="tags-list tags-list_short">
+                            <li class="tags-list__item  tag_260">
+                <a href="https://qna.habr.com/tag/php">
+                  PHP                </a>
+              </li>
+                          </ul>
+                                          <span class="question__complexity">
+              <span class="svg-icon_level svg-icon_level-2">
+                <svg class="svg-icon" width="51" height="32" viewBox="0 0 51 32"><path d="M20.806 24.295c-1.767 2.88-.575 5.249 1.874 6.579s5.227 1.116 6.994-1.763 12.92-28.574 11.95-29.102c-.971-.526-19.051 21.406-20.818 24.285zm4.794-18.301c1.119 0 2.213.091 3.279.261 1.122-1.32 2.377-2.776 3.599-4.159-2.182-.594-4.486-.917-6.878-.917-14.355 0-25.6 11.386-25.6 25.921 0 .894.042 1.789.125 2.66.126 1.325 1.383 2.3 2.777 2.185 1.409-.118 2.448-1.288 2.322-2.613-.069-.73-.104-1.48-.104-2.232 0-11.835 8.996-21.105 20.48-21.105zm18.479 3.008c-.714 1.805-1.47 3.646-2.135 5.237 2.603 3.537 4.135 7.979 4.135 12.859 0 .763-.036 1.529-.109 2.276-.128 1.324.91 2.496 2.318 2.617l.235.01c1.309 0 2.425-.94 2.546-2.189.086-.891.13-1.804.13-2.712 0-7.108-2.694-13.458-7.121-18.096z"/></svg>
+              </span>
+              <span class="question__complexity-text">
+                Простой              </span>
+            </span>
+                            </div>
+        <h2 class="question__title">
+          <a class="question__title-link question__title-link_list" href="https://qna.habr.com/q/1121532?from=questions_similar">
+            Как можно через htaccess указать id с другими страницами?          </a>
+        </h2>
+        <ul class="question__attrs inline-list">
+          <li class="inline-list__item inline-list__item_bullet">
+            <span class="question__views-count" title="Количество подписавшихся на вопрос">
+                              1                 подписчик                          </span>
+          </li>
+          <li class="inline-list__item inline-list__item_bullet">
+            <time class="question__date question__date_publish" pubdate="" title="Дата публикации: 28 февр. 2022, в 16:08" datetime="2022-02-28 16:08:50">
+              вчера            </time>
+          </li>
+                      <li class="inline-list__item inline-list__item_bullet">
+              <span class="question__views-count">
+                89                 просмотров              </span>
+            </li>
+                                      </ul>
+      </div>
+    </div>
+    <div class="question__answers-count question__answers_has-solution">
+      <a class="mini-counter" href="https://qna.habr.com/q/1121532#answers" title="Количество ответов на вопрос" role="lazy_anchor">
+        <div class="mini-counter__count mini-counter__count_grey">
+                      <svg class="icon_svg icon_check" viewBox="0 0 45 32">
+  <use href="62050f07/images/sprite.svg#icon_check"></use>
+</svg>
+                              2        </div>
+        <div class="mini-counter__value">
+          ответа        </div>
+      </a>
+    </div>
+  </div>
+</li>
+        <li class="content-list__item content-list__item_more" role="related_replace">
+    <span class="btn btn_outline_grey" role="related_more" data-url="https://qna.habr.com/questions/related?question_id=173527&skip=10">
+      <span class="more">Показать ещё</span>
+      <span class="load">Загружается&hellip;</span>
+    </span>
+  </li>
+  </ul>
+                  <div class="offered-services">
+          <div class="offered-services__service service" id="moikrug_block">
+    <div class="service__header">
+      <a class="service__name" href="https://career.habr.com/vacancies?utm_source=tm_toster&utm_medium=tm_section&utm_campaign=vacancies_post" target="_blank">Вакансии с Хабр Карьеры</a>
+    </div>
+                <div class="service__offer">
+        <div class="service__preview">
+          <a class="service__title " href="https://career.habr.com/vacancies/1000098679?utm_source=tm_toster&utm_medium=tm_section&utm_campaign=vacancies_post" target="_blank">
+            PHP-разработчик          </a>
+        </div>
+                  <div class="service__attributes">
+                          <a class="service__attribute" href="https://career.habr.com/companies/perfluence?utm_source=tm_toster&utm_medium=tm_section&utm_campaign=vacancies_post" target="_blank">
+                Perfluence              </a>
+                                              </div>
+                        <div class="service__salary">
+                      от 150 000 до 300 000 ₽                            </div>
+      </div>
+                    <div class="service__offer">
+        <div class="service__preview">
+          <a class="service__title " href="https://career.habr.com/vacancies/1000099967?utm_source=tm_toster&utm_medium=tm_section&utm_campaign=vacancies_post" target="_blank">
+            PHP-developer (scraper PHP)          </a>
+        </div>
+                  <div class="service__attributes">
+                          <a class="service__attribute" href="https://career.habr.com/companies/digitalreputation?utm_source=tm_toster&utm_medium=tm_section&utm_campaign=vacancies_post" target="_blank">
+                Digital Reputation              </a>
+                                                  <span class="service__delimetr">&#8226;</span>
+              <span class="service__attribute">Москва</span>
+                                  </div>
+                        <div class="service__salary">
+                      от 100 000 ₽                            </div>
+      </div>
+                    <div class="service__offer">
+        <div class="service__preview">
+          <a class="service__title " href="https://career.habr.com/vacancies/1000099601?utm_source=tm_toster&utm_medium=tm_section&utm_campaign=vacancies_post" target="_blank">
+            PHP-разработчик          </a>
+        </div>
+                  <div class="service__attributes">
+                          <a class="service__attribute" href="https://career.habr.com/companies/htmlacademy?utm_source=tm_toster&utm_medium=tm_section&utm_campaign=vacancies_post" target="_blank">
+                html academy              </a>
+                                                  <span class="service__delimetr">&#8226;</span>
+              <span class="service__attribute">Санкт-Петербург</span>
+                                  </div>
+                        <div class="service__salary">
+                      от 130 000 ₽                            </div>
+      </div>
+            <div class="service__footer">
+      <a class="service__more" href="https://career.habr.com/vacancies?utm_source=tm_toster&utm_medium=tm_section&utm_campaign=vacancies_post" target="_blank">Ещё вакансии</a>
+    </div>
+  </div>
+          <div class="offered-services__service service" id="freelansim_block">
+    <div class="service__header">
+      <a class="service__name" href="https://freelance.habr.com/tasks?utm_source=toster_tm&utm_medium=tm_section&utm_campaign=tm_promo" target="_blank">Заказы с Хабр Фриланса</a>
+    </div>
+                <div class="service__offer">
+        <div class="service__preview">
+          <a class="service__title " href="http://freelance.habr.com/tasks/420129?utm_source=toster_tm&utm_medium=tm_section&utm_campaign=tm_promo" target="_blank">
+            Разработка ПО для отслеживания измений объема журнального файла          </a>
+        </div>
+        <div class="service__attribute">
+          01 мар. 2022, в 19:50        </div>
+        <div class="service__salary">
+          1500 руб./за проект        </div>
+      </div>
+                    <div class="service__offer">
+        <div class="service__preview">
+          <a class="service__title " href="http://freelance.habr.com/tasks/420125?utm_source=toster_tm&utm_medium=tm_section&utm_campaign=tm_promo" target="_blank">
+            Разработать сетевой код мессенджера          </a>
+        </div>
+        <div class="service__attribute">
+          01 мар. 2022, в 19:26        </div>
+        <div class="service__salary">
+          30000 руб./за проект        </div>
+      </div>
+                    <div class="service__offer">
+        <div class="service__preview">
+          <a class="service__title " href="http://freelance.habr.com/tasks/420121?utm_source=toster_tm&utm_medium=tm_section&utm_campaign=tm_promo" target="_blank">
+            Создание веб-приложения по анализу электронного паспорта оборудования          </a>
+        </div>
+        <div class="service__attribute">
+          01 мар. 2022, в 19:01        </div>
+        <div class="service__salary">
+          12000 руб./за проект        </div>
+      </div>
+            <div class="service__footer">
+      <a class="service__more" href="https://freelance.habr.com/tasks?utm_source=toster_tm&utm_medium=tm_section&utm_campaign=tm_promo" target="_blank">Ещё заказы</a>
+    </div>
+  </div>
+      </div>
+        <template id="habr_effect_promo">
+    <div>
+      <h4 class="habr-block-megaposts__title">Минуточку внимания</h4>
+      <ul class="habr-block-megaposts__container">
+        <li class="habr-block-megaposts__item">
+          <a target="_blank" rel="nofollow">
+            <div class="habr-block-megaposts__image-container">
+              <div class="habr-block-megaposts__image"></div>
+            </div>
+            <div class="habr-block-megaposts__text"></div>
+            <div class="habr-block-megaposts__label">
+              <svg class="icon_svg external_link" viewBox="0 0 11 11"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.5 0C7.22386 0 7 0.223858 7 0.5C7 0.776142 7.22386 1 7.5 1H9.29289L5.14645 5.14645C4.95118 5.34171 4.95118 5.65829 5.14645 5.85355C5.34171 6.04882 5.65829 6.04882 5.85355 5.85355L10 1.70711V3.5C10 3.77614 10.2239 4 10.5 4C10.7761 4 11 3.77614 11 3.5V0.5C11 0.223858 10.7761 0 10.5 0H7.5ZM0.5 1C0.223858 1 0 1.22386 0 1.5V10.5C0 10.7761 0.223858 11 0.5 11H9.5C9.77614 11 10 10.7761 10 10.5V6C10 5.72386 9.77614 5.5 9.5 5.5C9.22386 5.5 9 5.72386 9 6V10H1V2H5C5.27614 2 5.5 1.77614 5.5 1.5C5.5 1.22386 5.27614 1 5 1H0.5Z"></path></svg>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </template>
+    </div>
+  </div>
+</div>
+  <div class="notices-container notices-container--bottom-fixed hidden" id="register-banner" role="notice_container">
+  <div class="alert alert_info">
+    <div class="register-banner">
+      <div class="register-banner__text">
+        Присоединяйтесь к сообществу, чтобы узнавать новое и делиться знаниями
+      </div>
+      <a class="register-banner__button btn_white btn" href="https://qna.habr.com/auth/tmid?ret=@referer&amp;action=register" data-register-banner="click">
+        Зарегистрироваться
+      </a>
+    </div>
+    <span class="alert__btn_close" data-register-banner="close">
+      <svg class="icon_svg icon_close" viewBox="0 0 32 32">
+  <use href="62050f07/images/sprite.svg#icon_close"></use>
+</svg>
+    </span>
+  </div>
+</div>
+              </div>
+            </div>
+            <aside class="column_sidebar">
+                  <div id="div-gpt-ts01_atf" class="dfp_banner" data-dfp-banner=""></div>
+    <dl class="panel-heading panel-heading_inner" role="most_interest">
+    <dt class="panel-heading__title panel-heading__title_underline">
+      Самое интересное за 24 часа
+    </dt>
+    <dd class="panel-heading__content panel-heading__content_inner">
+      <ul class="content-list content-list_sidebar-block">
+                <li class="content-list__item">
+          <a class="question__title-link question__title_thin " href="https://qna.habr.com/q/1121952" data-from="?from=questions_most">
+            Автоблокировка новых аккаунтов у hetzner / ovh, что делать?          </a>
+          <ul class="inline-list inline-list_meta-attrs">
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество человек, интересующихся вопросом">
+                3                подписчика              </span>
+            </li>
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество ответов на вопрос">
+                2                ответа              </span>
+            </li>
+          </ul>
+        </li>
+                <li class="content-list__item">
+          <a class="question__title-link question__title_thin " href="https://qna.habr.com/q/1121920" data-from="?from=questions_most">
+            Нет кликов по рекламе Adsense.в чём дело?          </a>
+          <ul class="inline-list inline-list_meta-attrs">
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество человек, интересующихся вопросом">
+                2                подписчика              </span>
+            </li>
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество ответов на вопрос">
+                0                ответов              </span>
+            </li>
+          </ul>
+        </li>
+                <li class="content-list__item">
+          <a class="question__title-link question__title_thin " href="https://qna.habr.com/q/1121924" data-from="?from=questions_most">
+            Поможете понять что происходит в вычислении (С++)?          </a>
+          <ul class="inline-list inline-list_meta-attrs">
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество человек, интересующихся вопросом">
+                2                подписчика              </span>
+            </li>
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество ответов на вопрос">
+                3                ответа              </span>
+            </li>
+          </ul>
+        </li>
+                <li class="content-list__item">
+          <a class="question__title-link question__title_thin has_solution" href="https://qna.habr.com/q/1121944" data-from="?from=questions_most">
+            Как с помощью POE коммутатора питать оборудование без POE?          </a>
+          <ul class="inline-list inline-list_meta-attrs">
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество человек, интересующихся вопросом">
+                2                подписчика              </span>
+            </li>
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество ответов на вопрос">
+                2                ответа              </span>
+            </li>
+          </ul>
+        </li>
+                <li class="content-list__item">
+          <a class="question__title-link question__title_thin " href="https://qna.habr.com/q/1121712" data-from="?from=questions_most">
+            Все работающие на заграницу должны продать валюту, полученную за два месяца. Где её взять?          </a>
+          <ul class="inline-list inline-list_meta-attrs">
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество человек, интересующихся вопросом">
+                9                подписчиков              </span>
+            </li>
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество ответов на вопрос">
+                3                ответа              </span>
+            </li>
+          </ul>
+        </li>
+                <li class="content-list__item">
+          <a class="question__title-link question__title_thin has_solution" href="https://qna.habr.com/q/1121694" data-from="?from=questions_most">
+            Как найти нормального регистратора домена?          </a>
+          <ul class="inline-list inline-list_meta-attrs">
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество человек, интересующихся вопросом">
+                8                подписчиков              </span>
+            </li>
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество ответов на вопрос">
+                7                ответов              </span>
+            </li>
+          </ul>
+        </li>
+                <li class="content-list__item">
+          <a class="question__title-link question__title_thin " href="https://qna.habr.com/q/1121840" data-from="?from=questions_most">
+            Какие системы биллинга существуют для организации биллинга VPN?          </a>
+          <ul class="inline-list inline-list_meta-attrs">
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество человек, интересующихся вопросом">
+                2                подписчика              </span>
+            </li>
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество ответов на вопрос">
+                0                ответов              </span>
+            </li>
+          </ul>
+        </li>
+                <li class="content-list__item">
+          <a class="question__title-link question__title_thin " href="https://qna.habr.com/q/1121756" data-from="?from=questions_most">
+            Кто знает РАБОЧИЙ способ запретить хрому самому (без редиректа на сайте) переходить на https?          </a>
+          <ul class="inline-list inline-list_meta-attrs">
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество человек, интересующихся вопросом">
+                4                подписчика              </span>
+            </li>
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество ответов на вопрос">
+                2                ответа              </span>
+            </li>
+          </ul>
+        </li>
+                <li class="content-list__item">
+          <a class="question__title-link question__title_thin " href="https://qna.habr.com/q/1121692" data-from="?from=questions_most">
+            Как теперь получать зарплату из-за границы?          </a>
+          <ul class="inline-list inline-list_meta-attrs">
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество человек, интересующихся вопросом">
+                6                подписчиков              </span>
+            </li>
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество ответов на вопрос">
+                4                ответа              </span>
+            </li>
+          </ul>
+        </li>
+                <li class="content-list__item">
+          <a class="question__title-link question__title_thin " href="https://qna.habr.com/q/1121682" data-from="?from=questions_most">
+            Разработка приложения на несколько платформ?          </a>
+          <ul class="inline-list inline-list_meta-attrs">
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество человек, интересующихся вопросом">
+                5                подписчиков              </span>
+            </li>
+            <li class="inline-list__item inline-list__item_bullet">
+              <span title="Количество ответов на вопрос">
+                2                ответа              </span>
+            </li>
+          </ul>
+        </li>
+              </ul>
+    </dd>
+  </dl>
+            </aside>
+          </div>
+        </div>
+        <footer class="layout__footer">
+          <div class="layout__footer_inner">
+  <nav class="menu_services">
+    <ul class="menu menu_inline">
+      <li class="menu__item">
+        <a class="menu__item-link" href="https://company.habr.com/">
+          <span class="copyright_short">&copy; Habr</span>
+        </a>
+      </li>
+      <li class="menu__item">
+        <a class="menu__item-link" href="https://qna.habr.com/help/about">О сервисе</a>
+      </li>
+      <li class="menu__item">
+        <a class="menu__item-link" href="https://qna.habr.com/feedback">Обратная связь</a>
+      </li>
+      <li class="menu__item">
+        <a class="menu__item-link" href="https://habr.com/company/toster/">Блог</a>
+      </li>
+    </ul>
+  </nav>
+  <nav class="menu_socials">
+    <ul class="menu menu_inline">
+      <li class="menu__item">
+        <a class="menu__item-link tw" href="https://twitter.com/toster_ru" title="Наш аккаунт в Twitter">
+          <svg class="icon_svg icon_social_twitter" viewBox="0 0 39 32">
+  <use href="62050f07/images/sprite.svg#icon_social_twitter"></use>
+</svg>
+        </a>
+      </li>
+      <li class="menu__item">
+        <a class="menu__item-link fb" href="https://www.facebook.com/toster.ru" title="Наша группа в Facebook">
+          <svg class="icon_svg icon_social_facebook" viewBox="0 0 17 32">
+  <use href="62050f07/images/sprite.svg#icon_social_facebook"></use>
+</svg>
+        </a>
+      </li>
+      <li class="menu__item">
+        <a class="menu__item-link vk" href="http://vk.com/toster_ru" title="Наша группа на Вконтакте">
+          <svg class="icon_svg icon_social_vk" viewBox="0 0 56 32">
+  <use href="62050f07/images/sprite.svg#icon_social_vk"></use>
+</svg>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+        </footer>
+        <div class="popup__overlay hidden" role="popup auth_popup" data-default-title="Войдите на сайт">
+  <div class="popup popup_auth">
+    <div class="popup__body">
+                        <div class="empty-block">
+  <div class="empty-block__inner">
+    <h3 class="empty-block__title icon_unauthorized" role="title_replace">
+      Войдите на сайт    </h3>
+          <div class="empty-block__description" role="desc_replace">
+        Чтобы задать вопрос и получить на него квалифицированный ответ.      </div>
+                  <a class="empty-block__button" href="https://qna.habr.com/auth/tmid">
+        Войти через центр авторизации      </a>
+          </div>
+</div>
+    </div>
+    <button class="btn btn_link popup__close-btn" type="reset" role="btn_popup_close">
+      <span>Закрыть</span>
+    </button>
+  </div>
+</div>
+      </div>
+    </div>
+      <div id="dfp_target" hidden>
+          <var data-name="dev" data-values="0"></var>
+              <var data-name="user" data-values="guest"></var>
+              <var data-name="pagetype" data-values="question"></var>
+              <var data-name="postid" data-values="173527"></var>
+              <var data-name="cat" data-values="t_php"></var>
+          </div>
+    <script src="https://dr.habracdn.net/qna/62050f07/frontend.js" nonce="8a7b0f9f"></script>
+          </body>
+</html>

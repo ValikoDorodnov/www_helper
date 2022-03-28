@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Изучай observable, создавая observable / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/568064\/"},"headline":"Изучай observable, создавая observable","datePublished":"2021-07-16T14:19:05+03:00","dateModified":"2021-07-16T14:19:05+03:00","author":{"@type":"Person","name":"qmzik"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Эта статья &mdash; перевод оригинальной статьи Ben Lesh&nbsp;&ldquo;Learning Observable By Building Observable&rdquo;. Также я веду телеграм канал &ldquo;Frontend по-флотски&rdquo;, где рассказыва...","url":"https:\/\/habr.com\/ru\/post\/568064\/#post-content-body","about":["h_javascript","h_angular","h_typescript","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/568064\/c523546395fd9ab622e99be51bca445a\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Изучай observable, создавая observable" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Изучай observable, создавая observable" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Изучай observable, создавая observable" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Эта статья — перевод оригинальной статьи Ben Lesh&amp;nbsp;“Learning Observable By Building Observable”. Также я веду телеграм канал “Frontend по-флотски”, где рассказываю про интересные вещи из мира..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Эта статья — перевод оригинальной статьи Ben Lesh&amp;nbsp;“Learning Observable By Building Observable”. Также я веду телеграм канал “Frontend по-флотски”, где рассказываю про интересные вещи из мира..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Эта статья — перевод оригинальной статьи Ben Lesh&amp;nbsp;“Learning Observable By Building Observable”. Также я веду телеграм канал “Frontend по-флотски”, где рассказываю про интересные вещи из мира..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Эта статья — перевод оригинальной статьи Ben Lesh&amp;nbsp;“Learning Observable By Building Observable”. Также я веду телеграм канал “Frontend по-флотски”, где рассказываю про интересные вещи из мира..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Эта статья — перевод оригинальной статьи Ben Lesh&amp;nbsp;“Learning Observable By Building Observable”. Также я веду телеграм канал “Frontend по-флотски”, где рассказываю про интересные вещи из мира..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/568064/c523546395fd9ab622e99be51bca445a/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/568064/c523546395fd9ab622e99be51bca445a/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/568064/c523546395fd9ab622e99be51bca445a/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/568064/c523546395fd9ab622e99be51bca445a/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/568064/c523546395fd9ab622e99be51bca445a/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="568064" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2021-07-16T11:19:05.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/568064/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="observable, rxjs, наблюдатель, observer">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/568064/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.215.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/568064/c523546395fd9ab622e99be51bca445a/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/qmzik/" title="qmzik" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_blue"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/qmzik/" class="tm-user-info__username">
+      qmzik
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2021-07-16T11:19:05.000Z" title="2021-07-16, 14:19">16  июля  2021 в 14:19</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Изучай observable, создавая observable</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/javascript/" class="tm-article-snippet__hubs-item-link"><span>JavaScript</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/angular/" class="tm-article-snippet__hubs-item-link"><span>Angular</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/typescript/" class="tm-article-snippet__hubs-item-link"><span>TypeScript</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-sandbox"><span>
+        Из песочницы
+      </span></div><div class="tm-article-snippet__label tm-article-snippet__label_variant-translation"><span>
+        Перевод
+      </span></div></div> <!----> <!----></div></div> <div class="tm-article-presenter__origin"><a href="https://benlesh.com/posts/learning-observable-by-building-observable/" target="_blank" class="tm-article-presenter__origin-link">
+                Автор оригинала:
+                <span>
+                  Ben Lesh
+                </span></a></div> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-2"><div xmlns="http://www.w3.org/1999/xhtml"><p>Эта статья — перевод оригинальной статьи Ben Lesh <a href="https://benlesh.com/posts/learning-observable-by-building-observable/" rel="noopener noreferrer nofollow"><u>“Learning Observable By Building Observable”</u></a>. Также я веду телеграм канал “<a href="https://t.me/frontend_pasta" rel="noopener noreferrer nofollow"><u>Frontend по-флотски</u></a>”, где рассказываю про интересные вещи из мира разработки интерфейсов ​</p><h2>Вступление</h2><p>Это повторение старой статьи, написанной мною в 2016 году, и доклада, с которым я выступал несколько раз. Я хочу немного модернизировать контент и, надеюсь, упростить его. Цель — помочь людям понять, что такое observable. Не только observable из RxJS, но и любой observable (да, их больше одного) как тип.</p><h3>Observables — просто функции</h3><p>Чтобы понять это, я хочу разместить рядом два примера. Один является observable из RxJS, а другой — просто функцией. Оба этих примера имеют одинаковый результат:</p><p><strong>RxJS Observable</strong></p><p>Это пример простого observable, созданного с помощью RxJS, который выдает три числа и завершается. Если вы уже знакомы с RxJS, это эквивалент (1, 2, 3).</p><pre><code class="javascript">import { Observable } from 'rxjs';
+ 
+const source = new Observable&lt;number>((subscriber) => {
+  subscriber.next(1);
+  subscriber.next(2);
+  subscriber.next(3);
+  subscriber.complete();
+});
+ 
+// Usage
+console.log('start');
+source.subscribe({
+  next: console.log,
+  complete: () => console.log('done'),
+});
+console.log('stop');</code></pre><p><strong>Функция “observable”</strong></p><pre><code class="javascript">/**
+ * A simple object with a `next` and `complete` callback on it.
+ */
+interface Observer&lt;T> {
+  next: (value: T) => void;
+  complete: () => void;
+}
+ 
+/**
+ * A function that takes a simple object with callbacks
+ * and does something them.
+ */
+const source = (subscriber: Observer&lt;number>) => {
+  subscriber.next(1);
+  subscriber.next(2);
+  subscriber.next(3);
+  subscriber.complete();
+};
+ 
+// Usage
+console.log('start');
+source({
+  next: console.log,
+  complete: () => console.log('done'),
+});
+console.log('stop');</code></pre><p><strong>Вывод (обоих!)</strong></p><pre><code>"start"
+1
+2
+3
+"done"
+"stop"</code></pre><p>Я хочу, чтобы вы обратили внимание на сходство. В обоих случаях вы передаете объект с помощью метода next и complete. В обоих случаях вы вызываете next и complete в теле функции. В обоих случаях тело функции не выполняется до тех пор, пока вы не вызовете source.subscribe() или просто вызовете функцию напрямую как source() в другом примере. Это потому, что observables — это просто специализированные функции.</p><h3>Почему бы просто не использовать функции? Что «особенного» в observable?</h3><p>Отлично подмечено. Если бы вы были очень осторожны, вы, вероятно, могли бы использовать обычные функции для некоторых из этих случаев. Но проблема в том, что версия с функциями не совсем «безопасна». На основе всего лишь одного примера, если семантика observable такова, что next никогда не должен вызываться после завершения, нам понадобятся некоторые гарантии для этого.</p><pre><code class="javascript">const source = function (subscriber: Observer&lt;number>) {
+  subscriber.next(1);
+  subscriber.next(2);
+  subscriber.next(3);
+  subscriber.complete();
+  subscriber.next(4); // Упс, этого не должно быть
+};</code></pre><p>В примере выше будет написано «done», а затем сразу 4. Такого быть вообще не должно! Поэтому мы хотим предоставить способ гарантировать, что следующий метод нашего подписчика не будет вызван после завершения. Это можно сделать, заключив нашу функцию в класс.</p><pre><code class="javascript">/**
+ * A class used to wrap a user-provided Observer. Since the
+ * observer is just a plain objects with a couple of callbacks on it,
+ * this type will wrap that to ensure `next` does nothing if called after
+ * `complete` has been called, and that nothing happens if `complete`
+ * is called more than once.
+ */
+class SafeSubscriber&lt;T> {
+  closed = false;
+ 
+  constructor(private destination: Observer&lt;T>) {}
+ 
+  next(value: T) {
+    // Check to see if this is "closed" before nexting.
+    if (!this.closed) {
+      this.destination.next(value);
+    }
+  }
+ 
+  complete() {
+    // Make sure we're not completing an already "closed" subscriber.
+    if (!this.closed) {
+      // We're closed now.
+      this.closed = true;
+      this.destination.complete();
+    }
+  }
+}
+ 
+/**
+ * A class to wrap our function, to ensure that when the function is
+ * called with an observer, that observer is wrapped with a SafeSubscriber
+ */
+class Observable&lt;T> {
+  constructor(private _wrappedFunc: (subscriber: Observer&lt;T>) => void) {}
+ 
+  subscribe(observer: Observer&lt;T>): void {
+    // We can wrap our observer in a "safe subscriber" that
+    // does the work of making sure it's not closed.
+    const subscriber = new SafeSubscriber(observer);
+    this._wrappedFunc(subscriber);
+  }
+}
+ 
+// Usage
+// Now 4 won't be nexted after we complete.
+const source = new Observable((subscriber) => {
+  subscriber.next(1);
+  subscriber.next(2);
+  subscriber.next(3);
+  subscriber.complete();
+  subscriber.next(4); // this does nothing.
+});</code></pre><h3>Обработка Partial Observers</h3><p>Другой возможный сценарий — «partial» observer. Другими словами, observable, у которого есть только метод next или complete (или, возможно, метод ошибки, но мы вернемся к этому позже). Теперь мы можем легко разобраться с этим сценарием имея наш тип observable, указанный выше, потому что мы можем реализовать это в нашем SafeSubscriber:</p><pre><code class="javascript">class SafeSubscriber&lt;T> {
+  closed = false;
+ 
+  constructor(private destination: Partial&lt;Observer&lt;T>>) {}
+ 
+  next(value: T) {
+    if (!this.closed) {
+      this.destination.next?.(value); // Note the ?. check here.
+    }
+  }
+ 
+  complete() {
+    if (!this.closed) {
+      this.closed = true;
+      this.destination.complete?.(); // And here.
+    }
+  }
+}</code></pre><h2>Уведомления об ошибке</h2><p>Уведомить нашего подписчика об ошибке так же просто, как добавить дополнительный обработчик к нашим Observer и SafeSubscriber. Семантика очень похожа на complete выше. И ошибка, и complete считаются прекращением наблюдения.</p><p>Observer просто немного изменится, чтобы появился обработчик ошибок:</p><pre><code>interface Observer&lt;T> {
+  next: (value: T) => void;
+  complete: () => void;
+  error: (err: any) => void;
+}</code></pre><p>После этого мы можем добавить в наш SafeSubscriber error метод:</p><pre><code class="javascript">class SafeSubscriber&lt;T> {
+  closed = false;
+ 
+  constructor(private destination: Partial&lt;Observer&lt;T>>) {}
+ 
+  next(value: T) {
+    if (!this.closed) {
+      this.destination.next?.(value);
+    }
+  }
+ 
+  complete() {
+    if (!this.closed) {
+      this.closed = true;
+      this.destination.complete?.();
+    }
+  }
+ 
+  error(err: any) {
+    if (!this.closed) {
+      this.closed = true;
+      this.destination.error?.(err);
+    }
+  }
+}</code></pre><h3>Источники данных и кейс для отмены подписки</h3><p>Основной вариант использования observable — обертывание асинхронного источника данных, например WebSocket.</p><p>Чтобы сделать что-то подобное, вы можете использовать наш самодельный observable созданный выше, например:</p><pre><code class="javascript">const helloSocket = new Observable&lt;string>((subscriber) => {
+  // Open a socket.
+  const socket = new WebSocket('wss://echo.websocket.org');
+ 
+  socket.onopen = () => {
+    // Once it's open, send some text.
+    socket.send('Hello, World!');
+  };
+ 
+  socket.onmessage = (e) => {
+    // When it echoes the text back (in the case of this particular server)
+    // notify the consumer.
+    subscriber.next(e.data);
+  };
+ 
+  socket.onclose = (e) => {
+    // Oh! we closed!
+    if (e.wasClean) {
+      // ...because the server said it was done.
+      subscriber.complete();
+    } else {
+      // ...because of something bad. Maybe we lost network or something.
+      subscriber.error(new Error('Socket closed dirty!'));
+    }
+  };
+});
+ 
+// Start the websocket and log the echoes
+helloSocket.subscribe({
+  next: console.log,
+  complete: () => console.log('server closed'),
+  error: console.error,
+});</code></pre><p>Но теперь у нас появилась проблема. Пользователь, который подписывается на наш observable, не имеет возможности отменить его и закрыть сокет. Нам нужен способ прекратить работу. Если бы мы просто использовали функцию, мы могли бы вернуть функцию, содержащую нашу логику прекращения подписки.</p><pre><code class="javascript">const source = (subscriber: Observer&lt;string>) => {
+  const socket = new WebSocket('wss://echo.websocket.org');
+ 
+  socket.onopen = () => {
+    socket.send('Hello, World!');
+  };
+ 
+  socket.onmessage = (e) => {
+    subscriber.next(e.data);
+  };
+ 
+  socket.onclose = (e) => {
+    if (e.wasClean) {
+      subscriber.complete();
+    } else {
+      subscriber.error(new Error('Socket closed dirty!'));
+    }
+  };
+ 
+  return () => {
+    if (socket.readyState &lt;= WebSocket.OPEN) {
+      socket.close();
+    }
+  };
+};
+ 
+const teardown = source({
+  next: console.log,
+  complete: () => console.log('done'),
+  error: console.error,
+});
+ 
+// Decide you really don't want to keep the socket open.
+teardown();</code></pre><p>Еще одна проблема, которая возникает не обязательно связанная с WebSocket, но и с другими ситуациями, — это ситуации, когда автор observable решает, что он столкнулся с ошибкой или состоянием завершения, и он хочет уведомить пользователя, а затем удалить его. Было бы неплохо иметь единое место для этого, чтобы при вызове subscriber.error или subscriber.complete удаление выполнялось как можно быстрее.</p><p>Мы можем добиться всего этого с помощью некоторых изменений SafeSubscriber и добавления типа Subscription.</p><pre><code class="javascript">/**
+ * Our subscription type. This is to manage teardowns.
+ */
+class Subscription {
+  private teardowns = new Set&lt;() => void>();
+ 
+  add(teardown: () => void) {
+    this.teardowns.add(teardown);
+  }
+ 
+  unsubscribe() {
+    for (const teardown of this.teardowns) {
+      teardown();
+    }
+    this.teardowns.clear();
+  }
+}
+ 
+class SafeSubscriber&lt;T> {
+  closed = false;
+ 
+  constructor(
+    private destination: Partial&lt;Observer&lt;T>>,
+    private subscription: Subscription,
+  ) {
+    // Make sure that if the subscription is unsubscribed,
+    // we don't let any more notifications through this subscriber.
+    subscription.add(() => (this.closed = true));
+  }
+ 
+  next(value: T) {
+    if (!this.closed) {
+      this.destination.next?.(value);
+    }
+  }
+ 
+  complete() {
+    if (!this.closed) {
+      this.closed = true;
+      this.destination.complete?.();
+      this.subscription.unsubscribe();
+    }
+  }
+ 
+  error(err: any) {
+    if (!this.closed) {
+      this.closed = true;
+      this.destination.error?.(err);
+      this.subscription.unsubscribe();
+    }
+  }
+}
+ 
+class Observable&lt;T> {
+  constructor(private _wrappedFunc: (subscriber: Observer&lt;T>) => () => void) {}
+ 
+  subscribe(observer: Observer&lt;T>) {
+    const subscription = new Subscription();
+    const subscriber = new SafeSubscriber(observer, subscription);
+    subscription.add(this._wrappedFunc(subscriber));
+    return subscription;
+  }
+}
+ 
+const helloSocket = new Observable&lt;string>((subscriber) => {
+  const socket = new WebSocket('wss://echo.websocket.org');
+ 
+  socket.onopen = () => {
+    socket.send('Hello, World!');
+  };
+ 
+  socket.onmessage = (e) => {
+    subscriber.next(e.data);
+  };
+ 
+  socket.onclose = (e) => {
+    if (e.wasClean) {
+      subscriber.complete();
+    } else {
+      subscriber.error(new Error('Socket closed dirty!'));
+    }
+  };
+ 
+  return () => {
+    if (socket.readyState &lt;= WebSocket.OPEN) {
+      socket.close();
+    }
+  };
+});
+ 
+const subscription = helloSocket.subscribe({
+  next: console.log,
+  complete: () => console.log('server closed'),
+  error: console.error,
+});
+ 
+// Later, we can unsubscribe!
+subscription.unsubscribe();</code></pre><h3>Это всё! Observables — это просто специализированные функции!</h3><p>Я знаю, что это было очень МНОГО кода, надеюсь, пошаговое руководство помогло вам понять, что входит в тип observable (например, тип из <a href="https://rxjs.dev/" rel="noopener noreferrer nofollow"><u>rxjs</u></a>), и помогло немного прояснить его. Это уж точно не волшебство.</p><p>Тогда я бы посоветовал вам спросить себя: «Для чего нужны observables?» и, честно говоря, самый короткий ответ: вы можете использовать observables для всего, для чего вы можете использовать функцию. Самая большая разница — это небольшой набор гарантий в отношении обратных вызовов и то, что, возможно, наиболее важно, в отношении прекращения работы.</p><p>Важно отметить, что описанная выше реализация НЕ является чем-то, что вы должны воссоздавать или использовать в продакшене. Я бы рекомендовал использовать observable из RxJS, поскольку он охватывает гораздо больше ситуаций, чтобы помочь сохранить ваш код надежным и безопасным при составлении сложных потоков данных.</p></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bobservable%5D" class="tm-tags-list__link">observable</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Brxjs%5D" class="tm-tags-list__link">rxjs</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BD%D0%B0%D0%B1%D0%BB%D1%8E%D0%B4%D0%B0%D1%82%D0%B5%D0%BB%D1%8C%5D" class="tm-tags-list__link">наблюдатель</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bobserver%5D" class="tm-tags-list__link">observer</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/javascript/" class="tm-hubs-list__link">
+    JavaScript
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/angular/" class="tm-hubs-list__link">
+    Angular
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/typescript/" class="tm-hubs-list__link">
+    TypeScript
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 8: ↑8 и ↓0</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 8: ↑8 и ↓0" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+8</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">9.5K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    52
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/qmzik/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_blue"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 26 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    20
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><!----> <a href="https://habr.com/ru/users/qmzik/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @qmzik
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/568064/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 2 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner2469" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner2470" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/react_razrabotchik" target="_blank" class="tm-vacancies-block__vacancy-title">
+        React разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        276
+    вакансий
+      </div></div><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/programmist_javascript" target="_blank" class="tm-vacancies-block__vacancy-title">
+        JavaScript разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        554
+    вакансии
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/568064/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/568064/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"568064":{"id":"568064","timePublished":"2021-07-16T11:19:05+00:00","isCorporative":false,"lang":"ru","titleHtml":"Изучай observable, создавая observable","leadData":{"textHtml":"\u003Cp\u003EЭта статья — перевод оригинальной статьи Ben Lesh&nbsp;\u003Ca href=\"https:\u002F\u002Fbenlesh.com\u002Fposts\u002Flearning-observable-by-building-observable\u002F\" rel=\"noopener noreferrer nofollow\"\u003E\u003Cu\u003E“Learning Observable By Building Observable”\u003C\u002Fu\u003E\u003C\u002Fa\u003E.\u003C\u002Fp\u003E\u003Cp\u003EBen Lesh рассказывает как создать свой observable и сравнивает его работу с observable из RxJs.\u003C\u002Fp\u003E","imageUrl":null,"buttonTextHtml":"Читать далее","image":{"url":"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fupload_files\u002Fc08\u002F9ec\u002F27f\u002Fc089ec27f062d5f1c95958b5e902e3b1.jpeg","fit":"cover","positionY":0,"positionX":0}},"editorVersion":"2.0","postType":"article","postLabels":[{"type":"sandbox","data":null},{"type":"translation","data":{"originalAuthorName":"Ben Lesh","originalUrl":"https:\u002F\u002Fbenlesh.com\u002Fposts\u002Flearning-observable-by-building-observable\u002F"}}],"author":{"scoreStats":{"score":20,"votesCount":26},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1698625","alias":"qmzik","fullname":null,"avatarUrl":null,"speciality":null},"statistics":{"commentsCount":2,"favoritesCount":52,"readingCount":9520,"score":8,"votesCount":8},"hubs":[{"relatedData":null,"id":"357","alias":"javascript","type":"collective","title":"JavaScript","titleHtml":"JavaScript","isProfiled":true},{"relatedData":null,"id":"18109","alias":"angular","type":"collective","title":"Angular","titleHtml":"Angular","isProfiled":true},{"relatedData":null,"id":"21370","alias":"typescript","type":"collective","title":"TypeScript","titleHtml":"TypeScript","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cp\u003EЭта статья — перевод оригинальной статьи Ben Lesh \u003Ca href=\"https:\u002F\u002Fbenlesh.com\u002Fposts\u002Flearning-observable-by-building-observable\u002F\" rel=\"noopener noreferrer nofollow\"\u003E\u003Cu\u003E“Learning Observable By Building Observable”\u003C\u002Fu\u003E\u003C\u002Fa\u003E. Также я веду телеграм канал “\u003Ca href=\"https:\u002F\u002Ft.me\u002Ffrontend_pasta\" rel=\"noopener noreferrer nofollow\"\u003E\u003Cu\u003EFrontend по-флотски\u003C\u002Fu\u003E\u003C\u002Fa\u003E”, где рассказываю про интересные вещи из мира разработки интерфейсов ​\u003C\u002Fp\u003E\u003Ch2\u003EВступление\u003C\u002Fh2\u003E\u003Cp\u003EЭто повторение старой статьи, написанной мною в 2016 году, и доклада, с которым я выступал несколько раз. Я хочу немного модернизировать контент и, надеюсь, упростить его. Цель — помочь людям понять, что такое observable. Не только observable из RxJS, но и любой observable (да, их больше одного) как тип.\u003C\u002Fp\u003E\u003Ch3\u003EObservables — просто функции\u003C\u002Fh3\u003E\u003Cp\u003EЧтобы понять это, я хочу разместить рядом два примера. Один является observable из RxJS, а другой — просто функцией. Оба этих примера имеют одинаковый результат:\u003C\u002Fp\u003E\u003Cp\u003E\u003Cstrong\u003ERxJS Observable\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cp\u003EЭто пример простого observable, созданного с помощью RxJS, который выдает три числа и завершается. Если вы уже знакомы с RxJS, это эквивалент (1, 2, 3).\u003C\u002Fp\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eimport { Observable } from 'rxjs';\n \nconst source = new Observable&lt;number\u003E((subscriber) =\u003E {\n  subscriber.next(1);\n  subscriber.next(2);\n  subscriber.next(3);\n  subscriber.complete();\n});\n \n\u002F\u002F Usage\nconsole.log('start');\nsource.subscribe({\n  next: console.log,\n  complete: () =\u003E console.log('done'),\n});\nconsole.log('stop');\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cp\u003E\u003Cstrong\u003EФункция “observable”\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E\u002F**\n * A simple object with a `next` and `complete` callback on it.\n *\u002F\ninterface Observer&lt;T\u003E {\n  next: (value: T) =\u003E void;\n  complete: () =\u003E void;\n}\n \n\u002F**\n * A function that takes a simple object with callbacks\n * and does something them.\n *\u002F\nconst source = (subscriber: Observer&lt;number\u003E) =\u003E {\n  subscriber.next(1);\n  subscriber.next(2);\n  subscriber.next(3);\n  subscriber.complete();\n};\n \n\u002F\u002F Usage\nconsole.log('start');\nsource({\n  next: console.log,\n  complete: () =\u003E console.log('done'),\n});\nconsole.log('stop');\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cp\u003E\u003Cstrong\u003EВывод (обоих!)\u003C\u002Fstrong\u003E\u003C\u002Fp\u003E\u003Cpre\u003E\u003Ccode\u003E\"start\"\n1\n2\n3\n\"done\"\n\"stop\"\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cp\u003EЯ хочу, чтобы вы обратили внимание на сходство. В обоих случаях вы передаете объект с помощью метода next и complete. В обоих случаях вы вызываете next и complete в теле функции. В обоих случаях тело функции не выполняется до тех пор, пока вы не вызовете source.subscribe() или просто вызовете функцию напрямую как source() в другом примере. Это потому, что observables — это просто специализированные функции.\u003C\u002Fp\u003E\u003Ch3\u003EПочему бы просто не использовать функции? Что «особенного» в observable?\u003C\u002Fh3\u003E\u003Cp\u003EОтлично подмечено. Если бы вы были очень осторожны, вы, вероятно, могли бы использовать обычные функции для некоторых из этих случаев. Но проблема в том, что версия с функциями не совсем «безопасна». На основе всего лишь одного примера, если семантика observable такова, что next никогда не должен вызываться после завершения, нам понадобятся некоторые гарантии для этого.\u003C\u002Fp\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Econst source = function (subscriber: Observer&lt;number\u003E) {\n  subscriber.next(1);\n  subscriber.next(2);\n  subscriber.next(3);\n  subscriber.complete();\n  subscriber.next(4); \u002F\u002F Упс, этого не должно быть\n};\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cp\u003EВ примере выше будет написано «done», а затем сразу 4. Такого быть вообще не должно! Поэтому мы хотим предоставить способ гарантировать, что следующий метод нашего подписчика не будет вызван после завершения. Это можно сделать, заключив нашу функцию в класс.\u003C\u002Fp\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E\u002F**\n * A class used to wrap a user-provided Observer. Since the\n * observer is just a plain objects with a couple of callbacks on it,\n * this type will wrap that to ensure `next` does nothing if called after\n * `complete` has been called, and that nothing happens if `complete`\n * is called more than once.\n *\u002F\nclass SafeSubscriber&lt;T\u003E {\n  closed = false;\n \n  constructor(private destination: Observer&lt;T\u003E) {}\n \n  next(value: T) {\n    \u002F\u002F Check to see if this is \"closed\" before nexting.\n    if (!this.closed) {\n      this.destination.next(value);\n    }\n  }\n \n  complete() {\n    \u002F\u002F Make sure we're not completing an already \"closed\" subscriber.\n    if (!this.closed) {\n      \u002F\u002F We're closed now.\n      this.closed = true;\n      this.destination.complete();\n    }\n  }\n}\n \n\u002F**\n * A class to wrap our function, to ensure that when the function is\n * called with an observer, that observer is wrapped with a SafeSubscriber\n *\u002F\nclass Observable&lt;T\u003E {\n  constructor(private _wrappedFunc: (subscriber: Observer&lt;T\u003E) =\u003E void) {}\n \n  subscribe(observer: Observer&lt;T\u003E): void {\n    \u002F\u002F We can wrap our observer in a \"safe subscriber\" that\n    \u002F\u002F does the work of making sure it's not closed.\n    const subscriber = new SafeSubscriber(observer);\n    this._wrappedFunc(subscriber);\n  }\n}\n \n\u002F\u002F Usage\n\u002F\u002F Now 4 won't be nexted after we complete.\nconst source = new Observable((subscriber) =\u003E {\n  subscriber.next(1);\n  subscriber.next(2);\n  subscriber.next(3);\n  subscriber.complete();\n  subscriber.next(4); \u002F\u002F this does nothing.\n});\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Ch3\u003EОбработка Partial Observers\u003C\u002Fh3\u003E\u003Cp\u003EДругой возможный сценарий — «partial» observer. Другими словами, observable, у которого есть только метод next или complete (или, возможно, метод ошибки, но мы вернемся к этому позже). Теперь мы можем легко разобраться с этим сценарием имея наш тип observable, указанный выше, потому что мы можем реализовать это в нашем SafeSubscriber:\u003C\u002Fp\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eclass SafeSubscriber&lt;T\u003E {\n  closed = false;\n \n  constructor(private destination: Partial&lt;Observer&lt;T\u003E\u003E) {}\n \n  next(value: T) {\n    if (!this.closed) {\n      this.destination.next?.(value); \u002F\u002F Note the ?. check here.\n    }\n  }\n \n  complete() {\n    if (!this.closed) {\n      this.closed = true;\n      this.destination.complete?.(); \u002F\u002F And here.\n    }\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Ch2\u003EУведомления об ошибке\u003C\u002Fh2\u003E\u003Cp\u003EУведомить нашего подписчика об ошибке так же просто, как добавить дополнительный обработчик к нашим Observer и SafeSubscriber. Семантика очень похожа на complete выше. И ошибка, и complete считаются прекращением наблюдения.\u003C\u002Fp\u003E\u003Cp\u003EObserver просто немного изменится, чтобы появился обработчик ошибок:\u003C\u002Fp\u003E\u003Cpre\u003E\u003Ccode\u003Einterface Observer&lt;T\u003E {\n  next: (value: T) =\u003E void;\n  complete: () =\u003E void;\n  error: (err: any) =\u003E void;\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cp\u003EПосле этого мы можем добавить в наш SafeSubscriber error метод:\u003C\u002Fp\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eclass SafeSubscriber&lt;T\u003E {\n  closed = false;\n \n  constructor(private destination: Partial&lt;Observer&lt;T\u003E\u003E) {}\n \n  next(value: T) {\n    if (!this.closed) {\n      this.destination.next?.(value);\n    }\n  }\n \n  complete() {\n    if (!this.closed) {\n      this.closed = true;\n      this.destination.complete?.();\n    }\n  }\n \n  error(err: any) {\n    if (!this.closed) {\n      this.closed = true;\n      this.destination.error?.(err);\n    }\n  }\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Ch3\u003EИсточники данных и кейс для отмены подписки\u003C\u002Fh3\u003E\u003Cp\u003EОсновной вариант использования observable — обертывание асинхронного источника данных, например WebSocket.\u003C\u002Fp\u003E\u003Cp\u003EЧтобы сделать что-то подобное, вы можете использовать наш самодельный observable созданный выше, например:\u003C\u002Fp\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Econst helloSocket = new Observable&lt;string\u003E((subscriber) =\u003E {\n  \u002F\u002F Open a socket.\n  const socket = new WebSocket('wss:\u002F\u002Fecho.websocket.org');\n \n  socket.onopen = () =\u003E {\n    \u002F\u002F Once it's open, send some text.\n    socket.send('Hello, World!');\n  };\n \n  socket.onmessage = (e) =\u003E {\n    \u002F\u002F When it echoes the text back (in the case of this particular server)\n    \u002F\u002F notify the consumer.\n    subscriber.next(e.data);\n  };\n \n  socket.onclose = (e) =\u003E {\n    \u002F\u002F Oh! we closed!\n    if (e.wasClean) {\n      \u002F\u002F ...because the server said it was done.\n      subscriber.complete();\n    } else {\n      \u002F\u002F ...because of something bad. Maybe we lost network or something.\n      subscriber.error(new Error('Socket closed dirty!'));\n    }\n  };\n});\n \n\u002F\u002F Start the websocket and log the echoes\nhelloSocket.subscribe({\n  next: console.log,\n  complete: () =\u003E console.log('server closed'),\n  error: console.error,\n});\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cp\u003EНо теперь у нас появилась проблема. Пользователь, который подписывается на наш observable, не имеет возможности отменить его и закрыть сокет. Нам нужен способ прекратить работу. Если бы мы просто использовали функцию, мы могли бы вернуть функцию, содержащую нашу логику прекращения подписки.\u003C\u002Fp\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Econst source = (subscriber: Observer&lt;string\u003E) =\u003E {\n  const socket = new WebSocket('wss:\u002F\u002Fecho.websocket.org');\n \n  socket.onopen = () =\u003E {\n    socket.send('Hello, World!');\n  };\n \n  socket.onmessage = (e) =\u003E {\n    subscriber.next(e.data);\n  };\n \n  socket.onclose = (e) =\u003E {\n    if (e.wasClean) {\n      subscriber.complete();\n    } else {\n      subscriber.error(new Error('Socket closed dirty!'));\n    }\n  };\n \n  return () =\u003E {\n    if (socket.readyState &lt;= WebSocket.OPEN) {\n      socket.close();\n    }\n  };\n};\n \nconst teardown = source({\n  next: console.log,\n  complete: () =\u003E console.log('done'),\n  error: console.error,\n});\n \n\u002F\u002F Decide you really don't want to keep the socket open.\nteardown();\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cp\u003EЕще одна проблема, которая возникает не обязательно связанная с WebSocket, но и с другими ситуациями, — это ситуации, когда автор observable решает, что он столкнулся с ошибкой или состоянием завершения, и он хочет уведомить пользователя, а затем удалить его. Было бы неплохо иметь единое место для этого, чтобы при вызове subscriber.error или subscriber.complete удаление выполнялось как можно быстрее.\u003C\u002Fp\u003E\u003Cp\u003EМы можем добиться всего этого с помощью некоторых изменений SafeSubscriber и добавления типа Subscription.\u003C\u002Fp\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E\u002F**\n * Our subscription type. This is to manage teardowns.\n *\u002F\nclass Subscription {\n  private teardowns = new Set&lt;() =\u003E void\u003E();\n \n  add(teardown: () =\u003E void) {\n    this.teardowns.add(teardown);\n  }\n \n  unsubscribe() {\n    for (const teardown of this.teardowns) {\n      teardown();\n    }\n    this.teardowns.clear();\n  }\n}\n \nclass SafeSubscriber&lt;T\u003E {\n  closed = false;\n \n  constructor(\n    private destination: Partial&lt;Observer&lt;T\u003E\u003E,\n    private subscription: Subscription,\n  ) {\n    \u002F\u002F Make sure that if the subscription is unsubscribed,\n    \u002F\u002F we don't let any more notifications through this subscriber.\n    subscription.add(() =\u003E (this.closed = true));\n  }\n \n  next(value: T) {\n    if (!this.closed) {\n      this.destination.next?.(value);\n    }\n  }\n \n  complete() {\n    if (!this.closed) {\n      this.closed = true;\n      this.destination.complete?.();\n      this.subscription.unsubscribe();\n    }\n  }\n \n  error(err: any) {\n    if (!this.closed) {\n      this.closed = true;\n      this.destination.error?.(err);\n      this.subscription.unsubscribe();\n    }\n  }\n}\n \nclass Observable&lt;T\u003E {\n  constructor(private _wrappedFunc: (subscriber: Observer&lt;T\u003E) =\u003E () =\u003E void) {}\n \n  subscribe(observer: Observer&lt;T\u003E) {\n    const subscription = new Subscription();\n    const subscriber = new SafeSubscriber(observer, subscription);\n    subscription.add(this._wrappedFunc(subscriber));\n    return subscription;\n  }\n}\n \nconst helloSocket = new Observable&lt;string\u003E((subscriber) =\u003E {\n  const socket = new WebSocket('wss:\u002F\u002Fecho.websocket.org');\n \n  socket.onopen = () =\u003E {\n    socket.send('Hello, World!');\n  };\n \n  socket.onmessage = (e) =\u003E {\n    subscriber.next(e.data);\n  };\n \n  socket.onclose = (e) =\u003E {\n    if (e.wasClean) {\n      subscriber.complete();\n    } else {\n      subscriber.error(new Error('Socket closed dirty!'));\n    }\n  };\n \n  return () =\u003E {\n    if (socket.readyState &lt;= WebSocket.OPEN) {\n      socket.close();\n    }\n  };\n});\n \nconst subscription = helloSocket.subscribe({\n  next: console.log,\n  complete: () =\u003E console.log('server closed'),\n  error: console.error,\n});\n \n\u002F\u002F Later, we can unsubscribe!\nsubscription.unsubscribe();\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Ch3\u003EЭто всё! Observables — это просто специализированные функции!\u003C\u002Fh3\u003E\u003Cp\u003EЯ знаю, что это было очень МНОГО кода, надеюсь, пошаговое руководство помогло вам понять, что входит в тип observable (например, тип из \u003Ca href=\"https:\u002F\u002Frxjs.dev\u002F\" rel=\"noopener noreferrer nofollow\"\u003E\u003Cu\u003Erxjs\u003C\u002Fu\u003E\u003C\u002Fa\u003E), и помогло немного прояснить его. Это уж точно не волшебство.\u003C\u002Fp\u003E\u003Cp\u003EТогда я бы посоветовал вам спросить себя: «Для чего нужны observables?» и, честно говоря, самый короткий ответ: вы можете использовать observables для всего, для чего вы можете использовать функцию. Самая большая разница — это небольшой набор гарантий в отношении обратных вызовов и то, что, возможно, наиболее важно, в отношении прекращения работы.\u003C\u002Fp\u003E\u003Cp\u003EВажно отметить, что описанная выше реализация НЕ является чем-то, что вы должны воссоздавать или использовать в продакшене. Я бы рекомендовал использовать observable из RxJS, поскольку он охватывает гораздо больше ситуаций, чтобы помочь сохранить ваш код надежным и безопасным при составлении сложных потоков данных.\u003C\u002Fp\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"observable"},{"titleHtml":"rxjs"},{"titleHtml":"наблюдатель"},{"titleHtml":"observer"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F568064\u002Fc523546395fd9ab622e99be51bca445a\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F568064\u002Fc523546395fd9ab622e99be51bca445a\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F568064\\\u002F\"},\"headline\":\"Изучай observable, создавая observable\",\"datePublished\":\"2021-07-16T14:19:05+03:00\",\"dateModified\":\"2021-07-16T14:19:05+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"qmzik\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Эта статья &mdash; перевод оригинальной статьи Ben Lesh&nbsp;&ldquo;Learning Observable By Building Observable&rdquo;. Также я веду телеграм канал &ldquo;Frontend по-флотски&rdquo;, где рассказыва...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F568064\\\u002F#post-content-body\",\"about\":[\"h_javascript\",\"h_angular\",\"h_typescript\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F568064\\\u002Fc523546395fd9ab622e99be51bca445a\\\u002F\"]}","metaDescription":"Эта статья — перевод оригинальной статьи Ben Lesh&nbsp;“Learning Observable By Building Observable”. Также я веду телеграм канал “Frontend по-флотски”, где рассказываю про интересные вещи из мира...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"React разработчик","vacanciesCount":276,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Freact_razrabotchik","itemHubs":["javascript","reactjs"]},{"title":"JavaScript разработчик","vacanciesCount":554,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fprogrammist_javascript","itemHubs":["javascript","reactjs","nodejs","typescript","vuejs","angular","sveltejs"]}],"hubs":"javascript,angular,typescript"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

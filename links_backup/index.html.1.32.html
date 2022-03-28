@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>M в MVC: почему модели непоняты и недооценены (перевод) / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/175465\/"},"headline":"M в MVC: почему модели непоняты и недооценены (перевод)","datePublished":"2013-04-04T16:54:45+04:00","dateModified":"2013-04-05T08:41:46+04:00","author":{"@type":"Person","name":"Vedomir"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"(статья очень старая, по поднятые в ней вопросы актуальны по сей день и регулярно поднимаются в различных обсуждениях)  Многие из вас наверняка заметили, что я п...","url":"https:\/\/habr.com\/ru\/post\/175465\/#post-content-body","about":["h_webdev","h_refactoring","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/175465\/8e6dd20d8f6a6d1bd033f0956c1924f9\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="M в MVC: почему модели непоняты и недооценены (перевод)" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="M в MVC: почему модели непоняты и недооценены (перевод)" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="M в MVC: почему модели непоняты и недооценены (перевод)" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="(статья очень старая, по поднятые в ней вопросы актуальны по сей день и регулярно поднимаются в различных обсуждениях)
+
+Многие из вас наверняка заметили, что я пишу книгу о Zend Framework. Недавно я..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="(статья очень старая, по поднятые в ней вопросы актуальны по сей день и регулярно поднимаются в различных обсуждениях)
+
+Многие из вас наверняка заметили, что я пишу книгу о Zend Framework. Недавно я..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="(статья очень старая, по поднятые в ней вопросы актуальны по сей день и регулярно поднимаются в различных обсуждениях)
+
+Многие из вас наверняка заметили, что я пишу книгу о Zend Framework. Недавно я..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="(статья очень старая, по поднятые в ней вопросы актуальны по сей день и регулярно поднимаются в различных обсуждениях)
+
+Многие из вас наверняка заметили, что я пишу книгу о Zend Framework. Недавно я..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="(статья очень старая, по поднятые в ней вопросы актуальны по сей день и регулярно поднимаются в различных обсуждениях)
+
+Многие из вас наверняка заметили, что я пишу книгу о Zend Framework. Недавно я..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/175465/8e6dd20d8f6a6d1bd033f0956c1924f9/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/175465/8e6dd20d8f6a6d1bd033f0956c1924f9/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/175465/8e6dd20d8f6a6d1bd033f0956c1924f9/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/175465/8e6dd20d8f6a6d1bd033f0956c1924f9/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/175465/8e6dd20d8f6a6d1bd033f0956c1924f9/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="175465" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2013-04-04T12:54:45.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/175465/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="MVC, архитектура, ооп, фреймворк">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/175465/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.32.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/175465/8e6dd20d8f6a6d1bd033f0956c1924f9/" data-vmid="image:href"><link data-vue-meta="ssr" rel="amphtml" href="https://habr.com/ru/amp/post/175465/">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/Vedomir/" title="Vedomir" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_lilac"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/Vedomir/" class="tm-user-info__username">
+      Vedomir
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2013-04-04T12:54:45.000Z" title="2013-04-04, 16:54">4  апреля  2013 в 16:54</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>M в MVC: почему модели непоняты и недооценены (перевод)</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/refactoring/" class="tm-article-snippet__hubs-item-link"><span>Проектирование и рефакторинг</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-sandbox"><span>
+        Из песочницы
+      </span></div></div> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><i>(статья очень старая, по поднятые в ней вопросы актуальны по сей день и регулярно поднимаются в различных обсуждениях)</i><br/>
+<br/>
+Многие из вас наверняка заметили, что я пишу книгу о Zend Framework. Недавно я закончил черновики двух глав: «Архитектура приложений на Zend Framework» и «Понимая Zend Framework». В первой главе объясняется архитектурный шаблон Model-View-Controller (MVC) и причины, по которым он стал стандартом де-факто для веб-приложений. Во второй исследуется связь MVC с компонентами Zend Framework, их структурой и взаимодействием. <br/>
+<br/>
+Завершив обе главы я осознал, что большую часть времени описывал модель и ее фактическое отсутствие в Zend Framework. На самом деле ни один веб-фреймворк не предлагает нам полноценную модель (по причинам, которые я объясню чуть позже). И ни в одном из них не дается внятного объяснения этому обстоятельству. Вместо этого они последовательно связывают понятие модели с родственным, но не идентичным понятием доступа к данным, что изрядно всех запутывает.<br/>
+<br/>
+Эта сторона фреймворков никогда не привлекала особого внимания. И все же именно она лежит в основе целого класса проблем в тех приложениях, которые пытаются использовать MVC по образу и подобию фреймворков для веб-приложений. Более того, попытки донести идею модели до других разработчиков нередко напоминают битье головой о стену. Я не хочу сказать, что все разработчики тупые или не понимают саму идею, просто никто из них (вне зависимости от того, работают они с PHP или нет) не связывает модели с той областью, которая наделяет их смыслом — принципами объектно-ориентированного программирования.<br/>
+<a name="habracut"></a><br/>
+В этой записи я исследую модели в свете того, как разработчики соотносят их с контролерами и представлениями в приложениях и опишу несколько стратегий, которые можно использовать вместе с правильными моделями.<br/>
+<br/>
+<strong>Модели непоняты</strong><br/>
+<br/>
+Модели можно описать по-разному. На самом деле только об этом можно написать целую книгу, многие именно так и поступали! Как правило описываются две роли модели:<br/>
+<br/>
+1. Модель отвечает за сохранения состояния между HTTP-запросами<br/>
+<br/>
+По сути дела любые данные — в базе данных, файле, сохраненные в сессии или закешированные внутри APC, должны быть сохранены между запросами в виде состояния приложения на момент последнего запроса. Помните, модель не ограничивается базой данных. Даже получаемые из веб-сервисов данные могут быть представлены в виде модели! Да, даже ленты новостей в формате Atom! Стремящиеся побыстрее познакомить с моделью фреймворки этого никогда не объясняют, усиливая непонимание.<br/>
+<br/>
+Возьмем в качестве примера разрабатываемый мной компонент под названием Zend_Feed_Reader, который на самом деле является моделью. Он читает ленты новостей, обрабатывает их, интерпретирует данные, добавляет ограничения, правила и по большому счету создает удобное представление нижележащих данных. Без него мы имеем Zend_Feed (лучшее средство для чтения новостных лент на данный момент), который требует большого количества работы для получения полноценной модели. Другими словами, Zend_Feed_Reader является моделью, в то время как Zend_Feed ограничивается доступом к данным.<br/>
+<br/>
+2. Модель включает в себя все правила и ограничения, управляет поведением и использованием данной информации. <br/>
+<br/>
+Для примера, вы пишете бизнес-логику для модели заказа в снабженческом приложении и по внутренним правилам компании на покупки за наличные может быть наложено ограничение в 500 евро. Покупки на сумму более 500 евро должны быть запрещены в вашей модели заказа (для них может требоваться одобрение вышестоящего начальства). У модели должны быть средства для установки подобных ограничений.<br/>
+<br/>
+Все станет предельно ясно, как только вы задумаетесь над смыслом слова «модель». В климатологии есть модели климата, описывающие данные, процессы, предполагаемое поведение и позволяющие рассчитать возможные результаты. М в MVC называется моделью не просто так. Модель представляет не только данные, она представляет всю систему, в которой полезны эти данные. Само собой система может быть настолько сложной, что ей понадобится несколько взаимодействующих моделей, но вы поняли идею.<br/>
+<br/>
+Прочитав эти два пункта вы скорее всего начали осознавать нечто поразительное. За исключением интерфейса, любое приложение можно представить в виде моделей. Именно в них сосредоточены данные, основанные на них правила поведения и, в некоторых случаях, даже вывод этих данных. Именно модель способна понять, истолковать и изложить данные, обеспечив им осмысленное использование. <br/>
+<br/>
+<strong>В программировании толстые модели предпочтительнее моделей с нулевым размером </strong><br/>
+<br/>
+Джамис Бак (Jamis Buck, автор Capistrano, сейчас работающий в 37signals) в свое время описал концепцию «Тощего контроллера, толстой модели». Крис Хартжес (Chris Hartjes) тоже написал <a href="http://www.littlehart.net/atthekeyboard/2007/04/27/fat-models-skinny-controllers/">статью на эту тему.</a> Мне всегда нравилась простота этой концепции, так как она иллюстрирует ключевую особенность MVC. В рамках этой концепции считается, что по мере возможности логику приложения (вроде бизнес-логики из примера выше) лучше всего помещать в модель, а не контроллер или представление. <br/>
+<br/>
+Представление должно заниматься только созданием и отображением интерфейса, через который пользователи смогут сообщить модели о своих намерениях. Контроллеры — это организаторы, связывающие введенные в интерфейс данные с действиями модели и передающие вывод обратно, какое бы представление ни отображало эту модель. Контроллеры должны определять поведение приложения только в плане связи ввода пользователя с вызовами модели, но в остальном должно быть ясно, что вся логика приложения находится в модели. Контроллеры — это скромные существа с минимумом кода, которые обеспечивают условия для упорядоченной работы. <br/>
+<br/>
+По большому счету, php-разработчики не совсем понимают, что такое модель. Многие считают модель красивым словом для обозначения доступа к базе данных, другие приравнивают ее к разным шаблонам для доступа к базе данных, вроде Active Record, Data Mapper и Table Data Gateway. Фреймворки очень часто продвигают это заблуждение, ненамеренно, я уверен, но энергично. Не полностью понимая, что такое модель, почему это столь великолепная идея, и как ее надо разрабатывать и развертывать, разработчики непреднамеренно вступают на темный путь, ведущий к таким методикам разработки, которые иначе чем убогими и не назовешь.<br/>
+<br/>
+Небольшое мысленное упражнение даст вам почву для размышлений. Представьте, что вы только что написали самое замечательное в мире веб-приложение с использованием Zend Framework. Клиент поражен, его восторги (и деньги) крайне приятны. К несчастью они забыли упомянуть, что их новый технический директор требует использовать Symfony во всех новых приложениях и предлагает крайне интересную сумму за преобразование вашего приложения. Вопрос: насколько это будет просто? Задумайтесь об этом на секунду…<br/>
+<br/>
+Если логика вашего приложения завязана на модель — вы на коне! Symfony, подобно многим (но не всем) фреймворкам, принимает модели вне зависимости от того, поверх чего они написаны. Вы можете перенести вашу модель, ее юнит-тесты и вспомогательные классы на Symfony ничего или почти ничего не меняя. Если вы связали все это с контроллерами, у вас проблемы. Вы действительно считаете, что Symfony сможет использовать контроллеры Zend Framework? Что каким-то волшебным образом заработают функциональные тесты, использующие PHPUnit-расширение Zend Framework? Оба-на. Вот почему контроллеры не способны заменить модели. Их практически невозможно использовать повторно.<br/>
+<br/>
+<strong>Непонятые, недооцененные, нелюбимые: модели в депрессии</strong><br/>
+<br/>
+Так как разработчики очень часто занижают роль модели, ограничивая ее доступом к базе данных, как это по умолчанию делается в 99,9% фреймворков, нет ничего удивительного, что их не впечатляют связанные с ней теоретические идеалы. Сосредотачиваясь на доступе к данным разработчики полностью пускают один очень важный момент: классы моделей не связаны с текущим фреймворком. Им не требуется сложная установка, вы просто создаете и используете их объекты.<br/>
+<br/>
+Возможно нам не стоит винить во всем среднего разработчика. У веб-приложений есть определенные поведенческие схемы, делающие эту кривую дорогу более привлекательной — большинство их них всего лишь очень большие считыватели данных. Если данные почти не обрабатываются, только читаются, то модель будет очень похожа на старый добрый доступ к данным. Не самое удачное стечение обстоятельств, так что не позволяйте простоте чтения данных одурачить вас. Не все приложения ограничиваются чтением — некоторые, вне всяких сомнений, должны делать с данными что-то выходящее за пределы отображения их в неизменном, соответствующем базе виде. <br/>
+<br/>
+Модели в PHP — неудачники. С момента появления Smarty и его сородичей все увлечены представлениями. Контроллеры тоже очень важны, так как они считывают данные из базы и передают в шаблоны (общепринятая интерпретация VC). Да-да, контроллеры — это логичная эволюция въевшегося в мозг контроллера страницы, который используется каждым PHP-разработчиком и его собакой начиная с PHP3. Как минимум большинству это кажется очевидным. Мы разрушим миф о «контроллере = контроллеру страницы» позже. <br/>
+<br/>
+А модели? Так как у них нет идеологической привлекательности или схожести со старыми привычками, люди рассматривают их как банальный «доступ к данным». Подобно ссылочным типам в PHP, указывающим на одно и то же значение в памяти. Язык изменился, но старые идеи все еще прячутся за кулисами, сбивая с толку наши нейронные сети. <br/>
+<br/>
+Но постойте… ведь разработчики все-таки пишут работающие приложения! И если они не используют модели, содержащие логику приложения, то что же, черт побери, они используют?!<br/>
+<br/>
+<strong>Толстые, тупые, уродливые контроллеры: смиритесь</strong> (Fat Stupid Ugly Controllers: SUC It Up)<br/>
+<br/>
+Так как разработчики почти ничего не знали о моделях, они изобрели новое понятие: толстые тупые уродливые контроллеры (ТТУК). Столь яркое определение я придумал не просто так, оно кажется очень забавным в 10 вечера, после нескольких кружек пива. И все равно вежливее того, что я о них на самом деле думаю. (Fat Stupid Ugly Controllers — FSUC — FUC). Их изобрели потому, что модели были непривычными, чуждыми и похожими на террористов сущностями, которым никто не решался доверить хоть что-то выходящее за пределы доступа к данным. <br/>
+<br/>
+Типичный ТТУК читает данные с базы (используя уровень абстракции данных, который разработчики называют моделью), обрабатывает их, проверяет, пишет и передает в представление для вывода на экран. Он невероятно популярен. Я бы сказал, что большинство пользователей фреймворков создают их так же естественно, как раньше создавали контроллеры страницы (Page Controllers). Они популярны, потому что разработчики осознали, что они могут обращаться с контроллерами почти так же, как с контроллерами страницы — это практически не отличается от древней методики использования отдельных php-файлов для каждой «страницы» приложения.<br/>
+<br/>
+Не заметили ничего необычного? ТТУК выполняет все возможные действия над данными. Почему? Потому что в отсутствие модели вся логика приложения перемещается в контроллер, что делает его своеобразной моделью-мутантом! Я не просто так употребил слово «мутант». ТТУКи очень большие, громоздкие, уродливые и определенно толстые. Есть псевдо-программистский термин, очень точно описывающий происходящее — "<a href="http://ru.wikipedia.org/wiki/%D0%A0%D0%B0%D0%B7%D0%B4%D1%83%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%BD%D0%BE%D0%B3%D0%BE_%D0%BE%D0%B1%D0%B5%D1%81%D0%BF%D0%B5%D1%87%D0%B5%D0%BD%D0%B8%D1%8F">раздутые</a>". Они выполняют задачи, для которых никогда не были предназначены. Это полная противоположность всем принципам объектно ориентированного программирования. И они бессмысленны! По каким-то загадочным причинам разработчики предпочитают использовать ТТУКи вместо моделей, несмотря на тот факт, что такие контроллеры на самом деле просто модели-мутанты.<br/>
+<br/>
+Помните наше мысленное упражнение? Если вы поместите все в контроллеры, перенос приложения на другой фреймворк станет крайне непростым занятием. Столь жесткое связывание фанаты Кента Бека (Kent Beck) называют «кодом с запашком» (code smell). И это не единственный источник запаха в ТТУКах. ТТУКи большие, с массивными методами, множественными ролям (как правило по одной на каждый метод), множественными повторами кода, не вынесенной во внешние классы функциональностью… ночной кошмар тестировщика. Так как фреймворков много, вы даже не можете правильно применять разработку через тестирование (TDD) без написания собственных дополнений и необходимости обрабатывать объекты запросов, сессии, куки и сбрасывать контроллер входа (Front Controller resets). И даже в этом случае вам придется тестировать созданное контроллером представление, так как у него нет способов вывода, независимых от представлений! <br/>
+<br/>
+Продолжим задавать вопросы! Как вы тестируете контроллер? Как вы рефакторите контроллер? Как вы ограничиваете роли контроллера? Какова производительность контроллера? Можно ли создать экземпляр контроллера вне приложения? Могу ли я последовательно объединить несколько контроллеров в один процесс и не сойти с ума? Почему я не использую более простые классы и не называю их моделями? Я вообще задумывался над этими вопросами? <br/>
+<br/>
+<strong>Модели неизбежны (как смерть и налоги)</strong><br/>
+<br/>
+В ТТУКах совершается классическая ошибка. Считая, что идея модели глупа и простой доступ к данными работает лучше всего, разработчики неосознанно завязывают всю логику приложения на контроллер. Мои поздравления! Вы только что создали модель, дрянную, уродливую модель-мутант, настаивая, что она контроллер. Но этот самозваный контроллер крайне сложно переносить, тестировать, поддерживать и рефакторить (считая рефакторинг понятием из реального мира… такое бывает!) Природа контроллеров такова, что они тесно связаны с лежащим в их основе фреймворком. Вы можете выполнить контроллер только после инициализации всего набора MVC данного фреймворка (что скорее всего означает зависимость от десятков других классов!)<br/>
+<br/>
+Вы можете пойти другим путем — вынести куда-нибудь логику приложения. Переместив ее из контроллера в модель вы получите много классов, не зависящих от используемого фреймворка. Теперь вы можете сутками тестировать эти <a href="http://en.wikipedia.org/wiki/Bugger">рассадники глюков</a> с использованием PHPUnit, ни разу не увидев контроллер или представление и не мучая себя глупыми перезапусками фреймворка после каждого теста. Считая их настоящими классами с четко определенными ролями, вы сможете взглянуть на них с правильной точки зрения, произвести соответствующий рефакторинг и написать по-настоящему поддерживаемый код, не дублируя его по множеству классов. <br/>
+<br/>
+Модели неизбежны. Кто-то может называть ТТУК контроллером, но нас самом деле это контроллер+модель, крайне неэффективная замена модели. Некоторые люди просто посмеются над всеми этими дураками, рассуждающими о необходимости хороших и независимых моделей предметной области (good independent domain models), и продолжат писать запутанный код. Пусть смеются. Ведь именно им придется поддерживать и тестировать свой бардак. <br/>
+<br/>
+Именно здесь большинство фреймворков для веб-приложений подводят своих пользователей. Они окружены огромным количеством маркетинговой чепухи, неявно предполагающей, что они предлагают полноценную модель. Вы хоть раз видели фреймворк, прямо говорящий нечто иное? В конце концов, это же MVC-фреймворк. Признание того, что разработчик должен писать М самостоятельно, может произвести плохое впечатление. Так что они прячут правду в множестве подробностей, разбросанных по документации доступа к данным или вообще не упоминают о ней. <br/>
+<br/>
+На самом деле они предлагают только классы доступа к данным — настоящая модель отражает особенности конкретного приложения и должна разрабатываться независимо, после общения с клиентами (можете сами подобрать для этого красивое название — лично я предпочитаю «экстремальное программирование»). Ее надо тестировать, проверять, обновлять и вероятность успеха/провала будет неизменной, вне зависимости от используемого фреймворка. Плохое приложение на Rails останется плохим приложением на Code Igniter. <br/>
+<br/>
+<strong>Контроллеры не должны охранять данные</strong><br/>
+<br/>
+Еще одним следствием всеобщего недоверия к модели является то, что разработчики стараются использовать ее по минимуму и доверяют контроллерам новую роль хранителей данных (одна из главных причин их мутации в ТТУК). Хотите, я еще сильнее разожгу огонь всеобщего несогласия со мной? <br/>
+<br/>
+Некоторое время назад я писал проект (Zend_View Enhanced), который рано или поздно будет принят в Zend Framework для внесения объектно-ориентированного подхода в создание сложных представлений, и начал жаловаться на то, что контроллеры являются единственным методом передачи данных из моделей в представления. Я считал, что представления могут обойтись без посредника и использовать вместо него помощников представлений (View Helpers) для чтения данных напрямую из моделей. Это приведет к архитектуре, в которой для многих страниц, доступных только для запросов на чтение, ваше действие контроллера (Controller Action) будет… пустым. В нем не будет никакого кода. Аминь!<br/>
+<br/>
+Самый лучший контроллер для меня — это отсутствие контроллера. <br/>
+<br/>
+Я немедленно столкнулся с массовым сопротивлением. Очень немногие поняли, что пустой контроллер, где все взаимодействие с моделью вынесено в простые и повторно используемые помощники представления, сократит повторяющийся код в контроллерах (очень большое количество повторяющегося кода!) и избавит от необходимости выстраивания цепочек действий контроллеров. Вместо этого я услышал немало заковыристых выражений. Многие считали, что MVC работает следующим образом: запросы идут к контроллеру, контроллер получает данные из модели, контроллер передает данные из модели в представление, контроллер отрисовывает представление. Другими словами: контроллер, контроллер, контроллер, контроллер. Однажды я заметил, что сообщество просто одержимо контроллерами. До сих пор очень сложно добиться того, чтобы кто-нибудь дал представлениям объекты с данными и позволил им самостоятельно читать данные из моделей…<br/>
+<br/>
+Примечание: не все так плохо — некоторые люди поняли о чем речь <br/>
+<br/>
+Никто из возражающих не заметил, что на самом деле это очень старая идея. В Java термин помощник представления ввели много лет назад, как шаблон проектирования в J2EE, показав, что помощники представлений могут помогать представлениям в доступе к моделям (только в чтении, так как все операции записи должны проходить через контроллер!) без посредника-контроллера. Все в MVC говорит о том, что представления должны знать не только о массивах, которые контроллер кладет им в рот, но и о моделях, которые они отображают. <br/>
+<br/>
+Так почему бы не пойти дальше! Скольким представлениям хватает одной модели? Многие мои представления используют несколько моделей, обращения к которым очень часто повторяются. Помощник представления — это один класс, но для добавления повторяющихся обращений в контроллеры нам надо повторять эти обращения во множестве методов!<br/>
+<br/>
+Для избавления от помощника представлений было придумано одно сумасшедшее решение, при котором действия контроллера переизобрели как многократно используемые команды. Если представлению требуются несколько моделей, вы просто последовательно вызываете несколько контроллеров. Эту идею я нередко называю сцеплением контроллеров (Controller Chaining) — его смысл в создании служебного кода, делающего возможным повторное использование контроллеров. Можете перевести его как: многократное использование любого класса, необходимого для выполнения конкретного действия контроллера. Не забывайте — ни один контроллер невозможно использовать без инициализации всего фреймворка. Хотя есть (всегда есть!) исключения.<br/>
+<br/>
+<strong>Модели — классы, контроллеры — процессы</strong><br/>
+<br/>
+Мои нестандартные идеи наверное вас уже утомили, но вышеупомянутое сцепление контроллеров требует более подробного рассмотрения. Сцепление часто используется для доступа к нескольким моделям или объединения результатов нескольких представлений или и для того и для другого одновременно. Последнее случается чаще всего — если вы не используете помощники представлений для упрощения процесса, то контроллеры почти всегда обращаются к моделям и передают данные в представления.<br/>
+<br/>
+Представьте, что вы создали три контроллера, каждый из которых создает представление. Чтобы создать некую новую веб-страницу вам необходимо объединить три представления в единую страницу по шаблону (или макету). Это делается последовательным вызовом всех трех контроллеров через Zend_Layout (или какое-нибудь другое решение для сборки представлений в один макет/секцию). А теперь посмотрим, что получилось — три контроллера означают, что мы три раза выполняем стек MVC. В зависимости от приложения это может привести к значительным затратам ресурсов. Просто для примера величины этих затрат, Symfony использует «компоненты» (“Components”) как специализированные типы контроллеров, предназначенные исключительно для смягчения удара по производительности, но в Zend Framework нет ничего подобного. Схожая идея в Rails вызывала массу жалоб на падения производительности. Расхожая мудрость гласит, что использование нескольких полных контроллеров в фреймворках чудовищно неэффективно и является последней надеждой в тех случаях, когда нет иных стратегий повторного использования. <br/>
+<br/>
+Повторюсь, сцепление контроллеров — это код с запашком. Оно неэффективно, неуклюже и как правило не нужно.<br/>
+<br/>
+Альтернативой, само собой, является использование частичных представлений (кусочков шаблона, способных объединиться в одно родительское представление), способных напрямую взаимодействовать с моделью через помощник представления. Избавьтесь от контроллеров в целом — в конце концов в них нет никакой логики приложения, кроме передачи пользовательского ввода соответствующему вызову модели (за исключением ТТУКов).<br/>
+<br/>
+Основная идея в том, что модель — это просто набор слабо связанных классов. Вы можете создавать и использовать их экземпляры где угодно — в других моделях, контроллерах и даже представлениях! С другой стороны, контроллер является неотъемлемой частью общего процесса. Вы не можете повторно использовать контроллер не запуская весь процесс создания объектов запроса, диспетчеризации, применения помощников действий, инициализации представления и обработки возвращаемых объектов ответа. Это затратно и неуклюже. <br/>
+<br/>
+<strong>В завершение разговора</strong><br/>
+<br/>
+Как вы могли заметить, эта статья была жизненно необходима. Я твердо уверен в необходимости внедрения изящных принципов объектно ориентированного программирования в MVC фреймворки. Именно поэтому я всеми силами продвигал Zend_View Enhanced в Zend Framework и видел, как его одобряли, обсуждали и крайне успешно использовали. Во многом это произошло благодаря Мэтью Вейнеру О'Финли (Matthew Weier O’Phinney) и Ральфу Шиндлеру (Ralph Schindler), присоединившимся к продвижению этой идеи. Забыв о простых методиках и принципах ООП мы завязнем в борьбе с MVC, забыв о его смысле. MVC — это великий архитектурный шаблон, но в конце концов любые наши толкования MVC и привычные убеждения производны от принципов ООП. Забыв об этом, мы начнем делать Плохие Вещи (ТМ). <br/>
+<br/>
+Надеюсь этот поток мыслей о модели в модели-контроллере-представлении окажется чем-то просветляющим и заставит вас задуматься. Вашей целью должно быть самостоятельно мышление — сомневайтесь во всем и восставайте, когда что-то покажется вам неправильным. Полагаясь на слепую веру мы заслуживаем всего, что с нами происходит. <br/>
+<br/>
+<a href="http://blog.astrumfutura.com/2008/12/the-m-in-mvc-why-models-are-misunderstood-and-unappreciated/">The M in MVC: Why Models are Misunderstood and Unappreciated</a></div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BMVC%5D" class="tm-tags-list__link">MVC</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B0%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B0%5D" class="tm-tags-list__link">архитектура</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BE%D0%BE%D0%BF%5D" class="tm-tags-list__link">ооп</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%84%D1%80%D0%B5%D0%B9%D0%BC%D0%B2%D0%BE%D1%80%D0%BA%5D" class="tm-tags-list__link">фреймворк</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/refactoring/" class="tm-hubs-list__link">
+    Проектирование и рефакторинг
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 59: ↑54 и ↓5</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 59: ↑54 и ↓5" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+49</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">71K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    463
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/Vedomir/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_lilac"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 153 голоса " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    91
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><!----> <a href="https://habr.com/ru/users/Vedomir/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @Vedomir
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/175465/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 53 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner11411" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner11412" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/175465/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/175465/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"175465":{"id":"175465","timePublished":"2013-04-04T12:54:45+00:00","isCorporative":false,"lang":"ru","titleHtml":"M в MVC: почему модели непоняты и недооценены (перевод)","leadData":{"textHtml":"\u003Ci\u003E(статья очень старая, по поднятые в ней вопросы актуальны по сей день и регулярно поднимаются в различных обсуждениях)\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМногие из вас наверняка заметили, что я пишу книгу о Zend Framework. Недавно я закончил черновики двух глав: «Архитектура приложений на Zend Framework» и «Понимая Zend Framework». В первой главе объясняется архитектурный шаблон Model-View-Controller (MVC) и причины, по которым он стал стандартом де-факто для веб-приложений. Во второй исследуется связь MVC с компонентами Zend Framework, их структурой и взаимодействием. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗавершив обе главы я осознал, что большую часть времени описывал модель и ее фактическое отсутствие в Zend Framework. На самом деле ни один веб-фреймворк не предлагает нам полноценную модель (по причинам, которые я объясню чуть позже). И ни в одном из них не дается внятного объяснения этому обстоятельству. Вместо этого они последовательно связывают понятие модели с родственным, но не идентичным понятием доступа к данным, что изрядно всех запутывает.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭта сторона фреймворков никогда не привлекала особого внимания. И все же именно она лежит в основе целого класса проблем в тех приложениях, которые пытаются использовать MVC по образу и подобию фреймворков для веб-приложений. Более того, попытки донести идею модели до других разработчиков нередко напоминают битье головой о стену. Я не хочу сказать, что все разработчики тупые или не понимают саму идею, просто никто из них (вне зависимости от того, работают они с PHP или нет) не связывает модели с той областью, которая наделяет их смыслом — принципами объектно-ориентированного программирования.\u003Cbr\u002F\u003E\r\n","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"sandbox","data":null}],"author":{"scoreStats":{"score":91,"votesCount":153},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"352741","alias":"Vedomir","fullname":null,"avatarUrl":null,"speciality":null},"statistics":{"commentsCount":53,"favoritesCount":463,"readingCount":70512,"score":49,"votesCount":59},"hubs":[{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"7504","alias":"refactoring","type":"collective","title":"Проектирование и рефакторинг","titleHtml":"Проектирование и рефакторинг","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Ci\u003E(статья очень старая, по поднятые в ней вопросы актуальны по сей день и регулярно поднимаются в различных обсуждениях)\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМногие из вас наверняка заметили, что я пишу книгу о Zend Framework. Недавно я закончил черновики двух глав: «Архитектура приложений на Zend Framework» и «Понимая Zend Framework». В первой главе объясняется архитектурный шаблон Model-View-Controller (MVC) и причины, по которым он стал стандартом де-факто для веб-приложений. Во второй исследуется связь MVC с компонентами Zend Framework, их структурой и взаимодействием. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗавершив обе главы я осознал, что большую часть времени описывал модель и ее фактическое отсутствие в Zend Framework. На самом деле ни один веб-фреймворк не предлагает нам полноценную модель (по причинам, которые я объясню чуть позже). И ни в одном из них не дается внятного объяснения этому обстоятельству. Вместо этого они последовательно связывают понятие модели с родственным, но не идентичным понятием доступа к данным, что изрядно всех запутывает.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭта сторона фреймворков никогда не привлекала особого внимания. И все же именно она лежит в основе целого класса проблем в тех приложениях, которые пытаются использовать MVC по образу и подобию фреймворков для веб-приложений. Более того, попытки донести идею модели до других разработчиков нередко напоминают битье головой о стену. Я не хочу сказать, что все разработчики тупые или не понимают саму идею, просто никто из них (вне зависимости от того, работают они с PHP или нет) не связывает модели с той областью, которая наделяет их смыслом — принципами объектно-ориентированного программирования.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nВ этой записи я исследую модели в свете того, как разработчики соотносят их с контролерами и представлениями в приложениях и опишу несколько стратегий, которые можно использовать вместе с правильными моделями.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EМодели непоняты\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМодели можно описать по-разному. На самом деле только об этом можно написать целую книгу, многие именно так и поступали! Как правило описываются две роли модели:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n1. Модель отвечает за сохранения состояния между HTTP-запросами\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПо сути дела любые данные — в базе данных, файле, сохраненные в сессии или закешированные внутри APC, должны быть сохранены между запросами в виде состояния приложения на момент последнего запроса. Помните, модель не ограничивается базой данных. Даже получаемые из веб-сервисов данные могут быть представлены в виде модели! Да, даже ленты новостей в формате Atom! Стремящиеся побыстрее познакомить с моделью фреймворки этого никогда не объясняют, усиливая непонимание.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВозьмем в качестве примера разрабатываемый мной компонент под названием Zend_Feed_Reader, который на самом деле является моделью. Он читает ленты новостей, обрабатывает их, интерпретирует данные, добавляет ограничения, правила и по большому счету создает удобное представление нижележащих данных. Без него мы имеем Zend_Feed (лучшее средство для чтения новостных лент на данный момент), который требует большого количества работы для получения полноценной модели. Другими словами, Zend_Feed_Reader является моделью, в то время как Zend_Feed ограничивается доступом к данным.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n2. Модель включает в себя все правила и ограничения, управляет поведением и использованием данной информации. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля примера, вы пишете бизнес-логику для модели заказа в снабженческом приложении и по внутренним правилам компании на покупки за наличные может быть наложено ограничение в 500 евро. Покупки на сумму более 500 евро должны быть запрещены в вашей модели заказа (для них может требоваться одобрение вышестоящего начальства). У модели должны быть средства для установки подобных ограничений.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВсе станет предельно ясно, как только вы задумаетесь над смыслом слова «модель». В климатологии есть модели климата, описывающие данные, процессы, предполагаемое поведение и позволяющие рассчитать возможные результаты. М в MVC называется моделью не просто так. Модель представляет не только данные, она представляет всю систему, в которой полезны эти данные. Само собой система может быть настолько сложной, что ей понадобится несколько взаимодействующих моделей, но вы поняли идею.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПрочитав эти два пункта вы скорее всего начали осознавать нечто поразительное. За исключением интерфейса, любое приложение можно представить в виде моделей. Именно в них сосредоточены данные, основанные на них правила поведения и, в некоторых случаях, даже вывод этих данных. Именно модель способна понять, истолковать и изложить данные, обеспечив им осмысленное использование. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EВ программировании толстые модели предпочтительнее моделей с нулевым размером \u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДжамис Бак (Jamis Buck, автор Capistrano, сейчас работающий в 37signals) в свое время описал концепцию «Тощего контроллера, толстой модели». Крис Хартжес (Chris Hartjes) тоже написал \u003Ca href=\"http:\u002F\u002Fwww.littlehart.net\u002Fatthekeyboard\u002F2007\u002F04\u002F27\u002Ffat-models-skinny-controllers\u002F\"\u003Eстатью на эту тему.\u003C\u002Fa\u003E Мне всегда нравилась простота этой концепции, так как она иллюстрирует ключевую особенность MVC. В рамках этой концепции считается, что по мере возможности логику приложения (вроде бизнес-логики из примера выше) лучше всего помещать в модель, а не контроллер или представление. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПредставление должно заниматься только созданием и отображением интерфейса, через который пользователи смогут сообщить модели о своих намерениях. Контроллеры — это организаторы, связывающие введенные в интерфейс данные с действиями модели и передающие вывод обратно, какое бы представление ни отображало эту модель. Контроллеры должны определять поведение приложения только в плане связи ввода пользователя с вызовами модели, но в остальном должно быть ясно, что вся логика приложения находится в модели. Контроллеры — это скромные существа с минимумом кода, которые обеспечивают условия для упорядоченной работы. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПо большому счету, php-разработчики не совсем понимают, что такое модель. Многие считают модель красивым словом для обозначения доступа к базе данных, другие приравнивают ее к разным шаблонам для доступа к базе данных, вроде Active Record, Data Mapper и Table Data Gateway. Фреймворки очень часто продвигают это заблуждение, ненамеренно, я уверен, но энергично. Не полностью понимая, что такое модель, почему это столь великолепная идея, и как ее надо разрабатывать и развертывать, разработчики непреднамеренно вступают на темный путь, ведущий к таким методикам разработки, которые иначе чем убогими и не назовешь.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНебольшое мысленное упражнение даст вам почву для размышлений. Представьте, что вы только что написали самое замечательное в мире веб-приложение с использованием Zend Framework. Клиент поражен, его восторги (и деньги) крайне приятны. К несчастью они забыли упомянуть, что их новый технический директор требует использовать Symfony во всех новых приложениях и предлагает крайне интересную сумму за преобразование вашего приложения. Вопрос: насколько это будет просто? Задумайтесь об этом на секунду…\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли логика вашего приложения завязана на модель — вы на коне! Symfony, подобно многим (но не всем) фреймворкам, принимает модели вне зависимости от того, поверх чего они написаны. Вы можете перенести вашу модель, ее юнит-тесты и вспомогательные классы на Symfony ничего или почти ничего не меняя. Если вы связали все это с контроллерами, у вас проблемы. Вы действительно считаете, что Symfony сможет использовать контроллеры Zend Framework? Что каким-то волшебным образом заработают функциональные тесты, использующие PHPUnit-расширение Zend Framework? Оба-на. Вот почему контроллеры не способны заменить модели. Их практически невозможно использовать повторно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EНепонятые, недооцененные, нелюбимые: модели в депрессии\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак как разработчики очень часто занижают роль модели, ограничивая ее доступом к базе данных, как это по умолчанию делается в 99,9% фреймворков, нет ничего удивительного, что их не впечатляют связанные с ней теоретические идеалы. Сосредотачиваясь на доступе к данным разработчики полностью пускают один очень важный момент: классы моделей не связаны с текущим фреймворком. Им не требуется сложная установка, вы просто создаете и используете их объекты.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВозможно нам не стоит винить во всем среднего разработчика. У веб-приложений есть определенные поведенческие схемы, делающие эту кривую дорогу более привлекательной — большинство их них всего лишь очень большие считыватели данных. Если данные почти не обрабатываются, только читаются, то модель будет очень похожа на старый добрый доступ к данным. Не самое удачное стечение обстоятельств, так что не позволяйте простоте чтения данных одурачить вас. Не все приложения ограничиваются чтением — некоторые, вне всяких сомнений, должны делать с данными что-то выходящее за пределы отображения их в неизменном, соответствующем базе виде. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМодели в PHP — неудачники. С момента появления Smarty и его сородичей все увлечены представлениями. Контроллеры тоже очень важны, так как они считывают данные из базы и передают в шаблоны (общепринятая интерпретация VC). Да-да, контроллеры — это логичная эволюция въевшегося в мозг контроллера страницы, который используется каждым PHP-разработчиком и его собакой начиная с PHP3. Как минимум большинству это кажется очевидным. Мы разрушим миф о «контроллере = контроллеру страницы» позже. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nА модели? Так как у них нет идеологической привлекательности или схожести со старыми привычками, люди рассматривают их как банальный «доступ к данным». Подобно ссылочным типам в PHP, указывающим на одно и то же значение в памяти. Язык изменился, но старые идеи все еще прячутся за кулисами, сбивая с толку наши нейронные сети. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо постойте… ведь разработчики все-таки пишут работающие приложения! И если они не используют модели, содержащие логику приложения, то что же, черт побери, они используют?!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EТолстые, тупые, уродливые контроллеры: смиритесь\u003C\u002Fstrong\u003E (Fat Stupid Ugly Controllers: SUC It Up)\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак как разработчики почти ничего не знали о моделях, они изобрели новое понятие: толстые тупые уродливые контроллеры (ТТУК). Столь яркое определение я придумал не просто так, оно кажется очень забавным в 10 вечера, после нескольких кружек пива. И все равно вежливее того, что я о них на самом деле думаю. (Fat Stupid Ugly Controllers — FSUC — FUC). Их изобрели потому, что модели были непривычными, чуждыми и похожими на террористов сущностями, которым никто не решался доверить хоть что-то выходящее за пределы доступа к данным. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТипичный ТТУК читает данные с базы (используя уровень абстракции данных, который разработчики называют моделью), обрабатывает их, проверяет, пишет и передает в представление для вывода на экран. Он невероятно популярен. Я бы сказал, что большинство пользователей фреймворков создают их так же естественно, как раньше создавали контроллеры страницы (Page Controllers). Они популярны, потому что разработчики осознали, что они могут обращаться с контроллерами почти так же, как с контроллерами страницы — это практически не отличается от древней методики использования отдельных php-файлов для каждой «страницы» приложения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНе заметили ничего необычного? ТТУК выполняет все возможные действия над данными. Почему? Потому что в отсутствие модели вся логика приложения перемещается в контроллер, что делает его своеобразной моделью-мутантом! Я не просто так употребил слово «мутант». ТТУКи очень большие, громоздкие, уродливые и определенно толстые. Есть псевдо-программистский термин, очень точно описывающий происходящее — \"\u003Ca href=\"http:\u002F\u002Fru.wikipedia.org\u002Fwiki\u002F%D0%A0%D0%B0%D0%B7%D0%B4%D1%83%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%BD%D0%BE%D0%B3%D0%BE_%D0%BE%D0%B1%D0%B5%D1%81%D0%BF%D0%B5%D1%87%D0%B5%D0%BD%D0%B8%D1%8F\"\u003Eраздутые\u003C\u002Fa\u003E\". Они выполняют задачи, для которых никогда не были предназначены. Это полная противоположность всем принципам объектно ориентированного программирования. И они бессмысленны! По каким-то загадочным причинам разработчики предпочитают использовать ТТУКи вместо моделей, несмотря на тот факт, что такие контроллеры на самом деле просто модели-мутанты.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПомните наше мысленное упражнение? Если вы поместите все в контроллеры, перенос приложения на другой фреймворк станет крайне непростым занятием. Столь жесткое связывание фанаты Кента Бека (Kent Beck) называют «кодом с запашком» (code smell). И это не единственный источник запаха в ТТУКах. ТТУКи большие, с массивными методами, множественными ролям (как правило по одной на каждый метод), множественными повторами кода, не вынесенной во внешние классы функциональностью… ночной кошмар тестировщика. Так как фреймворков много, вы даже не можете правильно применять разработку через тестирование (TDD) без написания собственных дополнений и необходимости обрабатывать объекты запросов, сессии, куки и сбрасывать контроллер входа (Front Controller resets). И даже в этом случае вам придется тестировать созданное контроллером представление, так как у него нет способов вывода, независимых от представлений! \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПродолжим задавать вопросы! Как вы тестируете контроллер? Как вы рефакторите контроллер? Как вы ограничиваете роли контроллера? Какова производительность контроллера? Можно ли создать экземпляр контроллера вне приложения? Могу ли я последовательно объединить несколько контроллеров в один процесс и не сойти с ума? Почему я не использую более простые классы и не называю их моделями? Я вообще задумывался над этими вопросами? \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EМодели неизбежны (как смерть и налоги)\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ ТТУКах совершается классическая ошибка. Считая, что идея модели глупа и простой доступ к данными работает лучше всего, разработчики неосознанно завязывают всю логику приложения на контроллер. Мои поздравления! Вы только что создали модель, дрянную, уродливую модель-мутант, настаивая, что она контроллер. Но этот самозваный контроллер крайне сложно переносить, тестировать, поддерживать и рефакторить (считая рефакторинг понятием из реального мира… такое бывает!) Природа контроллеров такова, что они тесно связаны с лежащим в их основе фреймворком. Вы можете выполнить контроллер только после инициализации всего набора MVC данного фреймворка (что скорее всего означает зависимость от десятков других классов!)\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВы можете пойти другим путем — вынести куда-нибудь логику приложения. Переместив ее из контроллера в модель вы получите много классов, не зависящих от используемого фреймворка. Теперь вы можете сутками тестировать эти \u003Ca href=\"http:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FBugger\"\u003Eрассадники глюков\u003C\u002Fa\u003E с использованием PHPUnit, ни разу не увидев контроллер или представление и не мучая себя глупыми перезапусками фреймворка после каждого теста. Считая их настоящими классами с четко определенными ролями, вы сможете взглянуть на них с правильной точки зрения, произвести соответствующий рефакторинг и написать по-настоящему поддерживаемый код, не дублируя его по множеству классов. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМодели неизбежны. Кто-то может называть ТТУК контроллером, но нас самом деле это контроллер+модель, крайне неэффективная замена модели. Некоторые люди просто посмеются над всеми этими дураками, рассуждающими о необходимости хороших и независимых моделей предметной области (good independent domain models), и продолжат писать запутанный код. Пусть смеются. Ведь именно им придется поддерживать и тестировать свой бардак. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИменно здесь большинство фреймворков для веб-приложений подводят своих пользователей. Они окружены огромным количеством маркетинговой чепухи, неявно предполагающей, что они предлагают полноценную модель. Вы хоть раз видели фреймворк, прямо говорящий нечто иное? В конце концов, это же MVC-фреймворк. Признание того, что разработчик должен писать М самостоятельно, может произвести плохое впечатление. Так что они прячут правду в множестве подробностей, разбросанных по документации доступа к данным или вообще не упоминают о ней. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа самом деле они предлагают только классы доступа к данным — настоящая модель отражает особенности конкретного приложения и должна разрабатываться независимо, после общения с клиентами (можете сами подобрать для этого красивое название — лично я предпочитаю «экстремальное программирование»). Ее надо тестировать, проверять, обновлять и вероятность успеха\u002Fпровала будет неизменной, вне зависимости от используемого фреймворка. Плохое приложение на Rails останется плохим приложением на Code Igniter. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EКонтроллеры не должны охранять данные\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕще одним следствием всеобщего недоверия к модели является то, что разработчики стараются использовать ее по минимуму и доверяют контроллерам новую роль хранителей данных (одна из главных причин их мутации в ТТУК). Хотите, я еще сильнее разожгу огонь всеобщего несогласия со мной? \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНекоторое время назад я писал проект (Zend_View Enhanced), который рано или поздно будет принят в Zend Framework для внесения объектно-ориентированного подхода в создание сложных представлений, и начал жаловаться на то, что контроллеры являются единственным методом передачи данных из моделей в представления. Я считал, что представления могут обойтись без посредника и использовать вместо него помощников представлений (View Helpers) для чтения данных напрямую из моделей. Это приведет к архитектуре, в которой для многих страниц, доступных только для запросов на чтение, ваше действие контроллера (Controller Action) будет… пустым. В нем не будет никакого кода. Аминь!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСамый лучший контроллер для меня — это отсутствие контроллера. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯ немедленно столкнулся с массовым сопротивлением. Очень немногие поняли, что пустой контроллер, где все взаимодействие с моделью вынесено в простые и повторно используемые помощники представления, сократит повторяющийся код в контроллерах (очень большое количество повторяющегося кода!) и избавит от необходимости выстраивания цепочек действий контроллеров. Вместо этого я услышал немало заковыристых выражений. Многие считали, что MVC работает следующим образом: запросы идут к контроллеру, контроллер получает данные из модели, контроллер передает данные из модели в представление, контроллер отрисовывает представление. Другими словами: контроллер, контроллер, контроллер, контроллер. Однажды я заметил, что сообщество просто одержимо контроллерами. До сих пор очень сложно добиться того, чтобы кто-нибудь дал представлениям объекты с данными и позволил им самостоятельно читать данные из моделей…\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПримечание: не все так плохо — некоторые люди поняли о чем речь \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНикто из возражающих не заметил, что на самом деле это очень старая идея. В Java термин помощник представления ввели много лет назад, как шаблон проектирования в J2EE, показав, что помощники представлений могут помогать представлениям в доступе к моделям (только в чтении, так как все операции записи должны проходить через контроллер!) без посредника-контроллера. Все в MVC говорит о том, что представления должны знать не только о массивах, которые контроллер кладет им в рот, но и о моделях, которые они отображают. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак почему бы не пойти дальше! Скольким представлениям хватает одной модели? Многие мои представления используют несколько моделей, обращения к которым очень часто повторяются. Помощник представления — это один класс, но для добавления повторяющихся обращений в контроллеры нам надо повторять эти обращения во множестве методов!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля избавления от помощника представлений было придумано одно сумасшедшее решение, при котором действия контроллера переизобрели как многократно используемые команды. Если представлению требуются несколько моделей, вы просто последовательно вызываете несколько контроллеров. Эту идею я нередко называю сцеплением контроллеров (Controller Chaining) — его смысл в создании служебного кода, делающего возможным повторное использование контроллеров. Можете перевести его как: многократное использование любого класса, необходимого для выполнения конкретного действия контроллера. Не забывайте — ни один контроллер невозможно использовать без инициализации всего фреймворка. Хотя есть (всегда есть!) исключения.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EМодели — классы, контроллеры — процессы\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМои нестандартные идеи наверное вас уже утомили, но вышеупомянутое сцепление контроллеров требует более подробного рассмотрения. Сцепление часто используется для доступа к нескольким моделям или объединения результатов нескольких представлений или и для того и для другого одновременно. Последнее случается чаще всего — если вы не используете помощники представлений для упрощения процесса, то контроллеры почти всегда обращаются к моделям и передают данные в представления.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПредставьте, что вы создали три контроллера, каждый из которых создает представление. Чтобы создать некую новую веб-страницу вам необходимо объединить три представления в единую страницу по шаблону (или макету). Это делается последовательным вызовом всех трех контроллеров через Zend_Layout (или какое-нибудь другое решение для сборки представлений в один макет\u002Fсекцию). А теперь посмотрим, что получилось — три контроллера означают, что мы три раза выполняем стек MVC. В зависимости от приложения это может привести к значительным затратам ресурсов. Просто для примера величины этих затрат, Symfony использует «компоненты» (“Components”) как специализированные типы контроллеров, предназначенные исключительно для смягчения удара по производительности, но в Zend Framework нет ничего подобного. Схожая идея в Rails вызывала массу жалоб на падения производительности. Расхожая мудрость гласит, что использование нескольких полных контроллеров в фреймворках чудовищно неэффективно и является последней надеждой в тех случаях, когда нет иных стратегий повторного использования. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПовторюсь, сцепление контроллеров — это код с запашком. Оно неэффективно, неуклюже и как правило не нужно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nАльтернативой, само собой, является использование частичных представлений (кусочков шаблона, способных объединиться в одно родительское представление), способных напрямую взаимодействовать с моделью через помощник представления. Избавьтесь от контроллеров в целом — в конце концов в них нет никакой логики приложения, кроме передачи пользовательского ввода соответствующему вызову модели (за исключением ТТУКов).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОсновная идея в том, что модель — это просто набор слабо связанных классов. Вы можете создавать и использовать их экземпляры где угодно — в других моделях, контроллерах и даже представлениях! С другой стороны, контроллер является неотъемлемой частью общего процесса. Вы не можете повторно использовать контроллер не запуская весь процесс создания объектов запроса, диспетчеризации, применения помощников действий, инициализации представления и обработки возвращаемых объектов ответа. Это затратно и неуклюже. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cstrong\u003EВ завершение разговора\u003C\u002Fstrong\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКак вы могли заметить, эта статья была жизненно необходима. Я твердо уверен в необходимости внедрения изящных принципов объектно ориентированного программирования в MVC фреймворки. Именно поэтому я всеми силами продвигал Zend_View Enhanced в Zend Framework и видел, как его одобряли, обсуждали и крайне успешно использовали. Во многом это произошло благодаря Мэтью Вейнеру О'Финли (Matthew Weier O’Phinney) и Ральфу Шиндлеру (Ralph Schindler), присоединившимся к продвижению этой идеи. Забыв о простых методиках и принципах ООП мы завязнем в борьбе с MVC, забыв о его смысле. MVC — это великий архитектурный шаблон, но в конце концов любые наши толкования MVC и привычные убеждения производны от принципов ООП. Забыв об этом, мы начнем делать Плохие Вещи (ТМ). \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНадеюсь этот поток мыслей о модели в модели-контроллере-представлении окажется чем-то просветляющим и заставит вас задуматься. Вашей целью должно быть самостоятельно мышление — сомневайтесь во всем и восставайте, когда что-то покажется вам неправильным. Полагаясь на слепую веру мы заслуживаем всего, что с нами происходит. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"http:\u002F\u002Fblog.astrumfutura.com\u002F2008\u002F12\u002Fthe-m-in-mvc-why-models-are-misunderstood-and-unappreciated\u002F\"\u003EThe M in MVC: Why Models are Misunderstood and Unappreciated\u003C\u002Fa\u003E\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"MVC"},{"titleHtml":"архитектура"},{"titleHtml":"ооп"},{"titleHtml":"фреймворк"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F175465\u002F8e6dd20d8f6a6d1bd033f0956c1924f9\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F175465\u002F8e6dd20d8f6a6d1bd033f0956c1924f9\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F175465\\\u002F\"},\"headline\":\"M в MVC: почему модели непоняты и недооценены (перевод)\",\"datePublished\":\"2013-04-04T16:54:45+04:00\",\"dateModified\":\"2013-04-05T08:41:46+04:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Vedomir\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"(статья очень старая, по поднятые в ней вопросы актуальны по сей день и регулярно поднимаются в различных обсуждениях)  Многие из вас наверняка заметили, что я п...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F175465\\\u002F#post-content-body\",\"about\":[\"h_webdev\",\"h_refactoring\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F175465\\\u002F8e6dd20d8f6a6d1bd033f0956c1924f9\\\u002F\"]}","metaDescription":"(статья очень старая, по поднятые в ней вопросы актуальны по сей день и регулярно поднимаются в различных обсуждениях)\r\n\r\nМногие из вас наверняка заметили, что я пишу книгу о Zend Framework. Недавно я...","mainImageUrl":null,"amp":true,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":"webdev,refactoring"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

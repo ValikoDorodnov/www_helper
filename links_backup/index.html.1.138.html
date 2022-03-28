@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Изучаем многопоточное программирование в Go по картинкам / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/412715\/"},"headline":"Изучаем многопоточное программирование в Go по картинкам","datePublished":"2018-06-03T16:28:41+03:00","dateModified":"2018-06-03T19:35:17+03:00","author":{"@type":"Person","name":"Михаил"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Скорее всего, вы уже слышали о языке программирования Go, популярность его постоянно растет, что вполне обоснованно. Этот язык простой, быстрый и опирается на п...","url":"https:\/\/habr.com\/ru\/post\/412715\/#post-content-body","about":["h_programming","h_go","h_parallel_programming","f_develop"],"image":["https:\/\/habrastorage.org\/webt\/qk\/hi\/im\/qkhiimd_phctfhx4kka_rhpkepq.png","https:\/\/habrastorage.org\/webt\/c5\/ua\/ja\/c5uajayyncivzzj9_orh-u_sw34.png","https:\/\/habrastorage.org\/webt\/om\/x1\/mq\/omx1mqphfsqqs57lab9bngsnggi.png","https:\/\/habrastorage.org\/webt\/jz\/wx\/nb\/jzwxnbgxocr-a0rq7kmdoujt_gg.png","https:\/\/habrastorage.org\/webt\/pa\/a-\/5r\/paa-5r_dtecx3fzem9r0dsv42jo.png","https:\/\/habrastorage.org\/webt\/-d\/vp\/fz\/-dvpfzbpaa65exwi7l4pgerte48.png","https:\/\/habrastorage.org\/webt\/wd\/1j\/qp\/wd1jqp8ipkwvcdgc5xbuoyy6wey.png","https:\/\/habrastorage.org\/webt\/60\/yx\/_j\/60yx_jlczbwcy2tfmsqgvzwp4dg.png","https:\/\/habrastorage.org\/webt\/ir\/vv\/zi\/irvvziqxuk3opysywirescrn40e.png","https:\/\/habrastorage.org\/webt\/eq\/e5\/k8\/eqe5k854n39oia6xwaavj5xfk-q.png","https:\/\/habrastorage.org\/webt\/hv\/k0\/ba\/hvk0badnrvqhncjqf9uwyrlowq8.png","https:\/\/habrastorage.org\/webt\/zs\/zg\/b1\/zszgb15grrrjjiyaqs6gwtfkkye.png","https:\/\/habrastorage.org\/webt\/sh\/ok\/f2\/shokf2oswaiw1yk6i-uwplypezi.png","https:\/\/habrastorage.org\/webt\/cq\/xa\/h7\/cqxah7wnmg1wbcjqwhd13gyejaw.png","https:\/\/habrastorage.org\/webt\/ko\/t5\/y6\/kot5y6lv7cf-3h2zbyghvqwf1is.png","https:\/\/habrastorage.org\/webt\/c_\/bo\/y7\/c_boy7hpqt3y3krcd1utthdjy3s.png","https:\/\/habrastorage.org\/webt\/vi\/4e\/zv\/vi4ezv-tyvzugvamrwi3z9xod8a.png","https:\/\/habrastorage.org\/webt\/d6\/69\/yd\/d669ydnx51qv_h0tf-p-lbo8xyu.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Изучаем многопоточное программирование в Go по картинкам" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Изучаем многопоточное программирование в Go по картинкам" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Изучаем многопоточное программирование в Go по картинкам" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Скорее всего, вы уже слышали о языке программирования Go, популярность его постоянно растет, что вполне обоснованно. Этот язык простой, быстрый и опирается на прекрасное сообщество. Один из самых..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Скорее всего, вы уже слышали о языке программирования Go, популярность его постоянно растет, что вполне обоснованно. Этот язык простой, быстрый и опирается на прекрасное сообщество. Один из самых..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Скорее всего, вы уже слышали о языке программирования Go, популярность его постоянно растет, что вполне обоснованно. Этот язык простой, быстрый и опирается на прекрасное сообщество. Один из самых..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Скорее всего, вы уже слышали о языке программирования Go, популярность его постоянно растет, что вполне обоснованно. Этот язык простой, быстрый и опирается на прекрасное сообщество. Один из самых..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Скорее всего, вы уже слышали о языке программирования Go, популярность его постоянно растет, что вполне обоснованно. Этот язык простой, быстрый и опирается на прекрасное сообщество. Один из самых..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/412715/96a18c7d61f78b7c6fc5ea472e898f06/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/412715/96a18c7d61f78b7c6fc5ea472e898f06/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/412715/96a18c7d61f78b7c6fc5ea472e898f06/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/412715/96a18c7d61f78b7c6fc5ea472e898f06/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/412715/96a18c7d61f78b7c6fc5ea472e898f06/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="412715" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2018-06-03T13:28:41.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/412715/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="программирование, golang, туториал">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/412715/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.138.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/412715/96a18c7d61f78b7c6fc5ea472e898f06/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/tmvrus/" title="tmvrus" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/b0c/98b/3a6/b0c98b3a6c4d06cc9248513001e26180.jpg" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/tmvrus/" class="tm-user-info__username">
+      tmvrus
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2018-06-03T13:28:41.000Z" title="2018-06-03, 16:28">3  июня  2018 в 16:28</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Изучаем многопоточное программирование в Go по картинкам</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/programming/" class="tm-article-snippet__hubs-item-link"><span>Программирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/go/" class="tm-article-snippet__hubs-item-link"><span>Go</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/parallel_programming/" class="tm-article-snippet__hubs-item-link"><span>Параллельное программирование</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-translation"><span>
+        Перевод
+      </span></div><div class="tm-article-snippet__label tm-article-snippet__label_variant-tutorial"><span>
+        Tutorial
+      </span></div></div> <!----> <!----></div></div> <div class="tm-article-presenter__origin"><a href="https://medium.com/@trevor4e/learning-gos-concurrency-through-illustrations-8c4aff603b3" target="_blank" class="tm-article-presenter__origin-link">
+                Автор оригинала:
+                <span>
+                  Trevor Forrey
+                </span></a></div> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><img src="https://habrastorage.org/r/w1560/webt/qk/hi/im/qkhiimd_phctfhx4kka_rhpkepq.png" data-src="https://habrastorage.org/webt/qk/hi/im/qkhiimd_phctfhx4kka_rhpkepq.png"/><br/>
+Скорее всего, вы уже слышали о языке программирования Go, популярность его постоянно растет, что вполне обоснованно. Этот язык простой, быстрый и опирается на прекрасное сообщество. Один из самых любопытных аспектов языка — это модель многопоточного программирования. Примитивы, положенные в ее основу, позволяют создавать многопоточные программы легко и просто. Эта статья предназначена для тех, кто хочет изучить эти примитивы: горутины и каналы. И, через иллюстрации, я покажу, как с ними работать. Надеюсь, это будет для вас хорошим подспорьем в дальнейшем изучении.<br/>
+<a name="habracut"></a><br/>
+<h4>Однопоточные и многопоточные программы</h4><br/>
+Однопоточные программы вы, скорее всего, уже писали. Обычно это выглядит так: есть набор функций для выполнения различных задач, каждая функция вызывается только тогда, когда предыдущая подготовила для нее данные. Таким образом, программа работает последовательно.<br/>
+<br/>
+Именно таким будет наш первый пример — программа добывающая руду. Наши функции будут искать, добывать и перерабатывать руду. Руда в шахте в нашем примере представлена списками строк, функции принимают их в качестве параметров и возвращают список «обработанных» строк. Для однопоточной программы наше приложение будет спроектировано следующим образом:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/c5/ua/ja/c5uajayyncivzzj9_orh-u_sw34.png" data-src="https://habrastorage.org/webt/c5/ua/ja/c5uajayyncivzzj9_orh-u_sw34.png"/><br/>
+<br/>
+В этом примере всю работу выполняет один поток(гофер Гари). Три основные функции: поиск, добыча и обработка выполняются последовательно друг за другом.<br/>
+<br/>
+<pre><code class="go">func main() {
+ theMine := [5]string{"rock", "ore", "ore", "rock", "ore"}
+ foundOre := finder(theMine)
+ minedOre := miner(foundOre)
+ smelter(minedOre)
+}
+</code></pre><br/>
+Если напечатать результат работы каждой функции, мы получим следующее:<br/>
+<br/>
+<pre><code>From Finder: [ore ore ore]
+From Miner: [minedOre minedOre minedOre]
+From Smelter: [smeltedOre smeltedOre smeltedOre]
+</code></pre><br/>
+Простой дизайн и реализация является плюсом однопоточного подхода. Но что делать, если вы хотите запускать и выполнять функции независимо друг от друга? Тут вам на помощь приходит многопоточное программирование.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/om/x1/mq/omx1mqphfsqqs57lab9bngsnggi.png" data-src="https://habrastorage.org/webt/om/x1/mq/omx1mqphfsqqs57lab9bngsnggi.png"/><br/>
+Такой подход к добыче руды гораздо эффективнее. Теперь несколько потоков(гоферов) работают независимо, и Гари делает только часть работы. Один гофер ищет руду, другой добывает, а третий переплавляет, и все это потенциально одновременно. Для того чтобы реализовать такой подход, в коде нам нужны две вещи: создавать гоферов-обработчиков независимо друг от друга и передавать между ними руду. В Go для этого существуют горутины и каналы.<br/>
+<br/>
+<h4>Горутины</h4><br/>
+Горутины можно представлять себе как «легковесные потоки», чтобы создать горутину нужно просто поставить ключевое слово <b>go</b> пред кодом вызова функции. Чтобы продемонстрировать насколько это просто, давайте создадим две функции поиска, вызовем их с ключевым слово <b>go</b> и будем печатать сообщение каждый раз когда они найдут «руду» в своем руднике.<br/>
+<img src="https://habrastorage.org/r/w1560/webt/jz/wx/nb/jzwxnbgxocr-a0rq7kmdoujt_gg.png" data-src="https://habrastorage.org/webt/jz/wx/nb/jzwxnbgxocr-a0rq7kmdoujt_gg.png"/><br/>
+<br/>
+<pre><code class="go">func main() {
+ theMine := [5]string{"rock", "ore", "ore", "rock", "ore"}
+ go finder1(theMine)
+ go finder2(theMine)
+ &lt;-time.After(time.Second * 5) //пока не обращайте внимания на этот код
+}
+</code></pre><br/>
+Вывод нашей программы будет таким:<br/>
+<br/>
+<pre><code>Finder 1 found ore!
+Finder 2 found ore!
+Finder 1 found ore!
+Finder 1 found ore!
+Finder 2 found ore!
+Finder 2 found ore!
+</code></pre><br/>
+Как можно видеть, нет никакого порядка в том, какая функция первой «найдет руду»; функции поиска работают одновременно. Если запускать пример несколько раз, то порядок будет отличаться. Теперь мы можем запускать многопоточные (многогоферные) программы, и это серьезный прогресс. Но что делать, когда нам нужно наладить связь между независимыми горутинами? Наступает время для магии каналов.<br/>
+<br/>
+<h4>Каналы</h4><br/>
+<img src="https://habrastorage.org/r/w1560/webt/pa/a-/5r/paa-5r_dtecx3fzem9r0dsv42jo.png" data-src="https://habrastorage.org/webt/pa/a-/5r/paa-5r_dtecx3fzem9r0dsv42jo.png"/><br/>
+Каналы позволяют горутинам обмениваться данными. Это своеобразная труба, через которую горутины могут посылать и принимать информацию от других горутин.<br/>
+<img src="https://habrastorage.org/r/w1560/webt/-d/vp/fz/-dvpfzbpaa65exwi7l4pgerte48.png" data-src="https://habrastorage.org/webt/-d/vp/fz/-dvpfzbpaa65exwi7l4pgerte48.png"/><br/>
+Чтение и запись в канал осуществляется при помощи оператора-стрелочки (&lt;-), который указывает направление движения данных.<br/>
+<img src="https://habrastorage.org/r/w1560/webt/wd/1j/qp/wd1jqp8ipkwvcdgc5xbuoyy6wey.png" data-src="https://habrastorage.org/webt/wd/1j/qp/wd1jqp8ipkwvcdgc5xbuoyy6wey.png"/><br/>
+<pre><code class="go">myFirstChannel := make(chan string)
+myFirstChannel &lt;- "hello" // Записать в канал
+myVariable := &lt;- myFirstChannel // Прочитать из канала
+</code></pre><br/>
+Теперь нашему гоферу-разведчику не нужно накапливать руду, он может сразу передать ее дальше, используя каналы.<br/>
+<img src="https://habrastorage.org/r/w1560/webt/60/yx/_j/60yx_jlczbwcy2tfmsqgvzwp4dg.png" data-src="https://habrastorage.org/webt/60/yx/_j/60yx_jlczbwcy2tfmsqgvzwp4dg.png"/><br/>
+Я обновил пример, теперь код искателя и добытчика руды — анонимные функции. Не слишком заморачивайтесь, если раньше не сталкивались с ними, просто имейте ввиду, что каждая из них вызывается с ключевым словом <b>go</b>, следовательно, будет выполнятся в собственной горутине. Самое важное здесь то, что горутины передают данные между собой используя канал <b>oreChan</b>. А с анонимными функциями мы разберемся ближе к концу.<br/>
+<br/>
+<pre><code class="go">func main() {
+ theMine := [5]string{“ore1”, “ore2”, “ore3”}
+ oreChan := make(chan string)
+ // Искатель руды
+ go func(mine [5]string) {
+  for _, item := range mine {
+   oreChan &lt;- item //отправка
+  }
+ }(theMine)
+ // Добытчик руды
+ go func() {
+  for i := 0; i &lt; 3; i++ {
+   foundOre := &lt;-oreChan //получение
+   fmt.Println(“Miner: Received “ + foundOre + “ from finder”)
+  }
+ }()
+ &lt;-time.After(time.Second * 5) // снова не обращайте внимания
+}
+</code></pre><br/>
+Вывод ниже наглядно демонстрирует, что наш Добытчик трижды получает из канала руду по одной порции за раз.<br/>
+<br/>
+<pre><code>Miner: Received ore1 from finder
+Miner: Received ore2 from finder
+Miner: Received ore3 from finder
+</code></pre><br/>
+Итак, теперь мы умеем пересылать данные между разными горутинами(гоферами), но прежде чем начать писать сложную программу, давайте разберемся с некоторыми важными свойствами каналов.<br/>
+<br/>
+<h4>Блокировки</h4><br/>
+В некоторых ситуациях при работе с каналами горутина может быть заблокирована. Это необходимо, чтобы горутины могли синхронизироваться друг с другом прежде чем они начнут или продолжат работу.<br/>
+<br/>
+<h4>Блокировка при записи</h4><br/>
+<img src="https://habrastorage.org/r/w1560/webt/ir/vv/zi/irvvziqxuk3opysywirescrn40e.png" data-src="https://habrastorage.org/webt/ir/vv/zi/irvvziqxuk3opysywirescrn40e.png"/><br/>
+<br/>
+Когда горутина (гофер) посылает данные в канал, она блокируется до тех пор, пока другая горутина не прочитает данные из канала.<br/>
+<br/>
+<h4>Блокировка при чтении</h4><br/>
+<img src="https://habrastorage.org/r/w1560/webt/eq/e5/k8/eqe5k854n39oia6xwaavj5xfk-q.png" data-src="https://habrastorage.org/webt/eq/e5/k8/eqe5k854n39oia6xwaavj5xfk-q.png"/><br/>
+<br/>
+Аналогично блокировке при записи в канал, горутина может быть заблокирована при чтении из канала до тех пор, пока в него ничего не запишут.<br/>
+Если блокировки, на первый взгляд, кажутся вам чем-то сложным, можно представить их как «передачу денег» между двумя горутинами (гоферами). Когда один гофер хочет передать или получить деньги, то ему приходится ждать второго участника сделки.<br/>
+<br/>
+Разобравшись с блокировками горутин на каналах, давайте обсудим два разных типа каналов: буферизованные и небуферизованные. Выбирая тот или иной тип, мы во многом определяем поведение программы.<br/>
+<br/>
+<h4>Небуферизованные каналы</h4><br/>
+<img src="https://habrastorage.org/r/w1560/webt/hv/k0/ba/hvk0badnrvqhncjqf9uwyrlowq8.png" data-src="https://habrastorage.org/webt/hv/k0/ba/hvk0badnrvqhncjqf9uwyrlowq8.png"/><br/>
+<br/>
+Во всех предыдущих примерах мы использовали именно такие каналы. По таким каналам можно передать только один фрагмент данных за раз (с блокировкой, как описано выше).<br/>
+<br/>
+<h4>Буферизованные каналы</h4><br/>
+<img src="https://habrastorage.org/r/w1560/webt/zs/zg/b1/zszgb15grrrjjiyaqs6gwtfkkye.png" data-src="https://habrastorage.org/webt/zs/zg/b1/zszgb15grrrjjiyaqs6gwtfkkye.png"/><br/>
+<br/>
+Потоки в программе не всегда могут быть идеально синхронизированы. Допустим, в нашем пример случилось так, что гофер-разведчик нашел три части руды, а гофер-шахтер за то же время успел добыть всего одну часть из найденных запасов. Вот для того, чтобы гофер-разведчик не тратил большую часть своего времени, ожидая когда шахтер закончит свою работу, мы будем использовать буферизованные каналы. Давайте начнем с создания канала емкостью 3.<br/>
+<br/>
+<pre><code class="go">bufferedChan := make(chan string, 3)
+</code></pre><br/>
+В буферизоваванный канал мы можем послать несколько фрагментов данных, без необходимости чтения их другой горутиной. Это основное отличие от небуферизованных каналов.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/sh/ok/f2/shokf2oswaiw1yk6i-uwplypezi.png" data-src="https://habrastorage.org/webt/sh/ok/f2/shokf2oswaiw1yk6i-uwplypezi.png"/><br/>
+<pre><code class="go">bufferedChan := make(chan string, 3)
+go func() {
+ bufferedChan &lt;- "first"
+ fmt.Println("Sent 1st")
+ bufferedChan &lt;- "second"
+ fmt.Println("Sent 2nd")
+ bufferedChan &lt;- "third"
+ fmt.Println("Sent 3rd")
+}()
+&lt;-time.After(time.Second * 1)
+go func() {
+ firstRead := &lt;- bufferedChan
+ fmt.Println("Receiving..")
+ fmt.Println(firstRead)
+ secondRead := &lt;- bufferedChan
+ fmt.Println(secondRead)
+ thirdRead := &lt;- bufferedChan
+ fmt.Println(thirdRead)
+}()
+</code></pre><br/>
+Порядок вывода в такой программе будет следующий:<br/>
+<br/>
+<pre><code>Sent 1st
+Sent 2nd
+Sent 3rd
+Receiving..
+first
+second
+third
+</code></pre><br/>
+Чтобы избежать лишних усложнений, мы не будет использовать буферизованные каналы в нашей программе. Но важно помнить, такие типы каналов тоже доступны для использования.<br/>
+Также важно отметить, что буферизованные каналы не всегда избавляют вас от блокировок. Например, если гофер-разведчик в десять раз быстрее, чем гофер-шахтер, и они связаны чрез буферизованные канал емкостью 2, то гофер-разведчик будет каждый раз заблокирован при отправке, если в канале уже есть два фрагмента данных.<br/>
+<br/>
+<h4>Собираем все вместе</h4><br/>
+Итак, вооружившись горутинами и каналами, мы можем написать программу, используя все преимущества многопоточного программирования в Go.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/cq/xa/h7/cqxah7wnmg1wbcjqwhd13gyejaw.png" data-src="https://habrastorage.org/webt/cq/xa/h7/cqxah7wnmg1wbcjqwhd13gyejaw.png"/><br/>
+<pre><code class="go">theMine := [5]string{"rock", "ore", "ore", "rock", "ore"}
+oreChannel := make(chan string)
+minedOreChan := make(chan string)
+// Разведчик
+go func(mine [5]string) {
+ for _, item := range mine {
+  if item == "ore" {
+   oreChannel &lt;- item //передаем данные в oreChannel
+  }
+ }
+}(theMine)
+// Добытчик
+go func() {
+ for i := 0; i &lt; 3; i++ {
+  foundOre := &lt;-oreChannel //чтение из канала oreChannel
+  fmt.Println("From Finder: ", foundOre)
+  minedOreChan &lt;- "minedOre" //передаем данные в minedOreChan
+ }
+}()
+// Переработчик
+go func() {
+ for i := 0; i &lt; 3; i++ {
+  minedOre := &lt;-minedOreChan //чтение данных из minedOreChan
+  fmt.Println("From Miner: ", minedOre)
+  fmt.Println("From Smelter: Ore is smelted")
+ }
+}()
+&lt;-time.After(time.Second * 5) // Все еще можете игнорировать
+</code></pre><br/>
+Такая программа выведет следующее:<br/>
+<br/>
+<pre><code>From Finder:  ore
+From Finder:  ore
+From Miner:  minedOre
+From Smelter: Ore is smelted
+From Miner:  minedOre
+From Smelter: Ore is smelted
+From Finder:  ore
+From Miner:  minedOre
+From Smelter: Ore is smelted
+</code></pre><br/>
+По сравнению с нашим первым примером это серьезное улучшение, теперь все функции выполняются независимо, каждая в своей горутине. А также у нас появился конвеер из каналов, по которому передается руда сразу после обработки. Для сохранения фокуса на базовом понимании работы каналов и горутин я опустил некоторые моменты, что может привести к сложностям с запуском программы. В завершении, я хочу подробнее остновиться на этих особенностях языка, так как они помогают в работе с горутинами и каналами.<br/>
+<br/>
+<h4>Анонимные горутины</h4><br/>
+<img src="https://habrastorage.org/r/w1560/webt/ko/t5/y6/kot5y6lv7cf-3h2zbyghvqwf1is.png" data-src="https://habrastorage.org/webt/ko/t5/y6/kot5y6lv7cf-3h2zbyghvqwf1is.png"/><br/>
+<br/>
+Подобно тому, как мы запускаем обычную функцию в горутине, мы можем объявить анонимную функцию сразу после ключевого слова <b>go</b> и вызвать ее, используя следующий синтаксис:<br/>
+<br/>
+<pre><code class="go">// Анонимная горутина
+go func() {
+ fmt.Println("I'm running in my own go routine")
+}()
+</code></pre><br/>
+Таким образом, если нам нужно вызывать функцию только в одном месте, мы можем запустить ее в отдельной горутине, не заботясь заранне о ее декларации.<br/>
+<br/>
+<h4>Функция main это горутина</h4><br/>
+<img src="https://habrastorage.org/r/w1560/webt/c_/bo/y7/c_boy7hpqt3y3krcd1utthdjy3s.png" data-src="https://habrastorage.org/webt/c_/bo/y7/c_boy7hpqt3y3krcd1utthdjy3s.png"/><br/>
+<br/>
+Да, фунция <b>main</b> действительно работает в своей собственной горутине. И, что более важно, после ее завершения все остальные горутины так же завершаются. Именно по этой причине мы поместили вызов таймера в конце нашей функции <b>main</b>. Этот вызов создает канал и посылает в него данные спустя 5 секунд.<br/>
+<br/>
+<pre><code class="go">&lt;-time.After(time.Second * 5) //Через пять секунд из канала придут данные
+</code></pre><br/>
+Помните, что горутина заблокируется при чтении из канала, пока в него что-нибудь не пошлют? Это в точности то, что происходит при добавлении указанного кода. Основная горутина заблокируется, давая другим горутиам 5 секунд времени на работу. Такой способ хорошо работает, но, обычно, для проверки завершения работы всех горутин используют другой подход. Для передачи сигнала о завершении работы создается специальной канал, основная горутина блокируется на чтении из него и, как только дочерняя горутина завершает свою работу, она делает запись в этот канал; основная горутина разблокируется и программа завершится.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/vi/4e/zv/vi4ezv-tyvzugvamrwi3z9xod8a.png" data-src="https://habrastorage.org/webt/vi/4e/zv/vi4ezv-tyvzugvamrwi3z9xod8a.png"/><br/>
+<br/>
+<pre><code class="go">func main() {
+ doneChan := make(chan string)
+ go func() {
+  // Сделать что-нибудь полезное
+  doneChan &lt;- “I’m all done!”
+ }()
+
+ &lt;-doneChan // чтение блокируется до сигнала о завершении работы
+}
+</code></pre><br/>
+<h4>Чтение из канала в цикле for-range</h4><br/>
+В нашем примере в функции гофера-добытчика мы использовали цикл <b>for</b>, чтобы выбрать из канала три элемента. Но что делать, если заранее не известно сколько, данных может быть в канале? В таких случаях вы можете использовать канал, как аргумент для цикла <b>for-range</b>, так же как с коллекциями. Обновленная функция может выглядеть так:<br/>
+<br/>
+<pre><code class="go"> // Добытчик
+ go func() {
+  for foundOre := range oreChan {
+   fmt.Println(“Miner: Received “ + foundOre + “ from finder”)
+  }
+ }()
+</code></pre><br/>
+Таким образом, добытчик руды прочитает все, что разведчик ему пошлет, использование кнала в цикле это гарантирует. Обратите внимание, что после того, как все данные из канала обработаны, цикл заблокируется на чтении; чтобы избежать блокировки, нужно закрыть канал вызовом <b>close(channel)</b>.<br/>
+<br/>
+<h4>Неблокирующе чтение из канала</h4><br/>
+Используя конструкцию <b>select-case</b>, можно избежать блокирующего чтения из канала. Ниже приведен пример использования этой конструкции: горутина прочитает из канала данные, если только они там есть, в противном случае выполняется блок <b>default</b>:<br/>
+<br/>
+<pre><code class="go">myChan := make(chan string)
+
+go func(){
+ myChan &lt;- “Message!”
+}()
+
+select {
+ case msg := &lt;- myChan:
+  fmt.Println(msg)
+ default:
+  fmt.Println(“No Msg”)
+}
+&lt;-time.After(time.Second * 1)
+select {
+ case msg := &lt;- myChan:
+  fmt.Println(msg)
+ default:
+  fmt.Println(“No Msg”)
+}
+</code></pre><br/>
+После запуска этот код выведет следующее:<br/>
+<br/>
+<pre><code>No Msg
+Message!
+</code></pre><br/>
+<h4>Неблокирующая запись в канал</h4><br/>
+Блокировки при записи в канал можно избежать, используя ту же самую конструкцию <b>select-case</b>. Внесем небольшую правку в предыдущий пример:<br/>
+<br/>
+<pre><code class="go">select {
+ case myChan &lt;- “message”:
+  fmt.Println(“sent the message”)
+ default:
+  fmt.Println(“no message sent”)
+}
+</code></pre><br/>
+<h4>Что изучать дальше</h4><br/>
+<img src="https://habrastorage.org/r/w1560/webt/d6/69/yd/d669ydnx51qv_h0tf-p-lbo8xyu.png" data-src="https://habrastorage.org/webt/d6/69/yd/d669ydnx51qv_h0tf-p-lbo8xyu.png"/><br/>
+<br/>
+Есть большое количество статей и докладов, которые гораздо подробнее освещают работу с каналами и горутинам. И теперь, кода у вас есть четкое представление о том, для чего и как используются эти инструменты, вы можете получить максимальную отдачу от следующих материалов:<br/>
+<br/>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=f6kdp27TYZs&amp;t=938s">Google I/O 2012 — Go Concurrency Patterns</a></li>
+<li><a href="https://www.youtube.com/watch?v=cN_DpYBzKso">Rob Pike — ‘Concurrency Is Not Parallelism’</a></li>
+<li><a href="https://www.youtube.com/watch?v=ltqV6pDKZD8&amp;t=1315s">GopherCon 2017: Edward Muller — Go Anti-Patterns</a></li>
+</ul> <br/>
+<br/>
+Спасибо, что потратили время на чтение. Я надеюсь, что помог вам разобраться c каналами, горутинами и преимуществами, которые вам дают многопоточные программы.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%5D" class="tm-tags-list__link">программирование</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bgolang%5D" class="tm-tags-list__link">golang</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D1%82%D1%83%D1%82%D0%BE%D1%80%D0%B8%D0%B0%D0%BB%5D" class="tm-tags-list__link">туториал</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/programming/" class="tm-hubs-list__link">
+    Программирование
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/go/" class="tm-hubs-list__link">
+    Go
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/parallel_programming/" class="tm-hubs-list__link">
+    Параллельное программирование
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 50: ↑48 и ↓2</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 50: ↑48 и ↓2" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+46</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">46K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    327
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/tmvrus/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/b0c/98b/3a6/b0c98b3a6c4d06cc9248513001e26180.jpg" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 33 голоса " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    11
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0.1</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Михаил</span> <a href="https://habr.com/ru/users/tmvrus/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @tmvrus
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Программист-затейник</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/412715/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 21 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner6585" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner6586" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/go_razrabotchik" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Go разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        138
+    вакансий
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/412715/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/412715/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"412715":{"id":"412715","timePublished":"2018-06-03T13:28:41+00:00","isCorporative":false,"lang":"ru","titleHtml":"Изучаем многопоточное программирование в Go по картинкам","leadData":{"textHtml":"\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fqk\u002Fhi\u002Fim\u002Fqkhiimd_phctfhx4kka_rhpkepq.png\"\u003E\u003Cbr\u003E\r\nСкорее всего, вы уже слышали о языке программирования Go, популярность его постоянно растет, что вполне обоснованно. Этот язык простой, быстрый и опирается на прекрасное сообщество. Один из самых любопытных аспектов языка — это модель многопоточного программирования. Примитивы, положенные в ее основу, позволяют создавать многопоточные программы легко и просто. Эта статья предназначена для тех, кто хочет изучить эти примитивы: горутины и каналы. И, через иллюстрации, я покажу, как с ними работать. Надеюсь, это будет для вас хорошим подспорьем в дальнейшем изучении.\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"translation","data":{"originalAuthorName":"Trevor Forrey","originalUrl":"https:\u002F\u002Fmedium.com\u002F@trevor4e\u002Flearning-gos-concurrency-through-illustrations-8c4aff603b3"}},{"type":"tutorial","data":null}],"author":{"scoreStats":{"score":11,"votesCount":33},"rating":0.1,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"69111","alias":"tmvrus","fullname":"Михаил","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002Fb0c\u002F98b\u002F3a6\u002Fb0c98b3a6c4d06cc9248513001e26180.jpg","speciality":"Программист-затейник"},"statistics":{"commentsCount":21,"favoritesCount":327,"readingCount":45638,"score":46,"votesCount":50},"hubs":[{"relatedData":null,"id":"359","alias":"programming","type":"collective","title":"Программирование","titleHtml":"Программирование","isProfiled":true},{"relatedData":null,"id":"17748","alias":"go","type":"collective","title":"Go","titleHtml":"Go","isProfiled":true},{"relatedData":null,"id":"17822","alias":"parallel_programming","type":"collective","title":"Параллельное программирование","titleHtml":"Параллельное программирование","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fqk\u002Fhi\u002Fim\u002Fqkhiimd_phctfhx4kka_rhpkepq.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fqk\u002Fhi\u002Fim\u002Fqkhiimd_phctfhx4kka_rhpkepq.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\nСкорее всего, вы уже слышали о языке программирования Go, популярность его постоянно растет, что вполне обоснованно. Этот язык простой, быстрый и опирается на прекрасное сообщество. Один из самых любопытных аспектов языка — это модель многопоточного программирования. Примитивы, положенные в ее основу, позволяют создавать многопоточные программы легко и просто. Эта статья предназначена для тех, кто хочет изучить эти примитивы: горутины и каналы. И, через иллюстрации, я покажу, как с ними работать. Надеюсь, это будет для вас хорошим подспорьем в дальнейшем изучении.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EОднопоточные и многопоточные программы\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nОднопоточные программы вы, скорее всего, уже писали. Обычно это выглядит так: есть набор функций для выполнения различных задач, каждая функция вызывается только тогда, когда предыдущая подготовила для нее данные. Таким образом, программа работает последовательно.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИменно таким будет наш первый пример — программа добывающая руду. Наши функции будут искать, добывать и перерабатывать руду. Руда в шахте в нашем примере представлена списками строк, функции принимают их в качестве параметров и возвращают список «обработанных» строк. Для однопоточной программы наше приложение будет спроектировано следующим образом:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fc5\u002Fua\u002Fja\u002Fc5uajayyncivzzj9_orh-u_sw34.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fc5\u002Fua\u002Fja\u002Fc5uajayyncivzzj9_orh-u_sw34.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ этом примере всю работу выполняет один поток(гофер Гари). Три основные функции: поиск, добыча и обработка выполняются последовательно друг за другом.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"go\"\u003Efunc main() {\n theMine := [5]string{\"rock\", \"ore\", \"ore\", \"rock\", \"ore\"}\n foundOre := finder(theMine)\n minedOre := miner(foundOre)\n smelter(minedOre)\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЕсли напечатать результат работы каждой функции, мы получим следующее:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003EFrom Finder: [ore ore ore]\nFrom Miner: [minedOre minedOre minedOre]\nFrom Smelter: [smeltedOre smeltedOre smeltedOre]\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПростой дизайн и реализация является плюсом однопоточного подхода. Но что делать, если вы хотите запускать и выполнять функции независимо друг от друга? Тут вам на помощь приходит многопоточное программирование.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fom\u002Fx1\u002Fmq\u002Fomx1mqphfsqqs57lab9bngsnggi.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fom\u002Fx1\u002Fmq\u002Fomx1mqphfsqqs57lab9bngsnggi.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\nТакой подход к добыче руды гораздо эффективнее. Теперь несколько потоков(гоферов) работают независимо, и Гари делает только часть работы. Один гофер ищет руду, другой добывает, а третий переплавляет, и все это потенциально одновременно. Для того чтобы реализовать такой подход, в коде нам нужны две вещи: создавать гоферов-обработчиков независимо друг от друга и передавать между ними руду. В Go для этого существуют горутины и каналы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EГорутины\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nГорутины можно представлять себе как «легковесные потоки», чтобы создать горутину нужно просто поставить ключевое слово \u003Cb\u003Ego\u003C\u002Fb\u003E пред кодом вызова функции. Чтобы продемонстрировать насколько это просто, давайте создадим две функции поиска, вызовем их с ключевым слово \u003Cb\u003Ego\u003C\u002Fb\u003E и будем печатать сообщение каждый раз когда они найдут «руду» в своем руднике.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fjz\u002Fwx\u002Fnb\u002Fjzwxnbgxocr-a0rq7kmdoujt_gg.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fjz\u002Fwx\u002Fnb\u002Fjzwxnbgxocr-a0rq7kmdoujt_gg.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"go\"\u003Efunc main() {\n theMine := [5]string{\"rock\", \"ore\", \"ore\", \"rock\", \"ore\"}\n go finder1(theMine)\n go finder2(theMine)\n &lt;-time.After(time.Second * 5) \u002F\u002Fпока не обращайте внимания на этот код\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВывод нашей программы будет таким:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003EFinder 1 found ore!\nFinder 2 found ore!\nFinder 1 found ore!\nFinder 1 found ore!\nFinder 2 found ore!\nFinder 2 found ore!\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nКак можно видеть, нет никакого порядка в том, какая функция первой «найдет руду»; функции поиска работают одновременно. Если запускать пример несколько раз, то порядок будет отличаться. Теперь мы можем запускать многопоточные (многогоферные) программы, и это серьезный прогресс. Но что делать, когда нам нужно наладить связь между независимыми горутинами? Наступает время для магии каналов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EКаналы\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fpa\u002Fa-\u002F5r\u002Fpaa-5r_dtecx3fzem9r0dsv42jo.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fpa\u002Fa-\u002F5r\u002Fpaa-5r_dtecx3fzem9r0dsv42jo.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\nКаналы позволяют горутинам обмениваться данными. Это своеобразная труба, через которую горутины могут посылать и принимать информацию от других горутин.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002F-d\u002Fvp\u002Ffz\u002F-dvpfzbpaa65exwi7l4pgerte48.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F-d\u002Fvp\u002Ffz\u002F-dvpfzbpaa65exwi7l4pgerte48.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\nЧтение и запись в канал осуществляется при помощи оператора-стрелочки (&lt;-), который указывает направление движения данных.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fwd\u002F1j\u002Fqp\u002Fwd1jqp8ipkwvcdgc5xbuoyy6wey.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fwd\u002F1j\u002Fqp\u002Fwd1jqp8ipkwvcdgc5xbuoyy6wey.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"go\"\u003EmyFirstChannel := make(chan string)\nmyFirstChannel &lt;- \"hello\" \u002F\u002F Записать в канал\nmyVariable := &lt;- myFirstChannel \u002F\u002F Прочитать из канала\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТеперь нашему гоферу-разведчику не нужно накапливать руду, он может сразу передать ее дальше, используя каналы.\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002F60\u002Fyx\u002F_j\u002F60yx_jlczbwcy2tfmsqgvzwp4dg.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002F60\u002Fyx\u002F_j\u002F60yx_jlczbwcy2tfmsqgvzwp4dg.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\nЯ обновил пример, теперь код искателя и добытчика руды — анонимные функции. Не слишком заморачивайтесь, если раньше не сталкивались с ними, просто имейте ввиду, что каждая из них вызывается с ключевым словом \u003Cb\u003Ego\u003C\u002Fb\u003E, следовательно, будет выполнятся в собственной горутине. Самое важное здесь то, что горутины передают данные между собой используя канал \u003Cb\u003EoreChan\u003C\u002Fb\u003E. А с анонимными функциями мы разберемся ближе к концу.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"go\"\u003Efunc main() {\n theMine := [5]string{“ore1”, “ore2”, “ore3”}\n oreChan := make(chan string)\n \u002F\u002F Искатель руды\n go func(mine [5]string) {\n  for _, item := range mine {\n   oreChan &lt;- item \u002F\u002Fотправка\n  }\n }(theMine)\n \u002F\u002F Добытчик руды\n go func() {\n  for i := 0; i &lt; 3; i++ {\n   foundOre := &lt;-oreChan \u002F\u002Fполучение\n   fmt.Println(“Miner: Received “ + foundOre + “ from finder”)\n  }\n }()\n &lt;-time.After(time.Second * 5) \u002F\u002F снова не обращайте внимания\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВывод ниже наглядно демонстрирует, что наш Добытчик трижды получает из канала руду по одной порции за раз.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003EMiner: Received ore1 from finder\nMiner: Received ore2 from finder\nMiner: Received ore3 from finder\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nИтак, теперь мы умеем пересылать данные между разными горутинами(гоферами), но прежде чем начать писать сложную программу, давайте разберемся с некоторыми важными свойствами каналов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EБлокировки\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВ некоторых ситуациях при работе с каналами горутина может быть заблокирована. Это необходимо, чтобы горутины могли синхронизироваться друг с другом прежде чем они начнут или продолжат работу.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EБлокировка при записи\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fir\u002Fvv\u002Fzi\u002Firvvziqxuk3opysywirescrn40e.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fir\u002Fvv\u002Fzi\u002Firvvziqxuk3opysywirescrn40e.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКогда горутина (гофер) посылает данные в канал, она блокируется до тех пор, пока другая горутина не прочитает данные из канала.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EБлокировка при чтении\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Feq\u002Fe5\u002Fk8\u002Feqe5k854n39oia6xwaavj5xfk-q.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Feq\u002Fe5\u002Fk8\u002Feqe5k854n39oia6xwaavj5xfk-q.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nАналогично блокировке при записи в канал, горутина может быть заблокирована при чтении из канала до тех пор, пока в него ничего не запишут.\u003Cbr\u002F\u003E\r\nЕсли блокировки, на первый взгляд, кажутся вам чем-то сложным, можно представить их как «передачу денег» между двумя горутинами (гоферами). Когда один гофер хочет передать или получить деньги, то ему приходится ждать второго участника сделки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРазобравшись с блокировками горутин на каналах, давайте обсудим два разных типа каналов: буферизованные и небуферизованные. Выбирая тот или иной тип, мы во многом определяем поведение программы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EНебуферизованные каналы\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fhv\u002Fk0\u002Fba\u002Fhvk0badnrvqhncjqf9uwyrlowq8.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fhv\u002Fk0\u002Fba\u002Fhvk0badnrvqhncjqf9uwyrlowq8.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВо всех предыдущих примерах мы использовали именно такие каналы. По таким каналам можно передать только один фрагмент данных за раз (с блокировкой, как описано выше).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EБуферизованные каналы\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fzs\u002Fzg\u002Fb1\u002Fzszgb15grrrjjiyaqs6gwtfkkye.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fzs\u002Fzg\u002Fb1\u002Fzszgb15grrrjjiyaqs6gwtfkkye.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПотоки в программе не всегда могут быть идеально синхронизированы. Допустим, в нашем пример случилось так, что гофер-разведчик нашел три части руды, а гофер-шахтер за то же время успел добыть всего одну часть из найденных запасов. Вот для того, чтобы гофер-разведчик не тратил большую часть своего времени, ожидая когда шахтер закончит свою работу, мы будем использовать буферизованные каналы. Давайте начнем с создания канала емкостью 3.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"go\"\u003EbufferedChan := make(chan string, 3)\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ буферизоваванный канал мы можем послать несколько фрагментов данных, без необходимости чтения их другой горутиной. Это основное отличие от небуферизованных каналов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fsh\u002Fok\u002Ff2\u002Fshokf2oswaiw1yk6i-uwplypezi.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fsh\u002Fok\u002Ff2\u002Fshokf2oswaiw1yk6i-uwplypezi.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"go\"\u003EbufferedChan := make(chan string, 3)\ngo func() {\n bufferedChan &lt;- \"first\"\n fmt.Println(\"Sent 1st\")\n bufferedChan &lt;- \"second\"\n fmt.Println(\"Sent 2nd\")\n bufferedChan &lt;- \"third\"\n fmt.Println(\"Sent 3rd\")\n}()\n&lt;-time.After(time.Second * 1)\ngo func() {\n firstRead := &lt;- bufferedChan\n fmt.Println(\"Receiving..\")\n fmt.Println(firstRead)\n secondRead := &lt;- bufferedChan\n fmt.Println(secondRead)\n thirdRead := &lt;- bufferedChan\n fmt.Println(thirdRead)\n}()\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПорядок вывода в такой программе будет следующий:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003ESent 1st\nSent 2nd\nSent 3rd\nReceiving..\nfirst\nsecond\nthird\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЧтобы избежать лишних усложнений, мы не будет использовать буферизованные каналы в нашей программе. Но важно помнить, такие типы каналов тоже доступны для использования.\u003Cbr\u002F\u003E\r\nТакже важно отметить, что буферизованные каналы не всегда избавляют вас от блокировок. Например, если гофер-разведчик в десять раз быстрее, чем гофер-шахтер, и они связаны чрез буферизованные канал емкостью 2, то гофер-разведчик будет каждый раз заблокирован при отправке, если в канале уже есть два фрагмента данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EСобираем все вместе\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nИтак, вооружившись горутинами и каналами, мы можем написать программу, используя все преимущества многопоточного программирования в Go.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fcq\u002Fxa\u002Fh7\u002Fcqxah7wnmg1wbcjqwhd13gyejaw.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fcq\u002Fxa\u002Fh7\u002Fcqxah7wnmg1wbcjqwhd13gyejaw.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"go\"\u003EtheMine := [5]string{\"rock\", \"ore\", \"ore\", \"rock\", \"ore\"}\noreChannel := make(chan string)\nminedOreChan := make(chan string)\n\u002F\u002F Разведчик\ngo func(mine [5]string) {\n for _, item := range mine {\n  if item == \"ore\" {\n   oreChannel &lt;- item \u002F\u002Fпередаем данные в oreChannel\n  }\n }\n}(theMine)\n\u002F\u002F Добытчик\ngo func() {\n for i := 0; i &lt; 3; i++ {\n  foundOre := &lt;-oreChannel \u002F\u002Fчтение из канала oreChannel\n  fmt.Println(\"From Finder: \", foundOre)\n  minedOreChan &lt;- \"minedOre\" \u002F\u002Fпередаем данные в minedOreChan\n }\n}()\n\u002F\u002F Переработчик\ngo func() {\n for i := 0; i &lt; 3; i++ {\n  minedOre := &lt;-minedOreChan \u002F\u002Fчтение данных из minedOreChan\n  fmt.Println(\"From Miner: \", minedOre)\n  fmt.Println(\"From Smelter: Ore is smelted\")\n }\n}()\n&lt;-time.After(time.Second * 5) \u002F\u002F Все еще можете игнорировать\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТакая программа выведет следующее:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003EFrom Finder:  ore\nFrom Finder:  ore\nFrom Miner:  minedOre\nFrom Smelter: Ore is smelted\nFrom Miner:  minedOre\nFrom Smelter: Ore is smelted\nFrom Finder:  ore\nFrom Miner:  minedOre\nFrom Smelter: Ore is smelted\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПо сравнению с нашим первым примером это серьезное улучшение, теперь все функции выполняются независимо, каждая в своей горутине. А также у нас появился конвеер из каналов, по которому передается руда сразу после обработки. Для сохранения фокуса на базовом понимании работы каналов и горутин я опустил некоторые моменты, что может привести к сложностям с запуском программы. В завершении, я хочу подробнее остновиться на этих особенностях языка, так как они помогают в работе с горутинами и каналами.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EАнонимные горутины\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fko\u002Ft5\u002Fy6\u002Fkot5y6lv7cf-3h2zbyghvqwf1is.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fko\u002Ft5\u002Fy6\u002Fkot5y6lv7cf-3h2zbyghvqwf1is.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПодобно тому, как мы запускаем обычную функцию в горутине, мы можем объявить анонимную функцию сразу после ключевого слова \u003Cb\u003Ego\u003C\u002Fb\u003E и вызвать ее, используя следующий синтаксис:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"go\"\u003E\u002F\u002F Анонимная горутина\ngo func() {\n fmt.Println(\"I'm running in my own go routine\")\n}()\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТаким образом, если нам нужно вызывать функцию только в одном месте, мы можем запустить ее в отдельной горутине, не заботясь заранне о ее декларации.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EФункция main это горутина\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fc_\u002Fbo\u002Fy7\u002Fc_boy7hpqt3y3krcd1utthdjy3s.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fc_\u002Fbo\u002Fy7\u002Fc_boy7hpqt3y3krcd1utthdjy3s.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДа, фунция \u003Cb\u003Emain\u003C\u002Fb\u003E действительно работает в своей собственной горутине. И, что более важно, после ее завершения все остальные горутины так же завершаются. Именно по этой причине мы поместили вызов таймера в конце нашей функции \u003Cb\u003Emain\u003C\u002Fb\u003E. Этот вызов создает канал и посылает в него данные спустя 5 секунд.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"go\"\u003E&lt;-time.After(time.Second * 5) \u002F\u002FЧерез пять секунд из канала придут данные\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПомните, что горутина заблокируется при чтении из канала, пока в него что-нибудь не пошлют? Это в точности то, что происходит при добавлении указанного кода. Основная горутина заблокируется, давая другим горутиам 5 секунд времени на работу. Такой способ хорошо работает, но, обычно, для проверки завершения работы всех горутин используют другой подход. Для передачи сигнала о завершении работы создается специальной канал, основная горутина блокируется на чтении из него и, как только дочерняя горутина завершает свою работу, она делает запись в этот канал; основная горутина разблокируется и программа завершится.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fvi\u002F4e\u002Fzv\u002Fvi4ezv-tyvzugvamrwi3z9xod8a.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fvi\u002F4e\u002Fzv\u002Fvi4ezv-tyvzugvamrwi3z9xod8a.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"go\"\u003Efunc main() {\n doneChan := make(chan string)\n go func() {\n  \u002F\u002F Сделать что-нибудь полезное\n  doneChan &lt;- “I’m all done!”\n }()\n\n &lt;-doneChan \u002F\u002F чтение блокируется до сигнала о завершении работы\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EЧтение из канала в цикле for-range\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВ нашем примере в функции гофера-добытчика мы использовали цикл \u003Cb\u003Efor\u003C\u002Fb\u003E, чтобы выбрать из канала три элемента. Но что делать, если заранее не известно сколько, данных может быть в канале? В таких случаях вы можете использовать канал, как аргумент для цикла \u003Cb\u003Efor-range\u003C\u002Fb\u003E, так же как с коллекциями. Обновленная функция может выглядеть так:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"go\"\u003E \u002F\u002F Добытчик\n go func() {\n  for foundOre := range oreChan {\n   fmt.Println(“Miner: Received “ + foundOre + “ from finder”)\n  }\n }()\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТаким образом, добытчик руды прочитает все, что разведчик ему пошлет, использование кнала в цикле это гарантирует. Обратите внимание, что после того, как все данные из канала обработаны, цикл заблокируется на чтении; чтобы избежать блокировки, нужно закрыть канал вызовом \u003Cb\u003Eclose(channel)\u003C\u002Fb\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EНеблокирующе чтение из канала\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nИспользуя конструкцию \u003Cb\u003Eselect-case\u003C\u002Fb\u003E, можно избежать блокирующего чтения из канала. Ниже приведен пример использования этой конструкции: горутина прочитает из канала данные, если только они там есть, в противном случае выполняется блок \u003Cb\u003Edefault\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"go\"\u003EmyChan := make(chan string)\n\ngo func(){\n myChan &lt;- “Message!”\n}()\n\nselect {\n case msg := &lt;- myChan:\n  fmt.Println(msg)\n default:\n  fmt.Println(“No Msg”)\n}\n&lt;-time.After(time.Second * 1)\nselect {\n case msg := &lt;- myChan:\n  fmt.Println(msg)\n default:\n  fmt.Println(“No Msg”)\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nПосле запуска этот код выведет следующее:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode\u003ENo Msg\nMessage!\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EНеблокирующая запись в канал\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nБлокировки при записи в канал можно избежать, используя ту же самую конструкцию \u003Cb\u003Eselect-case\u003C\u002Fb\u003E. Внесем небольшую правку в предыдущий пример:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"go\"\u003Eselect {\n case myChan &lt;- “message”:\n  fmt.Println(“sent the message”)\n default:\n  fmt.Println(“no message sent”)\n}\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EЧто изучать дальше\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fd6\u002F69\u002Fyd\u002Fd669ydnx51qv_h0tf-p-lbo8xyu.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fd6\u002F69\u002Fyd\u002Fd669ydnx51qv_h0tf-p-lbo8xyu.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсть большое количество статей и докладов, которые гораздо подробнее освещают работу с каналами и горутинам. И теперь, кода у вас есть четкое представление о том, для чего и как используются эти инструменты, вы можете получить максимальную отдачу от следующих материалов:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.youtube.com\u002Fwatch?v=f6kdp27TYZs&amp;t=938s\"\u003EGoogle I\u002FO 2012 — Go Concurrency Patterns\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.youtube.com\u002Fwatch?v=cN_DpYBzKso\"\u003ERob Pike — ‘Concurrency Is Not Parallelism’\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ca href=\"https:\u002F\u002Fwww.youtube.com\u002Fwatch?v=ltqV6pDKZD8&amp;t=1315s\"\u003EGopherCon 2017: Edward Muller — Go Anti-Patterns\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСпасибо, что потратили время на чтение. Я надеюсь, что помог вам разобраться c каналами, горутинами и преимуществами, которые вам дают многопоточные программы.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"программирование"},{"titleHtml":"golang"},{"titleHtml":"туториал"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F412715\u002F96a18c7d61f78b7c6fc5ea472e898f06\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F412715\u002F96a18c7d61f78b7c6fc5ea472e898f06\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F412715\\\u002F\"},\"headline\":\"Изучаем многопоточное программирование в Go по картинкам\",\"datePublished\":\"2018-06-03T16:28:41+03:00\",\"dateModified\":\"2018-06-03T19:35:17+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Михаил\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Скорее всего, вы уже слышали о языке программирования Go, популярность его постоянно растет, что вполне обоснованно. Этот язык простой, быстрый и опирается на п...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F412715\\\u002F#post-content-body\",\"about\":[\"h_programming\",\"h_go\",\"h_parallel_programming\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fqk\\\u002Fhi\\\u002Fim\\\u002Fqkhiimd_phctfhx4kka_rhpkepq.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fc5\\\u002Fua\\\u002Fja\\\u002Fc5uajayyncivzzj9_orh-u_sw34.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fom\\\u002Fx1\\\u002Fmq\\\u002Fomx1mqphfsqqs57lab9bngsnggi.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fjz\\\u002Fwx\\\u002Fnb\\\u002Fjzwxnbgxocr-a0rq7kmdoujt_gg.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fpa\\\u002Fa-\\\u002F5r\\\u002Fpaa-5r_dtecx3fzem9r0dsv42jo.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F-d\\\u002Fvp\\\u002Ffz\\\u002F-dvpfzbpaa65exwi7l4pgerte48.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fwd\\\u002F1j\\\u002Fqp\\\u002Fwd1jqp8ipkwvcdgc5xbuoyy6wey.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002F60\\\u002Fyx\\\u002F_j\\\u002F60yx_jlczbwcy2tfmsqgvzwp4dg.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fir\\\u002Fvv\\\u002Fzi\\\u002Firvvziqxuk3opysywirescrn40e.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Feq\\\u002Fe5\\\u002Fk8\\\u002Feqe5k854n39oia6xwaavj5xfk-q.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fhv\\\u002Fk0\\\u002Fba\\\u002Fhvk0badnrvqhncjqf9uwyrlowq8.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fzs\\\u002Fzg\\\u002Fb1\\\u002Fzszgb15grrrjjiyaqs6gwtfkkye.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fsh\\\u002Fok\\\u002Ff2\\\u002Fshokf2oswaiw1yk6i-uwplypezi.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fcq\\\u002Fxa\\\u002Fh7\\\u002Fcqxah7wnmg1wbcjqwhd13gyejaw.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fko\\\u002Ft5\\\u002Fy6\\\u002Fkot5y6lv7cf-3h2zbyghvqwf1is.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fc_\\\u002Fbo\\\u002Fy7\\\u002Fc_boy7hpqt3y3krcd1utthdjy3s.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fvi\\\u002F4e\\\u002Fzv\\\u002Fvi4ezv-tyvzugvamrwi3z9xod8a.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fd6\\\u002F69\\\u002Fyd\\\u002Fd669ydnx51qv_h0tf-p-lbo8xyu.png\"]}","metaDescription":"Скорее всего, вы уже слышали о языке программирования Go, популярность его постоянно растет, что вполне обоснованно. Этот язык простой, быстрый и опирается на прекрасное сообщество. Один из самых...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"Go разработчик","vacanciesCount":138,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fgo_razrabotchik","itemHubs":["go"]}],"hubs":"programming,go,parallel_programming"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

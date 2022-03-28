@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Server-Side Rendering с нуля до профи / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/527310\/"},"headline":"Server-Side Rendering с нуля до профи","datePublished":"2021-01-18T13:17:10+03:00","dateModified":"2021-01-18T22:53:32+03:00","author":{"@type":"Person","name":"AlexSergey"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"В данной статье мы разберем влияние SSR на SEO оптимизацию приложения. Пройдем с вами путь по переносу обычного React приложения на SSR. Разберем обработку ас...","url":"https:\/\/habr.com\/ru\/post\/527310\/#post-content-body","about":["h_webdev","h_javascript","h_nodejs","h_reactjs","h_seo","f_develop","f_marketing"],"image":["https:\/\/habr.com\/share\/publication\/527310\/4ab8a293533d40b08e4d63325b2e81da\/","https:\/\/habrastorage.org\/webt\/tt\/uj\/gm\/ttujgmsa_uwdcupjqpwrlblqbqa.png","https:\/\/habrastorage.org\/getpro\/habr\/post_images\/7dd\/1a2\/f92\/7dd1a2f920ab6a6a01ca643eadcb75dc.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Server-Side Rendering с нуля до профи" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Server-Side Rendering с нуля до профи" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Server-Side Rendering с нуля до профи" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="В данной статье мы разберем влияние SSR на SEO оптимизацию приложения.
+Пройдем с вами путь по переносу обычного React приложения на SSR.
+Разберем обработку асинхронных операций в SSR..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="В данной статье мы разберем влияние SSR на SEO оптимизацию приложения.
+Пройдем с вами путь по переносу обычного React приложения на SSR.
+Разберем обработку асинхронных операций в SSR..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="В данной статье мы разберем влияние SSR на SEO оптимизацию приложения.
+Пройдем с вами путь по переносу обычного React приложения на SSR.
+Разберем обработку асинхронных операций в SSR..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="В данной статье мы разберем влияние SSR на SEO оптимизацию приложения.
+Пройдем с вами путь по переносу обычного React приложения на SSR.
+Разберем обработку асинхронных операций в SSR..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="В данной статье мы разберем влияние SSR на SEO оптимизацию приложения.
+Пройдем с вами путь по переносу обычного React приложения на SSR.
+Разберем обработку асинхронных операций в SSR..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habrastorage.org/webt/tt/uj/gm/ttujgmsa_uwdcupjqpwrlblqbqa.png" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habrastorage.org/webt/tt/uj/gm/ttujgmsa_uwdcupjqpwrlblqbqa.png" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habrastorage.org/webt/tt/uj/gm/ttujgmsa_uwdcupjqpwrlblqbqa.png" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habrastorage.org/webt/tt/uj/gm/ttujgmsa_uwdcupjqpwrlblqbqa.png" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habrastorage.org/webt/tt/uj/gm/ttujgmsa_uwdcupjqpwrlblqbqa.png?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="527310" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2021-01-18T10:17:10.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/527310/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="reactjs, ssr, server-side rendering, nodejs, seo">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/527310/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.211.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habrastorage.org/webt/tt/uj/gm/ttujgmsa_uwdcupjqpwrlblqbqa.png" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/AlexSergey/" title="AlexSergey" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_pink"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/AlexSergey/" class="tm-user-info__username">
+      AlexSergey
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2021-01-18T10:17:10.000Z" title="2021-01-18, 13:17">18  января  2021 в 13:17</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Server-Side Rendering с нуля до профи</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/javascript/" class="tm-article-snippet__hubs-item-link"><span>JavaScript</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/nodejs/" class="tm-article-snippet__hubs-item-link"><span>Node.JS</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/reactjs/" class="tm-article-snippet__hubs-item-link"><span>ReactJS</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/seo/" class="tm-article-snippet__hubs-item-link"><span>Поисковая оптимизация</span> <!----></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-tutorial"><span>
+        Tutorial
+      </span></div></div> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><img src="https://habrastorage.org/r/w1560/webt/tt/uj/gm/ttujgmsa_uwdcupjqpwrlblqbqa.png" data-src="https://habrastorage.org/webt/tt/uj/gm/ttujgmsa_uwdcupjqpwrlblqbqa.png"/><br/>
+<br/>
+<ul>
+<li>В данной статье мы разберем влияние SSR на SEO оптимизацию приложения.</li>
+<li>Пройдем с вами путь по переносу обычного <b>React</b> приложения на SSR.</li>
+<li>Разберем обработку асинхронных операций в SSR приложениях.</li>
+<li>Посмотрим, как делать SSR в приложениях с <b>Redux Saga</b>.</li>
+<li>Настроим <b>Webpack 5</b> для работы с SSR приложением.</li>
+<li>А также рассмотрим тонкости работы SSR: Генерация HTML Meta Tags, Dynamic Imports, работа с LocalStorage, debugging и прочее.</li>
+</ul><a name="habracut"></a><br/>
+Пару лет назад, работая над своим продуктом <a href="https://www.cleverbrush.com/" rel="nofollow noopener noreferrer">Cleverbrush</a> мой друг и я столкнулись с проблемой SEO оптимизации. Созданный нами сайт, который по идее должен был продавать наш продукт, а это был обычный Single Page React Application, не выводился в Google выборке даже по ключевым словам! В ходе детального разбора данной проблемы родилась библиотека <a href="https://github.com/AlexSergey/issr" rel="nofollow noopener noreferrer">iSSR</a>, а также наш сайт начал появляться на первой странице Google. Итак, давайте по порядку!<br/>
+<br/>
+<h2>Проблема</h2><br/>
+Главной проблемой Single Page приложений является то, что сервер отдает клиенту пустую HTML страницу. Её формирование происходит только после того как весь JS будет скачан (это весь ваш код, библиотеки, фреймверк). Это в большинстве случаев более 2-х мегабайт размера + задержки на обработку кода.<br/>
+<br/>
+Даже если Google-бот умеет выполнять JS, он получает контент только спустя некоторое время, критичное для ранжирования сайта. Google-бот попросту видит пустую страницу несколько секунд! Это плохо!<br/>
+<br/>
+Google начинает выдавать красные карты если ваш сайт рендерится более 3-х секунд. First Contentful Paint, Time to Interactive — это метрики которые будут занижены при Single Page Application. Подробнее читайте <a href="https://developers.google.com/web/updates/2019/02/rendering-on-the-web?hl=ru" rel="nofollow noopener noreferrer">здесь</a>.<br/>
+<br/>
+Также есть менее продвинутые поисковые системы, которые попросту не умеют работать с JS. В них Single Page Application не будут индексироваться.<br/>
+<br/>
+На ранжирование сайта еще влияет множество факторов, часть из них мы разберем далее в этой статье.<br/>
+<br/>
+<h2>Рендеринг</h2><br/>
+Существует несколько путей как решить проблему пустой странички при загрузке, рассмотрим несколько из них:<br/>
+<br/>
+<b>Static Site Generation (SSG)</b>. Сделать пререндер сайта перед тем как его загрузить на сервер. Очень простое и эффективное решение. Отлично подходит для простых веб страничек, без взаимодействия с backend API.<br/>
+<br/>
+<b>Server-Side Rendering (SSR)</b>. Рендерить контент в рантайме на сервере. При таком подходе мы сможем делать запросы backend API и отдавать HTML вместе с необходимым содержимым.<br/>
+<br/>
+<h2>Server-Side Rendering (SSR)</h2><br/>
+Рассмотрим подробнее, как работает SSR:<br/>
+<br/>
+<ul>
+<li>У нас должен быть сервер, который выполняет наше приложение точно так же, как делал бы это пользователь в браузере. Делая запросы на необходимые ресурсы, отображая весь необходимый HTML, наполняя состояние.</li>
+<li>Сервер отдает клиенту наполненный HTML, наполненное состояние, а также отдает все необходимые JS, CSS и прочие ресурсы.</li>
+<li>Клиент, получая HTML и ресурсы, синхронизирует состояние и работает с приложением как с обычным Single Page Application. При этом важным моментом является то, что состояние должно синхронизироваться.</li>
+</ul><br/>
+Схематично SSR приложение выглядит вот так:<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/7dd/1a2/f92/7dd1a2f920ab6a6a01ca643eadcb75dc.png" alt="SSR" data-src="https://habrastorage.org/getpro/habr/post_images/7dd/1a2/f92/7dd1a2f920ab6a6a01ca643eadcb75dc.png"/><br/>
+<br/>
+Из вышеописанной работы SSR приложения мы можем выделить <u>проблемы</u>:<br/>
+<br/>
+<ul>
+<li>Приложение делится на сервер и клиент. То есть у нас по сути получается 2 приложения. Данное разделение должно быть минимально иначе поддержка такого приложения будет сложной.</li>
+<li>Сервер должен уметь обрабатывать запросы к API с данными. Данные операции асинхронные, являются Side Effects. По умолчанию renderToString метод React работающий с сервером — синхронный и не может работать с асинхронными операциями.</li>
+<li>На клиенте приложение должно синхронизировать состояние и продолжать работать как обычное SPA приложение.</li>
+</ul><br/>
+<h2><a href="https://github.com/AlexSergey/issr" rel="nofollow noopener noreferrer">iSSR</a></h2><br/>
+Это маленькая библиотека которая способна решить проблемы асинхронной обработки запросов к данным а также синхронизации состояния с сервера на клиент. Это не “очередной убийца <b>Next.JS</b>”, нет! <b>Next.JS</b> прекрасный фреймверк имеющий множество возможностей, но чтобы его использовать вам придется почти полностью переписать ваше приложение и следовать правилам <b>Next.JS</b>.<br/>
+<br/>
+Посмотрим на примере, как просто перенести обычное SPA приложение на SSR.<br/>
+<br/>
+К примеру, у нас есть простейшее приложение с асинхронной логикой.<br/>
+<br/>
+<div class="spoiler" role="button" tabindex="0">
+                        <b class="spoiler_title">Код приложения</b>
+                        <div class="spoiler_text"><pre><code class="javascript">import React, { useState, useEffect } from 'react';
+import { render } from 'react-dom';
+
+const getTodos = () => {
+  return fetch('https://jsonplaceholder.typicode.com/todos')
+    .then(data => data.json())
+};
+
+const TodoList = () => {
+  const [todos, setTodos] = useState([]);
+
+  useEffect(() => {
+    getTodos()
+      .then(todos => setTodos(todos))
+  }, []);
+
+  return (
+    &lt;div>
+      &lt;h1>Hi&lt;/h1>
+      &lt;ul>
+        {todos.map(todo => (
+          &lt;li key={todo.id} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>{todo.title}&lt;/li>
+        ))}
+      &lt;/ul>
+    &lt;/div>
+  )
+}
+
+render(
+  &lt;TodoList />,
+  document.getElementById('root')
+);
+</code></pre><br/>
+</div>
+                    </div><br/>
+Данный код рендерит список выполненных задач, используя сервис <a href="https://jsonplaceholder.typicode.com/" rel="nofollow noopener noreferrer">jsonplaceholder</a> для эмуляции взаимодействия с API.<br/>
+<br/>
+<h3>Сделаем данное приложение SSR!</h3><br/>
+<h4>Шаг 1. Установка зависимостей</h4><br/>
+Для установки <a href="https://github.com/AlexSergey/issr" rel="nofollow noopener noreferrer">iSSR</a> нужно выполнить:<br/>
+<br/>
+<pre><code class="bash">npm install @issr/core --save
+npm install @issr/babel-plugin --save-dev
+</code></pre><br/>
+Для настройки базовой билд системы установим:<br/>
+<br/>
+<pre><code class="bash">npm install @babel/core @babel/preset-react babel-loader webpack webpack-cli nodemon-webpack-plugin --save-dev
+</code></pre><br/>
+<i>Один из неочевидных моментов разработки SSR приложений является то, что некоторые API и библиотеки могут работать на клиенте но не работать на сервере. Одним из таких API является <b>fetch</b>. Данный метод отсутствует в <b>nodejs</b> где будет выполняться серверная логика нашего приложения. Для того, чтобы у нас приложение работало одинаково установим пакет:</i><br/>
+<br/>
+<pre><code class="bash">npm install node-fetch --save
+</code></pre><br/>
+Для сервера будем использовать express, но это не важно, можно использовать любой другой фреймверк:<br/>
+<br/>
+<pre><code class="bash">npm install express --save
+</code></pre><br/>
+Добавим модуль для сериализации состояния приложения на сервере:<br/>
+<br/>
+<pre><code class="bash">npm install serialize-javascript --save
+</code></pre><br/>
+<h4>Шаг 2. Настройка webpack.config.js</h4><br/>
+<div class="spoiler" role="button" tabindex="0">
+                        <b class="spoiler_title">webpack.config.js</b>
+                        <div class="spoiler_text"><pre><code class="javascript">const path = require('path');
+const NodemonPlugin = require('nodemon-webpack-plugin');
+
+const commonConfig = {
+  module: {
+    rules: [
+      {
+        test: /\.jsx$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                '@babel/preset-react'
+              ],
+              plugins: [
+                '@issr/babel-plugin'
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  resolve: {
+    extensions: [
+      '.js',
+      '.jsx'
+    ]
+  }
+}
+
+module.exports = [
+  {
+    ...commonConfig,
+    target: 'node',
+    entry: './src/server.jsx',
+    output: {
+      path: path.resolve(__dirname, './dist'),
+      filename: 'index.js',
+    },
+    plugins: [
+      new NodemonPlugin({
+        watch: path.resolve(__dirname, './dist'),
+      })
+    ]
+  },
+  {
+    ...commonConfig,
+    entry: './src/client.jsx',
+    output: {
+      path: path.resolve(__dirname, './public'),
+      filename: 'index.js',
+    }
+  }
+];
+</code></pre><br/>
+</div>
+                    </div><br/>
+<ul>
+<li>Для компиляции SSR приложения конфигурационный файл webpack должен состоять из двух конфигураций (MultiCompilation). Одна для сборки сервера, вторая для сборки клиента. Мы передаем в module.exports массив.</li>
+<li>Для конфигурации сервера нам нужно задать target: 'node'. Для клиента задавать target не обязательно. По умолчанию конфигурация webpack имеет target: ‘web’. target: ‘node’ позволяет webpack обрабатывать сервер код, модули по умолчанию, такие как path, child_process и прочее.</li>
+<li><i>const commonConfig</i> — общая часть настроек. Так как код сервера и клиента имеет общую структуру приложения, они должны обрабатывать JS одинаково.</li>
+</ul><br/>
+В <b>babel-loader</b> необходимо добавить плагин:<br/>
+<i>@issr/babel-plugin</i><br/>
+Это вспомогательный модуль <i>@issr/babel-plugin</i> позволяющий отследить асинхронные операции в приложении. Замечательно работает с <b>babel/typescript-preset</b>, и прочими babel плагинами.<br/>
+<br/>
+<h4>Шаг 3. Модификация кода</h4><br/>
+Вынесем общую логику нашего приложения в отдельный файл <b>App.jsx</b>. Это нужно для того, чтобы в файлах <b>client.jsx</b> и <b>server.jsx</b> осталась только логика рендеринга, ничего больше. Таким образом весь код приложения у нас будет общий.<br/>
+<br/>
+<div class="spoiler" role="button" tabindex="0">
+                        <b class="spoiler_title">App.jsx</b>
+                        <div class="spoiler_text"><pre><code class="javascript">import React from 'react';
+import fetch from 'node-fetch';
+import { useSsrState, useSsrEffect } from '@issr/core';
+
+const getTodos = () => {
+  return fetch('https://jsonplaceholder.typicode.com/todos')
+    .then(data => data.json())
+};
+
+export const App = () => {
+  const [todos, setTodos] = useSsrState([]);
+
+  useSsrEffect(async () => {
+    const todos = await getTodos()
+    setTodos(todos);
+  });
+
+  return (
+    &lt;div>
+      &lt;h1>Hi&lt;/h1>
+      &lt;ul>
+        {todos.map(todo => (
+          &lt;li key={todo.id} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>{todo.title}&lt;/li>
+        ))}
+      &lt;/ul>
+    &lt;/div>
+  );
+};
+</code></pre><br/>
+</div>
+                    </div><br/>
+<div class="spoiler" role="button" tabindex="0">
+                        <b class="spoiler_title">client.jsx</b>
+                        <div class="spoiler_text"><pre><code class="javascript">import React from 'react';
+import { hydrate } from 'react-dom';
+import { App } from './App';
+
+hydrate(
+  &lt;App />,
+  document.getElementById('root')
+);
+</code></pre><br/>
+</div>
+                    </div><br/>
+Мы поменяли стандартный <b>render</b> метод React на <b>hydrate</b>, который работает для SSR приложений.<br/>
+<br/>
+<div class="spoiler" role="button" tabindex="0">
+                        <b class="spoiler_title">server.jsx</b>
+                        <div class="spoiler_text"><pre><code class="javascript">import React from 'react';
+import express from 'express';
+import { renderToString } from 'react-dom/server';
+import { App } from './App';
+
+const app = express();
+
+app.use(express.static('public'));
+
+app.get('/*', async (req, res) => {
+const html = renderToString(&lt;App />);
+
+  res.send(`
+  &lt;!DOCTYPE html>
+&lt;html lang="en">
+&lt;head>
+    &lt;meta charset="UTF-8">
+    &lt;title>Title&lt;/title>
+&lt;/head>
+&lt;body>
+    &lt;div id="root">${html}&lt;/div>
+&lt;/body>
+&lt;/html>
+`);
+});
+
+app.listen(4000, () => {
+  console.log('Example app listening on port 4000!');
+});
+</code></pre><br/>
+</div>
+                    </div><br/>
+В коде сервера обратите внимание, что мы должны расшаривать папку с собранным SPA приложением webpack:<br/>
+<i>app.use(express.static('public'));</i><br/>
+Таким образом, полученный с сервера HTML будет работать далее как обычный SPA<br/>
+<br/>
+<h4>Шаг 4. Обработка асинхронности</h4><br/>
+Мы разделили логику вынеся общую часть, подключили компилятор для клиент и сервер частей приложения. Теперь решим остальные проблемы связанные с асинхронными вызовами и состоянием.<br/>
+<br/>
+Для обработки асинхронных операций их нужно обернуть в хук <b>useSsrEffect</b> из пакета <a href="https://github.com/AlexSergey/issr" rel="nofollow noopener noreferrer">@issr/core</a>:<br/>
+<br/>
+<div class="spoiler" role="button" tabindex="0">
+                        <b class="spoiler_title">App.jsx</b>
+                        <div class="spoiler_text"><pre><code class="javascript">import React from 'react';
+import fetch from 'node-fetch';
+import { useSsrEffect } from '@issr/core';
+
+const getTodos = () => {
+  return fetch('https://jsonplaceholder.typicode.com/todos')
+    .then(data => data.json())
+};
+
+export const App = () => {
+  const [todos, setTodos] = useState([]);
+
+  useSsrEffect(async () => {
+    const todos = await getTodos()
+    setTodos(todos);
+  });
+
+  return (
+    &lt;div>
+      &lt;h1>Hi&lt;/h1>
+      &lt;ul>
+        {todos.map(todo => (
+          &lt;li key={todo.id} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>{todo.title}&lt;/li>
+        ))}
+      &lt;/ul>
+    &lt;/div>
+  );
+};
+</code></pre><br/>
+</div>
+                    </div><br/>
+В server.jsx заменим стандартный renderToString на serverRender из пакета <a href="https://github.com/AlexSergey/issr" rel="nofollow noopener noreferrer">@issr/core</a>:<br/>
+<br/>
+<div class="spoiler" role="button" tabindex="0">
+                        <b class="spoiler_title">server.jsx</b>
+                        <div class="spoiler_text"><pre><code class="javascript">import React from 'react';
+import express from 'express';
+import { serverRender } from '@issr/core';
+import serialize from 'serialize-javascript';
+import { App } from './App';
+
+const app = express();
+
+app.use(express.static('public'));
+
+app.get('/*', async (req, res) => {
+  const { html } = await serverRender(() => &lt;App />);
+
+  res.send(`
+  &lt;!DOCTYPE html>
+&lt;html lang="en">
+&lt;head>
+    &lt;meta charset="UTF-8">
+    &lt;title>Title&lt;/title>
+&lt;/head>
+&lt;body>
+    &lt;div id="root">${html}&lt;/div>
+    &lt;script src="/index.js">&lt;/script>
+&lt;/body>
+&lt;/html>
+`);
+});
+
+app.listen(4000, () => {
+  console.log('Example app listening on port 4000!');
+});
+</code></pre><br/>
+</div>
+                    </div><br/>
+Если запустить приложение сейчас, то ничего не произойдет! <u>Мы не увидим результата</u> выполнения асинхронной функции getTodos. Почему так происходит? Мы забыли синхронизировать состояние. Давайте исправим это.<br/>
+<br/>
+В App.jsx заменим стандартный <b>setState</b> на <b>useSsrState</b> из пакета <a href="https://github.com/AlexSergey/issr" rel="nofollow noopener noreferrer">@issr/core</a>:<br/>
+<br/>
+<div class="spoiler" role="button" tabindex="0">
+                        <b class="spoiler_title">App.jsx</b>
+                        <div class="spoiler_text"><pre><code class="javascript">import React from 'react';
+import fetch from 'node-fetch';
+import { useSsrState, useSsrEffect } from '@issr/core';
+
+const getTodos = () => {
+  return fetch('https://jsonplaceholder.typicode.com/todos')
+    .then(data => data.json())
+};
+
+export const App = () => {
+  const [todos, setTodos] = useSsrState([]);
+
+  useSsrEffect(async () => {
+    const todos = await getTodos()
+    setTodos(todos);
+  });
+
+  return (
+    &lt;div>
+      &lt;h1>Hi&lt;/h1>
+      &lt;ul>
+        {todos.map(todo => (
+          &lt;li key={todo.id} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>{todo.title}&lt;/li>
+        ))}
+      &lt;/ul>
+    &lt;/div>
+  );
+};
+</code></pre><br/>
+</div>
+                    </div><br/>
+Внесем изменения в client.jsx для синхронизации состояния переданного с сервера на клиент:<br/>
+<br/>
+<div class="spoiler" role="button" tabindex="0">
+                        <b class="spoiler_title">client.jsx</b>
+                        <div class="spoiler_text"><pre><code class="javascript">import React from 'react';
+import { hydrate } from 'react-dom';
+import createSsr from '@issr/core';
+import { App } from './App';
+
+const SSR = createSsr(window.SSR_DATA);
+
+hydrate(
+  &lt;SSR>
+    &lt;App />
+  &lt;/SSR>,
+  document.getElementById('root')
+);
+</code></pre><br/>
+</div>
+                    </div><br/>
+window.SSR_DATA — это объект, переданный с сервера с кешированнным состоянием, для синхронизации на клиенте.<br/>
+<br/>
+Сделаем передачу состояние на сервере:<br/>
+<br/>
+<div class="spoiler" role="button" tabindex="0">
+                        <b class="spoiler_title">server.jsx</b>
+                        <div class="spoiler_text"><pre><code class="javascript">import React from 'react';
+import express from 'express';
+import { serverRender } from '@issr/core';
+import serialize from 'serialize-javascript';
+import { App } from './App';
+
+const app = express();
+
+app.use(express.static('public'));
+
+app.get('/*', async (req, res) => {
+  const { html, state } = await serverRender(() => &lt;App />);
+
+  res.send(`
+  &lt;!DOCTYPE html>
+&lt;html lang="en">
+&lt;head>
+    &lt;meta charset="UTF-8">
+    &lt;title>Title&lt;/title>
+    &lt;script>
+      window.SSR_DATA = ${serialize(state, { isJSON: true })}
+    &lt;/script>
+&lt;/head>
+&lt;body>
+    &lt;div id="root">${html}&lt;/div>
+    &lt;script src="/index.js">&lt;/script>
+&lt;/body>
+&lt;/html>
+`);
+});
+
+app.listen(4000, () => {
+  console.log('Example app listening on port 4000!');
+});
+</code></pre><br/>
+</div>
+                    </div><br/>
+Обратите внимание, что функция <b>serverRender</b> передает не только HTML, но и состояние, которое прошло через <b>useSsrState</b>, мы его передаем на клиент, в качестве глобальной переменной <b>SSR_DATA</b>. На клиенте, данное состояние будет автоматически синхронизировано.<br/>
+<br/>
+<h4>Шаг 5. Билд скрипты</h4><br/>
+Осталось добавить скрипты запуска в <b>package.json</b>:<br/>
+<br/>
+<pre><code class="javascript">"scripts": {
+ "start": "webpack -w --mode development",
+ "build": "webpack"
+},
+</code></pre><br/>
+<h2>Redux и прочие State Management библиотеки</h2><br/>
+<a href="https://github.com/AlexSergey/issr" rel="nofollow noopener noreferrer">iSSR</a> отлично поддерживает разные state management библиотеки. В ходе работы над <a href="https://github.com/AlexSergey/issr" rel="nofollow noopener noreferrer">iSSR</a> я заметил, что React State Management библиотеки делятся на 2 типа:<br/>
+<br/>
+<ol>
+<li>Реализует работу с Side Effects на слое React. Например <b>Redux Thunk</b> превращает вызов Redux dispatch в асинхронный метод, а значит мы можем имплементить SSR как в примере выше для setState. Пример с redux-thunk доступен по <a href="https://github.com/AlexSergey/issr/tree/master/examples/10.1-redux-thunk" rel="nofollow noopener noreferrer">ссылке</a></li>
+<li>Реализуют работу с Side Effects на отдельном от React слое. Например <b>Redux Saga</b> выносит работу с асинхронными операциями в Саги.</li>
+</ol><br/>
+Рассмотрим пример реализации SSR для приложения с <b>Redux Saga</b>.<br/>
+<br/>
+<i>Мы не будем рассматривать этот пример так детально как предыдущий. Ознакомится с полным кодом можно по <a href="https://github.com/AlexSergey/issr/tree/master/examples/10-redux-sagas" rel="nofollow noopener noreferrer">ссылке</a>.</i><br/>
+<br/>
+<h2>Redux Saga</h2><br/>
+<i>*Для лучшего понимания происходящего, читайте предыдущую главу</i><br/>
+<br/>
+Сервер запускает наше приложение через <b>serverRender</b>, код выполняется последовательно, выполняя все операции <b>useSsrEffect</b>.<br/>
+<br/>
+Концептуально <b>Redux</b> работая с сагами не выполняет никаких асинхронных операций. Наша задача отправить <i>action</i> для старта асинхронной операции в слое Саг, отдельных от нашего react-flow. В примере по ссылке выше, в контейнере <b>Redux</b> мы выполняем<br/>
+<br/>
+<pre><code class="javascript">useSsrEffect(() => {
+ dispatch(fetchImage());
+});
+</code></pre><br/>
+Это не асинхронная операция! Но <a href="https://github.com/AlexSergey/issr" rel="nofollow noopener noreferrer">iSSR</a> понимает, что что то произошло в системе. iSSR будет идти по остальным React компонентам выполняя все <b>useSsrEffect</b> если таковые будут и по завершению iSSR вызовет каллбек:<br/>
+<br/>
+<pre><code class="javascript">const { html } = await serverRender(() => (
+ &lt;Provider store={store}>
+   &lt;App />
+ &lt;/Provider>
+), async () => {
+ store.dispatch(END);
+ await rootSaga.toPromise();
+});
+</code></pre><br/>
+Таким образом мы можем обрабатывать асинхронные операции не только на уровне с React но и на других уровнях, в данном случае мы в начале поставили на выполнение нужные нам саги, после чего в callback <b>serverRender</b> запустили и дождались их окончания.<br/>
+<br/>
+Я подготовил много примеров использования <a href="https://github.com/AlexSergey/issr" rel="nofollow noopener noreferrer">iSSR</a>, вы можете их найти по <a href="https://github.com/AlexSergey/issr/tree/master/examples" rel="nofollow noopener noreferrer">ссылке</a>.<br/>
+<br/>
+<h2>SSR трюки</h2><br/>
+На пути в разработке SSR приложений существуют множество проблем. Проблема асинхронных операций это только одна из них. Давайте посмотрим на другие распространенные проблемы.<br/>
+<br/>
+<h3>HTML Meta Tags для SSR</h3><br/>
+Немаловажным аспектом в разработке SSR является использование правильных <a href="http://htmlbook.ru/html/meta" rel="nofollow noopener noreferrer">HTML meta tags</a>. Они сообщают поисковому боту ключевую информацию на странице.<br/>
+Для реализации данной задачи рекомендую использовать один из модулей:<br/>
+<a href="https://github.com/staylor/react-helmet-async" rel="nofollow noopener noreferrer">React-Helmet-Async</a><br/>
+<a href="https://github.com/s-yadav/react-meta-tags" rel="nofollow noopener noreferrer">React-Meta-Tags</a><br/>
+Я подготовил несколько примеров:<br/>
+<a href="https://github.com/AlexSergey/issr/tree/master/examples/5.1-meta-tags-helmet" rel="nofollow noopener noreferrer">React-Helmet-Async</a><br/>
+<a href="https://github.com/AlexSergey/issr/tree/master/examples/5-meta-tags" rel="nofollow noopener noreferrer">React-Meta-Tags</a><br/>
+<br/>
+<h3>Dynamic Imports</h3><br/>
+Чтобы снизить размер финального бандла приложения, принято приложение делить на части. Например <b>dynamic imports webpack</b> позволяет автоматически разбить приложение. Мы можем вынести отдельные страницы в чанки или блоки. При SSR мы должны уметь обрабатывать данные фрагменты приложения как одно целое. Для этого рекомендую использовать замечательный модуль <a href="https://loadable-components.com/docs/server-side-rendering/" rel="nofollow noopener noreferrer">@loadable</a><br/>
+<br/>
+<h3>Dummies</h3><br/>
+Некоторые компоненты или фрагменты страницы можно не рендерить на сервере. Например, если у вас есть пост и комментарии, не целесообразно обрабатывать обе асинхронные операции. Данные поста более приоритетны чем комментарии к нему, именно эти данные формируют SEO нагрузку вашего приложения. По этому мы можем исключать не важные части при помощи проверок типа:<br/>
+<br/>
+<pre><code class="javascript">if (typeof windows === 'undefined') {
+}</code></pre><br/>
+<h3>localStorage, хранение данных</h3><br/>
+NodeJS не поддерживает localStorage. Для хранения сессионных данных мы используем cookie вместо localStorage. Файлы cookie отправляются автоматически по каждому запросу. Файлы cookie имеют ограничения, например:<br/>
+<br/>
+<ul>
+<li>Файлы cookie — это старый способ хранения данных, они дают ограничение в 4096 байт (фактически 4095) на один файл cookie.</li>
+<li>localStorage — это реализация интерфейса хранилища. Он хранит данные без даты истечения срока действия и очищается только с помощью JavaScript или очистки кеша браузера / локально сохраненных данных — в отличие от истечения срока действия файлов cookie.</li>
+</ul><br/>
+Некоторые данные должны быть переданы в URL. Например, если мы используем локализацию на сайте, то текущий язык будет частью URL. Такой подход улучшит SEO, поскольку у нас будут разные URL-адреса для разных локализаций приложения и обеспечить передачу данных по запросу.<br/>
+<br/>
+<h3>React Server Components</h3><br/>
+React Server Components возможно будет хорошим дополнением для SSR. Его идеей является снижение нагрузки на Bundle за счет выполнения компонент на сервере и выдачи готового JSON React дерева. Нечто подобное мы видели в Next.JS. Читайте подробнее по <a href="https://habr.com/ru/post/535248/">ссылке</a><br/>
+<br/>
+<h3>Роутинг</h3><br/>
+<b>React Router</b> из коробки поддерживает SSR. Отличие в том, что на server используется <b>StaticRouter</b> с переданным текущим URL, а на клиенте <b>Router</b> определяет URL автоматически при помощи location API. <a href="https://github.com/AlexSergey/issr/tree/master/examples/4-koa-react-router" rel="nofollow noopener noreferrer">Пример</a><br/>
+<br/>
+<h3>Debugging</h3><br/>
+Дебаг на сервере может выполняться также как и любой дебаг node.js приложений через <a href="https://nodejs.org/ru/docs/guides/debugging-getting-started/" rel="nofollow noopener noreferrer">inpsect</a>.<br/>
+Для этого нужно добавить в <b>webpack.config</b> для nodejs приложения:<br/>
+<br/>
+<i>devtool: 'source-map'</i><br/>
+А в настройки <b>NodemonPlugin</b>:<br/>
+<br/>
+<pre><code class="javascript">new NodemonPlugin({
+  watch: path.resolve(__dirname, './dist'),
+  nodeArgs: [
+    '--inspect'
+  ]
+})
+</code></pre><br/>
+Также, для улучшения работы с source map можно добавить модуль<br/>
+<br/>
+<pre><code class="bash">npm install source-map-support --save-dev
+</code></pre><br/>
+В <i>nodeArgs</i> опций <b>NodemonPlugin</b> добавить:<br/>
+<i>‘--require=«source-map-support/register»’</i><br/>
+<a href="https://github.com/AlexSergey/issr/tree/master/examples/18-debugging" rel="nofollow noopener noreferrer">Пример</a><br/>
+<br/>
+<h3>Next.JS</h3><br/>
+Если вы создаете приложение с нуля, рекомендую обратить внимание на данный фреймверк. Это самое популярное решение на данный момент для создания с нуля приложений с поддержкой SSR. Из плюсов можно выделить то, что все идет из коробки (билд система, роутер). Из минусов — необходимо переписывать существующее приложение, использовать подходы <b>Next.JS</b>.<br/>
+<br/>
+<h3>SEO это не только SSR!</h3><br/>
+Критерии Google бота для SEO оптимизации включают множество метрик. Рендер данных, получение первого байта и т.д. это лишь часть метрик! При SEO оптимизации приложения необходимо минимизировать вес картинок, бандла, грамотно использовать HTML теги и HTML мета теги и прочее.<br/>
+<br/>
+Для проверки вашего сайта при SEO оптимизации можно воспользоваться:<br/>
+<br/>
+<a href="https://github.com/GoogleChrome/lighthouse" rel="nofollow noopener noreferrer">lighthouse</a><br/>
+<a href="https://sitechecker.pro/" rel="nofollow noopener noreferrer">sitechecker</a><br/>
+<a href="https://developers.google.com/speed/pagespeed/insights/" rel="nofollow noopener noreferrer">pagespeed</a><br/>
+<br/>
+<h2>Выводы</h2><br/>
+В данной статье я описал основные проблемы, но далеко не все, для разработки SSR приложений. Но цель данной статьи показать вам, что SSR это не так страшно. С данным подходом мы можем жить и делать отличные приложения! Всем, кто дочитал до конца желаю успешных и интересных проектов, меньше багов и крепкого здоровья в это нелегкое для всех нас время!</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Breactjs%5D" class="tm-tags-list__link">reactjs</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bssr%5D" class="tm-tags-list__link">ssr</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bserver-side%20rendering%5D" class="tm-tags-list__link">server-side rendering</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bnodejs%5D" class="tm-tags-list__link">nodejs</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Bseo%5D" class="tm-tags-list__link">seo</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/javascript/" class="tm-hubs-list__link">
+    JavaScript
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/nodejs/" class="tm-hubs-list__link">
+    Node.JS
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/reactjs/" class="tm-hubs-list__link">
+    ReactJS
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/seo/" class="tm-hubs-list__link">
+    Поисковая оптимизация
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 12: ↑10 и ↓2</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 12: ↑10 и ↓2" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+8</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">38K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    135
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/AlexSergey/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_pink"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 7 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    3
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><!----> <a href="https://habr.com/ru/users/AlexSergey/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @AlexSergey
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/527310/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 4 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner7145" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner7146" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/programmist_javascript" target="_blank" class="tm-vacancies-block__vacancy-title">
+        JavaScript разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        554
+    вакансии
+      </div></div><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/react_razrabotchik" target="_blank" class="tm-vacancies-block__vacancy-title">
+        React разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        276
+    вакансий
+      </div></div><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/nodejs_razrabotchik" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Node.js разработчик
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        185
+    вакансий
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/527310/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/527310/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"527310":{"id":"527310","timePublished":"2021-01-18T10:17:10+00:00","isCorporative":false,"lang":"ru","titleHtml":"Server-Side Rendering с нуля до профи","leadData":{"textHtml":"\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ftt\u002Fuj\u002Fgm\u002Fttujgmsa_uwdcupjqpwrlblqbqa.png\"\u003E\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EВ данной статье мы разберем влияние SSR на SEO оптимизацию приложения.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПройдем с вами путь по переносу обычного \u003Cb\u003EReact\u003C\u002Fb\u003E приложения на SSR.\u003C\u002Fli\u003E\r\n\u003Cli\u003EРазберем обработку асинхронных операций в SSR приложениях.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПосмотрим, как делать SSR в приложениях с \u003Cb\u003ERedux Saga\u003C\u002Fb\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003EНастроим \u003Cb\u003EWebpack 5\u003C\u002Fb\u003E для работы с SSR приложением.\u003C\u002Fli\u003E\r\n\u003Cli\u003EА также рассмотрим тонкости работы SSR: Генерация HTML Meta Tags, Dynamic Imports, работа с LocalStorage, debugging и прочее.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше &rarr;","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"tutorial","data":null}],"author":{"scoreStats":{"score":3,"votesCount":7},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1019046","alias":"AlexSergey","fullname":null,"avatarUrl":null,"speciality":null},"statistics":{"commentsCount":4,"favoritesCount":135,"readingCount":38007,"score":8,"votesCount":12},"hubs":[{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"357","alias":"javascript","type":"collective","title":"JavaScript","titleHtml":"JavaScript","isProfiled":true},{"relatedData":null,"id":"17110","alias":"nodejs","type":"collective","title":"Node.JS","titleHtml":"Node.JS","isProfiled":true},{"relatedData":null,"id":"19327","alias":"reactjs","type":"collective","title":"ReactJS","titleHtml":"ReactJS","isProfiled":true},{"relatedData":null,"id":"20748","alias":"seo","type":"collective","title":"Поисковая оптимизация","titleHtml":"Поисковая оптимизация","isProfiled":false}],"flows":[{"id":"1","alias":"develop","title":"Разработка"},{"id":"4","alias":"marketing","title":"Маркетинг"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Ftt\u002Fuj\u002Fgm\u002Fttujgmsa_uwdcupjqpwrlblqbqa.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ftt\u002Fuj\u002Fgm\u002Fttujgmsa_uwdcupjqpwrlblqbqa.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EВ данной статье мы разберем влияние SSR на SEO оптимизацию приложения.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПройдем с вами путь по переносу обычного \u003Cb\u003EReact\u003C\u002Fb\u003E приложения на SSR.\u003C\u002Fli\u003E\r\n\u003Cli\u003EРазберем обработку асинхронных операций в SSR приложениях.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПосмотрим, как делать SSR в приложениях с \u003Cb\u003ERedux Saga\u003C\u002Fb\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003EНастроим \u003Cb\u003EWebpack 5\u003C\u002Fb\u003E для работы с SSR приложением.\u003C\u002Fli\u003E\r\n\u003Cli\u003EА также рассмотрим тонкости работы SSR: Генерация HTML Meta Tags, Dynamic Imports, работа с LocalStorage, debugging и прочее.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nПару лет назад, работая над своим продуктом \u003Ca href=\"https:\u002F\u002Fwww.cleverbrush.com\u002F\" rel=\"nofollow noopener noreferrer\"\u003ECleverbrush\u003C\u002Fa\u003E мой друг и я столкнулись с проблемой SEO оптимизации. Созданный нами сайт, который по идее должен был продавать наш продукт, а это был обычный Single Page React Application, не выводился в Google выборке даже по ключевым словам! В ходе детального разбора данной проблемы родилась библиотека \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\" rel=\"nofollow noopener noreferrer\"\u003EiSSR\u003C\u002Fa\u003E, а также наш сайт начал появляться на первой странице Google. Итак, давайте по порядку!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EПроблема\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nГлавной проблемой Single Page приложений является то, что сервер отдает клиенту пустую HTML страницу. Её формирование происходит только после того как весь JS будет скачан (это весь ваш код, библиотеки, фреймверк). Это в большинстве случаев более 2-х мегабайт размера + задержки на обработку кода.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДаже если Google-бот умеет выполнять JS, он получает контент только спустя некоторое время, критичное для ранжирования сайта. Google-бот попросту видит пустую страницу несколько секунд! Это плохо!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nGoogle начинает выдавать красные карты если ваш сайт рендерится более 3-х секунд. First Contentful Paint, Time to Interactive — это метрики которые будут занижены при Single Page Application. Подробнее читайте \u003Ca href=\"https:\u002F\u002Fdevelopers.google.com\u002Fweb\u002Fupdates\u002F2019\u002F02\u002Frendering-on-the-web?hl=ru\" rel=\"nofollow noopener noreferrer\"\u003Eздесь\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТакже есть менее продвинутые поисковые системы, которые попросту не умеют работать с JS. В них Single Page Application не будут индексироваться.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа ранжирование сайта еще влияет множество факторов, часть из них мы разберем далее в этой статье.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EРендеринг\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nСуществует несколько путей как решить проблему пустой странички при загрузке, рассмотрим несколько из них:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EStatic Site Generation (SSG)\u003C\u002Fb\u003E. Сделать пререндер сайта перед тем как его загрузить на сервер. Очень простое и эффективное решение. Отлично подходит для простых веб страничек, без взаимодействия с backend API.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cb\u003EServer-Side Rendering (SSR)\u003C\u002Fb\u003E. Рендерить контент в рантайме на сервере. При таком подходе мы сможем делать запросы backend API и отдавать HTML вместе с необходимым содержимым.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EServer-Side Rendering (SSR)\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nРассмотрим подробнее, как работает SSR:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EУ нас должен быть сервер, который выполняет наше приложение точно так же, как делал бы это пользователь в браузере. Делая запросы на необходимые ресурсы, отображая весь необходимый HTML, наполняя состояние.\u003C\u002Fli\u003E\r\n\u003Cli\u003EСервер отдает клиенту наполненный HTML, наполненное состояние, а также отдает все необходимые JS, CSS и прочие ресурсы.\u003C\u002Fli\u003E\r\n\u003Cli\u003EКлиент, получая HTML и ресурсы, синхронизирует состояние и работает с приложением как с обычным Single Page Application. При этом важным моментом является то, что состояние должно синхронизироваться.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nСхематично SSR приложение выглядит вот так:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F7dd\u002F1a2\u002Ff92\u002F7dd1a2f920ab6a6a01ca643eadcb75dc.png\" alt=\"SSR\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F7dd\u002F1a2\u002Ff92\u002F7dd1a2f920ab6a6a01ca643eadcb75dc.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИз вышеописанной работы SSR приложения мы можем выделить \u003Cu\u003Eпроблемы\u003C\u002Fu\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EПриложение делится на сервер и клиент. То есть у нас по сути получается 2 приложения. Данное разделение должно быть минимально иначе поддержка такого приложения будет сложной.\u003C\u002Fli\u003E\r\n\u003Cli\u003EСервер должен уметь обрабатывать запросы к API с данными. Данные операции асинхронные, являются Side Effects. По умолчанию renderToString метод React работающий с сервером — синхронный и не может работать с асинхронными операциями.\u003C\u002Fli\u003E\r\n\u003Cli\u003EНа клиенте приложение должно синхронизировать состояние и продолжать работать как обычное SPA приложение.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003E\u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\" rel=\"nofollow noopener noreferrer\"\u003EiSSR\u003C\u002Fa\u003E\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nЭто маленькая библиотека которая способна решить проблемы асинхронной обработки запросов к данным а также синхронизации состояния с сервера на клиент. Это не “очередной убийца \u003Cb\u003ENext.JS\u003C\u002Fb\u003E”, нет! \u003Cb\u003ENext.JS\u003C\u002Fb\u003E прекрасный фреймверк имеющий множество возможностей, но чтобы его использовать вам придется почти полностью переписать ваше приложение и следовать правилам \u003Cb\u003ENext.JS\u003C\u002Fb\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПосмотрим на примере, как просто перенести обычное SPA приложение на SSR.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nК примеру, у нас есть простейшее приложение с асинхронной логикой.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\" role=\"button\" tabindex=\"0\"\u003E\n                        \u003Cb class=\"spoiler_title\"\u003EКод приложения\u003C\u002Fb\u003E\n                        \u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eimport React, { useState, useEffect } from 'react';\nimport { render } from 'react-dom';\n\nconst getTodos = () =\u003E {\n  return fetch('https:\u002F\u002Fjsonplaceholder.typicode.com\u002Ftodos')\n    .then(data =\u003E data.json())\n};\n\nconst TodoList = () =\u003E {\n  const [todos, setTodos] = useState([]);\n\n  useEffect(() =\u003E {\n    getTodos()\n      .then(todos =\u003E setTodos(todos))\n  }, []);\n\n  return (\n    &lt;div\u003E\n      &lt;h1\u003EHi&lt;\u002Fh1\u003E\n      &lt;ul\u003E\n        {todos.map(todo =\u003E (\n          &lt;li key={todo.id} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}\u003E{todo.title}&lt;\u002Fli\u003E\n        ))}\n      &lt;\u002Ful\u003E\n    &lt;\u002Fdiv\u003E\n  )\n}\n\nrender(\n  &lt;TodoList \u002F\u003E,\n  document.getElementById('root')\n);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\n                    \u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nДанный код рендерит список выполненных задач, используя сервис \u003Ca href=\"https:\u002F\u002Fjsonplaceholder.typicode.com\u002F\" rel=\"nofollow noopener noreferrer\"\u003Ejsonplaceholder\u003C\u002Fa\u003E для эмуляции взаимодействия с API.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EСделаем данное приложение SSR!\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EШаг 1. Установка зависимостей\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nДля установки \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\" rel=\"nofollow noopener noreferrer\"\u003EiSSR\u003C\u002Fa\u003E нужно выполнить:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Enpm install @issr\u002Fcore --save\nnpm install @issr\u002Fbabel-plugin --save-dev\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДля настройки базовой билд системы установим:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Enpm install @babel\u002Fcore @babel\u002Fpreset-react babel-loader webpack webpack-cli nodemon-webpack-plugin --save-dev\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003EОдин из неочевидных моментов разработки SSR приложений является то, что некоторые API и библиотеки могут работать на клиенте но не работать на сервере. Одним из таких API является \u003Cb\u003Efetch\u003C\u002Fb\u003E. Данный метод отсутствует в \u003Cb\u003Enodejs\u003C\u002Fb\u003E где будет выполняться серверная логика нашего приложения. Для того, чтобы у нас приложение работало одинаково установим пакет:\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Enpm install node-fetch --save\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДля сервера будем использовать express, но это не важно, можно использовать любой другой фреймверк:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Enpm install express --save\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nДобавим модуль для сериализации состояния приложения на сервере:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Enpm install serialize-javascript --save\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EШаг 2. Настройка webpack.config.js\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\" role=\"button\" tabindex=\"0\"\u003E\n                        \u003Cb class=\"spoiler_title\"\u003Ewebpack.config.js\u003C\u002Fb\u003E\n                        \u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Econst path = require('path');\nconst NodemonPlugin = require('nodemon-webpack-plugin');\n\nconst commonConfig = {\n  module: {\n    rules: [\n      {\n        test: \u002F\\.jsx$\u002F,\n        exclude: \u002Fnode_modules\u002F,\n        use: [\n          {\n            loader: 'babel-loader',\n            options: {\n              presets: [\n                '@babel\u002Fpreset-react'\n              ],\n              plugins: [\n                '@issr\u002Fbabel-plugin'\n              ]\n            }\n          }\n        ]\n      }\n    ]\n  },\n  resolve: {\n    extensions: [\n      '.js',\n      '.jsx'\n    ]\n  }\n}\n\nmodule.exports = [\n  {\n    ...commonConfig,\n    target: 'node',\n    entry: '.\u002Fsrc\u002Fserver.jsx',\n    output: {\n      path: path.resolve(__dirname, '.\u002Fdist'),\n      filename: 'index.js',\n    },\n    plugins: [\n      new NodemonPlugin({\n        watch: path.resolve(__dirname, '.\u002Fdist'),\n      })\n    ]\n  },\n  {\n    ...commonConfig,\n    entry: '.\u002Fsrc\u002Fclient.jsx',\n    output: {\n      path: path.resolve(__dirname, '.\u002Fpublic'),\n      filename: 'index.js',\n    }\n  }\n];\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\n                    \u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EДля компиляции SSR приложения конфигурационный файл webpack должен состоять из двух конфигураций (MultiCompilation). Одна для сборки сервера, вторая для сборки клиента. Мы передаем в module.exports массив.\u003C\u002Fli\u003E\r\n\u003Cli\u003EДля конфигурации сервера нам нужно задать target: 'node'. Для клиента задавать target не обязательно. По умолчанию конфигурация webpack имеет target: ‘web’. target: ‘node’ позволяет webpack обрабатывать сервер код, модули по умолчанию, такие как path, child_process и прочее.\u003C\u002Fli\u003E\r\n\u003Cli\u003E\u003Ci\u003Econst commonConfig\u003C\u002Fi\u003E — общая часть настроек. Так как код сервера и клиента имеет общую структуру приложения, они должны обрабатывать JS одинаково.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nВ \u003Cb\u003Ebabel-loader\u003C\u002Fb\u003E необходимо добавить плагин:\u003Cbr\u002F\u003E\r\n\u003Ci\u003E@issr\u002Fbabel-plugin\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\nЭто вспомогательный модуль \u003Ci\u003E@issr\u002Fbabel-plugin\u003C\u002Fi\u003E позволяющий отследить асинхронные операции в приложении. Замечательно работает с \u003Cb\u003Ebabel\u002Ftypescript-preset\u003C\u002Fb\u003E, и прочими babel плагинами.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EШаг 3. Модификация кода\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nВынесем общую логику нашего приложения в отдельный файл \u003Cb\u003EApp.jsx\u003C\u002Fb\u003E. Это нужно для того, чтобы в файлах \u003Cb\u003Eclient.jsx\u003C\u002Fb\u003E и \u003Cb\u003Eserver.jsx\u003C\u002Fb\u003E осталась только логика рендеринга, ничего больше. Таким образом весь код приложения у нас будет общий.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\" role=\"button\" tabindex=\"0\"\u003E\n                        \u003Cb class=\"spoiler_title\"\u003EApp.jsx\u003C\u002Fb\u003E\n                        \u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eimport React from 'react';\nimport fetch from 'node-fetch';\nimport { useSsrState, useSsrEffect } from '@issr\u002Fcore';\n\nconst getTodos = () =\u003E {\n  return fetch('https:\u002F\u002Fjsonplaceholder.typicode.com\u002Ftodos')\n    .then(data =\u003E data.json())\n};\n\nexport const App = () =\u003E {\n  const [todos, setTodos] = useSsrState([]);\n\n  useSsrEffect(async () =\u003E {\n    const todos = await getTodos()\n    setTodos(todos);\n  });\n\n  return (\n    &lt;div\u003E\n      &lt;h1\u003EHi&lt;\u002Fh1\u003E\n      &lt;ul\u003E\n        {todos.map(todo =\u003E (\n          &lt;li key={todo.id} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}\u003E{todo.title}&lt;\u002Fli\u003E\n        ))}\n      &lt;\u002Ful\u003E\n    &lt;\u002Fdiv\u003E\n  );\n};\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\n                    \u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\" role=\"button\" tabindex=\"0\"\u003E\n                        \u003Cb class=\"spoiler_title\"\u003Eclient.jsx\u003C\u002Fb\u003E\n                        \u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eimport React from 'react';\nimport { hydrate } from 'react-dom';\nimport { App } from '.\u002FApp';\n\nhydrate(\n  &lt;App \u002F\u003E,\n  document.getElementById('root')\n);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\n                    \u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nМы поменяли стандартный \u003Cb\u003Erender\u003C\u002Fb\u003E метод React на \u003Cb\u003Ehydrate\u003C\u002Fb\u003E, который работает для SSR приложений.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\" role=\"button\" tabindex=\"0\"\u003E\n                        \u003Cb class=\"spoiler_title\"\u003Eserver.jsx\u003C\u002Fb\u003E\n                        \u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eimport React from 'react';\nimport express from 'express';\nimport { renderToString } from 'react-dom\u002Fserver';\nimport { App } from '.\u002FApp';\n\nconst app = express();\n\napp.use(express.static('public'));\n\napp.get('\u002F*', async (req, res) =\u003E {\nconst html = renderToString(&lt;App \u002F\u003E);\n\n  res.send(`\n  &lt;!DOCTYPE html\u003E\n&lt;html lang=\"en\"\u003E\n&lt;head\u003E\n    &lt;meta charset=\"UTF-8\"\u003E\n    &lt;title\u003ETitle&lt;\u002Ftitle\u003E\n&lt;\u002Fhead\u003E\n&lt;body\u003E\n    &lt;div id=\"root\"\u003E${html}&lt;\u002Fdiv\u003E\n&lt;\u002Fbody\u003E\n&lt;\u002Fhtml\u003E\n`);\n});\n\napp.listen(4000, () =\u003E {\n  console.log('Example app listening on port 4000!');\n});\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\n                    \u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nВ коде сервера обратите внимание, что мы должны расшаривать папку с собранным SPA приложением webpack:\u003Cbr\u002F\u003E\r\n\u003Ci\u003Eapp.use(express.static('public'));\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\nТаким образом, полученный с сервера HTML будет работать далее как обычный SPA\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EШаг 4. Обработка асинхронности\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nМы разделили логику вынеся общую часть, подключили компилятор для клиент и сервер частей приложения. Теперь решим остальные проблемы связанные с асинхронными вызовами и состоянием.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля обработки асинхронных операций их нужно обернуть в хук \u003Cb\u003EuseSsrEffect\u003C\u002Fb\u003E из пакета \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\" rel=\"nofollow noopener noreferrer\"\u003E@issr\u002Fcore\u003C\u002Fa\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\" role=\"button\" tabindex=\"0\"\u003E\n                        \u003Cb class=\"spoiler_title\"\u003EApp.jsx\u003C\u002Fb\u003E\n                        \u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eimport React from 'react';\nimport fetch from 'node-fetch';\nimport { useSsrEffect } from '@issr\u002Fcore';\n\nconst getTodos = () =\u003E {\n  return fetch('https:\u002F\u002Fjsonplaceholder.typicode.com\u002Ftodos')\n    .then(data =\u003E data.json())\n};\n\nexport const App = () =\u003E {\n  const [todos, setTodos] = useState([]);\n\n  useSsrEffect(async () =\u003E {\n    const todos = await getTodos()\n    setTodos(todos);\n  });\n\n  return (\n    &lt;div\u003E\n      &lt;h1\u003EHi&lt;\u002Fh1\u003E\n      &lt;ul\u003E\n        {todos.map(todo =\u003E (\n          &lt;li key={todo.id} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}\u003E{todo.title}&lt;\u002Fli\u003E\n        ))}\n      &lt;\u002Ful\u003E\n    &lt;\u002Fdiv\u003E\n  );\n};\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\n                    \u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nВ server.jsx заменим стандартный renderToString на serverRender из пакета \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\" rel=\"nofollow noopener noreferrer\"\u003E@issr\u002Fcore\u003C\u002Fa\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\" role=\"button\" tabindex=\"0\"\u003E\n                        \u003Cb class=\"spoiler_title\"\u003Eserver.jsx\u003C\u002Fb\u003E\n                        \u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eimport React from 'react';\nimport express from 'express';\nimport { serverRender } from '@issr\u002Fcore';\nimport serialize from 'serialize-javascript';\nimport { App } from '.\u002FApp';\n\nconst app = express();\n\napp.use(express.static('public'));\n\napp.get('\u002F*', async (req, res) =\u003E {\n  const { html } = await serverRender(() =\u003E &lt;App \u002F\u003E);\n\n  res.send(`\n  &lt;!DOCTYPE html\u003E\n&lt;html lang=\"en\"\u003E\n&lt;head\u003E\n    &lt;meta charset=\"UTF-8\"\u003E\n    &lt;title\u003ETitle&lt;\u002Ftitle\u003E\n&lt;\u002Fhead\u003E\n&lt;body\u003E\n    &lt;div id=\"root\"\u003E${html}&lt;\u002Fdiv\u003E\n    &lt;script src=\"\u002Findex.js\"\u003E&lt;\u002Fscript\u003E\n&lt;\u002Fbody\u003E\n&lt;\u002Fhtml\u003E\n`);\n});\n\napp.listen(4000, () =\u003E {\n  console.log('Example app listening on port 4000!');\n});\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\n                    \u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nЕсли запустить приложение сейчас, то ничего не произойдет! \u003Cu\u003EМы не увидим результата\u003C\u002Fu\u003E выполнения асинхронной функции getTodos. Почему так происходит? Мы забыли синхронизировать состояние. Давайте исправим это.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ App.jsx заменим стандартный \u003Cb\u003EsetState\u003C\u002Fb\u003E на \u003Cb\u003EuseSsrState\u003C\u002Fb\u003E из пакета \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\" rel=\"nofollow noopener noreferrer\"\u003E@issr\u002Fcore\u003C\u002Fa\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\" role=\"button\" tabindex=\"0\"\u003E\n                        \u003Cb class=\"spoiler_title\"\u003EApp.jsx\u003C\u002Fb\u003E\n                        \u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eimport React from 'react';\nimport fetch from 'node-fetch';\nimport { useSsrState, useSsrEffect } from '@issr\u002Fcore';\n\nconst getTodos = () =\u003E {\n  return fetch('https:\u002F\u002Fjsonplaceholder.typicode.com\u002Ftodos')\n    .then(data =\u003E data.json())\n};\n\nexport const App = () =\u003E {\n  const [todos, setTodos] = useSsrState([]);\n\n  useSsrEffect(async () =\u003E {\n    const todos = await getTodos()\n    setTodos(todos);\n  });\n\n  return (\n    &lt;div\u003E\n      &lt;h1\u003EHi&lt;\u002Fh1\u003E\n      &lt;ul\u003E\n        {todos.map(todo =\u003E (\n          &lt;li key={todo.id} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}\u003E{todo.title}&lt;\u002Fli\u003E\n        ))}\n      &lt;\u002Ful\u003E\n    &lt;\u002Fdiv\u003E\n  );\n};\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\n                    \u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nВнесем изменения в client.jsx для синхронизации состояния переданного с сервера на клиент:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\" role=\"button\" tabindex=\"0\"\u003E\n                        \u003Cb class=\"spoiler_title\"\u003Eclient.jsx\u003C\u002Fb\u003E\n                        \u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eimport React from 'react';\nimport { hydrate } from 'react-dom';\nimport createSsr from '@issr\u002Fcore';\nimport { App } from '.\u002FApp';\n\nconst SSR = createSsr(window.SSR_DATA);\n\nhydrate(\n  &lt;SSR\u003E\n    &lt;App \u002F\u003E\n  &lt;\u002FSSR\u003E,\n  document.getElementById('root')\n);\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\n                    \u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nwindow.SSR_DATA — это объект, переданный с сервера с кешированнным состоянием, для синхронизации на клиенте.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСделаем передачу состояние на сервере:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cdiv class=\"spoiler\" role=\"button\" tabindex=\"0\"\u003E\n                        \u003Cb class=\"spoiler_title\"\u003Eserver.jsx\u003C\u002Fb\u003E\n                        \u003Cdiv class=\"spoiler_text\"\u003E\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eimport React from 'react';\nimport express from 'express';\nimport { serverRender } from '@issr\u002Fcore';\nimport serialize from 'serialize-javascript';\nimport { App } from '.\u002FApp';\n\nconst app = express();\n\napp.use(express.static('public'));\n\napp.get('\u002F*', async (req, res) =\u003E {\n  const { html, state } = await serverRender(() =\u003E &lt;App \u002F\u003E);\n\n  res.send(`\n  &lt;!DOCTYPE html\u003E\n&lt;html lang=\"en\"\u003E\n&lt;head\u003E\n    &lt;meta charset=\"UTF-8\"\u003E\n    &lt;title\u003ETitle&lt;\u002Ftitle\u003E\n    &lt;script\u003E\n      window.SSR_DATA = ${serialize(state, { isJSON: true })}\n    &lt;\u002Fscript\u003E\n&lt;\u002Fhead\u003E\n&lt;body\u003E\n    &lt;div id=\"root\"\u003E${html}&lt;\u002Fdiv\u003E\n    &lt;script src=\"\u002Findex.js\"\u003E&lt;\u002Fscript\u003E\n&lt;\u002Fbody\u003E\n&lt;\u002Fhtml\u003E\n`);\n});\n\napp.listen(4000, () =\u003E {\n  console.log('Example app listening on port 4000!');\n});\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003C\u002Fdiv\u003E\n                    \u003C\u002Fdiv\u003E\u003Cbr\u002F\u003E\r\nОбратите внимание, что функция \u003Cb\u003EserverRender\u003C\u002Fb\u003E передает не только HTML, но и состояние, которое прошло через \u003Cb\u003EuseSsrState\u003C\u002Fb\u003E, мы его передаем на клиент, в качестве глобальной переменной \u003Cb\u003ESSR_DATA\u003C\u002Fb\u003E. На клиенте, данное состояние будет автоматически синхронизировано.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch4\u003EШаг 5. Билд скрипты\u003C\u002Fh4\u003E\u003Cbr\u002F\u003E\r\nОсталось добавить скрипты запуска в \u003Cb\u003Epackage.json\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003E\"scripts\": {\n \"start\": \"webpack -w --mode development\",\n \"build\": \"webpack\"\n},\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch2\u003ERedux и прочие State Management библиотеки\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\" rel=\"nofollow noopener noreferrer\"\u003EiSSR\u003C\u002Fa\u003E отлично поддерживает разные state management библиотеки. В ходе работы над \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\" rel=\"nofollow noopener noreferrer\"\u003EiSSR\u003C\u002Fa\u003E я заметил, что React State Management библиотеки делятся на 2 типа:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EРеализует работу с Side Effects на слое React. Например \u003Cb\u003ERedux Thunk\u003C\u002Fb\u003E превращает вызов Redux dispatch в асинхронный метод, а значит мы можем имплементить SSR как в примере выше для setState. Пример с redux-thunk доступен по \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\u002Ftree\u002Fmaster\u002Fexamples\u002F10.1-redux-thunk\" rel=\"nofollow noopener noreferrer\"\u003Eссылке\u003C\u002Fa\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EРеализуют работу с Side Effects на отдельном от React слое. Например \u003Cb\u003ERedux Saga\u003C\u002Fb\u003E выносит работу с асинхронными операциями в Саги.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nРассмотрим пример реализации SSR для приложения с \u003Cb\u003ERedux Saga\u003C\u002Fb\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ci\u003EМы не будем рассматривать этот пример так детально как предыдущий. Ознакомится с полным кодом можно по \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\u002Ftree\u002Fmaster\u002Fexamples\u002F10-redux-sagas\" rel=\"nofollow noopener noreferrer\"\u003Eссылке\u003C\u002Fa\u003E.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003ERedux Saga\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\n\u003Ci\u003E*Для лучшего понимания происходящего, читайте предыдущую главу\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nСервер запускает наше приложение через \u003Cb\u003EserverRender\u003C\u002Fb\u003E, код выполняется последовательно, выполняя все операции \u003Cb\u003EuseSsrEffect\u003C\u002Fb\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКонцептуально \u003Cb\u003ERedux\u003C\u002Fb\u003E работая с сагами не выполняет никаких асинхронных операций. Наша задача отправить \u003Ci\u003Eaction\u003C\u002Fi\u003E для старта асинхронной операции в слое Саг, отдельных от нашего react-flow. В примере по ссылке выше, в контейнере \u003Cb\u003ERedux\u003C\u002Fb\u003E мы выполняем\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003EuseSsrEffect(() =\u003E {\n dispatch(fetchImage());\n});\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nЭто не асинхронная операция! Но \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\" rel=\"nofollow noopener noreferrer\"\u003EiSSR\u003C\u002Fa\u003E понимает, что что то произошло в системе. iSSR будет идти по остальным React компонентам выполняя все \u003Cb\u003EuseSsrEffect\u003C\u002Fb\u003E если таковые будут и по завершению iSSR вызовет каллбек:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Econst { html } = await serverRender(() =\u003E (\n &lt;Provider store={store}\u003E\n   &lt;App \u002F\u003E\n &lt;\u002FProvider\u003E\n), async () =\u003E {\n store.dispatch(END);\n await rootSaga.toPromise();\n});\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТаким образом мы можем обрабатывать асинхронные операции не только на уровне с React но и на других уровнях, в данном случае мы в начале поставили на выполнение нужные нам саги, после чего в callback \u003Cb\u003EserverRender\u003C\u002Fb\u003E запустили и дождались их окончания.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯ подготовил много примеров использования \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\" rel=\"nofollow noopener noreferrer\"\u003EiSSR\u003C\u002Fa\u003E, вы можете их найти по \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\u002Ftree\u002Fmaster\u002Fexamples\" rel=\"nofollow noopener noreferrer\"\u003Eссылке\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003ESSR трюки\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nНа пути в разработке SSR приложений существуют множество проблем. Проблема асинхронных операций это только одна из них. Давайте посмотрим на другие распространенные проблемы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EHTML Meta Tags для SSR\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nНемаловажным аспектом в разработке SSR является использование правильных \u003Ca href=\"http:\u002F\u002Fhtmlbook.ru\u002Fhtml\u002Fmeta\" rel=\"nofollow noopener noreferrer\"\u003EHTML meta tags\u003C\u002Fa\u003E. Они сообщают поисковому боту ключевую информацию на странице.\u003Cbr\u002F\u003E\r\nДля реализации данной задачи рекомендую использовать один из модулей:\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fstaylor\u002Freact-helmet-async\" rel=\"nofollow noopener noreferrer\"\u003EReact-Helmet-Async\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fgithub.com\u002Fs-yadav\u002Freact-meta-tags\" rel=\"nofollow noopener noreferrer\"\u003EReact-Meta-Tags\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nЯ подготовил несколько примеров:\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\u002Ftree\u002Fmaster\u002Fexamples\u002F5.1-meta-tags-helmet\" rel=\"nofollow noopener noreferrer\"\u003EReact-Helmet-Async\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\u002Ftree\u002Fmaster\u002Fexamples\u002F5-meta-tags\" rel=\"nofollow noopener noreferrer\"\u003EReact-Meta-Tags\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EDynamic Imports\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЧтобы снизить размер финального бандла приложения, принято приложение делить на части. Например \u003Cb\u003Edynamic imports webpack\u003C\u002Fb\u003E позволяет автоматически разбить приложение. Мы можем вынести отдельные страницы в чанки или блоки. При SSR мы должны уметь обрабатывать данные фрагменты приложения как одно целое. Для этого рекомендую использовать замечательный модуль \u003Ca href=\"https:\u002F\u002Floadable-components.com\u002Fdocs\u002Fserver-side-rendering\u002F\" rel=\"nofollow noopener noreferrer\"\u003E@loadable\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EDummies\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nНекоторые компоненты или фрагменты страницы можно не рендерить на сервере. Например, если у вас есть пост и комментарии, не целесообразно обрабатывать обе асинхронные операции. Данные поста более приоритетны чем комментарии к нему, именно эти данные формируют SEO нагрузку вашего приложения. По этому мы можем исключать не важные части при помощи проверок типа:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Eif (typeof windows === 'undefined') {\n}\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003ElocalStorage, хранение данных\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nNodeJS не поддерживает localStorage. Для хранения сессионных данных мы используем cookie вместо localStorage. Файлы cookie отправляются автоматически по каждому запросу. Файлы cookie имеют ограничения, например:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EФайлы cookie — это старый способ хранения данных, они дают ограничение в 4096 байт (фактически 4095) на один файл cookie.\u003C\u002Fli\u003E\r\n\u003Cli\u003ElocalStorage — это реализация интерфейса хранилища. Он хранит данные без даты истечения срока действия и очищается только с помощью JavaScript или очистки кеша браузера \u002F локально сохраненных данных — в отличие от истечения срока действия файлов cookie.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nНекоторые данные должны быть переданы в URL. Например, если мы используем локализацию на сайте, то текущий язык будет частью URL. Такой подход улучшит SEO, поскольку у нас будут разные URL-адреса для разных локализаций приложения и обеспечить передачу данных по запросу.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EReact Server Components\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nReact Server Components возможно будет хорошим дополнением для SSR. Его идеей является снижение нагрузки на Bundle за счет выполнения компонент на сервере и выдачи готового JSON React дерева. Нечто подобное мы видели в Next.JS. Читайте подробнее по \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fru\u002Fpost\u002F535248\u002F\"\u003Eссылке\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EРоутинг\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\n\u003Cb\u003EReact Router\u003C\u002Fb\u003E из коробки поддерживает SSR. Отличие в том, что на server используется \u003Cb\u003EStaticRouter\u003C\u002Fb\u003E с переданным текущим URL, а на клиенте \u003Cb\u003ERouter\u003C\u002Fb\u003E определяет URL автоматически при помощи location API. \u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\u002Ftree\u002Fmaster\u002Fexamples\u002F4-koa-react-router\" rel=\"nofollow noopener noreferrer\"\u003EПример\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EDebugging\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nДебаг на сервере может выполняться также как и любой дебаг node.js приложений через \u003Ca href=\"https:\u002F\u002Fnodejs.org\u002Fru\u002Fdocs\u002Fguides\u002Fdebugging-getting-started\u002F\" rel=\"nofollow noopener noreferrer\"\u003Einpsect\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\nДля этого нужно добавить в \u003Cb\u003Ewebpack.config\u003C\u002Fb\u003E для nodejs приложения:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ci\u003Edevtool: 'source-map'\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\nА в настройки \u003Cb\u003ENodemonPlugin\u003C\u002Fb\u003E:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"javascript\"\u003Enew NodemonPlugin({\n  watch: path.resolve(__dirname, '.\u002Fdist'),\n  nodeArgs: [\n    '--inspect'\n  ]\n})\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nТакже, для улучшения работы с source map можно добавить модуль\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cpre\u003E\u003Ccode class=\"bash\"\u003Enpm install source-map-support --save-dev\n\u003C\u002Fcode\u003E\u003C\u002Fpre\u003E\u003Cbr\u002F\u003E\r\nВ \u003Ci\u003EnodeArgs\u003C\u002Fi\u003E опций \u003Cb\u003ENodemonPlugin\u003C\u002Fb\u003E добавить:\u003Cbr\u002F\u003E\r\n\u003Ci\u003E‘--require=«source-map-support\u002Fregister»’\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fgithub.com\u002FAlexSergey\u002Fissr\u002Ftree\u002Fmaster\u002Fexamples\u002F18-debugging\" rel=\"nofollow noopener noreferrer\"\u003EПример\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003ENext.JS\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЕсли вы создаете приложение с нуля, рекомендую обратить внимание на данный фреймверк. Это самое популярное решение на данный момент для создания с нуля приложений с поддержкой SSR. Из плюсов можно выделить то, что все идет из коробки (билд система, роутер). Из минусов — необходимо переписывать существующее приложение, использовать подходы \u003Cb\u003ENext.JS\u003C\u002Fb\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003ESEO это не только SSR!\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nКритерии Google бота для SEO оптимизации включают множество метрик. Рендер данных, получение первого байта и т.д. это лишь часть метрик! При SEO оптимизации приложения необходимо минимизировать вес картинок, бандла, грамотно использовать HTML теги и HTML мета теги и прочее.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля проверки вашего сайта при SEO оптимизации можно воспользоваться:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fgithub.com\u002FGoogleChrome\u002Flighthouse\" rel=\"nofollow noopener noreferrer\"\u003Elighthouse\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fsitechecker.pro\u002F\" rel=\"nofollow noopener noreferrer\"\u003Esitechecker\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fdevelopers.google.com\u002Fspeed\u002Fpagespeed\u002Finsights\u002F\" rel=\"nofollow noopener noreferrer\"\u003Epagespeed\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EВыводы\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nВ данной статье я описал основные проблемы, но далеко не все, для разработки SSR приложений. Но цель данной статьи показать вам, что SSR это не так страшно. С данным подходом мы можем жить и делать отличные приложения! Всем, кто дочитал до конца желаю успешных и интересных проектов, меньше багов и крепкого здоровья в это нелегкое для всех нас время!\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"reactjs"},{"titleHtml":"ssr"},{"titleHtml":"server-side rendering"},{"titleHtml":"nodejs"},{"titleHtml":"seo"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ftt\u002Fuj\u002Fgm\u002Fttujgmsa_uwdcupjqpwrlblqbqa.png","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ftt\u002Fuj\u002Fgm\u002Fttujgmsa_uwdcupjqpwrlblqbqa.png","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F527310\\\u002F\"},\"headline\":\"Server-Side Rendering с нуля до профи\",\"datePublished\":\"2021-01-18T13:17:10+03:00\",\"dateModified\":\"2021-01-18T22:53:32+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"AlexSergey\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"В данной статье мы разберем влияние SSR на SEO оптимизацию приложения. Пройдем с вами путь по переносу обычного React приложения на SSR. Разберем обработку ас...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F527310\\\u002F#post-content-body\",\"about\":[\"h_webdev\",\"h_javascript\",\"h_nodejs\",\"h_reactjs\",\"h_seo\",\"f_develop\",\"f_marketing\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F527310\\\u002F4ab8a293533d40b08e4d63325b2e81da\\\u002F\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Ftt\\\u002Fuj\\\u002Fgm\\\u002Fttujgmsa_uwdcupjqpwrlblqbqa.png\",\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fgetpro\\\u002Fhabr\\\u002Fpost_images\\\u002F7dd\\\u002F1a2\\\u002Ff92\\\u002F7dd1a2f920ab6a6a01ca643eadcb75dc.png\"]}","metaDescription":"В данной статье мы разберем влияние SSR на SEO оптимизацию приложения.\r\nПройдем с вами путь по переносу обычного React приложения на SSR.\r\nРазберем обработку асинхронных операций в SSR...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"JavaScript разработчик","vacanciesCount":554,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fprogrammist_javascript","itemHubs":["javascript","reactjs","nodejs","typescript","vuejs","angular","sveltejs"]},{"title":"React разработчик","vacanciesCount":276,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Freact_razrabotchik","itemHubs":["javascript","reactjs"]},{"title":"Node.js разработчик","vacanciesCount":185,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fnodejs_razrabotchik","itemHubs":["nodejs"]}],"hubs":"webdev,javascript,nodejs,reactjs,seo"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

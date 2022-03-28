@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Просто о микросервисах / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/company\/raiffeisenbank\/blog\/346380\/"},"headline":"Просто о микросервисах","datePublished":"2018-01-10T15:34:26+03:00","dateModified":"2018-09-17T19:41:13+03:00","author":{"@type":"Person","name":"Yury Karabutov"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Вступление Чуть ли не каждый второй, кто впервые сталкивается с MSA (Micro Service Architecture), на первых порах восклицает: &laquo;Да я эти микросервисы еще &hellip;надцать...","url":"https:\/\/habr.com\/ru\/company\/raiffeisenbank\/blog\/346380\/#post-content-body","about":["c_raiffeisenbank","h_hi","h_analysis_design","h_refactoring","h_microservices","f_develop"],"image":["https:\/\/habr.com\/share\/publication\/346380\/528764d8034aa2cf7e92ba0eb911709d\/"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Просто о микросервисах" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Просто о микросервисах" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Просто о микросервисах" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Вступление
+Чуть ли не каждый второй, кто впервые сталкивается с MSA (Micro Service Architecture), на первых порах восклицает: «Да я эти микросервисы еще …надцать лет назад». Отчасти они правы. И я..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Вступление
+Чуть ли не каждый второй, кто впервые сталкивается с MSA (Micro Service Architecture), на первых порах восклицает: «Да я эти микросервисы еще …надцать лет назад». Отчасти они правы. И я..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Вступление
+Чуть ли не каждый второй, кто впервые сталкивается с MSA (Micro Service Architecture), на первых порах восклицает: «Да я эти микросервисы еще …надцать лет назад». Отчасти они правы. И я..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Вступление
+Чуть ли не каждый второй, кто впервые сталкивается с MSA (Micro Service Architecture), на первых порах восклицает: «Да я эти микросервисы еще …надцать лет назад». Отчасти они правы. И я..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Вступление
+Чуть ли не каждый второй, кто впервые сталкивается с MSA (Micro Service Architecture), на первых порах восклицает: «Да я эти микросервисы еще …надцать лет назад». Отчасти они правы. И я..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/346380/528764d8034aa2cf7e92ba0eb911709d/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/346380/528764d8034aa2cf7e92ba0eb911709d/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/346380/528764d8034aa2cf7e92ba0eb911709d/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/346380/528764d8034aa2cf7e92ba0eb911709d/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/346380/528764d8034aa2cf7e92ba0eb911709d/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="346380" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2018-01-10T12:34:26.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/company/raiffeisenbank/blog/346380/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="микросервисная архитектура, raiffeisenbank, raiffeisen, архитектура, микросервисы">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/346380/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.121.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/346380/528764d8034aa2cf7e92ba0eb911709d/" data-vmid="image:href"><link data-vue-meta="ssr" rel="amphtml" href="https://habr.com/ru/amp/post/346380/">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" companyName="raiffeisenbank" data-async-called="true" class="tm-page"><div class="tm-page-width"><div class="tm-page__header"><div class="tm-company-card__branding tm-company-article__branding tm-company-card__branding_loading"><div class="tm-company-card__branding-placeholder"><!----></div> <img src="https://habrastorage.org/getpro/habr/branding/aa5/535/02d/aa553502ddf8913c83e3ace0bda58fa8.jpg" width="100%" class="tm-company-card__branding-image"></div></div> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"><div class="tm-company-profile-card tm-company-article__profile-card"><div class="tm-company-card tm-company-profile-card__info"><div class="tm-company-card__header"><a href="https://habr.com/ru/company/raiffeisenbank/profile/" class="tm-company-card__avatar"><div class="tm-entity-image"><img alt="" height="48" src="https://habrastorage.org/getpro/habr/company/3fb/cc5/68a/3fbcc568ac145a39ae52ab2c45c16eaa.png" width="48" class="tm-entity-image__pic"></div></a> <!----> <div class="tm-rating tm-company-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">86.14</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div> <!----></div> <div class="tm-company-card__info"><a href="https://habr.com/ru/company/raiffeisenbank/profile/" class="tm-company-card__name">
+      Райффайзен Банк
+    </a> <div class="tm-company-card__description">Развеиваем мифы об IT в банках</div></div></div> <!----></div> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/YuryKa/" title="YuryKa" class="tm-user-info__userpic"><div class="tm-entity-image"><svg height="24" width="24" class="tm-svg-img tm-image-placeholder tm-image-placeholder_pink"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/YuryKa/" class="tm-user-info__username">
+      YuryKa
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2018-01-10T12:34:26.000Z" title="2018-01-10, 15:34">10  января  2018 в 15:34</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Просто о микросервисах</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/company/raiffeisenbank/blog/" class="tm-article-snippet__hubs-item-link router-link-active"><span>Блог компании Райффайзен Банк</span> <!----></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/hi/" class="tm-article-snippet__hubs-item-link"><span>Высокая производительность</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/analysis_design/" class="tm-article-snippet__hubs-item-link"><span>Анализ и проектирование систем</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/refactoring/" class="tm-article-snippet__hubs-item-link"><span>Проектирование и рефакторинг</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/microservices/" class="tm-article-snippet__hubs-item-link"><span>Микросервисы</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <!----> <!----> <!----></div></div> <!----> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml"><h3>Вступление</h3><br/>
+Чуть ли не каждый второй, кто впервые сталкивается с MSA (Micro Service Architecture), на первых порах восклицает: «Да я эти микросервисы еще …надцать лет назад». Отчасти они правы. И я тоже был из этой самой половины, и не понимал — почему такой шум?<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/ok/j0/ow/okj0owc15yytxtktz5eqwcj7nyu.jpeg" data-src="https://habrastorage.org/webt/ok/j0/ow/okj0owc15yytxtktz5eqwcj7nyu.jpeg" data-blurred="true"/><br/>
+<br/>
+В самом деле! Ведь MSA — это тоже про разработку софта. Какие здесь могут быть революции? Все методики знакомы. В некоторых местах можно даже удивиться: «А разве бывает по-другому»? Фанаты Agile и DevOps тоже скажут, что это всё наше, родное.<br/>
+<br/>
+Но всё же прошу вас набраться терпения и продолжить читать дальше.<br/>
+<a name="habracut"></a><br/>
+<h3>Что такое микросервисная архитектура (MSA)</h3><br/>
+Если перефразировать Википедию, то определение микросервисной архитектуре может быть таким:<br/>
+<blockquote>MSA — <a href="https://ru.wikipedia.org/wiki/%D0%9F%D1%80%D0%B8%D0%BD%D1%86%D0%B8%D0%BF">принципиальная</a> организация распределенной <a href="https://ru.wikipedia.org/wiki/%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0">системы</a> на основе микросервисов и их взаимодействия друг с другом и со средой по сети, а также принципов, направляющих <a href="https://ru.wikipedia.org/wiki/%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5">проектирование</a> архитектуры, её создание и эволюцию.</blockquote><br/>
+<h3>Что такое микросервис (MS)</h3><br/>
+С архитектурой разобрались быстро. С микросервисами давайте поподробнее.<br/>
+<blockquote>Понять суть микросервиса проще всего на сравнении, или даже противопоставлении его крупному приложению — монолиту. В отличии от MSA, я не буду давать определение микросервису, а перечислю его наиболее важные характеристики. <br/>
+</blockquote><br/>
+А дальше мы рассмотрим каждую из них подробнее.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/bj/d9/xb/bjd9xbo0eecxrtpmg4oh83wjdru.png" data-src="https://habrastorage.org/webt/bj/d9/xb/bjd9xbo0eecxrtpmg4oh83wjdru.png"/><br/>
+<br/>
+Я выделил восемь свойств микросервиса:<br/>
+<br/>
+<ol>
+<li>Он небольшой.</li>
+<li>Он независимый.</li>
+<li>Он строится вокруг бизнес-потребности и использует ограниченный контекст <i>(Bounded Context)</i>.</li>
+<li>Он взаимодействует с другими микросервисами по сети на основе паттерна <i>Smart endpoints and dumb pipes.</i></li>
+<li>Его распределенная суть обязывает использовать подход <i>Design for failure</i>.</li>
+<li>Централизация ограничена сверху на минимуме.</li>
+<li>Процессы его разработки и поддержки требуют автоматизации.</li>
+<li>Его развитие итерационное.</li>
+</ol><br/>
+Уже на этом месте те, которые якобы создавали микросервисы в доисторические времена, должны задуматься, действительно ли всё было так продвинуто… Лично я на этой стадии перешел в разряд сомневающихся.<br/>
+<br/>
+<h3>Небольшой</h3><br/>
+Что такое «небольшой»? Такая малоинформативная формулировка! На самом деле, по-другому не скажешь. Каждый должен самостоятельно определиться с размером. Лучше всего на практике. В качестве индикативных оценок можно ориентироваться на рекомендации экспертов. Размер микровервиса должен быть таким, чтобы выполнялось одно из условий:<br/>
+<br/>
+<ol>
+<li>Один сервис может развивать одна команда не более чем из дюжины человек.</li>
+<li>Команда из полудюжины человек может развивать полдюжины сервисов.</li>
+<li>Контекст (не только бизнеса, но и разработки) одного сервиса помещается в голове одного человека.</li>
+<li>Один сервис может быть полностью переписан одной командой за одну Agile-итерацию.</li>
+</ol><br/>
+<h3>Независимый</h3><br/>
+Микросервисная архитектура — воплощение паттернов High Cohesion и Low Coupling. Всё, что противоречит этому, отвергается беспощадно. В противном случае команду ждут большие проблемы. Так что микросервис обязан быть независимым компонентом.<br/>
+<br/>
+Здесь попрошу вас не начинать холивар о том, что же такое «компонент». Давайте в рамках этой статьи сойдемся на том, что<br/>
+<blockquote><b>Компонент</b> — это единица ПО, код которой может быть независимо заменен или обновлен.</blockquote><br/>
+Конечно любая мало-мальски серьезная программа пишется с разбиением на компоненты, которые, безусловно, основываются на тех же принципах. Но в монолите общая кодовая база открывает возможности для нарушения низкой связанности. И при слабой дисциплине рано или поздно код превращается в спагетти.<br/>
+<br/>
+Под такую формулировку компонента подходят и сторонние библиотеки. Здесь сложнее с нарушением границ произвольными связями, но не на много.<br/>
+<br/>
+В то же время методология разбиения на отдельные микросервисы вынуждает придерживаться жесткого их разделения, ведь они должны отвечать более жестким критериям независимости.<br/>
+<br/>
+Так, каждый микросервис работает в своем процессе и поэтому должен явно обозначить свой API. Учитывая, что другие компоненты могут использовать только этот API, и к тому же он удаленный, минимизация связей становится жизненно важной.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/rn/vt/0c/rnvt0c19vxobzqmozokk0m_wa7y.png" data-src="https://habrastorage.org/webt/rn/vt/0c/rnvt0c19vxobzqmozokk0m_wa7y.png"/><br/>
+<br/>
+Такое разделение дает явный выигрыш с точки зрения независимого развития разных компонентов. И с учетом этого различные языки вводят конструкции, позволяющие явное создание независимых компонентов (например, модули в Java 9), и это перестает быть прерогативой микросервисного подхода.<br/>
+<br/>
+Не хочу, чтобы создалось впечатление, будто в микросервисной архитектуре запрещено использование библиотек. Их использование <b>не приветствуется</b>, поскольку так или иначе приводит к зависимостям между микросервисами, но всё же <b>допускается</b>. Как правило, это допущение распространяется на инфраструктурные функции вроде логирования, вызова удаленного API, обработки ошибок и тому подобного.<br/>
+<br/>
+Независимость микросервисов позволяет организовать независимый жизненный цикл разработки, создавать отдельные сборки, тестировать и развертывать.<br/>
+<br/>
+Поскольку размер микросервисов невелик, то очевидно, что в крупных системах их будет немало. Управлять ими вручную будет сложно. Поэтому команда обязана иметь приемлемый уровень автоматизации согласно <i>Continuous integration</i> и <i>Continuous Delivery.</i><br/>
+<br/>
+<h3>Где же микросервис (бизнес-потребность)</h3><br/>
+Итак, вы решили спроектировать новый микросервис.<br/>
+<br/>
+Определение его границ — самый важный шаг. От этого будет зависеть вся дальнейшая жизнь микросервиса, и это серьёзно повлияет на жизнь команды, отвечающей за него.<br/>
+<br/>
+Основной принцип определения зоны ответственности микросервиса — сформировать её вокруг некоторой бизнес-потребности. И чем она компактнее, чем формализованней её взаимоотношения с другими областями, тем проще создать новый микросервис. В общем, довольно стандартный посыл. На нем основывается создание любых других компонентов. Вопрос только в том, чтобы в дальнейшем выдержать эту зону ответственности, что мы и обсуждали в предыдущем параграфе.<br/>
+<br/>
+Когда границы микросервиса заданы и он выделен в отдельную кодовую базу, защитить эти границы от постороннего влияния не составляет труда. Далее внутри микросервиса создают свой микромир, опираясь на паттерн «ограниченного контекста». В микросервисе для любого объекта, для любого действия может быть своя интерпретация, отличная от других контекстов.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/of/6a/z9/of6az9hfqd4ry1fewqpzwyvsame.png" data-src="https://habrastorage.org/webt/of/6a/z9/of6az9hfqd4ry1fewqpzwyvsame.png"/><br/>
+<br/>
+Но что делать, если границы оказались неправильными? В этом случае изменение функциональности в новом микросервисе ведет к изменению функциональности в других микросервисах. В результате «поплывут» интерфейсы всех зависимых микросервисов, а за ними интеграционные тесты. И всё превращается в снежный ком. А если эти микросервисы ещё и принадлежат разным командам, то начинаются межкомандные встречи, согласования и тому подобное. Так что правильные границы микросервиса — это основа здоровой микросервисной архитектуры.<br/>
+<br/>
+Чтобы минимизировать ошибки при определении границ, нужно вначале их продумать. Поэтому оправданным является подход Monolith First, когда вначале систему развивают в традиционной парадигме, а когда появляются устоявшиеся области, их выделяют в микросервисы. Но всё течет и меняется. И границы тоже могут меняться. Главное, чтобы выигрыш от разбиения превышал сложности пересмотра этих границ. Такой подход к постепенному формированию набора микросервисов похож на итерационное развитие, используемое в Agile, ещё его называют «эволюционным проектированием» <i>(Evolutionary Design)</i>.<br/>
+<br/>
+Есть ещё одно интересное следствие создания микросервисов, соответствующее закону Конвея (Conwey Law).<br/>
+<br/>
+Если организация использует монолитное приложение, то оно нарушает соответствие структуре и коммуникациям внутри организации. А команды разработчиков строятся вокруг архитектурных слоев монолита: UI, серверная логика, база данных.<br/>
+<br/>
+Микросервисная архитектура приводит IT и бизнес в гармонию, с точки зрения Конвея. Поскольку микросервисы формируются вокруг бизнес-потребностей конкретных бизнес-подразделений, то архитектура предприятия начинает повторять оргструктуру и каналы социальной и бизнес-коммуникации. А команды становятся кроссфункциональными и формируются вокруг этих бизнес-потребностей / бизнес-подразделений.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/ca/tl/0s/catl0sdldxdk3aj3tlietvnwkum.png" data-src="https://habrastorage.org/webt/ca/tl/0s/catl0sdldxdk3aj3tlietvnwkum.png"/><br/>
+<br/>
+Поскольку разные микросервисы получаются независимыми не только логически, но и технологически, а создавать их могут разные команды, ничто не мешает для каждого случая подбирать подходящие языки программирования, фреймворки и даже операционные системы.<br/>
+<br/>
+<h3>Интеграция. Smart endpoints and dumb pipes</h3><br/>
+Интеграция микросервисов обходится без ESB, как центрального промежуточного звена. Наверное, комьюнити уже натерпелось от неудачных вариантов реализации этого подхода. То, что были и удачные — не принимается в расчет. Впрочем, ESB ещё и противоречит таким критериям как децентрализация и независимость. Таким образом, сложность интеграции распределяется с центрального звена в виде ESB непосредственно на интегрируемые компоненты: «умные конечные точки».<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/ah/vi/ns/ahvins4kzy5nnsijlp6ek2ouqvo.png" data-src="https://habrastorage.org/webt/ah/vi/ns/ahvins4kzy5nnsijlp6ek2ouqvo.png"/><br/>
+<br/>
+Для интеграции, как правило, используются простые текстовые протоколы, основанные на HTTP, чтобы нивелировать возможную технологическую разность микросервисов. REST-подобные протоколы являются практически стандартом. Как исключение, могут использоваться бинарные протоколы типа Java RMI или .NET Remoting.<br/>
+<br/>
+Здесь есть дилемма. Конечно бинарные протоколы гораздо эффективнее. Но, во-первых, появляются технологические ограничения. Во-вторых, на бинарных протоколах сложнее реализовывать шаблон Tolerant Reader, сохраняя эффективность. В-третьих, опять появляется зависимость провайдера и потребителей, поскольку они оперируют одними и теми же объектами и методами, то есть связаны по кодовой базе.<br/>
+<br/>
+Другая отличительная черта взаимодействия микросервисов — синхронные вызовы не приветствуются. Рекомендуется использовать один синхронный вызов на один запрос пользователя, или вообще отказаться от синхронных вызовов.<br/>
+<br/>
+И еще пара замечаний.<br/>
+<br/>
+<ol>
+<li>Основной сложностью разбиения монолита на микросервисы является не определение их границ. Они уже должны сформироваться и устояться. Сложность заключается в том, что локальные вызовы становятся удаленными. А это влияет не только на организацию вызовов, но и на стиль взаимодействия, так как частые вызовы уже не подходят. Скорее всего, надо пересматривать сам API, делать его более крупным, а, как следствие, пересматривать логику работы компонентов.</li>
+<li>Поскольку асинхронное событийное взаимодействие — практически стандарт в микросервисной архитектуре, то надо разбираться в создании событийной архитектуры (Event Driven Architecture), а сами микросервисы должны соответствовать требованиям Reactive.</li>
+</ol><br/>
+<h3><i>Design for failure</i> для распределенной системы</h3><br/>
+Одно из наиболее критичных мест в микросервисной архитектуре — необходимость разрабатывать код для распределенной системы, составные элементы которой взаимодействуют через сеть.<br/>
+<br/>
+А сеть ненадежна по своей природе. Сеть может просто отказать, может работать плохо, может вдруг перестать пропускать какой-то тип сообщений, потому что изменились настройки файрвола. Десятки причин и видов недоступности.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/kg/n1/wi/kgn1wiyd5yekywjygw-6teqpzb8.png" data-src="https://habrastorage.org/webt/kg/n1/wi/kgn1wiyd5yekywjygw-6teqpzb8.png"/><br/>
+<br/>
+Поэтому микросервисы могут вдруг перестать отвечать, могут начать отвечать медленнее, чем обычно. И каждый удаленный вызов должен это учитывать. Должен правильно обрабатывать разные варианты отказа, уметь ждать, уметь возвращаться к нормальной работе при восстановлении контрагента.<br/>
+<br/>
+Дополнительный уровень сложности привносит событийная архитектура. А отладку такой системы — не одного микросервиса, а системы, где много потоков разнонаправленных неупорядоченных событий — даже трудно представить. И даже если каждый из микросервисов будет безупречен с точки зрения бизнес-логики, этого мало. По аналогии со спортом, «звёзды» не гарантируют звездную команду, ведь в команде важнее не «звезды», а слаженность всех её игроков.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/tc/wt/rx/tcwtrxanxsgpxur0zecw4xfc9rs.png" data-src="https://habrastorage.org/webt/tc/wt/rx/tcwtrxanxsgpxur0zecw4xfc9rs.png"/><br/>
+<br/>
+И поскольку сложность таких систем очень высока, то проблему решают так.<br/>
+<br/>
+<ul>
+<li>Не доводят систему до состояния «без сучка без задоринки». Это очень дорого. Конечно, это не значит, что система валится от первого дуновения. Она просто отвечает необходимым нефункциональным требованиям. Но в ней могут присутствовать ошибки, незначительно влияющие на ее устойчивость и производительность.</li>
+<li>С другой стороны вкладываются в инфраструктуру, которая помогает быстрее устранять нештатные ситуации. Должно быть полное покрытие кода unit тестами, интеграционными и тестами производительности. Должен быть интеллектуальный мониторинг, который не только моментально показывает неработающие места, но и сигнализирует об ухудшении состояния системы с прогнозированием возможных сбоев. Должно быть продвинутое распределенное логирование, позволяющее оперативно проводить расследования. И часто по результатам исправляются скрытые ошибки.</li>
+</ul><br/>
+Всё это полезно и любому монолиту, но для микросервисов такая инфраструктура — вопрос жизни и смерти.<br/>
+<br/>
+<h3>Децентрализация данных</h3><br/>
+Еще один из важнейших элементов в парадигме микросервисов.<br/>
+<blockquote>Каждому микросервису по своей базе данных!</blockquote><br/>
+Лозунг популиста на выборах.<br/>
+<br/>
+На самом деле и в монолите можно побороться за изолированность компонентов, например, на уровне серверного кода. Если время от времени изоляция даёт течь, современные инструменты предлагают продвинутые инструменты рефакторинга. Пользуйтесь. Хотя, как правило, на это находится время, только когда дела уже совсем плохи.<br/>
+<br/>
+Теперь опустимся ниже, на уровень базы данных. Почему-то здесь на изолированность обращают внимание гораздо реже. В результате через пару тройку лет активного развития в базе данных монолита образуется если не хаос, то энтропия продвинутого уровня. Чтобы её побороть, мало уже одной строчки в бэклоге. Необходимы месяцы кропотливого и долгого труда.<br/>
+<br/>
+В микросервисной архитектуре это решается гильотиной. Общей базы данных просто нет.<br/>
+<br/>
+Помимо изолированности есть и побочные плюсы. Например, легче реализовать <i>Polyglot Persistence</i>, когда база подбирается под конкретные цели. Ничто не мешает делать это и без микросервисов, и так часто делают. Но всё же в одном случае это закон, в другом — исключение.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/u7/uc/gw/u7ucgwdqv2mrehtae0p6ycuqb9s.png" data-src="https://habrastorage.org/webt/u7/uc/gw/u7ucgwdqv2mrehtae0p6ycuqb9s.png"/><br/>
+<br/>
+У этой медали есть оборотная сторона. Много баз, много контекстов, как их все согласовать? Старая техника распределенных транзакций сложна и обладает низкой скоростью. Возможно это иногда можно пережить. А вот необходимость синхронного взаимодействия нескольких микросервисов не может устраивать, и это не побороть.<br/>
+<br/>
+Проблема решается нетрадиционно для монолита: отказом от постоянной согласованности данных. Добро пожаловать в мир <i>Eventual consistency</i>. На первых порах это вызывает волну «справедливого» гнева. Но если разобраться, то нужна ли повсеместно немедленная согласованность данных по окончании транзакции? При детальном рассмотрении значительную часть случаев можно отбросить. Где возможно, заменяют одну распределённую транзакцию серией локальных с компенсационными механизмами. Где-то мирятся с временной несогласованностью. А возможные ошибки либо обрабатывают за счет более сложной архитектуры, либо благодаря данным мониторинга. Если ничего не получается, то в особо экстремальных случаях всё же используют распределенные транзакции. Но это, с моей точки зрения, нарушение принципов MSA.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/webt/uz/fq/5t/uzfq5tekz31dstbu5db37hwfn6k.png" data-src="https://habrastorage.org/webt/uz/fq/5t/uzfq5tekz31dstbu5db37hwfn6k.png"/><br/>
+<br/>
+<h3>Монолит против микросервисов</h3><br/>
+Микросервисный подход несет довольно много проблем. Их найти не трудно и каждый может поупражняться. <br/>
+<br/>
+Например, организационные вопросы. Как удержать в согласованном по версиям состоянии сотню микросервисов, которые еще и постоянно и непредсказуемо редеплоятся. А доступ к средам у каждого инженера каждой команды? Какая команда напишет интеграционные тесты? И если кто-то согласится, то попробуй еще их напиши для такой запутанной конфигурации. А если возникает ошибка, то чья она? Только той команды, у которой сломалось? Как не узнать вечером в пятницу, что версия API N-го сервиса, которой вы пользуетесь, вдруг стала deprecated?<br/>
+<br/>
+Да, это действительно проблемы. Но команды, которые практикуют Agile и DevOps, уже знают решение. Поэтому начинать путь к микросервисной архитектуре стоит с внедрения этих практик.<br/>
+<br/>
+Кроме организационных есть и чисто архитектурные. Как перейти от монолита, где всё синхронно, согласованно и едино, к распределенной событийной архитектуры, основанной на множестве мелких элементов, в которой надо учитывать возможную неконсистентность данных? Одного этого достаточно, чтобы задуматься: а стоит ли игра свеч? На этом фоне, например, падение скорости обработки одного запроса кажется мелочью. Хотя бы работает!<br/>
+<br/>
+<img src="https://habrastorage.org/r/w780q1/webt/yg/2g/db/yg2gdbssf72cjsbmoxlcjittrfe.jpeg" data-src="https://habrastorage.org/webt/yg/2g/db/yg2gdbssf72cjsbmoxlcjittrfe.jpeg" data-blurred="true"/><br/>
+<br/>
+Тогда зачем? Если у вас нет проблем с вашим «монолитом», то не надо их искать.<br/>
+<br/>
+Но если проблемы есть, то посмотрите на плюсы MSA, и возможно она спасет вас.<br/>
+<br/>
+Разбиение на независимые компоненты даёт безусловные и неоспоримые преимущества: легкое понимание контекста, гибкость развития, управления и масштабирования. Независимость и небольшой размер дают и неожиданные плюсы с точки зрения инфраструктуры. Вам теперь не нужна монструозная машина за 100500 долларов. Микросервисы можно устанавливать на обычные дешевые машинки. И окажется, что даже все вместе они будут стоить на порядок меньше, но работать эффективнее той самой супермашины, на которую у вас в организации, наверняка, молятся и сдувают с неё пылинки.<br/>
+<br/>
+Здесь уместен другой лозунг от популиста. Хотя, как и предыдущий, он вполне серьезен.<br/>
+<blockquote>Каждому микросервису по своему серверу!</blockquote><br/>
+Продолжим агитировать за микросервисы. Посмотрим на лидеров IT-индустрии: Amazon, Netflix, Google и другие показывают впечатляющие результаты. Их гибкость и скорость вывода новых продуктов поражают. Поэтому игра точно стоит свеч! Здесь уместно вспомнить, что в упомянутых организациях команд «уровня бог» не одна и не две. Им сложности микросервисной архитектуры вполне по зубам. И если предложить создать монолит, то они и его сделают так, что он будет сверкать путеводной звездой. <br/>
+<br/>
+А, например, Amazon вполне себе работал на монолите, уже будучи гигантом и имея миллиардные обороты. Сайт газеты Guardian до сих пор, а возможно и навсегда, базируется на микросервисах вокруг монолита. Это говорит о том, что значительная часть задач успешно, а зачастую и легче, решается без привлечения микросервисов.<br/>
+<br/>
+И всё же это не значит, что микросервисы не для вас. Не боги горшки обжигают. Но бросаться с головой в омут тоже не стоит. Для микросервисной архитектуры команда должна быть достаточно зрелой. Один из главных критериев: использует ли она Agile и DevOps? Команда должна быть грамотной. Это сложно формализовать, но всё же попробуйте трезво оценить возможности. Например, насколько команда продвинута в Reactive и Event-Driven Architecture? К тому же команда должна иметь подготовленную инфраструктуру для поддержки микросервисной системы.<br/>
+<br/>
+Впрочем, достаточно. Просто попробуйте. Надеюсь, получится и понравится.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BC%D0%B8%D0%BA%D1%80%D0%BE%D1%81%D0%B5%D1%80%D0%B2%D0%B8%D1%81%D0%BD%D0%B0%D1%8F%20%D0%B0%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B0%5D" class="tm-tags-list__link">микросервисная архитектура</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Braiffeisenbank%5D" class="tm-tags-list__link">raiffeisenbank</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5Braiffeisen%5D" class="tm-tags-list__link">raiffeisen</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%B0%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D1%83%D1%80%D0%B0%5D" class="tm-tags-list__link">архитектура</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5B%D0%BC%D0%B8%D0%BA%D1%80%D0%BE%D1%81%D0%B5%D1%80%D0%B2%D0%B8%D1%81%D1%8B%5D" class="tm-tags-list__link">микросервисы</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/company/raiffeisenbank/blog/" class="tm-hubs-list__link router-link-active">
+    Блог компании Райффайзен Банк
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/hi/" class="tm-hubs-list__link">
+    Высокая производительность
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/analysis_design/" class="tm-hubs-list__link">
+    Анализ и проектирование систем
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/refactoring/" class="tm-hubs-list__link">
+    Проектирование и рефакторинг
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/microservices/" class="tm-hubs-list__link">
+    Микросервисы
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 51: ↑41 и ↓10</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 51: ↑41 и ↓10" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+31</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">152K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    360
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"><div class="tm-article-author__company"><div class="tm-article-author__company-card"><div class="tm-company-snippet"><a href="https://habr.com/ru/company/raiffeisenbank/profile/" class="tm-company-snippet__logo-link"><div class="tm-entity-image"><img alt="" height="40" src="https://habrastorage.org/getpro/habr/company/3fb/cc5/68a/3fbcc568ac145a39ae52ab2c45c16eaa.png" width="40" class="tm-entity-image__pic"></div></a> <div class="tm-company-snippet__info"><a href="https://habr.com/ru/company/raiffeisenbank/profile/" class="tm-company-snippet__title">Райффайзен Банк</a> <div class="tm-company-snippet__description">Развеиваем мифы об IT в банках</div></div></div> <div class="tm-article-author__buttons"><!----> <!----></div></div> <div class="tm-article-author__company-contacts"><a href="http://www.raiffeisen.ru/" rel="noopener" target="_blank" class="tm-article-author__contact">
+      Сайт
+    </a></div> <div class="tm-article-author__separator"></div></div> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/YuryKa/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><svg class="tm-svg-img tm-image-placeholder tm-image-placeholder_pink"><!----> <use xlink:href="/img/megazord-v25.4b679db1.svg#placeholder-user"></use></svg></div></a> <div class="tm-user-card__meta"><div title=" 24 голоса " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    22
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Yury Karabutov</span> <a href="https://habr.com/ru/users/YuryKa/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @YuryKa
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">Пользователь</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/company/raiffeisenbank/blog/346380/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 33 
+    </span></a> <!----></div></div></div>  <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__placeholder_initial"></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Информация</h2> <!----></header> <div class="tm-block__body"><div class="tm-company-basic-info"><dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата основания</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><span>
+      1996
+    </span></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Местоположение</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    Россия
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Сайт</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="http://www.raiffeisen.ru/" target="_blank" class="tm-company-basic-info__link">
+      www.raiffeisen.ru
+    </a></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Численность</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap">
+    5 001–10 000 человек
+  </dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Дата регистрации</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><time datetime="2017-04-28T11:45:06.000Z" title="2017-04-28, 14:45">28  апреля  2017</time></dd></dl> <dl class="tm-description-list tm-description-list_variant-columns-nowrap"><dt class="tm-description-list__title tm-description-list__title_variant-columns-nowrap">Представитель</dt> <dd class="tm-description-list__body tm-description-list__body_variant-columns-nowrap"><a href="https://habr.com/" class="tm-company-basic-info__link router-link-active">
+      
+    </a></dd></dl></div></div> <!----></section> <div class="tm-company-widgets"></div> <!----></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/company/raiffeisenbank/blog/346380/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/company/raiffeisenbank/blog/346380/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"346380":{"id":"346380","timePublished":"2018-01-10T12:34:26+00:00","isCorporative":true,"lang":"ru","titleHtml":"Просто о микросервисах","leadData":{"textHtml":"\u003Ch3\u003EВступление\u003C\u002Fh3\u003E\u003Cbr\u003E\r\nЧуть ли не каждый второй, кто впервые сталкивается с MSA (Micro Service Architecture), на первых порах восклицает: «Да я эти микросервисы еще …надцать лет назад». Отчасти они правы. И я тоже был из этой самой половины, и не понимал — почему такой шум?\u003Cbr\u003E\r\n\u003Cbr\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fok\u002Fj0\u002Fow\u002Fokj0owc15yytxtktz5eqwcj7nyu.jpeg\"\u003E\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nВ самом деле! Ведь MSA — это тоже про разработку софта. Какие здесь могут быть революции? Все методики знакомы. В некоторых местах можно даже удивиться: «А разве бывает по-другому»? Фанаты Agile и DevOps тоже скажут, что это всё наше, родное.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nНо всё же прошу вас набраться терпения и продолжить читать дальше.\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[],"author":{"scoreStats":{"score":22,"votesCount":24},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1565159","alias":"YuryKa","fullname":"Yury Karabutov","avatarUrl":null,"speciality":"Пользователь"},"statistics":{"commentsCount":33,"favoritesCount":360,"readingCount":152100,"score":31,"votesCount":51},"hubs":[{"relatedData":null,"id":"21086","alias":"raiffeisenbank","type":"corporative","title":"Блог компании Райффайзен Банк","titleHtml":"Блог компании Райффайзен Банк","isProfiled":false},{"relatedData":null,"id":"4","alias":"hi","type":"collective","title":"Высокая производительность","titleHtml":"Высокая производительность","isProfiled":true},{"relatedData":null,"id":"397","alias":"analysis_design","type":"collective","title":"Анализ и проектирование систем","titleHtml":"Анализ и проектирование систем","isProfiled":true},{"relatedData":null,"id":"7504","alias":"refactoring","type":"collective","title":"Проектирование и рефакторинг","titleHtml":"Проектирование и рефакторинг","isProfiled":true},{"relatedData":null,"id":"22115","alias":"microservices","type":"collective","title":"Микросервисы","titleHtml":"Микросервисы","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003E\u003Ch3\u003EВступление\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЧуть ли не каждый второй, кто впервые сталкивается с MSA (Micro Service Architecture), на первых порах восклицает: «Да я эти микросервисы еще …надцать лет назад». Отчасти они правы. И я тоже был из этой самой половины, и не понимал — почему такой шум?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fok\u002Fj0\u002Fow\u002Fokj0owc15yytxtktz5eqwcj7nyu.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fok\u002Fj0\u002Fow\u002Fokj0owc15yytxtktz5eqwcj7nyu.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ самом деле! Ведь MSA — это тоже про разработку софта. Какие здесь могут быть революции? Все методики знакомы. В некоторых местах можно даже удивиться: «А разве бывает по-другому»? Фанаты Agile и DevOps тоже скажут, что это всё наше, родное.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо всё же прошу вас набраться терпения и продолжить читать дальше.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EЧто такое микросервисная архитектура (MSA)\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЕсли перефразировать Википедию, то определение микросервисной архитектуре может быть таким:\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EMSA — \u003Ca href=\"https:\u002F\u002Fru.wikipedia.org\u002Fwiki\u002F%D0%9F%D1%80%D0%B8%D0%BD%D1%86%D0%B8%D0%BF\"\u003Eпринципиальная\u003C\u002Fa\u003E организация распределенной \u003Ca href=\"https:\u002F\u002Fru.wikipedia.org\u002Fwiki\u002F%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0\"\u003Eсистемы\u003C\u002Fa\u003E на основе микросервисов и их взаимодействия друг с другом и со средой по сети, а также принципов, направляющих \u003Ca href=\"https:\u002F\u002Fru.wikipedia.org\u002Fwiki\u002F%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5\"\u003Eпроектирование\u003C\u002Fa\u003E архитектуры, её создание и эволюцию.\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EЧто такое микросервис (MS)\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nС архитектурой разобрались быстро. С микросервисами давайте поподробнее.\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EПонять суть микросервиса проще всего на сравнении, или даже противопоставлении его крупному приложению — монолиту. В отличии от MSA, я не буду давать определение микросервису, а перечислю его наиболее важные характеристики. \u003Cbr\u002F\u003E\r\n\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nА дальше мы рассмотрим каждую из них подробнее.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fbj\u002Fd9\u002Fxb\u002Fbjd9xbo0eecxrtpmg4oh83wjdru.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fbj\u002Fd9\u002Fxb\u002Fbjd9xbo0eecxrtpmg4oh83wjdru.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЯ выделил восемь свойств микросервиса:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EОн небольшой.\u003C\u002Fli\u003E\r\n\u003Cli\u003EОн независимый.\u003C\u002Fli\u003E\r\n\u003Cli\u003EОн строится вокруг бизнес-потребности и использует ограниченный контекст \u003Ci\u003E(Bounded Context)\u003C\u002Fi\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003EОн взаимодействует с другими микросервисами по сети на основе паттерна \u003Ci\u003ESmart endpoints and dumb pipes.\u003C\u002Fi\u003E\u003C\u002Fli\u003E\r\n\u003Cli\u003EЕго распределенная суть обязывает использовать подход \u003Ci\u003EDesign for failure\u003C\u002Fi\u003E.\u003C\u002Fli\u003E\r\n\u003Cli\u003EЦентрализация ограничена сверху на минимуме.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПроцессы его разработки и поддержки требуют автоматизации.\u003C\u002Fli\u003E\r\n\u003Cli\u003EЕго развитие итерационное.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\nУже на этом месте те, которые якобы создавали микросервисы в доисторические времена, должны задуматься, действительно ли всё было так продвинуто… Лично я на этой стадии перешел в разряд сомневающихся.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EНебольшой\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЧто такое «небольшой»? Такая малоинформативная формулировка! На самом деле, по-другому не скажешь. Каждый должен самостоятельно определиться с размером. Лучше всего на практике. В качестве индикативных оценок можно ориентироваться на рекомендации экспертов. Размер микровервиса должен быть таким, чтобы выполнялось одно из условий:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EОдин сервис может развивать одна команда не более чем из дюжины человек.\u003C\u002Fli\u003E\r\n\u003Cli\u003EКоманда из полудюжины человек может развивать полдюжины сервисов.\u003C\u002Fli\u003E\r\n\u003Cli\u003EКонтекст (не только бизнеса, но и разработки) одного сервиса помещается в голове одного человека.\u003C\u002Fli\u003E\r\n\u003Cli\u003EОдин сервис может быть полностью переписан одной командой за одну Agile-итерацию.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EНезависимый\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nМикросервисная архитектура — воплощение паттернов High Cohesion и Low Coupling. Всё, что противоречит этому, отвергается беспощадно. В противном случае команду ждут большие проблемы. Так что микросервис обязан быть независимым компонентом.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗдесь попрошу вас не начинать холивар о том, что же такое «компонент». Давайте в рамках этой статьи сойдемся на том, что\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003E\u003Cb\u003EКомпонент\u003C\u002Fb\u003E — это единица ПО, код которой может быть независимо заменен или обновлен.\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nКонечно любая мало-мальски серьезная программа пишется с разбиением на компоненты, которые, безусловно, основываются на тех же принципах. Но в монолите общая кодовая база открывает возможности для нарушения низкой связанности. И при слабой дисциплине рано или поздно код превращается в спагетти.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПод такую формулировку компонента подходят и сторонние библиотеки. Здесь сложнее с нарушением границ произвольными связями, но не на много.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ то же время методология разбиения на отдельные микросервисы вынуждает придерживаться жесткого их разделения, ведь они должны отвечать более жестким критериям независимости.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТак, каждый микросервис работает в своем процессе и поэтому должен явно обозначить свой API. Учитывая, что другие компоненты могут использовать только этот API, и к тому же он удаленный, минимизация связей становится жизненно важной.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Frn\u002Fvt\u002F0c\u002Frnvt0c19vxobzqmozokk0m_wa7y.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Frn\u002Fvt\u002F0c\u002Frnvt0c19vxobzqmozokk0m_wa7y.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТакое разделение дает явный выигрыш с точки зрения независимого развития разных компонентов. И с учетом этого различные языки вводят конструкции, позволяющие явное создание независимых компонентов (например, модули в Java 9), и это перестает быть прерогативой микросервисного подхода.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНе хочу, чтобы создалось впечатление, будто в микросервисной архитектуре запрещено использование библиотек. Их использование \u003Cb\u003Eне приветствуется\u003C\u002Fb\u003E, поскольку так или иначе приводит к зависимостям между микросервисами, но всё же \u003Cb\u003Eдопускается\u003C\u002Fb\u003E. Как правило, это допущение распространяется на инфраструктурные функции вроде логирования, вызова удаленного API, обработки ошибок и тому подобного.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНезависимость микросервисов позволяет организовать независимый жизненный цикл разработки, создавать отдельные сборки, тестировать и развертывать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоскольку размер микросервисов невелик, то очевидно, что в крупных системах их будет немало. Управлять ими вручную будет сложно. Поэтому команда обязана иметь приемлемый уровень автоматизации согласно \u003Ci\u003EContinuous integration\u003C\u002Fi\u003E и \u003Ci\u003EContinuous Delivery.\u003C\u002Fi\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EГде же микросервис (бизнес-потребность)\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nИтак, вы решили спроектировать новый микросервис.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОпределение его границ — самый важный шаг. От этого будет зависеть вся дальнейшая жизнь микросервиса, и это серьёзно повлияет на жизнь команды, отвечающей за него.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nОсновной принцип определения зоны ответственности микросервиса — сформировать её вокруг некоторой бизнес-потребности. И чем она компактнее, чем формализованней её взаимоотношения с другими областями, тем проще создать новый микросервис. В общем, довольно стандартный посыл. На нем основывается создание любых других компонентов. Вопрос только в том, чтобы в дальнейшем выдержать эту зону ответственности, что мы и обсуждали в предыдущем параграфе.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКогда границы микросервиса заданы и он выделен в отдельную кодовую базу, защитить эти границы от постороннего влияния не составляет труда. Далее внутри микросервиса создают свой микромир, опираясь на паттерн «ограниченного контекста». В микросервисе для любого объекта, для любого действия может быть своя интерпретация, отличная от других контекстов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fof\u002F6a\u002Fz9\u002Fof6az9hfqd4ry1fewqpzwyvsame.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fof\u002F6a\u002Fz9\u002Fof6az9hfqd4ry1fewqpzwyvsame.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо что делать, если границы оказались неправильными? В этом случае изменение функциональности в новом микросервисе ведет к изменению функциональности в других микросервисах. В результате «поплывут» интерфейсы всех зависимых микросервисов, а за ними интеграционные тесты. И всё превращается в снежный ком. А если эти микросервисы ещё и принадлежат разным командам, то начинаются межкомандные встречи, согласования и тому подобное. Так что правильные границы микросервиса — это основа здоровой микросервисной архитектуры.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЧтобы минимизировать ошибки при определении границ, нужно вначале их продумать. Поэтому оправданным является подход Monolith First, когда вначале систему развивают в традиционной парадигме, а когда появляются устоявшиеся области, их выделяют в микросервисы. Но всё течет и меняется. И границы тоже могут меняться. Главное, чтобы выигрыш от разбиения превышал сложности пересмотра этих границ. Такой подход к постепенному формированию набора микросервисов похож на итерационное развитие, используемое в Agile, ещё его называют «эволюционным проектированием» \u003Ci\u003E(Evolutionary Design)\u003C\u002Fi\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсть ещё одно интересное следствие создания микросервисов, соответствующее закону Конвея (Conwey Law).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЕсли организация использует монолитное приложение, то оно нарушает соответствие структуре и коммуникациям внутри организации. А команды разработчиков строятся вокруг архитектурных слоев монолита: UI, серверная логика, база данных.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nМикросервисная архитектура приводит IT и бизнес в гармонию, с точки зрения Конвея. Поскольку микросервисы формируются вокруг бизнес-потребностей конкретных бизнес-подразделений, то архитектура предприятия начинает повторять оргструктуру и каналы социальной и бизнес-коммуникации. А команды становятся кроссфункциональными и формируются вокруг этих бизнес-потребностей \u002F бизнес-подразделений.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fca\u002Ftl\u002F0s\u002Fcatl0sdldxdk3aj3tlietvnwkum.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fca\u002Ftl\u002F0s\u002Fcatl0sdldxdk3aj3tlietvnwkum.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоскольку разные микросервисы получаются независимыми не только логически, но и технологически, а создавать их могут разные команды, ничто не мешает для каждого случая подбирать подходящие языки программирования, фреймворки и даже операционные системы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EИнтеграция. Smart endpoints and dumb pipes\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nИнтеграция микросервисов обходится без ESB, как центрального промежуточного звена. Наверное, комьюнити уже натерпелось от неудачных вариантов реализации этого подхода. То, что были и удачные — не принимается в расчет. Впрочем, ESB ещё и противоречит таким критериям как децентрализация и независимость. Таким образом, сложность интеграции распределяется с центрального звена в виде ESB непосредственно на интегрируемые компоненты: «умные конечные точки».\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fah\u002Fvi\u002Fns\u002Fahvins4kzy5nnsijlp6ek2ouqvo.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fah\u002Fvi\u002Fns\u002Fahvins4kzy5nnsijlp6ek2ouqvo.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДля интеграции, как правило, используются простые текстовые протоколы, основанные на HTTP, чтобы нивелировать возможную технологическую разность микросервисов. REST-подобные протоколы являются практически стандартом. Как исключение, могут использоваться бинарные протоколы типа Java RMI или .NET Remoting.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗдесь есть дилемма. Конечно бинарные протоколы гораздо эффективнее. Но, во-первых, появляются технологические ограничения. Во-вторых, на бинарных протоколах сложнее реализовывать шаблон Tolerant Reader, сохраняя эффективность. В-третьих, опять появляется зависимость провайдера и потребителей, поскольку они оперируют одними и теми же объектами и методами, то есть связаны по кодовой базе.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДругая отличительная черта взаимодействия микросервисов — синхронные вызовы не приветствуются. Рекомендуется использовать один синхронный вызов на один запрос пользователя, или вообще отказаться от синхронных вызовов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИ еще пара замечаний.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Col\u003E\r\n\u003Cli\u003EОсновной сложностью разбиения монолита на микросервисы является не определение их границ. Они уже должны сформироваться и устояться. Сложность заключается в том, что локальные вызовы становятся удаленными. А это влияет не только на организацию вызовов, но и на стиль взаимодействия, так как частые вызовы уже не подходят. Скорее всего, надо пересматривать сам API, делать его более крупным, а, как следствие, пересматривать логику работы компонентов.\u003C\u002Fli\u003E\r\n\u003Cli\u003EПоскольку асинхронное событийное взаимодействие — практически стандарт в микросервисной архитектуре, то надо разбираться в создании событийной архитектуры (Event Driven Architecture), а сами микросервисы должны соответствовать требованиям Reactive.\u003C\u002Fli\u003E\r\n\u003C\u002Fol\u003E\u003Cbr\u002F\u003E\r\n\u003Ch3\u003E\u003Ci\u003EDesign for failure\u003C\u002Fi\u003E для распределенной системы\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nОдно из наиболее критичных мест в микросервисной архитектуре — необходимость разрабатывать код для распределенной системы, составные элементы которой взаимодействуют через сеть.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nА сеть ненадежна по своей природе. Сеть может просто отказать, может работать плохо, может вдруг перестать пропускать какой-то тип сообщений, потому что изменились настройки файрвола. Десятки причин и видов недоступности.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fkg\u002Fn1\u002Fwi\u002Fkgn1wiyd5yekywjygw-6teqpzb8.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fkg\u002Fn1\u002Fwi\u002Fkgn1wiyd5yekywjygw-6teqpzb8.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПоэтому микросервисы могут вдруг перестать отвечать, могут начать отвечать медленнее, чем обычно. И каждый удаленный вызов должен это учитывать. Должен правильно обрабатывать разные варианты отказа, уметь ждать, уметь возвращаться к нормальной работе при восстановлении контрагента.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДополнительный уровень сложности привносит событийная архитектура. А отладку такой системы — не одного микросервиса, а системы, где много потоков разнонаправленных неупорядоченных событий — даже трудно представить. И даже если каждый из микросервисов будет безупречен с точки зрения бизнес-логики, этого мало. По аналогии со спортом, «звёзды» не гарантируют звездную команду, ведь в команде важнее не «звезды», а слаженность всех её игроков.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Ftc\u002Fwt\u002Frx\u002Ftcwtrxanxsgpxur0zecw4xfc9rs.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Ftc\u002Fwt\u002Frx\u002Ftcwtrxanxsgpxur0zecw4xfc9rs.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИ поскольку сложность таких систем очень высока, то проблему решают так.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cul\u003E\r\n\u003Cli\u003EНе доводят систему до состояния «без сучка без задоринки». Это очень дорого. Конечно, это не значит, что система валится от первого дуновения. Она просто отвечает необходимым нефункциональным требованиям. Но в ней могут присутствовать ошибки, незначительно влияющие на ее устойчивость и производительность.\u003C\u002Fli\u003E\r\n\u003Cli\u003EС другой стороны вкладываются в инфраструктуру, которая помогает быстрее устранять нештатные ситуации. Должно быть полное покрытие кода unit тестами, интеграционными и тестами производительности. Должен быть интеллектуальный мониторинг, который не только моментально показывает неработающие места, но и сигнализирует об ухудшении состояния системы с прогнозированием возможных сбоев. Должно быть продвинутое распределенное логирование, позволяющее оперативно проводить расследования. И часто по результатам исправляются скрытые ошибки.\u003C\u002Fli\u003E\r\n\u003C\u002Ful\u003E\u003Cbr\u002F\u003E\r\nВсё это полезно и любому монолиту, но для микросервисов такая инфраструктура — вопрос жизни и смерти.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EДецентрализация данных\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nЕще один из важнейших элементов в парадигме микросервисов.\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EКаждому микросервису по своей базе данных!\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nЛозунг популиста на выборах.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа самом деле и в монолите можно побороться за изолированность компонентов, например, на уровне серверного кода. Если время от времени изоляция даёт течь, современные инструменты предлагают продвинутые инструменты рефакторинга. Пользуйтесь. Хотя, как правило, на это находится время, только когда дела уже совсем плохи.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТеперь опустимся ниже, на уровень базы данных. Почему-то здесь на изолированность обращают внимание гораздо реже. В результате через пару тройку лет активного развития в базе данных монолита образуется если не хаос, то энтропия продвинутого уровня. Чтобы её побороть, мало уже одной строчки в бэклоге. Необходимы месяцы кропотливого и долгого труда.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ микросервисной архитектуре это решается гильотиной. Общей базы данных просто нет.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПомимо изолированности есть и побочные плюсы. Например, легче реализовать \u003Ci\u003EPolyglot Persistence\u003C\u002Fi\u003E, когда база подбирается под конкретные цели. Ничто не мешает делать это и без микросервисов, и так часто делают. Но всё же в одном случае это закон, в другом — исключение.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fu7\u002Fuc\u002Fgw\u002Fu7ucgwdqv2mrehtae0p6ycuqb9s.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fu7\u002Fuc\u002Fgw\u002Fu7ucgwdqv2mrehtae0p6ycuqb9s.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nУ этой медали есть оборотная сторона. Много баз, много контекстов, как их все согласовать? Старая техника распределенных транзакций сложна и обладает низкой скоростью. Возможно это иногда можно пережить. А вот необходимость синхронного взаимодействия нескольких микросервисов не может устраивать, и это не побороть.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nПроблема решается нетрадиционно для монолита: отказом от постоянной согласованности данных. Добро пожаловать в мир \u003Ci\u003EEventual consistency\u003C\u002Fi\u003E. На первых порах это вызывает волну «справедливого» гнева. Но если разобраться, то нужна ли повсеместно немедленная согласованность данных по окончании транзакции? При детальном рассмотрении значительную часть случаев можно отбросить. Где возможно, заменяют одну распределённую транзакцию серией локальных с компенсационными механизмами. Где-то мирятся с временной несогласованностью. А возможные ошибки либо обрабатывают за счет более сложной архитектуры, либо благодаря данным мониторинга. Если ничего не получается, то в особо экстремальных случаях всё же используют распределенные транзакции. Но это, с моей точки зрения, нарушение принципов MSA.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fwebt\u002Fuz\u002Ffq\u002F5t\u002Fuzfq5tekz31dstbu5db37hwfn6k.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fuz\u002Ffq\u002F5t\u002Fuzfq5tekz31dstbu5db37hwfn6k.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch3\u003EМонолит против микросервисов\u003C\u002Fh3\u003E\u003Cbr\u002F\u003E\r\nМикросервисный подход несет довольно много проблем. Их найти не трудно и каждый может поупражняться. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНапример, организационные вопросы. Как удержать в согласованном по версиям состоянии сотню микросервисов, которые еще и постоянно и непредсказуемо редеплоятся. А доступ к средам у каждого инженера каждой команды? Какая команда напишет интеграционные тесты? И если кто-то согласится, то попробуй еще их напиши для такой запутанной конфигурации. А если возникает ошибка, то чья она? Только той команды, у которой сломалось? Как не узнать вечером в пятницу, что версия API N-го сервиса, которой вы пользуетесь, вдруг стала deprecated?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nДа, это действительно проблемы. Но команды, которые практикуют Agile и DevOps, уже знают решение. Поэтому начинать путь к микросервисной архитектуре стоит с внедрения этих практик.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nКроме организационных есть и чисто архитектурные. Как перейти от монолита, где всё синхронно, согласованно и едино, к распределенной событийной архитектуры, основанной на множестве мелких элементов, в которой надо учитывать возможную неконсистентность данных? Одного этого достаточно, чтобы задуматься: а стоит ли игра свеч? На этом фоне, например, падение скорости обработки одного запроса кажется мелочью. Хотя бы работает!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw780q1\u002Fwebt\u002Fyg\u002F2g\u002Fdb\u002Fyg2gdbssf72cjsbmoxlcjittrfe.jpeg\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fwebt\u002Fyg\u002F2g\u002Fdb\u002Fyg2gdbssf72cjsbmoxlcjittrfe.jpeg\" data-blurred=\"true\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТогда зачем? Если у вас нет проблем с вашим «монолитом», то не надо их искать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо если проблемы есть, то посмотрите на плюсы MSA, и возможно она спасет вас.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nРазбиение на независимые компоненты даёт безусловные и неоспоримые преимущества: легкое понимание контекста, гибкость развития, управления и масштабирования. Независимость и небольшой размер дают и неожиданные плюсы с точки зрения инфраструктуры. Вам теперь не нужна монструозная машина за 100500 долларов. Микросервисы можно устанавливать на обычные дешевые машинки. И окажется, что даже все вместе они будут стоить на порядок меньше, но работать эффективнее той самой супермашины, на которую у вас в организации, наверняка, молятся и сдувают с неё пылинки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗдесь уместен другой лозунг от популиста. Хотя, как и предыдущий, он вполне серьезен.\u003Cbr\u002F\u003E\r\n\u003Cblockquote\u003EКаждому микросервису по своему серверу!\u003C\u002Fblockquote\u003E\u003Cbr\u002F\u003E\r\nПродолжим агитировать за микросервисы. Посмотрим на лидеров IT-индустрии: Amazon, Netflix, Google и другие показывают впечатляющие результаты. Их гибкость и скорость вывода новых продуктов поражают. Поэтому игра точно стоит свеч! Здесь уместно вспомнить, что в упомянутых организациях команд «уровня бог» не одна и не две. Им сложности микросервисной архитектуры вполне по зубам. И если предложить создать монолит, то они и его сделают так, что он будет сверкать путеводной звездой. \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nА, например, Amazon вполне себе работал на монолите, уже будучи гигантом и имея миллиардные обороты. Сайт газеты Guardian до сих пор, а возможно и навсегда, базируется на микросервисах вокруг монолита. Это говорит о том, что значительная часть задач успешно, а зачастую и легче, решается без привлечения микросервисов.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nИ всё же это не значит, что микросервисы не для вас. Не боги горшки обжигают. Но бросаться с головой в омут тоже не стоит. Для микросервисной архитектуры команда должна быть достаточно зрелой. Один из главных критериев: использует ли она Agile и DevOps? Команда должна быть грамотной. Это сложно формализовать, но всё же попробуйте трезво оценить возможности. Например, насколько команда продвинута в Reactive и Event-Driven Architecture? К тому же команда должна иметь подготовленную инфраструктуру для поддержки микросервисной системы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВпрочем, достаточно. Просто попробуйте. Надеюсь, получится и понравится.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"микросервисная архитектура"},{"titleHtml":"raiffeisenbank"},{"titleHtml":"raiffeisen"},{"titleHtml":"архитектура"},{"titleHtml":"микросервисы"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F346380\u002F528764d8034aa2cf7e92ba0eb911709d\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F346380\u002F528764d8034aa2cf7e92ba0eb911709d\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fraiffeisenbank\\\u002Fblog\\\u002F346380\\\u002F\"},\"headline\":\"Просто о микросервисах\",\"datePublished\":\"2018-01-10T15:34:26+03:00\",\"dateModified\":\"2018-09-17T19:41:13+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Yury Karabutov\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Вступление Чуть ли не каждый второй, кто впервые сталкивается с MSA (Micro Service Architecture), на первых порах восклицает: &laquo;Да я эти микросервисы еще &hellip;надцать...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fcompany\\\u002Fraiffeisenbank\\\u002Fblog\\\u002F346380\\\u002F#post-content-body\",\"about\":[\"c_raiffeisenbank\",\"h_hi\",\"h_analysis_design\",\"h_refactoring\",\"h_microservices\",\"f_develop\"],\"image\":[\"https:\\\u002F\\\u002Fhabr.com\\\u002Fshare\\\u002Fpublication\\\u002F346380\\\u002F528764d8034aa2cf7e92ba0eb911709d\\\u002F\"]}","metaDescription":"Вступление\r\nЧуть ли не каждый второй, кто впервые сталкивается с MSA (Micro Service Architecture), на первых порах восклицает: «Да я эти микросервисы еще …надцать лет назад». Отчасти они правы. И я...","mainImageUrl":null,"amp":true,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[],"hubs":""},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{"raiffeisenbank":{"alias":"raiffeisenbank","imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fcompany\u002F3fb\u002Fcc5\u002F68a\u002F3fbcc568ac145a39ae52ab2c45c16eaa.png","titleHtml":"Райффайзен Банк","descriptionHtml":"Развеиваем мифы об IT в банках","relatedData":null,"statistics":{"postsCount":198,"newsCount":18,"vacanciesCount":0,"employeesCount":44,"careerRating":null,"subscribersCount":7824,"rating":86.14,"invest":null},"foundationDate":{"year":"1996","month":null,"day":null},"location":{"city":{"id":"447159","title":"Москва"},"region":{"id":"1885","title":"Москва и Московская обл."},"country":{"id":"168","title":"Россия"}},"siteUrl":"http:\u002F\u002Fwww.raiffeisen.ru\u002F","staffNumber":"5 001–10 000 человек","registrationDate":"2017-04-28T11:45:06+00:00","representativeUser":[],"contacts":[{"title":"Сайт","url":"http:\u002F\u002Fwww.raiffeisen.ru\u002F"}],"settings":{"analyticsSettings":[{"type":"ym","trackingId":"62812537"}],"branding":{"imageUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fbranding\u002Faa5\u002F535\u002F02d\u002Faa553502ddf8913c83e3ace0bda58fa8.jpg","linkUrl":null,"pixelUrl":null},"status":"active","isStartup":false},"metadata":{"titleHtml":"Райффайзен Банк, Москва - Развеиваем мифы об IT в банках с 1996 год","title":"Райффайзен Банк, Москва - Развеиваем мифы об IT в банках с 1996 год","keywords":["Конференции","Usability","Управление продуктом","Микросервисы","Дизайн","raiffeisenbank","raiffeisendgtl","raiffeisenit","meetup","java","райффайзенбанк","raiffeisen","agile","devops","javascript","scrum",".net","atlassian","frontend","продуктовый дизайн","kotlin","пользовательские интерфейсы","микросервисы","jira","ci\u002Fcd"],"descriptionHtml":"198 статей от авторов компании Райффайзен Банк","description":"198 статей от авторов компании Райффайзен Банк"},"aDeskSettings":null,"careerAlias":"raiffeisen"}},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>

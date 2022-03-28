@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ru" data-vue-meta="%7B%22lang%22:%7B%22ssr%22:%22ru%22%7D%7D">
+<head >
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+  <meta name="referrer" content="unsafe-url">
+  <title>Ненужные HTTP-заголовки / Хабр</title>
+  <style>
+    /* cyrillic-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSxf6TF0.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+
+    /* cyrillic */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveQhf6TF0.woff2) format('woff2');
+      unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+    }
+
+    /* latin-ext */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveSBf6TF0.woff2) format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    /* latin */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/firasans/v11/va9B4kDNxMZdWfMOD5VnZKveRhf6.woff2) format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    /* non-breaking hyphen */
+    @font-face {
+      font-family: 'Fira Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/l/font?kit=KFOlCnqEu92Fr1MmEU9vBh0_IsHAlmrO6g&skey=ee881451c540fdec&v=v29) format('woff2');
+      unicode-range: U+02011;
+    }
+  </style>
+  <link rel="preload" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" as="script"><link rel="preload" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css" as="style"><link rel="preload" href="https://assets.habr.com/habr-web/js/app.92df6f6d.js" as="script">
+  <link rel="stylesheet" href="https://assets.habr.com/habr-web/css/chunk-vendors.e7843cc0.css"><link rel="stylesheet" href="https://assets.habr.com/habr-web/css/app.4de4e95a.css">
+  <script>window.i18nFetch = new Promise((res, rej) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', '/js/i18n/ru-compiled.2822d469ec31a56409ac330bbcf7fcbf.json');
+          xhr.responseType = 'json';
+          xhr.onload = function(e) {
+            if (this.status === 200) {
+              res({ru: xhr.response});
+            } else {
+              rej(e);
+            }
+          };
+          xhr.send();
+        });</script>
+  
+  <script data-vue-meta="ssr" type="application/ld+json" data-vmid="ldjson-schema">{"@context":"http:\/\/schema.org","@type":"Article","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/habr.com\/ru\/post\/412813\/"},"headline":"Ненужные HTTP-заголовки","datePublished":"2018-05-31T13:23:16+03:00","dateModified":"2018-06-04T17:53:26+03:00","author":{"@type":"Person","name":"Анатолий Ализар"},"publisher":{"@type":"Organization","name":"Habr","logo":{"@type":"ImageObject","url":"https:\/\/habrastorage.org\/webt\/a_\/lk\/9m\/a_lk9mjkccjox-zccjrpfolmkmq.png"}},"description":"Заголовки HTTP важны для контроля, как кэш и браузеры обрабатывают ваш контент. Но многие из них используются неправильно или бессмысленно, затрачивая лишние рес...","url":"https:\/\/habr.com\/ru\/post\/412813\/#post-content-body","about":["h_webdev","h_server_side_optimization","f_develop","f_admin"],"image":["https:\/\/habrastorage.org\/getpro\/habr\/post_images\/08b\/cab\/34b\/08bcab34b2210548e77cbe708ffdd17e.png"]}</script>
+  <script src="https://www.googletagservices.com/tag/js/gpt.js" async></script>
+  <style>.grecaptcha-badge{visibility: hidden;}</style>
+  <meta name="habr-version" content="2.64.0">
+  
+  <meta data-vue-meta="ssr" property="fb:app_id" content="444736788986613"><meta data-vue-meta="ssr" property="fb:pages" content="472597926099084"><meta data-vue-meta="ssr" name="twitter:card" content="summary_large_image"><meta data-vue-meta="ssr" name="twitter:site" content="@habr_com"><meta data-vue-meta="ssr" property="og:site_name" content="Хабр" data-vmid="og:site_name"><meta data-vue-meta="ssr" property="og:title" content="Ненужные HTTP-заголовки" data-vmid="og:title"><meta data-vue-meta="ssr" name="twitter:title" content="Ненужные HTTP-заголовки" data-vmid="twitter:title"><meta data-vue-meta="ssr" name="aiturec:title" content="Ненужные HTTP-заголовки" data-vmid="aiturec:title"><meta data-vue-meta="ssr" name="description" content="Заголовки HTTP важны для контроля, как кэш и браузеры обрабатывают ваш контент. Но многие из них используются неправильно или бессмысленно, затрачивая лишние ресурсы в критический момент загрузки..." data-vmid="description"><meta data-vue-meta="ssr" itemprop="description" content="Заголовки HTTP важны для контроля, как кэш и браузеры обрабатывают ваш контент. Но многие из них используются неправильно или бессмысленно, затрачивая лишние ресурсы в критический момент загрузки..." data-vmid="description:itemprop"><meta data-vue-meta="ssr" property="og:description" content="Заголовки HTTP важны для контроля, как кэш и браузеры обрабатывают ваш контент. Но многие из них используются неправильно или бессмысленно, затрачивая лишние ресурсы в критический момент загрузки..." data-vmid="og:description"><meta data-vue-meta="ssr" name="twitter:description" content="Заголовки HTTP важны для контроля, как кэш и браузеры обрабатывают ваш контент. Но многие из них используются неправильно или бессмысленно, затрачивая лишние ресурсы в критический момент загрузки..." data-vmid="twitter:description"><meta data-vue-meta="ssr" property="aiturec:description" content="Заголовки HTTP важны для контроля, как кэш и браузеры обрабатывают ваш контент. Но многие из них используются неправильно или бессмысленно, затрачивая лишние ресурсы в критический момент загрузки..." data-vmid="aiturec:description"><meta data-vue-meta="ssr" itemprop="image" content="https://habr.com/share/publication/412813/feb9e4a49bbd382e3833a9c0f0ea83c3/" data-vmid="image:itemprop"><meta data-vue-meta="ssr" property="og:image" content="https://habr.com/share/publication/412813/feb9e4a49bbd382e3833a9c0f0ea83c3/" data-vmid="og:image"><meta data-vue-meta="ssr" property="og:image:width" content="1200" data-vmid="og:image:width"><meta data-vue-meta="ssr" property="og:image:height" content="630" data-vmid="og:image:height"><meta data-vue-meta="ssr" property="aiturec:image" content="https://habr.com/share/publication/412813/feb9e4a49bbd382e3833a9c0f0ea83c3/" data-vmid="aiturec:image"><meta data-vue-meta="ssr" name="twitter:image" content="https://habr.com/share/publication/412813/feb9e4a49bbd382e3833a9c0f0ea83c3/" data-vmid="twitter:image"><meta data-vue-meta="ssr" property="vk:image" content="https://habr.com/share/publication/412813/feb9e4a49bbd382e3833a9c0f0ea83c3/?format=vk" data-vmid="vk:image"><meta data-vue-meta="ssr" property="aiturec:item_id" content="412813" data-vmid="aiturec:item_id"><meta data-vue-meta="ssr" property="aiturec:datetime" content="2018-05-31T10:23:16.000Z" data-vmid="aiturec:datetime"><meta data-vue-meta="ssr" content="https://habr.com/ru/post/412813/" property="og:url" data-vmid="og:url"><meta data-vue-meta="ssr" property="og:type" content="article" data-vmid="og:type"><meta data-vue-meta="ssr" property="og:locale" content="ru_RU" data-vmid="og:locale"><meta data-vue-meta="ssr" name="keywords" content="HTTP-заголовки, CDN, Fastly">
+  <link data-vue-meta="ssr" href="https://habr.com/ru/rss/post/412813/?fl=ru" type="application/rss+xml" title="" rel="alternate" name="rss"><link data-vue-meta="ssr" href="index.html.1.26.html" rel="canonical" data-vmid="canonical"><link data-vue-meta="ssr" data-vmid="hreflang"><link data-vue-meta="ssr" image_src="image" href="https://habr.com/share/publication/412813/feb9e4a49bbd382e3833a9c0f0ea83c3/" data-vmid="image:href">
+  <meta name="apple-mobile-web-app-status-bar-style" content="#303b44">
+  <meta name="msapplication-TileColor" content="#629FBC">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="16x16"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-16.png"
+  >
+  <link
+    rel="shortcut icon"
+    type="image/png"
+    sizes="32x32"
+    href="https://assets.habr.com/habr-web/img/favicons/favicon-32.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="76x76"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-76.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="120x120"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="152x152"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-152.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="180x180"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-180.png"
+  >
+  <link
+    rel="apple-touch-icon"
+    type="image/png"
+    sizes="256x256"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-256.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1136x640.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2436x1125.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1792x828.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_828x1792.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1334x750.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2208x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1125x2436.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1242x2208.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2732x2048.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2688x1242.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2224x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_750x1334.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x2732.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2388x1668.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2224.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_640x1136.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1668x2388.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_2048x1536.png"
+  >
+  <link
+    rel="apple-touch-startup-image"
+    media="screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    href="https://assets.habr.com/habr-web/img/splashes/splash_1536x2048.png"
+  >
+  <link
+    rel="mask-icon"
+    color="#77a2b6"
+    href="https://assets.habr.com/habr-web/img/favicons/apple-touch-icon-120.svg"
+  >
+  <link
+    crossorigin="use-credentials"
+    href="https://habr.com/manifest.webmanifest"
+    rel="manifest"
+  >
+</head>
+<body>
+
+
+<div id="app" data-server-rendered="true" data-async-called="true"><div class="tm-layout__wrapper"><!----> <div></div> <!----> <header class="tm-header"><div class="tm-page-width"><div class="tm-header__container"><!----> <span class="tm-header__logo-wrap"><a href="https://habr.com/ru/" class="tm-header__logo tm-header__logo_ru"><svg height="16" width="16" class="tm-svg-img tm-header__icon"><title>Хабр</title> <use xlink:href="/img/habr-logo-ru.svg#logo"></use></svg></a> <span class="tm-header__beta-sign" style="display:none;">β</span></span> <div class="tm-dropdown tm-header__projects"><div class="tm-dropdown__head"><button class="tm-header__dropdown-toggle"><svg height="16" width="16" class="tm-svg-img tm-header__icon tm-header__icon_dropdown"><title>Открыть список</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#arrow-down"></use></svg></button></div> <!----></div> <a href="https://habr.com/ru/sandbox/start/" class="tm-header__become-author-btn">
+            Как стать автором
+          </a> <div class="tm-feature tm-header__feature tm-feature_variant-inline"><!----></div> <!----> <!----></div></div></header> <div class="tm-layout"><div class="tm-page-progress-bar"></div> <div data-menu-sticky="true" class="tm-base-layout__header tm-base-layout__header_is-sticky"><div class="tm-page-width"><div class="tm-base-layout__header-wrapper"><div class="tm-main-menu"><div class="tm-main-menu__section"><nav class="tm-main-menu__section-content"><!----> <a href="https://habr.com/ru/flows/all" class="tm-main-menu__item">
+        Все потоки
+      </a> <a href="https://habr.com/ru/flows/develop/" class="tm-main-menu__item">
+          Разработка
+        </a><a href="https://habr.com/ru/flows/admin/" class="tm-main-menu__item">
+          Администрирование
+        </a><a href="https://habr.com/ru/flows/design/" class="tm-main-menu__item">
+          Дизайн
+        </a><a href="https://habr.com/ru/flows/management/" class="tm-main-menu__item">
+          Менеджмент
+        </a><a href="https://habr.com/ru/flows/marketing/" class="tm-main-menu__item">
+          Маркетинг
+        </a><a href="https://habr.com/ru/flows/popsci/" class="tm-main-menu__item">
+          Научпоп
+        </a></nav></div></div> <div class="tm-header-user-menu tm-base-layout__user-menu"><a href="https://habr.com/ru/search/" class="tm-header-user-menu__item tm-header-user-menu__search"><svg height="24" width="24" class="tm-svg-img tm-header-user-menu__icon tm-header-user-menu__icon_search tm-header-user-menu__icon_dark"><title>Поиск</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#search"></use></svg></a> <!----> <!----> <!----> <div class="tm-header-user-menu__item tm-header-user-menu__user_desktop"><div class="tm-dropdown"><div class="tm-dropdown__head"><svg height="24" width="24" data-test-id="menu-toggle-guest" class="tm-svg-img tm-header-user-menu__icon"><title>Профиль</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#header-user"></use></svg> <!----></div> <!----></div> <!----></div> <!----></div></div></div></div> <!----> <div class="tm-page-width"></div> <main class="tm-layout__container"><div hl="ru" data-async-called="true" class="tm-page"><div class="tm-page-width"><!----> <div class="tm-page__wrapper"><div class="tm-page__main tm-page__main_has-sidebar"><div class="pull-down"><div class="pull-down__header" style="height:0px;"><div class="pull-down__content" style="bottom:10px;"><svg height="24" width="24" class="tm-svg-img pull-down__arrow"><title>Обновить</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#pull-arrow"></use></svg></div></div> <div class="tm-article-presenter"> <div class="tm-article-presenter__body"><div class="tm-misprint-area"><div class="tm-misprint-area__wrapper"><article class="tm-article-presenter__content tm-article-presenter__content_narrow"><div class="tm-article-presenter__header"> <div class="tm-article-snippet tm-article-presenter__snippet"><div class="tm-article-snippet__meta-container"><div class="tm-article-snippet__meta"><span class="tm-user-info tm-article-snippet__author"><a href="https://habr.com/ru/users/m1rko/" title="m1rko" class="tm-user-info__userpic"><div class="tm-entity-image"><img alt="" height="24" src="https://habrastorage.org/r/w32/getpro/habr/avatars/4ec/bd0/85d/4ecbd085d692835a931d03174ff19539.png" width="24" class="tm-entity-image__pic"></div></a> <span class="tm-user-info__user"><a href="https://habr.com/ru/users/m1rko/" class="tm-user-info__username">
+      m1rko
+    </a> </span></span> <span class="tm-article-snippet__datetime-published"><time datetime="2018-05-31T10:23:16.000Z" title="2018-05-31, 13:23">31  мая  2018 в 13:23</time></span></div> <!----></div> <h1 lang="ru" class="tm-article-snippet__title tm-article-snippet__title_h1"><span>Ненужные HTTP-заголовки</span></h1> <div class="tm-article-snippet__hubs"><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/webdev/" class="tm-article-snippet__hubs-item-link"><span>Разработка веб-сайтов</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span><span class="tm-article-snippet__hubs-item"><a href="https://habr.com/ru/hub/server_side_optimization/" class="tm-article-snippet__hubs-item-link"><span>Серверная оптимизация</span> <span title="Профильный хаб" class="tm-article-snippet__profiled-hub">*</span></a></span></div> <div class="tm-article-snippet__labels"><div class="tm-article-snippet__label tm-article-snippet__label_variant-translation"><span>
+        Перевод
+      </span></div></div> <!----> <!----></div></div> <div class="tm-article-presenter__origin"><a href="https://www.fastly.com/blog/headers-we-dont-want" target="_blank" class="tm-article-presenter__origin-link">
+                Автор оригинала:
+                <span>
+                  Andrew Betts
+                </span></a></div> <div data-gallery-root="" lang="ru" class="tm-article-body"><div></div> <div id="post-content-body"><div><div class="article-formatted-body article-formatted-body_version-1"><div xmlns="http://www.w3.org/1999/xhtml">Заголовки HTTP важны для контроля, как кэш и браузеры обрабатывают ваш контент. Но многие из них используются неправильно или бессмысленно, затрачивая лишние ресурсы в критический момент загрузки страницы, и они могут работать не так, как вы думаете. В серии статей о лучших практиках сначала рассмотрим ненужные заголовки.<br/>
+<br/>
+Большинство разработчиков знают о важных и нужных HTTP-заголовках. Самые известные — <code>Content-Type</code> и <code>Content-Length</code>, это почти универсальные хедеры. Но в последнее время для повышения безопасности начали использоваться заголовки вроде <code>Content-Security-Policy</code> и <code>Strict-Transport-Security</code>, а для повышения производительности — <code>Link rel=preload</code>. Несмотря на широкую поддержку в браузерах, лишь немногие их используют.<br/>
+<br/>
+В то же время есть много чрезвычайно популярных заголовков, которые вообще не новые и не очень полезные. Мы можем это доказать с помощью <a href="http://httparchive.org/">HTTP Archive</a>, проекта под управлением Google и спонсируемого Fastly, который каждый месяц при помощи <a href="https://www.webpagetest.org/">WebPageTest</a> скачивает 500 000 сайтов и выкладывает результаты в <a href="https://cloud.google.com/bigquery/">BigQuery</a>.<br/>
+<a name="habracut"></a><br/>
+Вот 30 самых популярных заголовков ответов по данным HTTP Archive (на основе количества доменов в архиве, которые выдают каждый заголовок), и примерная оценка полезности каждого из них:<br/>
+<br/>
+<table>
+<tr>
+<th>Заголовок</th>
+<th>Запросов</th>
+<th>Доменов</th>
+<th>Статус</th>
+</tr>
+<tr>
+<td>date</td>
+<td>48779277</td>
+<td>535621</td>
+<td>Требуется по протоколу</td>
+</tr>
+<tr>
+<td>content-type</td>
+<td>47185627</td>
+<td>533636</td>
+<td>Обычно требуется браузером</td>
+</tr>
+<tr>
+<td><strong>server</strong></td>
+<td><strong>43057807</strong></td>
+<td><strong>519663</strong></td>
+<td><strong>Необязателен</strong></td>
+</tr>
+<tr>
+<td>content-length</td>
+<td>42388435</td>
+<td>519118</td>
+<td>Полезен</td>
+</tr>
+<tr>
+<td>last-modified</td>
+<td>34424562</td>
+<td>480294</td>
+<td>Полезен</td>
+</tr>
+<tr>
+<td>cache-control</td>
+<td>36490878</td>
+<td>412943</td>
+<td>Полезен</td>
+</tr>
+<tr>
+<td>etag</td>
+<td>23620444</td>
+<td>412370</td>
+<td>Полезен</td>
+</tr>
+<tr>
+<td>content-encoding</td>
+<td>16194121</td>
+<td>409159</td>
+<td>Требуется для сжатого контента</td>
+</tr>
+<tr>
+<td><strong>expires</strong></td>
+<td><strong>29869228</strong></td>
+<td><strong>360311</strong></td>
+<td><strong>Необязателен</strong></td>
+</tr>
+<tr>
+<td><strong>x-powered-by</strong></td>
+<td><strong>4883204</strong></td>
+<td><strong>211409</strong></td>
+<td><strong>Необязателен</strong></td>
+</tr>
+<tr>
+<td><strong>pragma</strong></td>
+<td><strong>7641647</strong></td>
+<td><strong>188784</strong></td>
+<td><strong>Необязателен</strong></td>
+</tr>
+<tr>
+<td><strong>x-frame-options</strong></td>
+<td><strong>3670032</strong></td>
+<td><strong>105846</strong></td>
+<td><strong>Необязателен</strong></td>
+</tr>
+<tr>
+<td>access-control-allow-origin</td>
+<td>11335681</td>
+<td>103596</td>
+<td>Полезен</td>
+</tr>
+<tr>
+<td>x-content-type-options</td>
+<td>11071560</td>
+<td>94590</td>
+<td>Полезен</td>
+</tr>
+<tr>
+<td>link</td>
+<td>1212329</td>
+<td>87475</td>
+<td>Полезен</td>
+</tr>
+<tr>
+<td>age</td>
+<td>7401415</td>
+<td>59242</td>
+<td>Полезен</td>
+</tr>
+<tr>
+<td><strong>x-cache</strong></td>
+<td><strong>5275343</strong></td>
+<td><strong>56889</strong></td>
+<td><strong>Необязателен</strong></td>
+</tr>
+<tr>
+<td>x-xss-protection</td>
+<td>9773906</td>
+<td>51810</td>
+<td>Полезен</td>
+</tr>
+<tr>
+<td>strict-transport-security</td>
+<td>4259121</td>
+<td>51283</td>
+<td>Полезен</td>
+</tr>
+<tr>
+<td><strong>via</strong></td>
+<td><strong>4020117</strong></td>
+<td><strong>47102</strong></td>
+<td><strong>Необязателен</strong></td>
+</tr>
+<tr>
+<td><strong>p3p</strong></td>
+<td><strong>8282840</strong></td>
+<td><strong>44308</strong></td>
+<td><strong>Необязателен</strong></td>
+</tr>
+<tr>
+<td>expect-ct</td>
+<td>2685280</td>
+<td>40465</td>
+<td>Полезен</td>
+</tr>
+<tr>
+<td>content-language</td>
+<td>334081</td>
+<td>37927</td>
+<td>Спорно</td>
+</tr>
+<tr>
+<td><strong>x-aspnet-version</strong></td>
+<td><strong>676128</strong></td>
+<td><strong>33473</strong></td>
+<td><strong>Необязателен</strong></td>
+</tr>
+<tr>
+<td>access-control-allow-credentials</td>
+<td>2804382</td>
+<td>30346</td>
+<td>Полезен</td>
+</tr>
+<tr>
+<td>x-robots-tag</td>
+<td>179177</td>
+<td>24911</td>
+<td>Не имеет значения для браузеров</td>
+</tr>
+<tr>
+<td><strong>x-ua-compatible</strong></td>
+<td><strong>489056</strong></td>
+<td><strong>24811</strong></td>
+<td><strong>Необязателен</strong></td>
+</tr>
+<tr>
+<td>access-control-allow-methods</td>
+<td>1626129</td>
+<td>20791</td>
+<td>Полезен</td>
+</tr>
+<tr>
+<td>access-control-allow-headers</td>
+<td>1205735</td>
+<td>19120</td>
+<td>Полезен</td>
+</tr>
+</table><br/>
+Давайте посмотрим на необязательные заголовки, почему они нам не нужны и что с этим делать.<br/>
+<br/>
+<h2>Тщеславие (server, x-powered-by, via)</h2><br/>
+Вы можете очень гордиться своим выбором серверного ПО, но большинству людей на это наплевать. В худшем случае эти заголовки могут разглашать конфиденциальные данные, что упрощает атаку на ваш сайт.<br/>
+<br/>
+<code>Server: apache<br/>
+X-Powered-By: PHP/5.1.1<br/>
+Via: 1.1 varnish, 1.1 squid</code><br/>
+<br/>
+<a href="https://httpwg.org/specs/rfc7231.html#header.server">RFC7231</a> позволяет включать в ответ сервера заголовок <code>Server</code>, указывая конкретный софт на сервере, который используется для выдачи контента. Чаще всего это строка вроде "apache" или "nginx". Хотя заголовок разрешён, он не обязательный и не особо ценный для разработчиков или конечных пользователей. Тем не менее, сегодня это третий по популярности серверный HTTP-заголовок в интернете.<br/>
+<br/>
+<code>X-Powered-By</code> — самый популярный заголовок из тех, что не определены никаким стандартом, и у него похожая цель: обычно он указывает платформу приложений, на которой работает сервер. Самые популярные ответы включают в себя "ASP.net", "PHP" и "Express". Опять же, это не несёт никакой ощутимой пользы и просто занимает место.<br/>
+<br/>
+Возможно, более спорным можно считать <code>Via</code>. Его обязан (<a href="https://httpwg.org/specs/rfc7230.html#header.via">по RFC7230</a>) добавлять в <i>запрос</i> каждый прокси, через который проходит запрос — для идентификации прокси. Это может быть имя хоста прокси, но чаще общий идентификатор вроде "vegur", "varnish" или "squid". Удаление (или не добавление) такого заголовка может привести к <a href="http://www.icir.org/vern/papers/cdn-loops.NDSS16.pdf">циклу переадресации прокси</a>. Но интересно, что он также добавляется в ответ на обратном пути к браузеру — и здесь выполняет просто информационную функцию: никакие браузеры ничего не с ним делают, поэтому достаточно безопасно избавиться от него, если хотите.<br/>
+<br/>
+<h2>Устаревшие стандарты (P3P, Expires, X-Frame-Options, X-UA-Compatible)</h2><br/>
+Другая категория заголовков — это те, которые действительно вызывают эффект в браузере, но (уже) представляют собой не лучший способ достижения данного эффекта.<br/>
+<br/>
+<code>P3P: cp="this is not a p3p policy"<br/>
+Expires: Thu, 01 Dec 1994 16:00:00 GMT<br/>
+X-Frame-Options: SAMEORIGIN<br/>
+X-UA-Compatible: IE=edge</code> <br/>
+<br/>
+<code>P3P</code> — забавная штучка. Я понятия не имел, что это такое. Ещё забавнее, что одно из самых распространённых содержаний заголовка P3P — «Это не правило P3P». Ну так это оно или нет?<br/>
+<br/>
+Тут история восходит к <a href="https://en.wikipedia.org/wiki/P3P#User_agent_support">попытке стандартизировать машиночитаемые правила приватности</a>. Были разногласия по поводу того, как отображать данные в браузерах, и только один браузер реализовал поддержку этого заголовка — Internet Explorer. Но даже в нём P3P не имел никакого визуального эффекта для пользователя; он просто должен был присутствовать, чтобы разрешить доступ к сторонним кукам во фреймах. Некоторые сайты даже установили правила несоблюдения P3P, как в примере выше, хотя делать так <a href="https://www.cylab.cmu.edu/_files/pdfs/tech_reports/CMUCyLab10014.pdf">весьма сомнительно</a>.<br/>
+<br/>
+Нечего и говорить, что чтение сторонних куков вообще обычно плохая идея, так что если вы этого не делаете, то вам и не нужно устанавливать заголовок <code>P3P</code>!<br/>
+<br/>
+<code>Expires</code> просто невероятно популярен с учётом того, что <code>Cache-Control</code> имеет преимущество перед <code>Expires</code> уже в течение 20 лет. Если заголовок <code>Cache-Control</code> содержит директиву <code>max-age</code>, то любой заголовок <code>Expires</code> в том же ответе игнорируется. Но огромное количество сайтов устанавливает оба этих заголовка, а <code>Expires</code> чаще всего ставят на дату <code>Thu, 01 Dec 1994 16: 00: 00 GMT</code>, чтобы контент не кэшировался. Конечно, ведь проще всего копипастнуть дату <a href="https://www.ietf.org/rfc/rfc2616.txt">из спецификаций</a>.<br/>
+<br/>
+<img src="https://habrastorage.org/r/w1560/getpro/habr/post_images/08b/cab/34b/08bcab34b2210548e77cbe708ffdd17e.png" data-src="https://habrastorage.org/getpro/habr/post_images/08b/cab/34b/08bcab34b2210548e77cbe708ffdd17e.png"/><br/>
+<br/>
+Но просто незачем это делать. Если у вас заголовок <code>Expires</code> с датой из прошлого, просто замените его на:<br/>
+<br/>
+<code>Cache-Control: no-store, private</code> <br/>
+<br/>
+(<code>no-store</code> — слишком строгая директива не записывать контент в постоянное хранилище, так что вы можете предпочесть <code>no-cache</code> ради лучшей производительности, например, для навигации назад/вперёд или возобновления «спящих» вкладок в браузере)<br/>
+<br/>
+Некоторые инструменты проверки сайтов посоветуют добавить заголовок <code>X-Frame-Options</code> со значением 'SAMEORIGIN'. Он говорит браузерам, что вы отказываетесь отдавать контент во фрейм на другом сайте: как правило, это хорошая защита от <a href="https://en.wikipedia.org/wiki/Clickjacking">кликджекинга</a>. Но того же эффекта можно достигнуть другим заголовком с более последовательной поддержкой и более надёжным поведением:<br/>
+<br/>
+<code>Content-Security-Policy: frame-ancestors 'self'</code> <br/>
+<br/>
+Здесь есть дополнительная выгода, потому что заголовок CSP вы всё равно должны отдавать по иным причинам (о них позже). Вероятно, в наше время можно обойтись без <code>X-Frame-Options</code>.<br/>
+<br/>
+Наконец, ещё в IE9 компания Microsoft представила «режим совместимости», который отображал страницу с помощью движка IE8 или IE7. Даже в нормальном режиме браузер думал, что для правильного рендеринга может понадобиться более ранняя версия движка. Эти эвристики не всегда работали корректно, и разработчики могли переопределить их, используя заголовок или метатег <code>X-UA-Compatible</code>. Фактически, это стало стандартной частью многих фреймворков вроде Bootstrap. Сейчас этот заголовок практически бесполезен: очень мала доля браузеров, которые понимают его. И если вы активно поддерживаете сайт, то очень маловероятно, что на нём используются технологии, которые запустят режим совместимости.<br/>
+<br/>
+<h2>Данные для отладки (X-ASPNet-Version, X-Cache)</h2><br/>
+В каком-то роде удивительно, что некоторые из самых популярных заголовков вообще не упоминаются ни в каком стандарте. По сути это значит, что тысячи веб-сайтов каким-то образом внезапно договорились использовать определённый заголовок определённым образом.<br/>
+<br/>
+<code>X-Cache: HIT<br/>
+X-Request-ID: 45a336c7-1bd5-4a06-9647-c5aab6d5facf<br/>
+X-ASPNet-Version: 3.2.32<br/>
+X-AMZN-RequestID: 0d6e39e2-4ecb-11e8-9c2d-fa7ae01bbebc</code> <br/>
+<br/>
+На самом деле, эти «неизвестные» заголовки не выдумали разработчики. Обычно это артефакты использования определённых серверных фреймворков, софта или сервисов конкретных поставщиков (например, последний заголовок типичен для AWS).<br/>
+<br/>
+Заголовок <code>X-Cache</code> добавляет Fastly (и другие CDN), вместе с другими специфичными хедерами, такими как <code>X-Cache-Hits</code> и <code>X-Served-By</code>. Когда отладка включена, то добавляется ещё больше, например, <code>Fastly-Debug-Path</code> и <code>Fastly-Debug-TTL</code>.<br/>
+<br/>
+Эти заголовки не распознаются ни одним браузером, а их удаление совершенно не отразится на отображении страниц. Но поскольку они могут предоставить вам, разработчику, полезную информацию, то можете их сохранить.<br/>
+<br/>
+<h2>Недоразумения (Pragma)</h2><br/>
+Не ожидал, что в 2018 году придётся упоминать заголовок <code>Pragma</code>, но согласно HTTP Archive он по-прежнему в топе (11-е место). Его не только объявили устаревшим ещё в 1997 году, но он вообще никогда не задумывался как заголовок ответа, а только как часть запроса.<br/>
+<br/>
+<code>Pragma: no-cache</code><br/>
+<br/>
+Тем не менее его настолько широко используют в качестве заголовка ответа, что некоторые браузеры даже распознают его и в этом контексте. Но сегодня практически нулевая вероятность, что кто-то понимает <code>Pragma</code> в контексте ответа, но не понимает <code>Cache-Control</code>. Если хотите запретить кэширование, всё что вам нужно — это <code>Cache-Control: no-store, private</code>.<br/>
+<br/>
+<h2>Не-браузеры (X-Robots-Tag)</h2><br/>
+Один заголовок в нашем топ-30 не является заголовком для браузера. <code>X-Robots-Tag</code> предназначен для краулеров, таких как боты Google или Bing. Поскольку для браузера он бесполезен, то можете установить такой ответ только на запросы краулеров. Или вы решите, что это затрудняет тестирование или нарушает условия использования поисковой системы.<br/>
+<br/>
+<h2>Баги</h2><br/>
+Наконец, стоит закончить почётном упоминанием простых ошибок. Заголовок <code>Host</code> имеет смысл в <i>запросе</i>, но если он встречается в ответе, то вероятно ваш сервер неправильно настроен (и я хотел бы знать, как именно). Тем не менее 68 доменов в HTTP Archive возвращают заголовок <code>Host</code> в своих ответах.<br/>
+<br/>
+<h2>Удаление заголовков на edge-сервере CDN</h2><br/>
+К счастью, если ваш сайт работает у нас на Fastly, то удалить заголовки довольно просто с помощью <a href="https://docs.fastly.com/guides/vcl/">VCL</a>. Если хотите сохранить команде разработчиков действительно полезные данные для отладки, но скрыть их от общей публики, то это легко делается по куки или входящему заголовку HTTP:<br/>
+<br/>
+<code>unset resp.http.Server;<br/>
+unset resp.http.X-Powered-By;<br/>
+unset resp.http.X-Generator;<br/>
+<br/>
+if (!req.http.Cookie:debug &amp;&amp; !req.http.Debug) {<br/>
+ unset resp.http.X-Amzn-RequestID;<br/>
+ unset resp.http.X-Cache;<br/>
+}</code> <br/>
+<br/>
+В <a href="https://habr.com/post/413205/">следующей статье</a> я расскажу о лучших практиках для действительно нужных заголовков и как активировать их на edge-сервере CDN.</div></div></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <!----></div> <div class="tm-article-presenter__meta"><div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Теги:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BHTTP-%D0%B7%D0%B0%D0%B3%D0%BE%D0%BB%D0%BE%D0%B2%D0%BA%D0%B8%5D" class="tm-tags-list__link">HTTP-заголовки</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BCDN%5D" class="tm-tags-list__link">CDN</a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/search/?target_type=posts&amp;order=relevance&amp;q=%5BFastly%5D" class="tm-tags-list__link">Fastly</a></li></ul></div> <div class="tm-separated-list tm-article-presenter__meta-list"><span class="tm-separated-list__title">Хабы:</span> <ul class="tm-separated-list__list"><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/webdev/" class="tm-hubs-list__link">
+    Разработка веб-сайтов
+  </a></li><li class="tm-separated-list__item"><a href="https://habr.com/ru/hub/server_side_optimization/" class="tm-hubs-list__link">
+    Серверная оптимизация
+  </a></li></ul></div></div></article></div> <!----></div> <div class="tm-article-sticky-panel"><div class="tm-data-icons tm-article-sticky-panel__icons"><div class="tm-article-rating tm-data-icons__item"><div class="tm-votes-meter tm-article-rating__votes-switcher"><svg height="24" width="24" class="tm-svg-img tm-votes-meter__icon tm-votes-meter__icon_appearance-article"><title>Всего голосов 33: ↑32 и ↓1</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-rating"></use></svg> <span title="Всего голосов 33: ↑32 и ↓1" class="tm-votes-meter__value tm-votes-meter__value_positive tm-votes-meter__value_appearance-article tm-votes-meter__value_rating">+31</span></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----> <span title="Количество просмотров" class="tm-icon-counter tm-data-icons__item"><svg height="24" width="24" class="tm-svg-img tm-icon-counter__icon"><title>Просмотры</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-views"></use></svg> <span class="tm-icon-counter__value">34K</span></span> <button title="Добавить в закладки" type="button" class="bookmarks-button tm-data-icons__item"><span title="Добавить в закладки" class="tm-svg-icon__wrapper bookmarks-button__icon"><svg height="24" width="24" class="tm-svg-img tm-svg-icon"><title>Добавить в закладки</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-favorite"></use></svg></span> <span title="Количество пользователей, добавивших публикацию в закладки" class="bookmarks-button__counter">
+    186
+  </span></button> <!----> <div title="Поделиться" class="tm-sharing tm-data-icons__item"><button type="button" class="tm-sharing__button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="tm-sharing__icon"><path fill="currentColor" d="M13.8 13.8V18l7.2-6.6L13.8 5v3.9C5 8.9 3 18.6 3 18.6c2.5-4.4 6-4.8 10.8-4.8z"></path></svg></button> <DIV class="v-portal" style="display:none;"></DIV></div> <DIV class="v-portal" style="display:none;"></DIV></div> </div></div> <DIV class="v-portal" style="display:none;"></DIV> <div class="tm-article-presenter__footer"><div class="tm-article-blocks"><!----> <section class="tm-block tm-block_spacing-bottom"><!----> <div class="tm-block__body tm-block__body_variant-balanced"><div class="tm-article-author"> <div class="tm-user-card tm-article-author__user-card tm-user-card_variant-article"><div class="tm-user-card__info-container"><div class="tm-user-card__header"><div class="tm-user-card__header-data"><a href="https://habr.com/ru/users/m1rko/" class="tm-user-card__userpic tm-user-card__userpic_size-40"><div class="tm-entity-image"><img alt="" src="https://habrastorage.org/getpro/habr/avatars/4ec/bd0/85d/4ecbd085d692835a931d03174ff19539.png" class="tm-entity-image__pic"></div></a> <div class="tm-user-card__meta"><div title=" 1515 голосов " class="tm-karma tm-user-card__karma"><div class="tm-karma__votes tm-karma__votes_positive">
+    1243
+  </div> <div class="tm-karma__text">
+    Карма
+  </div></div> <div title="Рейтинг пользователя" class="tm-rating tm-user-card__rating"><div class="tm-rating__header"> <div class="tm-rating__counter">0</div></div> <div class="tm-rating__text">
+    Рейтинг
+  </div></div></div></div></div> <div class="tm-user-card__info tm-user-card__info_variant-article"><div class="tm-user-card__title tm-user-card__title_variant-article"><span class="tm-user-card__name tm-user-card__name_variant-article">Анатолий Ализар</span> <a href="https://habr.com/ru/users/m1rko/" class="tm-user-card__nickname tm-user-card__nickname_variant-article">
+          @m1rko
+        </a> <!----></div> <p class="tm-user-card__short-info tm-user-card__short-info_variant-article">автор, переводчик, редактор</p></div></div> <div class="tm-user-card__buttons tm-user-card__buttons_variant-article"><!----> <!----> <!----> <!----> <!----></div></div> <!----></div> <DIV class="v-portal" style="display:none;"></DIV></div> <!----></section> <div class="tm-article-blocks__comments"><div class="tm-article-page-comments"><div class="tm-article-comments-counter-link tm-article-comments-counter-button"><a href="https://habr.com/ru/post/412813/comments/" class="tm-article-comments-counter-link__link tm-article-comments-counter-link__link_button-style"><svg height="24" width="24" class="tm-svg-img tm-article-comments-counter-link__icon tm-article-comments-counter-link__icon_contrasted"><title>Комментарии</title> <use xlink:href="/img/megazord-v25.4b679db1.svg#counter-comments"></use></svg> <span class="tm-article-comments-counter-link__value tm-article-comments-counter-link__value_contrasted">
+       Комментарии 11 
+    </span></a> <!----></div></div></div> <div class="tm-ad-banner__container tm-page-article__banner"><!----> <div id="articleBottomBanner3964" class="tm-ad-banner"></div></div> <!----> <!----> <!----> <!----> </div></div></div></div></div> <div class="tm-page__sidebar"><div class="tm-layout-sidebar"><div class="tm-layout-sidebar__ads tm-layout-sidebar__ads_initial"><div class="tm-ad-banner__container tm-layout-sidebar__banner"><!----> <div id="sidebarBanner3965" class="tm-ad-banner"></div></div></div> <div class="tm-sexy-sidebar tm-sexy-sidebar_initial" style="margin-top:0px;"><!----> <section data-async-called="true" class="tm-block tm-block_spacing-bottom"><header class="tm-block__header"><h2 class="tm-block__title">Работа</h2> <!----></header> <div class="tm-block__body"><div class="tm-vacancies-block__item"><a href="https://career.habr.com/vacancies/sistemnij_administrator" target="_blank" class="tm-vacancies-block__vacancy-title">
+        Системный администратор
+      </a> <div class="tm-vacancies-block__vacancies-count">
+        130
+    вакансий
+      </div></div></div> <footer class="tm-block__footer"><a href="https://career.habr.com/catalog" class="tm-block-extralink">
+      Все вакансии
+    </a></footer></section></div></div></div></div></div></div></main> <!----></div> <div class="tm-footer-menu"><div class="tm-page-width"><div class="tm-footer-menu__container"><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Ваш аккаунт
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr/?back=/ru/post/412813/&amp;hl=ru" rel="nofollow" target="_self">
+                Войти
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/kek/v1/auth/habrahabr-register/?back=/ru/post/412813/&amp;hl=ru" rel="nofollow" target="_self">
+                Регистрация
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Разделы
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/" class="footer-menu__item-link router-link-active">
+                Публикации
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/news/" class="footer-menu__item-link">
+                Новости
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/hubs/" class="footer-menu__item-link">
+                Хабы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/companies/" class="footer-menu__item-link">
+                Компании
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/users/" class="footer-menu__item-link">
+                Авторы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/sandbox/" class="footer-menu__item-link">
+                Песочница
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Информация
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/help/" class="footer-menu__item-link">
+                Устройство сайта
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/authors/codex/" class="footer-menu__item-link">
+                Для авторов
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/companies/corpblogs/" class="footer-menu__item-link">
+                Для компаний
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/docs/docs/transparency/" class="footer-menu__item-link">
+                Документы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/agreement" target="_blank">
+                Соглашение
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://account.habr.com/info/confidential/" target="_blank">
+                Конфиденциальность
+              </a></li></ul></div></div><div class="tm-footer-menu__block"><h3 class="tm-footer-menu__block-title">
+          Услуги
+        </h3> <div class="tm-footer-menu__block-content"><ul class="tm-footer-menu__list"><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQLwRfQmXibiUlWaRg-BAc38s7oM3lJiaPju7qmdJsp8ysIvZ_G-Npem0njJLMozE2bPHMpDqiI5hhy/pub?start=false&amp;loop=false&amp;delayms=60000&amp;slide=id.g91a03369cd_4_297" target="_blank">
+                Реклама
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habrastorage.org/storage/stuff/habr/service_price.pdf" target="_blank">
+                Тарифы
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://docs.google.com/presentation/d/e/2PACX-1vQJJds8-Di7BQSP_guHxICN7woVYoN5NP_22ra-BIo4bqnTT9FR6fB-Ku2P0AoRpX0Ds-LRkDeAoD8F/pub?start=false&amp;loop=false&amp;delayms=60000" target="_blank">
+                Контент
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://tmtm.timepad.ru/" target="_blank">
+                Семинары
+              </a></li><li class="tm-footer-menu__list-item"><a href="https://habr.com/ru/megaprojects/" class="footer-menu__item-link">
+                Мегапроекты
+              </a></li></ul></div></div></div></div></div> <div class="tm-footer"><div class="tm-page-width"><div class="tm-footer__container"><!----> <div class="tm-footer__social"><a href="https://www.facebook.com/habrahabr.ru" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Facebook</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-facebook"></use></svg></a><a href="https://twitter.com/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Twitter</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-twitter"></use></svg></a><a href="https://vk.com/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>VK</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-vkontakte"></use></svg></a><a href="https://telegram.me/habr_com" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Telegram</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-telegram"></use></svg></a><a href="https://www.youtube.com/channel/UCd_sTwKqVrweTt4oAKY5y4w" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Youtube</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-youtube"></use></svg></a><a href="https://zen.yandex.ru/habr" rel="nofollow noopener noreferrer" target="_blank" class="tm-svg-icon__wrapper tm-social-icons__icon"><svg height="16" width="16" class="tm-svg-img tm-svg-icon"><title>Яндекс Дзен</title> <use xlink:href="/img/social-icons-sprite.svg#social-logo-zen"></use></svg></a></div> <DIV class="v-portal" style="display:none;"></DIV> <button class="tm-footer__link"><!---->
+        Настройка языка
+      </button> <a href="https://habr.com/ru/about" class="tm-footer__link">
+        О сайте
+      </a> <a href="https://habr.com/ru/feedback/" class="tm-footer__link">
+        Техническая поддержка
+      </a> <!----> <a href="https://habr.com/berserk-mode-nope" class="tm-footer__link">
+        Вернуться на старую версию
+      </a> <div class="tm-footer-copyright"><span class="tm-copyright"><span class="tm-copyright__years">© 2006–2022 </span> <span class="tm-copyright__name">«<a href="https://company.habr.com/" rel="noopener" target="_blank" class="tm-copyright__link">Habr</a>»</span></span></div></div></div></div> <!----> <!----></div> <div class="vue-portal-target"></div></div>
+<script>window.__INITIAL_STATE__={"adblock":{"hasAcceptableAdsFilter":false,"hasAdblock":false},"articlesList":{"articlesList":{"412813":{"id":"412813","timePublished":"2018-05-31T10:23:16+00:00","isCorporative":false,"lang":"ru","titleHtml":"Ненужные HTTP-заголовки","leadData":{"textHtml":"Заголовки HTTP важны для контроля, как кэш и браузеры обрабатывают ваш контент. Но многие из них используются неправильно или бессмысленно, затрачивая лишние ресурсы в критический момент загрузки страницы, и они могут работать не так, как вы думаете. В серии статей о лучших практиках сначала рассмотрим ненужные заголовки.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nБольшинство разработчиков знают о важных и нужных HTTP-заголовках. Самые известные — \u003Ccode\u003EContent-Type\u003C\u002Fcode\u003E и \u003Ccode\u003EContent-Length\u003C\u002Fcode\u003E, это почти универсальные хедеры. Но в последнее время для повышения безопасности начали использоваться заголовки вроде \u003Ccode\u003EContent-Security-Policy\u003C\u002Fcode\u003E и \u003Ccode\u003EStrict-Transport-Security\u003C\u002Fcode\u003E, а для повышения производительности — \u003Ccode\u003ELink rel=preload\u003C\u002Fcode\u003E. Несмотря на широкую поддержку в браузерах, лишь немногие их используют.\u003Cbr\u003E\r\n\u003Cbr\u003E\r\nВ то же время есть много чрезвычайно популярных заголовков, которые вообще не новые и не очень полезные. Мы можем это доказать с помощью \u003Ca href=\"http:\u002F\u002Fhttparchive.org\u002F\"\u003EHTTP Archive\u003C\u002Fa\u003E, проекта под управлением Google и спонсируемого Fastly, который каждый месяц при помощи \u003Ca href=\"https:\u002F\u002Fwww.webpagetest.org\u002F\"\u003EWebPageTest\u003C\u002Fa\u003E скачивает 500 000 сайтов и выкладывает результаты в \u003Ca href=\"https:\u002F\u002Fcloud.google.com\u002Fbigquery\u002F\"\u003EBigQuery\u003C\u002Fa\u003E.\u003Cbr\u003E","imageUrl":null,"buttonTextHtml":"Читать дальше →","image":null},"editorVersion":"1.0","postType":"article","postLabels":[{"type":"translation","data":{"originalAuthorName":"Andrew Betts","originalUrl":"https:\u002F\u002Fwww.fastly.com\u002Fblog\u002Fheaders-we-dont-want"}}],"author":{"scoreStats":{"score":1243,"votesCount":1515},"rating":0,"relatedData":null,"contacts":[],"authorContacts":[],"paymentDetails":{"paymentYandexMoney":null,"paymentPayPalMe":null,"paymentWebmoney":null},"id":"1371978","alias":"m1rko","fullname":"Анатолий Ализар","avatarUrl":"\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Favatars\u002F4ec\u002Fbd0\u002F85d\u002F4ecbd085d692835a931d03174ff19539.png","speciality":"автор, переводчик, редактор"},"statistics":{"commentsCount":11,"favoritesCount":186,"readingCount":33593,"score":31,"votesCount":33},"hubs":[{"relatedData":null,"id":"91","alias":"webdev","type":"collective","title":"Разработка веб-сайтов","titleHtml":"Разработка веб-сайтов","isProfiled":true},{"relatedData":null,"id":"8880","alias":"server_side_optimization","type":"collective","title":"Серверная оптимизация","titleHtml":"Серверная оптимизация","isProfiled":true}],"flows":[{"id":"1","alias":"develop","title":"Разработка"},{"id":"6","alias":"admin","title":"Администрирование"}],"relatedData":null,"textHtml":"\u003Cdiv xmlns=\"http:\u002F\u002Fwww.w3.org\u002F1999\u002Fxhtml\"\u003EЗаголовки HTTP важны для контроля, как кэш и браузеры обрабатывают ваш контент. Но многие из них используются неправильно или бессмысленно, затрачивая лишние ресурсы в критический момент загрузки страницы, и они могут работать не так, как вы думаете. В серии статей о лучших практиках сначала рассмотрим ненужные заголовки.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nБольшинство разработчиков знают о важных и нужных HTTP-заголовках. Самые известные — \u003Ccode\u003EContent-Type\u003C\u002Fcode\u003E и \u003Ccode\u003EContent-Length\u003C\u002Fcode\u003E, это почти универсальные хедеры. Но в последнее время для повышения безопасности начали использоваться заголовки вроде \u003Ccode\u003EContent-Security-Policy\u003C\u002Fcode\u003E и \u003Ccode\u003EStrict-Transport-Security\u003C\u002Fcode\u003E, а для повышения производительности — \u003Ccode\u003ELink rel=preload\u003C\u002Fcode\u003E. Несмотря на широкую поддержку в браузерах, лишь немногие их используют.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ то же время есть много чрезвычайно популярных заголовков, которые вообще не новые и не очень полезные. Мы можем это доказать с помощью \u003Ca href=\"http:\u002F\u002Fhttparchive.org\u002F\"\u003EHTTP Archive\u003C\u002Fa\u003E, проекта под управлением Google и спонсируемого Fastly, который каждый месяц при помощи \u003Ca href=\"https:\u002F\u002Fwww.webpagetest.org\u002F\"\u003EWebPageTest\u003C\u002Fa\u003E скачивает 500 000 сайтов и выкладывает результаты в \u003Ca href=\"https:\u002F\u002Fcloud.google.com\u002Fbigquery\u002F\"\u003EBigQuery\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Ca name=\"habracut\"\u003E\u003C\u002Fa\u003E\u003Cbr\u002F\u003E\r\nВот 30 самых популярных заголовков ответов по данным HTTP Archive (на основе количества доменов в архиве, которые выдают каждый заголовок), и примерная оценка полезности каждого из них:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ctable\u003E\r\n\u003Ctr\u003E\r\n\u003Cth\u003EЗаголовок\u003C\u002Fth\u003E\r\n\u003Cth\u003EЗапросов\u003C\u002Fth\u003E\r\n\u003Cth\u003EДоменов\u003C\u002Fth\u003E\r\n\u003Cth\u003EСтатус\u003C\u002Fth\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Edate\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E48779277\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E535621\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EТребуется по протоколу\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Econtent-type\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E47185627\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E533636\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EОбычно требуется браузером\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003Eserver\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E43057807\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E519663\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003EНеобязателен\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Econtent-length\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E42388435\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E519118\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПолезен\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Elast-modified\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E34424562\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E480294\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПолезен\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Ecache-control\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E36490878\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E412943\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПолезен\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Eetag\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E23620444\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E412370\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПолезен\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Econtent-encoding\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E16194121\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E409159\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EТребуется для сжатого контента\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003Eexpires\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E29869228\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E360311\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003EНеобязателен\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003Ex-powered-by\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E4883204\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E211409\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003EНеобязателен\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003Epragma\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E7641647\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E188784\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003EНеобязателен\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003Ex-frame-options\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E3670032\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E105846\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003EНеобязателен\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Eaccess-control-allow-origin\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E11335681\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E103596\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПолезен\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Ex-content-type-options\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E11071560\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E94590\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПолезен\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Elink\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E1212329\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E87475\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПолезен\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Eage\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E7401415\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E59242\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПолезен\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003Ex-cache\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E5275343\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E56889\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003EНеобязателен\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Ex-xss-protection\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E9773906\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E51810\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПолезен\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Estrict-transport-security\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E4259121\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E51283\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПолезен\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003Evia\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E4020117\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E47102\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003EНеобязателен\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003Ep3p\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E8282840\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E44308\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003EНеобязателен\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Eexpect-ct\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E2685280\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E40465\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПолезен\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Econtent-language\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E334081\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E37927\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EСпорно\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003Ex-aspnet-version\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E676128\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E33473\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003EНеобязателен\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Eaccess-control-allow-credentials\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E2804382\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E30346\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПолезен\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Ex-robots-tag\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E179177\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E24911\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EНе имеет значения для браузеров\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003Ex-ua-compatible\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E489056\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003E24811\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E\u003Cstrong\u003EНеобязателен\u003C\u002Fstrong\u003E\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Eaccess-control-allow-methods\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E1626129\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E20791\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПолезен\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003Ctr\u003E\r\n\u003Ctd\u003Eaccess-control-allow-headers\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E1205735\u003C\u002Ftd\u003E\r\n\u003Ctd\u003E19120\u003C\u002Ftd\u003E\r\n\u003Ctd\u003EПолезен\u003C\u002Ftd\u003E\r\n\u003C\u002Ftr\u003E\r\n\u003C\u002Ftable\u003E\u003Cbr\u002F\u003E\r\nДавайте посмотрим на необязательные заголовки, почему они нам не нужны и что с этим делать.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EТщеславие (server, x-powered-by, via)\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nВы можете очень гордиться своим выбором серверного ПО, но большинству людей на это наплевать. В худшем случае эти заголовки могут разглашать конфиденциальные данные, что упрощает атаку на ваш сайт.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EServer: apache\u003Cbr\u002F\u003E\r\nX-Powered-By: PHP\u002F5.1.1\u003Cbr\u002F\u003E\r\nVia: 1.1 varnish, 1.1 squid\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ca href=\"https:\u002F\u002Fhttpwg.org\u002Fspecs\u002Frfc7231.html#header.server\"\u003ERFC7231\u003C\u002Fa\u003E позволяет включать в ответ сервера заголовок \u003Ccode\u003EServer\u003C\u002Fcode\u003E, указывая конкретный софт на сервере, который используется для выдачи контента. Чаще всего это строка вроде \"apache\" или \"nginx\". Хотя заголовок разрешён, он не обязательный и не особо ценный для разработчиков или конечных пользователей. Тем не менее, сегодня это третий по популярности серверный HTTP-заголовок в интернете.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EX-Powered-By\u003C\u002Fcode\u003E — самый популярный заголовок из тех, что не определены никаким стандартом, и у него похожая цель: обычно он указывает платформу приложений, на которой работает сервер. Самые популярные ответы включают в себя \"ASP.net\", \"PHP\" и \"Express\". Опять же, это не несёт никакой ощутимой пользы и просто занимает место.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВозможно, более спорным можно считать \u003Ccode\u003EVia\u003C\u002Fcode\u003E. Его обязан (\u003Ca href=\"https:\u002F\u002Fhttpwg.org\u002Fspecs\u002Frfc7230.html#header.via\"\u003Eпо RFC7230\u003C\u002Fa\u003E) добавлять в \u003Ci\u003Eзапрос\u003C\u002Fi\u003E каждый прокси, через который проходит запрос — для идентификации прокси. Это может быть имя хоста прокси, но чаще общий идентификатор вроде \"vegur\", \"varnish\" или \"squid\". Удаление (или не добавление) такого заголовка может привести к \u003Ca href=\"http:\u002F\u002Fwww.icir.org\u002Fvern\u002Fpapers\u002Fcdn-loops.NDSS16.pdf\"\u003Eциклу переадресации прокси\u003C\u002Fa\u003E. Но интересно, что он также добавляется в ответ на обратном пути к браузеру — и здесь выполняет просто информационную функцию: никакие браузеры ничего не с ним делают, поэтому достаточно безопасно избавиться от него, если хотите.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EУстаревшие стандарты (P3P, Expires, X-Frame-Options, X-UA-Compatible)\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nДругая категория заголовков — это те, которые действительно вызывают эффект в браузере, но (уже) представляют собой не лучший способ достижения данного эффекта.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EP3P: cp=\"this is not a p3p policy\"\u003Cbr\u002F\u003E\r\nExpires: Thu, 01 Dec 1994 16:00:00 GMT\u003Cbr\u002F\u003E\r\nX-Frame-Options: SAMEORIGIN\u003Cbr\u002F\u003E\r\nX-UA-Compatible: IE=edge\u003C\u002Fcode\u003E \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EP3P\u003C\u002Fcode\u003E — забавная штучка. Я понятия не имел, что это такое. Ещё забавнее, что одно из самых распространённых содержаний заголовка P3P — «Это не правило P3P». Ну так это оно или нет?\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТут история восходит к \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FP3P#User_agent_support\"\u003Eпопытке стандартизировать машиночитаемые правила приватности\u003C\u002Fa\u003E. Были разногласия по поводу того, как отображать данные в браузерах, и только один браузер реализовал поддержку этого заголовка — Internet Explorer. Но даже в нём P3P не имел никакого визуального эффекта для пользователя; он просто должен был присутствовать, чтобы разрешить доступ к сторонним кукам во фреймах. Некоторые сайты даже установили правила несоблюдения P3P, как в примере выше, хотя делать так \u003Ca href=\"https:\u002F\u002Fwww.cylab.cmu.edu\u002F_files\u002Fpdfs\u002Ftech_reports\u002FCMUCyLab10014.pdf\"\u003Eвесьма сомнительно\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНечего и говорить, что чтение сторонних куков вообще обычно плохая идея, так что если вы этого не делаете, то вам и не нужно устанавливать заголовок \u003Ccode\u003EP3P\u003C\u002Fcode\u003E!\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EExpires\u003C\u002Fcode\u003E просто невероятно популярен с учётом того, что \u003Ccode\u003ECache-Control\u003C\u002Fcode\u003E имеет преимущество перед \u003Ccode\u003EExpires\u003C\u002Fcode\u003E уже в течение 20 лет. Если заголовок \u003Ccode\u003ECache-Control\u003C\u002Fcode\u003E содержит директиву \u003Ccode\u003Emax-age\u003C\u002Fcode\u003E, то любой заголовок \u003Ccode\u003EExpires\u003C\u002Fcode\u003E в том же ответе игнорируется. Но огромное количество сайтов устанавливает оба этих заголовка, а \u003Ccode\u003EExpires\u003C\u002Fcode\u003E чаще всего ставят на дату \u003Ccode\u003EThu, 01 Dec 1994 16: 00: 00 GMT\u003C\u002Fcode\u003E, чтобы контент не кэшировался. Конечно, ведь проще всего копипастнуть дату \u003Ca href=\"https:\u002F\u002Fwww.ietf.org\u002Frfc\u002Frfc2616.txt\"\u003Eиз спецификаций\u003C\u002Fa\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Cimg src=\"https:\u002F\u002Fhabrastorage.org\u002Fr\u002Fw1560\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F08b\u002Fcab\u002F34b\u002F08bcab34b2210548e77cbe708ffdd17e.png\" data-src=\"https:\u002F\u002Fhabrastorage.org\u002Fgetpro\u002Fhabr\u002Fpost_images\u002F08b\u002Fcab\u002F34b\u002F08bcab34b2210548e77cbe708ffdd17e.png\"\u002F\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНо просто незачем это делать. Если у вас заголовок \u003Ccode\u003EExpires\u003C\u002Fcode\u003E с датой из прошлого, просто замените его на:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003ECache-Control: no-store, private\u003C\u002Fcode\u003E \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n(\u003Ccode\u003Eno-store\u003C\u002Fcode\u003E — слишком строгая директива не записывать контент в постоянное хранилище, так что вы можете предпочесть \u003Ccode\u003Eno-cache\u003C\u002Fcode\u003E ради лучшей производительности, например, для навигации назад\u002Fвперёд или возобновления «спящих» вкладок в браузере)\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНекоторые инструменты проверки сайтов посоветуют добавить заголовок \u003Ccode\u003EX-Frame-Options\u003C\u002Fcode\u003E со значением 'SAMEORIGIN'. Он говорит браузерам, что вы отказываетесь отдавать контент во фрейм на другом сайте: как правило, это хорошая защита от \u003Ca href=\"https:\u002F\u002Fen.wikipedia.org\u002Fwiki\u002FClickjacking\"\u003Eкликджекинга\u003C\u002Fa\u003E. Но того же эффекта можно достигнуть другим заголовком с более последовательной поддержкой и более надёжным поведением:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EContent-Security-Policy: frame-ancestors 'self'\u003C\u002Fcode\u003E \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗдесь есть дополнительная выгода, потому что заголовок CSP вы всё равно должны отдавать по иным причинам (о них позже). Вероятно, в наше время можно обойтись без \u003Ccode\u003EX-Frame-Options\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНаконец, ещё в IE9 компания Microsoft представила «режим совместимости», который отображал страницу с помощью движка IE8 или IE7. Даже в нормальном режиме браузер думал, что для правильного рендеринга может понадобиться более ранняя версия движка. Эти эвристики не всегда работали корректно, и разработчики могли переопределить их, используя заголовок или метатег \u003Ccode\u003EX-UA-Compatible\u003C\u002Fcode\u003E. Фактически, это стало стандартной частью многих фреймворков вроде Bootstrap. Сейчас этот заголовок практически бесполезен: очень мала доля браузеров, которые понимают его. И если вы активно поддерживаете сайт, то очень маловероятно, что на нём используются технологии, которые запустят режим совместимости.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EДанные для отладки (X-ASPNet-Version, X-Cache)\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nВ каком-то роде удивительно, что некоторые из самых популярных заголовков вообще не упоминаются ни в каком стандарте. По сути это значит, что тысячи веб-сайтов каким-то образом внезапно договорились использовать определённый заголовок определённым образом.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EX-Cache: HIT\u003Cbr\u002F\u003E\r\nX-Request-ID: 45a336c7-1bd5-4a06-9647-c5aab6d5facf\u003Cbr\u002F\u003E\r\nX-ASPNet-Version: 3.2.32\u003Cbr\u002F\u003E\r\nX-AMZN-RequestID: 0d6e39e2-4ecb-11e8-9c2d-fa7ae01bbebc\u003C\u002Fcode\u003E \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nНа самом деле, эти «неизвестные» заголовки не выдумали разработчики. Обычно это артефакты использования определённых серверных фреймворков, софта или сервисов конкретных поставщиков (например, последний заголовок типичен для AWS).\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЗаголовок \u003Ccode\u003EX-Cache\u003C\u002Fcode\u003E добавляет Fastly (и другие CDN), вместе с другими специфичными хедерами, такими как \u003Ccode\u003EX-Cache-Hits\u003C\u002Fcode\u003E и \u003Ccode\u003EX-Served-By\u003C\u002Fcode\u003E. Когда отладка включена, то добавляется ещё больше, например, \u003Ccode\u003EFastly-Debug-Path\u003C\u002Fcode\u003E и \u003Ccode\u003EFastly-Debug-TTL\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nЭти заголовки не распознаются ни одним браузером, а их удаление совершенно не отразится на отображении страниц. Но поскольку они могут предоставить вам, разработчику, полезную информацию, то можете их сохранить.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EНедоразумения (Pragma)\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nНе ожидал, что в 2018 году придётся упоминать заголовок \u003Ccode\u003EPragma\u003C\u002Fcode\u003E, но согласно HTTP Archive он по-прежнему в топе (11-е место). Его не только объявили устаревшим ещё в 1997 году, но он вообще никогда не задумывался как заголовок ответа, а только как часть запроса.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003EPragma: no-cache\u003C\u002Fcode\u003E\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nТем не менее его настолько широко используют в качестве заголовка ответа, что некоторые браузеры даже распознают его и в этом контексте. Но сегодня практически нулевая вероятность, что кто-то понимает \u003Ccode\u003EPragma\u003C\u002Fcode\u003E в контексте ответа, но не понимает \u003Ccode\u003ECache-Control\u003C\u002Fcode\u003E. Если хотите запретить кэширование, всё что вам нужно — это \u003Ccode\u003ECache-Control: no-store, private\u003C\u002Fcode\u003E.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EНе-браузеры (X-Robots-Tag)\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nОдин заголовок в нашем топ-30 не является заголовком для браузера. \u003Ccode\u003EX-Robots-Tag\u003C\u002Fcode\u003E предназначен для краулеров, таких как боты Google или Bing. Поскольку для браузера он бесполезен, то можете установить такой ответ только на запросы краулеров. Или вы решите, что это затрудняет тестирование или нарушает условия использования поисковой системы.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EБаги\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nНаконец, стоит закончить почётном упоминанием простых ошибок. Заголовок \u003Ccode\u003EHost\u003C\u002Fcode\u003E имеет смысл в \u003Ci\u003Eзапросе\u003C\u002Fi\u003E, но если он встречается в ответе, то вероятно ваш сервер неправильно настроен (и я хотел бы знать, как именно). Тем не менее 68 доменов в HTTP Archive возвращают заголовок \u003Ccode\u003EHost\u003C\u002Fcode\u003E в своих ответах.\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ch2\u003EУдаление заголовков на edge-сервере CDN\u003C\u002Fh2\u003E\u003Cbr\u002F\u003E\r\nК счастью, если ваш сайт работает у нас на Fastly, то удалить заголовки довольно просто с помощью \u003Ca href=\"https:\u002F\u002Fdocs.fastly.com\u002Fguides\u002Fvcl\u002F\"\u003EVCL\u003C\u002Fa\u003E. Если хотите сохранить команде разработчиков действительно полезные данные для отладки, но скрыть их от общей публики, то это легко делается по куки или входящему заголовку HTTP:\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\n\u003Ccode\u003Eunset resp.http.Server;\u003Cbr\u002F\u003E\r\nunset resp.http.X-Powered-By;\u003Cbr\u002F\u003E\r\nunset resp.http.X-Generator;\u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nif (!req.http.Cookie:debug &amp;&amp; !req.http.Debug) {\u003Cbr\u002F\u003E\r\n unset resp.http.X-Amzn-RequestID;\u003Cbr\u002F\u003E\r\n unset resp.http.X-Cache;\u003Cbr\u002F\u003E\r\n}\u003C\u002Fcode\u003E \u003Cbr\u002F\u003E\r\n\u003Cbr\u002F\u003E\r\nВ \u003Ca href=\"https:\u002F\u002Fhabr.com\u002Fpost\u002F413205\u002F\"\u003Eследующей статье\u003C\u002Fa\u003E я расскажу о лучших практиках для действительно нужных заголовков и как активировать их на edge-сервере CDN.\u003C\u002Fdiv\u003E","tags":[{"titleHtml":"HTTP-заголовки"},{"titleHtml":"CDN"},{"titleHtml":"Fastly"}],"metadata":{"stylesUrls":[],"scriptUrls":[],"shareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F412813\u002Ffeb9e4a49bbd382e3833a9c0f0ea83c3\u002F","shareImageWidth":1200,"shareImageHeight":630,"vkShareImageUrl":"https:\u002F\u002Fhabr.com\u002Fshare\u002Fpublication\u002F412813\u002Ffeb9e4a49bbd382e3833a9c0f0ea83c3\u002F?format=vk","schemaJsonLd":"{\"@context\":\"http:\\\u002F\\\u002Fschema.org\",\"@type\":\"Article\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F412813\\\u002F\"},\"headline\":\"Ненужные HTTP-заголовки\",\"datePublished\":\"2018-05-31T13:23:16+03:00\",\"dateModified\":\"2018-06-04T17:53:26+03:00\",\"author\":{\"@type\":\"Person\",\"name\":\"Анатолий Ализар\"},\"publisher\":{\"@type\":\"Organization\",\"name\":\"Habr\",\"logo\":{\"@type\":\"ImageObject\",\"url\":\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fwebt\\\u002Fa_\\\u002Flk\\\u002F9m\\\u002Fa_lk9mjkccjox-zccjrpfolmkmq.png\"}},\"description\":\"Заголовки HTTP важны для контроля, как кэш и браузеры обрабатывают ваш контент. Но многие из них используются неправильно или бессмысленно, затрачивая лишние рес...\",\"url\":\"https:\\\u002F\\\u002Fhabr.com\\\u002Fru\\\u002Fpost\\\u002F412813\\\u002F#post-content-body\",\"about\":[\"h_webdev\",\"h_server_side_optimization\",\"f_develop\",\"f_admin\"],\"image\":[\"https:\\\u002F\\\u002Fhabrastorage.org\\\u002Fgetpro\\\u002Fhabr\\\u002Fpost_images\\\u002F08b\\\u002Fcab\\\u002F34b\\\u002F08bcab34b2210548e77cbe708ffdd17e.png\"]}","metaDescription":"Заголовки HTTP важны для контроля, как кэш и браузеры обрабатывают ваш контент. Но многие из них используются неправильно или бессмысленно, затрачивая лишние ресурсы в критический момент загрузки...","mainImageUrl":null,"amp":false,"customTrackerLinks":[]},"polls":[],"commentsEnabled":true,"rulesRemindEnabled":false,"votesEnabled":true,"status":"published","plannedPublishTime":null,"checked":null,"isEditorial":false}},"articlesIds":{},"isLoading":false,"pagesCount":{},"route":{},"reasonsList":null,"view":"cards","lastVisitedRoute":{},"ssrCommentsArticleIds":[""],"karma":{}},"authorContribution":{"authors":{}},"betaTest":{"currentAnnouncement":null,"announcements":{},"announcementCards":null,"announcementComments":{},"announcementCommentThreads":{},"announcementCommentingStatuses":{},"archivedList":[]},"authorStatistics":{"articleRefs":{},"articleIds":{},"pagesCount":{},"route":{},"viewsCount":[],"maxStatsCount":{}},"career":{"seoLandings":[{"title":"Системный администратор","vacanciesCount":130,"itemUrl":"https:\u002F\u002Fcareer.habr.com\u002Fvacancies\u002Fsistemnij_administrator","itemHubs":["it-infrastructure","s_admin","server_side_optimization","sys_admin"]}],"hubs":"webdev,server_side_optimization"},"comments":{"articleComments":{},"searchCommentsResults":null,"previewComment":null,"pagesCount":null,"commentAccess":{},"scrollParents":{},"pageArticleComments":{"lastViewedComment":0,"postId":null,"lastCommentTimestamp":"","moderated":[],"moderatedIds":[],"commentRoute":""}},"companies":{"companyRefs":{},"companyIds":{},"companyTopIds":{},"pagesCount":{},"companyProfiles":{},"companiesCategories":[],"companiesCategoriesTotalCount":0,"companiesWidgets":{},"companiesWorkers":{},"companiesFans":{},"route":{},"isLoading":false,"companyWorkersLoading":false,"companyFansLoading":false,"vacancies":{},"workplaceInfo":null},"companyAdmin":{"companyInfo":null,"companyInfoLoading":false,"faqArticles":null,"brandingPreviewImageUrl":null},"companiesContribution":{"hubs":{},"flows":{},"companyRefs":{}},"companyHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"conversation":{"messages":[],"respondent":null,"isLoadMore":false},"conversations":{"conversations":[],"unreadCount":0,"pagesCount":0,"isLoadMore":false},"desktopState":{"desktopFl":null,"desktopHl":null,"isChecked":false,"isLoginDemanded":false},"docs":{"menu":{},"articles":{},"mainMenu":[],"loading":{"main":false,"dropdown":false,"article":false}},"feature":{"isProbablyVisible":"true"},"flows":{"flows":[{"alias":"develop","id":1,"route":{"name":"FLOW_PAGE","params":{"flowName":"develop"}}},{"alias":"admin","id":6,"route":{"name":"FLOW_PAGE","params":{"flowName":"admin"}}},{"alias":"design","id":2,"route":{"name":"FLOW_PAGE","params":{"flowName":"design"}}},{"alias":"management","id":3,"route":{"name":"FLOW_PAGE","params":{"flowName":"management"}}},{"alias":"marketing","id":4,"route":{"name":"FLOW_PAGE","params":{"flowName":"marketing"}}},{"alias":"popsci","id":7,"route":{"name":"FLOW_PAGE","params":{"flowName":"popsci"}}}]},"global":{"isPwa":false,"device":"desktop","isHabrCom":true},"hubs":{"hubRefs":{},"hubIds":{},"pagesCount":{},"isLoading":false,"route":{}},"hubsBlock":{"hubRefs":{},"hubIds":{}},"i18n":{"fl":"ru","hl":"ru"},"info":{"infoPage":{},"isLoading":true},"location":{"urlStruct":{"protocol":null,"slashes":null,"auth":null,"host":null,"port":null,"hostname":null,"hash":null,"search":null,"query":{},"pathname":null,"path":null,"href":""},"searchQuery":null},"me":{"user":null,"ppgDemanded":false,"karmaResetInfo":{"canReincarnate":null,"wasReincarnated":null,"currentScore":null},"notes":null},"mostReadingList":{"mostReadingListIds":[],"mostReadingListRefs":null,"promoPost":null},"pinnedPost":{"pinnedPost":null},"ppa":{"articles":{},"card":null,"transactions":null,"totalTransactions":null,"isAccessible":null},"projectsBlocks":{"activeBlocks":{}},"promoData":{"isLoading":false,"hasLoaded":false,"featurer":null,"megaposts":null,"promoLinks":null,"promoPosts":null},"pullRefresh":{"shouldRefresh":false},"sandbox":{"articleIds":[],"articleRefs":{},"pagesCount":null,"route":{},"lastVisitedRoute":{},"isLoading":false},"search":{"searchQueryError":null},"settingsOther":{"inputs":{"uiLang":{"errors":[],"ref":null,"value":""},"articlesLangEnglish":{"errors":[],"ref":null,"value":false},"articlesLangRussian":{"errors":[],"ref":null,"value":false},"agreement":{"errors":[],"ref":null,"value":false},"email":{"errors":[],"ref":null,"value":true},"digest":{"errors":[],"ref":null,"value":true}}},"similarList":{"similarListIds":[],"similarListRefs":null},"ssr":{"error":null,"isDataLoaded":false,"isDataLoading":false,"isHydrationFailed":false,"isServer":false},"technotext":{"nominationsList":[]},"userHubsContribution":{"contributionRefs":{"hubRefs":{},"hubIds":{}}},"userInvites":{"availableInvites":0,"usedInvitesIds":[],"usedInvitesRefs":{},"usedInvitesPagesCount":0,"unusedInvitesIds":[],"unusedInvitesRefs":{},"unusedInvitesPagesCount":0},"users":{"authorRefs":{},"authorIds":{},"pagesCount":{},"authorProfiles":{},"userHubs":{},"userInvitations":{},"authorFollowers":{},"authorFollowed":{},"userSpecialization":{},"karmaStats":[],"statistics":null,"isLoading":false,"authorFollowersLoading":false,"authorFollowedLoading":false,"userHubsLoading":false,"userInvitationsLoading":false,"route":{}},"viewport":{"prevScrollY":{},"scrollY":0,"width":0},"tracker":{"items":{},"pagesCache":{},"markedViewedSilently":{},"markedRead":{},"unreadCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null},"unviewedCounters":{"applications":null,"system":null,"mentions":null,"subscribers":null,"posts_and_comments":null}}};(function(){var s;(s=document.currentScript||document.scripts[document.scripts.length-1]).parentNode.removeChild(s);}());</script>
+<script src="https://assets.habr.com/habr-web/js/chunk-vendors.da6c6b36.js" defer></script><script src="https://assets.habr.com/habr-web/js/app.92df6f6d.js" defer></script>
+
+
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    </script>
+  
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(24049213, "init", {
+      defer:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:false,
+    });
+  </script>
+  <noscript>
+    <div>
+      <img src="https://mc.yandex.ru/watch/24049213" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
+  
+    <script type="text/javascript">
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          const img = new Image();
+          img.src = 'https://vk.com/rtrg?p=VK-RTRG-421343-57vKE';
+        }, 0);
+      });
+    </script>
+  
+<script src="https://habr.com/js/ads.js" onload="window['zhY4i4nJ9K'] = true"></script>
+</body>
+</html>
