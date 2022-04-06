@@ -118,7 +118,6 @@ CSS
 [Особенности стилизации форм](https://techrocks.ru/2020/03/25/how-to-style-forms-with-css/)  
 [Медиазапросы](https://developer.mozilla.org/ru/docs/Web/CSS/Media_Queries/Using_media_queries)  
 [Float](https://learn.javascript.ru/float)  
-[Блочная модель документа](https://tproger.ru/translations/css-box-model/)  
 [Возможные значения display и их отличия](https://learn.javascript.ru/display)
 
 ---
@@ -156,7 +155,7 @@ Cпособы получения данных для вывода
 [Cуществующие браузерные движки отличия](https://habr.com/ru/post/349512/)  
 [HTTP, HTTP2](https://habr.com/ru/post/308846/), [HTTPS](https://support.google.com/webmasters/answer/6073543?hl=ru), [FTP](https://ru.wikipedia.org/wiki/FTP)  
 [URL](https://developer.mozilla.org/ru/docs/Learn/Understanding_URLs)  
-[Basic-auth](https://developer.mozilla.org/ru/docs/Web/HTTP/Authentication)
+[Basic-auth](https://developer.mozilla.org/ru/docs/Web/HTTP/Authentication)  
 [localhost](https://www.hostinger.ru/rukovodstva/shto-takoje-localhost/)
 
 ---
@@ -211,7 +210,7 @@ no-js решения (аккордеоны/слайдеры/свитчеры н�
 Теория и общая практика
 
 [Progressive Enhancement / Graceful Degradation](https://htmlacademy.ru/blog/boost/frontend/progressive-enhancement)  
-[Markdown](https://ru.wikipedia.org/wiki/Markdown)
+[Markdown](https://ru.wikipedia.org/wiki/Markdown)  
 [Блок-схемы (практика)](https://oaipbfek.wordpress.com/%D1%81%D0%BE%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B1%D0%BB%D0%BE%D0%BA-%D1%81%D1%85%D0%B5%D0%BC-%D0%B0%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC%D0%BE%D0%B2/)
 
 ---
@@ -252,7 +251,7 @@ CSS
 работа с готовой системой сборки  
 [способы отладки кода](https://learn.javascript.ru/debugging-chrome)  
 [Отладка сетевых запросов](https://developer.chrome.com/docs/devtools/network/)  
-[Понимание exit-кодов ПО](https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%B4_%D0%B2%D0%BE%D0%B7%D0%B2%D1%80%D0%B0%D1%82%D0%B0) (В консоли выполняем нормальную команду, например `mkdir test`, через команду `echo $?` смотрим exit-code. Делаем тоже самое с заведомо невыполнимой командой, например `mkdirrrrr test`, смотрим разные значения
+[Понимание exit-кодов ПО](https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%B4_%D0%B2%D0%BE%D0%B7%D0%B2%D1%80%D0%B0%D1%82%D0%B0) (В консоли выполняем нормальную команду, например `mkdir test`, через команду `echo $?` смотрим exit-code. Делаем тоже самое с заведомо невыполнимой командой, например `mkdirrrrr test`, смотрим разные значения  
 [editorconfig](https://habr.com/ru/post/220131/)
 
 ---
@@ -301,7 +300,7 @@ HTML
 Инструментарий
 
 [git] [stash](https://www.atlassian.com/ru/git/tutorials/saving-changes/git-stash), [cherry-pick](https://git-scm.com/book/ru/v2/%D0%9F%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5-C%3A-%D0%9A%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B-Git-%D0%92%D0%BD%D0%B5%D1%81%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B8%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B9), [diff](https://www.atlassian.com/ru/git/tutorials/saving-changes/git-diff), [reset](https://www.atlassian.com/ru/git/tutorials/undoing-changes/git-reset) [revert](https://www.atlassian.com/ru/git/tutorials/undoing-changes), [rebase](https://www.atlassian.com/ru/git/tutorials/rewriting-history/git-rebase), [squash](https://medium.com/nuances-of-programming/%D0%BA%D0%B0%D0%BA-%D1%81%D0%B6%D0%B8%D0%BC%D0%B0%D1%82%D1%8C-%D0%BA%D0%BE%D0%BC%D0%BC%D0%B8%D1%82%D1%8B-%D0%B2-git-%D1%81-%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D1%8C%D1%8E-git-squash-8a84b9f62734)  
-Навыки отладки через [debugger](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Statements/debugger)
+Навыки отладки через [debugger](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Statements/debugger)  
 [Основы webpack](https://medium.com/nuances-of-programming/%D0%B2%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5-%D0%B2-webpack-%D0%B4%D0%BB%D1%8F-%D0%BD%D0%BE%D0%B2%D0%B8%D1%87%D0%BA%D0%BE%D0%B2-6cafbf562386)  
 [Babel](https://medium.com/@it_root.corp/what-is-babel-e8a980bf4ad5)  
 [stylelint](https://css-tricks.com/stylelint/)
@@ -318,7 +317,7 @@ JavaScript
 [Виды функций](https://learn.javascript.ru/function-basics)  
 [XMLHttpRequest и аналоги](https://learn.javascript.ru/xmlhttprequest)  
 система событий  
-[Работа с JSON](https://developer.mozilla.org/ru/docs/Learn/JavaScript/Objects/JSON)
+[Работа с JSON](https://developer.mozilla.org/ru/docs/Learn/JavaScript/Objects/JSON)  
 [Отличия let const var](https://techrocks.ru/2020/04/07/difference-between-var-let-const/)  
 [Отличия разных видов функций](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Functions)
 
@@ -339,7 +338,7 @@ JavaScript
 ```
 
 [iife](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%BD%D0%B8%D0%BC%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B5%D0%BC%D0%B5%D0%B4%D0%BB%D0%B5%D0%BD%D0%BD%D0%BE-%D0%B2%D1%8B%D0%B7%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC%D1%8B%D0%B5-%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B8-iife-%D0%B8-%D0%BD%D0%B5%D0%BC%D0%BD%D0%BE%D0%B3%D0%BE-%D0%B1%D0%BE%D0%BB%D1%8C%D1%88%D0%B5-ff8e9ba409eb)  
-[Всплытие](https://learn.javascript.ru/bubbling-and-capturing)
+[Всплытие](https://learn.javascript.ru/bubbling-and-capturing)  
 [Процесс срабатывания событий](https://learn.javascript.ru/bubbling-and-capturing)  
 [Понятие BOM](https://learn.javascript.ru/browser-environment)  
 [eval](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/eval) (Лучше не использовать и вообще забыть о ней нахрен. Но стоит упомянуть, что она используется в вебпаке)
@@ -395,12 +394,12 @@ CSS
     npm install имя_пакета@next
 ```
 
-[Версионирование пакетов semver](https://semver.org/lang/ru/)
+[Версионирование пакетов semver](https://semver.org/lang/ru/)  
 [Переменные окружения](https://ru.wikipedia.org/wiki/%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%BD%D0%B0%D1%8F_%D1%81%D1%80%D0%B5%D0%B4%D1%8B) (В macos посмотреть можно через команду `env` в терминале)
 
 [git хуки](https://git-scm.com/book/ru/v2/%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-Git-%D0%A5%D1%83%D0%BA%D0%B8-%D0%B2-Git)  
 Webpack: [лоадеры](https://webpack.js.org/concepts/loaders/), [плагины](https://webpack.js.org/concepts/plugins/)  
-[Webpack: точки входа и бандлинг](https://medium.com/web-standards/multiple-routes-webpack-19f71fa39090)
+[Webpack: точки входа и бандлинг](https://medium.com/web-standards/multiple-routes-webpack-19f71fa39090)  
 [core-js](https://habr.com/ru/post/216997/)  
 [package-lock-json](https://medium.com/devschacht/understanding-lock-files-in-npm-5-4bf615c6cd50)
 
@@ -424,7 +423,7 @@ JavaScript
 [regexp — основы](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/RegExp)  
 [Рекурсия](https://learn.javascript.ru/recursion)  
 [Деструктуризация](https://learn.javascript.ru/destructuring-assignment)  
-[Объект arguments](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Functions/arguments) (никогда не называйте его массивом, пожалуйста)
+[Объект arguments](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Functions/arguments) (никогда не называйте его массивом, пожалуйста)  
 [rest](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Functions/Rest_parameters)/[spread](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Operators/Spread_syntax)  
 [bind, call, apply](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%B4%D1%80%D0%BE%D0%B1%D0%BD%D0%BE-%D0%BE-%D0%BC%D0%B5%D1%82%D0%BE%D0%B4%D0%B0%D1%85-apply-call-%D0%B8-bind-%D0%BD%D0%B5%D0%BE%D0%B1%D1%85%D0%BE%D0%B4%D0%B8%D0%BC%D1%8B%D1%85-%D0%BA%D0%B0%D0%B6%D0%B4%D0%BE%D0%BC%D1%83-javascript-%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA%D1%83-ddd5f9b06290)  
 [Шаблонные строки (с ES15 лучше называть шаблонные литералы)](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Template_literals)  
@@ -461,7 +460,7 @@ JavaScript
 Инструментарий
 
 [webpack: динамический импорт, чанки](https://webpack.js.org/guides/code-splitting/)  
-[eslint](https://frontend-stuff.com/blog/eslint/)
+[eslint](https://frontend-stuff.com/blog/eslint/)  
 [docker](https://aws.amazon.com/ru/docker/)  
 [docker-compose](https://docs.microsoft.com/ru-ru/visualstudio/docker/tutorials/use-docker-compose)  
 [npm scripts](https://docs.npmjs.com/cli/v6/using-npm/scripts)
@@ -474,8 +473,7 @@ JavaScript
 свойства объекта и их конфигурация  
 [Object.freeze](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze), [Object.seal](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Object/seal)  
 [ООП в JS](https://developer.mozilla.org/ru/docs/Web/JavaScript/Introduction_to_Object-Oriented_JavaScript)  
-сравнение прототипов и классов  
-Виды функций и их отличия ~~(ну сколько можно то, а?)~~  
+сравнение прототипов и классов   
 [Синхронное и асинхронное выполнение кода](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%BB%D0%BD%D0%BE%D0%B5-%D0%BF%D0%BE%D0%BD%D0%B8%D0%BC%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE-%D0%B8-%D0%B0%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE-javascript-%D1%81-async-await-ba5f47f4436)  
 [Canvas](https://developer.mozilla.org/ru/docs/Web/API/Canvas_API/Tutorial)  
 [Тегированные строки](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/template_strings)  
@@ -504,7 +502,7 @@ JavaScript
 
 JavaScript
 
-функциональный подход в js  
+[функциональный подход в js](https://github.com/MostlyAdequate/mostly-adequate-guide-ru)  
 [Промисы](https://learn.javascript.ru/promise-basics)  
 [Полифилы](https://developer.mozilla.org/ru/docs/Glossary/Polyfill)  
 [Колбэки](https://learn.javascript.ru/callbacks)  
@@ -554,7 +552,7 @@ JavaScript
 [try catch finally](https://learn.javascript.ru/try-catch)  
 [Основы React](https://learn-reactjs.ru/basics/topics)  
 [Классовые и функциональные компоненты](https://ru.reactjs.org/docs/components-and-props.html)  
-Fragments, refs  
+[Fragments](https://ru.reactjs.org/docs/fragments.html), [refs](https://ru.reactjs.org/docs/refs-and-the-dom.html)  
 [VDOM](https://habr.com/ru/company/macloud/blog/558682/)  
 продвинутое знание regexp  
 [import/export](https://learn.javascript.ru/import-export)  
@@ -591,8 +589,8 @@ JS/ES/WebAPI/Node.js
 [MVC](https://medium.com/swlh/es6-mvc-javascript-tutorial-build-a-simple-crud-app-c402f09e69c7)  
 [SPA/MPA/PWA/TWA](https://www.azoft.ru/blog/spa-mpa-pwa/)  
 Плюсы-минусы PWA-native  
-[CSS-in-JS](https://ru.reactjs.org/docs/faq-styling.html)
-CSS modules  
+[CSS-in-JS](https://ru.reactjs.org/docs/faq-styling.html), styled components  
+[CSS modules](https://habr.com/ru/post/335244/)  
 [Жизненный цикл React-компонента](https://ru.reactjs.org/docs/state-and-lifecycle.html)  
 [Аналоги жизненного цикла на хуках](https://ru.reactjs.org/docs/hooks-faq.html#how-do-lifecycle-methods-correspond-to-hooks)  
 Context
@@ -609,7 +607,7 @@ Context
 
 Теория и общая практика
 
-Project fugu  
+[Project fugu](https://felixgerschau.com/web-capabilities-project-fugu-google/)  
 Chrome origin trial
 
 ---
@@ -622,18 +620,18 @@ Workbox
 
 JavaScript
 
-веб-компоненты  
+[веб-компоненты](https://learn.javascript.ru/web-components)  
 Понятие ES и ESNext stages proposals  
 Shadow DOM  
-service-worker  
-Flux Redux  
-итераторы генераторы  
+[service-worker](https://habr.com/ru/company/ruvds/blog/349858/)  
+Flux [Redux](https://rajdee.gitbooks.io/redux-in-russian/content/docs/introduction/)  
+[итераторы](https://learn.javascript.ru/iterable) [генераторы](https://learn.javascript.ru/generators-iterators)  
 все хуки  
 пользовательские хуки  
 redux hooks  
-Компоненты высшего порядка  
-React.Children, cloneElement  
-Portal’s
+[Компоненты высшего порядка](https://ru.reactjs.org/docs/higher-order-components.html)  
+[React.Children](https://ru.reactjs.org/docs/react-api.html#reactchildren), [cloneElement](https://ru.reactjs.org/docs/react-api.html#cloneelement)  
+[Portal’s](https://ru.reactjs.org/docs/portals.html)
 
 ---
 
@@ -656,11 +654,11 @@ OWASP
 JavaScript
 
 веб-воркеры  
-стратегии кеширования  
+[стратегии кеширования](https://habr.com/ru/company/2gis/blog/345552/)  
 D3.js  
-render-props  
+[render-props](https://ru.reactjs.org/docs/render-props.html)  
 Оптимизация рендера react-компонентов  
-Profiler  
+[Profiler](https://ru.reactjs.org/docs/profiler.html)  
 React-Testing-Library
 
 ---
@@ -740,6 +738,10 @@ NodeJS Основные модули
 NodeJS Генерация событий  
 NodeJS Создание сервера  
 TS: расширенные типы
+
+---
+
+---
 
 #### Грейд 16
 
