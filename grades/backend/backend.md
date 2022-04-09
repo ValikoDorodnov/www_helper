@@ -1163,7 +1163,9 @@ Theory
 [ООП для ООП: GRASP](https://habr.com/ru/post/38323/)  
 
 Domain Driven Design
-[Дмитрий Науменко "Просто о сложном - Domain Driven Design"](https://www.youtube.com/watch?time_continue=1&v=7HXIrEsmlzM&feature=emb_title)
+[Дмитрий Науменко "Просто о сложном - Domain Driven Design"](https://www.youtube.com/watch?time_continue=1&v=7HXIrEsmlzM&feature=emb_title)  
+:pushpin:[Как устроен Domain-Driven Design](https://habr.com/ru/company/oleg-bunin/blog/551428/)  
+:pushpin:[Что можно узнать о Domain Driven Design за 10 минут?](https://habr.com/ru/company/dododev/blog/489352/)  
 
 DDD Inversion of Control  
 
