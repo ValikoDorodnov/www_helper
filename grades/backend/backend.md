@@ -1128,6 +1128,7 @@ DB
 PostgreSQL Оконные функции  
 [3.5. Оконные функции](https://postgrespro.ru/docs/postgrespro/9.5/tutorial-window)  
 [9.21. Оконные функции](https://postgrespro.ru/docs/postgrespro/9.6/functions-window)  
+[Оконные функции в SQL (Агрегатные оконные функции)](https://www.youtube.com/watch?v=9nN_g4eIEgo)  
 
 ***
 
