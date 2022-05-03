@@ -140,6 +140,7 @@ CSS
     git remote rm имя_репозитория //удалить
 ```
 
+
 #### Грейд 3
 **[⬆ вернуться к началу](#Разделы)**
 
@@ -421,6 +422,7 @@ CSS
 Тестирование  
 [Теория видов тестирования](https://habr.com/ru/post/549054/)  
 
+
 #### Грейд 7
 **[⬆ вернуться к началу](#Разделы)**
 
@@ -557,165 +559,138 @@ CSS
 - [Аналоги жизненного цикла на хуках](https://ru.reactjs.org/docs/hooks-faq.html#how-do-lifecycle-methods-correspond-to-hooks)  
 - Context
 
+
 ### Грейды 11-16
 
 #### Грейд 11
 **[⬆ вернуться к началу](#Разделы)**
 
-Теория и общая практика
-
+Теория и общая практика  
 [Project fugu](https://felixgerschau.com/web-capabilities-project-fugu-google/)  
 Chrome origin trial
 
 ***
 
-Инструментарий
-
-Workbox
+#### Инструментарий
+- Workbox
 
 ***
 
-JavaScript
-
-[веб-компоненты](https://learn.javascript.ru/web-components)  
-Понятие ES и ESNext stages proposals  
-Shadow DOM  
-[service-worker](https://habr.com/ru/company/ruvds/blog/349858/)  
-Flux [Redux](https://rajdee.gitbooks.io/redux-in-russian/content/docs/introduction/)  
-[итераторы](https://learn.javascript.ru/iterable) [генераторы](https://learn.javascript.ru/generators-iterators)  
-все хуки  
-пользовательские хуки  
-redux hooks  
-[Компоненты высшего порядка](https://ru.reactjs.org/docs/higher-order-components.html)  
-[React.Children](https://ru.reactjs.org/docs/react-api.html#reactchildren), [cloneElement](https://ru.reactjs.org/docs/react-api.html#cloneelement)  
-[Portal’s](https://ru.reactjs.org/docs/portals.html)
+#### JavaScript
+- [веб-компоненты](https://learn.javascript.ru/web-components)  
+- Понятие ES и ESNext stages proposals  
+- Shadow DOM  
+- [service-worker](https://habr.com/ru/company/ruvds/blog/349858/)  
+- Flux [Redux](https://rajdee.gitbooks.io/redux-in-russian/content/docs/introduction/)  
+- [итераторы](https://learn.javascript.ru/iterable)  
+- [генераторы](https://learn.javascript.ru/generators-iterators)  
+- все хуки  
+- пользовательские хуки  
+- redux hooks  
+- [Компоненты высшего порядка](https://ru.reactjs.org/docs/higher-order-components.html)  
+- [React.Children](https://ru.reactjs.org/docs/react-api.html#reactchildren)  
+- [cloneElement](https://ru.reactjs.org/docs/react-api.html#cloneelement)  
+- [Portal’s](https://ru.reactjs.org/docs/portals.html)
 
 ***
 
 Тестирование
-
 ui-тесты
 
-***
-
-***
 
 #### Грейд 12
 **[⬆ вернуться к началу](#Разделы)**
 
-Теория и общая практика
-
+Теория и общая практика  
 OWASP
 
 ***
 
-JavaScript
-
-веб-воркеры  
-[стратегии кеширования](https://habr.com/ru/company/2gis/blog/345552/)  
-D3.js  
-[render-props](https://ru.reactjs.org/docs/render-props.html)  
-Оптимизация рендера react-компонентов  
-[Profiler](https://ru.reactjs.org/docs/profiler.html)  
-React-Testing-Library
+#### JavaScript
+- веб-воркеры  
+- [стратегии кеширования](https://habr.com/ru/company/2gis/blog/345552/)  
+- D3.js  
+- [render-props](https://ru.reactjs.org/docs/render-props.html)  
+- Оптимизация рендера react-компонентов  
+- [Profiler](https://ru.reactjs.org/docs/profiler.html)  
+- React-Testing-Library
 
 ***
 
 Тестирование
-
 интеграционное тестирование через Puppeteer
 
-***
-
-***
 
 #### Грейд 13
 **[⬆ вернуться к началу](#Разделы)**
 
-Теория и общая практика
-
+Теория и общая практика  
 Оптимизация загрузки страницы  
 Core Web Vitals  
 Бинарный поиск  
-Расчет сложности алгоритма (О-большое)
+Расчет сложности алгоритма (О-большое)  
 
 ***
 
-JavaScript
-
-написание расширений для браузеров  
-WebGL  
-three.js  
-основы TypeScript  
-базовые типы TS  
-Базовые типы react-компонентов
+#### JavaScript
+- написание расширений для браузеров  
+- WebGL  
+- three.js  
+- основы TypeScript  
+- базовые типы TS  
+- Базовые типы react-компонентов
 
 ***
 
-Прочее
-
+Прочее  
 наличие стажёра
 
-***
-
-***
 
 #### Грейд 14
 
 Теория и общая практика
-
 метапрограммирование  
 Работа памяти, массивы и связанные списки  
 Сортировка выбором, быстрая сортировка
 
 ***
 
-JavaScript
+#### JavaScript
 
-TS: объекты функции массивы кортежи  
-TS: интерфейсы алиасы  
-написание и публикация NPM-пакетов  
-ES-декораторы  
-Proxy и Reflect
+- TS: объекты функции массивы кортежи  
+- TS: интерфейсы алиасы  
+- написание и публикация NPM-пакетов  
+- ES-декораторы  
+- Proxy и Reflect
 
-***
-
-***
 
 #### Грейд 15
 **[⬆ вернуться к началу](#Разделы)**
 
-Теория и общая практика
-
+Теория и общая практика  
 NodeJS, различия между платформой NodeJS и браузером  
-Хэш-таблицы, графы, поиск в ширину
+Хэш-таблицы, графы, поиск в ширину  
 
 ***
 
-JavaScript
+#### JavaScript
+- NodeJS Основные модули  
+- NodeJS Генерация событий  
+- NodeJS Создание сервера  
+- TS: расширенные типы
 
-NodeJS Основные модули  
-NodeJS Генерация событий  
-NodeJS Создание сервера  
-TS: расширенные типы
-
-***
-
-***
 
 #### Грейд 16
 **[⬆ вернуться к началу](#Разделы)**
 
-Теория и общая практика
-
+Теория и общая практика  
 алгоритмы сжатия данных  
-алгоритм k-ближайших соседей
+алгоритм k-ближайших соседей  
 
 ***
 
-JavaScript
-
-TS: условные типы пространства имён декларации  
-WebAssembly  
-TS: обобщения  
-TS: защитники типов
+#### JavaScript
+- TS: условные типы пространства имён декларации  
+- WebAssembly  
+- TS: обобщения  
+- TS: защитники типов  
