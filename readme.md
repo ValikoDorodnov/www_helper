@@ -1,8 +1,13 @@
 # WWW Helper
 
-[backend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/backend.md)  
-[frontend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/frontend/frontend.md)  
-[devops](https://github.com/ValikoDorodnov/grades/blob/master/grades/devops/devops.md)  
+***
+
+# Грейдовые сетки
+- [backend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/backend.md)  
+- [frontend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/frontend/frontend.md)  
+- [devops](https://github.com/ValikoDorodnov/grades/blob/master/grades/devops/devops.md)  
+
+***
 
 ### Tips and Tricks
 [Yii Active Record](https://github.com/ValikoDorodnov/www_helper/blob/master/tipsAndTricks/activeRecord.md)  
