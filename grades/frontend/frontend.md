@@ -411,7 +411,7 @@ CSS
 
 ***
 
-Прочее 
+Прочее  
 [composer](https://habr.com/ru/post/439200/)  
 [nginx](https://nginx.org/ru/)  
 [apache](https://ru.wikipedia.org/wiki/Apache_HTTP_Server)  
@@ -594,7 +594,7 @@ Chrome origin trial
 
 ***
 
-Тестирование
+Тестирование  
 ui-тесты
 
 
@@ -617,8 +617,8 @@ OWASP
 
 ***
 
-Тестирование
-интеграционное тестирование через Puppeteer
+Тестирование  
+интеграционное тестирование через Puppeteer  
 
 
 #### Грейд 13
