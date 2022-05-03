@@ -56,7 +56,7 @@ HTML
 CSS  
 [Виды селекторов](https://html5book.ru/osnovy-css/#part2)  
 [Основные псевдоклассы и псевдоэлементы](https://medium.com/@ABatickaya/%D0%B8%D1%81%D1%87%D0%B5%D1%80%D0%BF%D1%8B%D0%B2%D0%B0%D1%8E%D1%89%D0%B5%D0%B5-%D1%80%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE-%D0%BF%D0%BE-%D0%BF%D1%81%D0%B5%D0%B2%D0%B4%D0%BE%D1%8D%D0%BB%D0%B5%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D0%BC-%D0%B8-%D0%BF%D1%81%D0%B5%D0%B2%D0%B4%D0%BE%D0%BA%D0%BB%D0%B0%D1%81%D1%81%D0%B0%D0%BC-%D0%B2-css-3282b5ea029)  
-[Наследование, каскадность, вес important, специфичность](https://developer.mozilla.org/ru/docs/Web/CSS/Specificity),(https://developer.mozilla.org/ru/docs/Web/Guide/CSS/Getting_started/Cascading_and_inheritance)  
+[Наследование, каскадность, вес important, специфичность](https://developer.mozilla.org/ru/docs/Web/CSS/Specificity)
 [Блочная модель документа](https://tproger.ru/translations/css-box-model/)  
 [Виды и назначение единиц измерения](https://www.w3.org/Style/Examples/007/units.en.html)  
 [Позиционирование](https://itchief.ru/html-and-css/css-positioning-elements)  
@@ -344,8 +344,7 @@ HTML
 #### Грейд 6
 **[⬆ вернуться к началу](#Разделы)**
 
-Теория и общая практика
-
+Теория и общая практика  
 [Яндекс метрика](https://yandex.ru/support/metrica/) или [гугл аналитика](https://marketingplatform.google.com/about/analytics/features/)  
 [MIME-типы](https://developer.mozilla.org/ru/docs/Web/HTTP/Basics_of_HTTP/MIME_types)  
 [CORS](https://developer.mozilla.org/ru/docs/Web/HTTP/CORS)  
@@ -360,10 +359,17 @@ CSS
 
 ***
 
-Инструментарий
-
-[git submodule](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%9F%D0%BE%D0%B4%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D0%B8)  
-[Установка](https://docs.npmjs.com/cli/v7/commands/npm-install) и [удаление пакетов](https://www.tech-wiki.online/ru/npm-uninstall-packages.html)
+#### Инструментарий  
+- [git submodule](https://git-scm.com/book/ru/v2/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D1%8B-Git-%D0%9F%D0%BE%D0%B4%D0%BC%D0%BE%D0%B4%D1%83%D0%BB%D0%B8)  
+- [Установка](https://docs.npmjs.com/cli/v7/commands/npm-install) и [удаление пакетов](https://www.tech-wiki.online/ru/npm-uninstall-packages.html)
+- [Версионирование пакетов semver](https://semver.org/lang/ru/)  
+- [Переменные окружения](https://ru.wikipedia.org/wiki/%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%BD%D0%B0%D1%8F_%D1%81%D1%80%D0%B5%D0%B4%D1%8B) В macos посмотреть можно через команду `env` в терминале  
+- [git хуки](https://git-scm.com/book/ru/v2/%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-Git-%D0%A5%D1%83%D0%BA%D0%B8-%D0%B2-Git)  
+- [Webpack: лоадеры](https://webpack.js.org/concepts/loaders/)
+- [плагины](https://webpack.js.org/concepts/plugins/)  
+- [Webpack: точки входа и бандлинг](https://medium.com/web-standards/multiple-routes-webpack-19f71fa39090)  
+- [core-js](https://habr.com/ru/post/216997/)  
+- [package-lock-json](https://medium.com/devschacht/understanding-lock-files-in-npm-5-4bf615c6cd50)  
 
 ```
     //Установка конкретной версии пакета
@@ -373,23 +379,28 @@ CSS
     npm install имя_пакета@next
 ```
 
-[Версионирование пакетов semver](https://semver.org/lang/ru/)  
-[Переменные окружения](https://ru.wikipedia.org/wiki/%D0%9F%D0%B5%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%BD%D0%B0%D1%8F_%D1%81%D1%80%D0%B5%D0%B4%D1%8B) (В macos посмотреть можно через команду `env` в терминале)
-
-[git хуки](https://git-scm.com/book/ru/v2/%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-Git-%D0%A5%D1%83%D0%BA%D0%B8-%D0%B2-Git)  
-Webpack: [лоадеры](https://webpack.js.org/concepts/loaders/), [плагины](https://webpack.js.org/concepts/plugins/)  
-[Webpack: точки входа и бандлинг](https://medium.com/web-standards/multiple-routes-webpack-19f71fa39090)  
-[core-js](https://habr.com/ru/post/216997/)  
-[package-lock-json](https://medium.com/devschacht/understanding-lock-files-in-npm-5-4bf615c6cd50)
-
 ***
 
-JavaScript
-
-[this](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Operators/this), globalThis  
-[Методы массивов](https://learn.javascript.ru/array-methods)  
-[Методы объектов](https://learn.javascript.ru/object-methods)  
-[Методы строк](https://developer.mozilla.org/ru/docs/Learn/JavaScript/First_steps/Useful_string_methods)
+#### JavaScript
+- [this, globalThis](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Operators/this)  
+- [Методы массивов](https://learn.javascript.ru/array-methods)  
+- [Методы объектов](https://learn.javascript.ru/object-methods)  
+- [Методы строк](https://developer.mozilla.org/ru/docs/Learn/JavaScript/First_steps/Useful_string_methods)  
+- [Замыкания и область видимости](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%BD%D0%B8%D0%BC%D0%B0%D0%B5%D0%BC-%D0%B7%D0%B0%D0%BC%D1%8B%D0%BA%D0%B0%D0%BD%D0%B8%D1%8F-%D0%B2-javascript-%D1%80%D0%B0%D0%B7-%D0%B8-%D0%BD%D0%B0%D0%B2%D1%81%D0%B5%D0%B3%D0%B4%D0%B0-c211805b6898)  
+- [cookie](https://learn.javascript.ru/cookie), [localstorage](https://developer.mozilla.org/ru/docs/Web/API/Window/localStorage)  
+- [sessionstorage](https://developer.mozilla.org/ru/docs/Web/API/Window/sessionStorage)  
+- [indexedDB](https://learn.javascript.ru/indexeddb)  
+- [regexp — основы](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/RegExp)  
+- [Рекурсия](https://learn.javascript.ru/recursion)  
+- [Деструктуризация](https://learn.javascript.ru/destructuring-assignment)  
+- [Объект arguments](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Functions/arguments) никогда не называйте его массивом, пожалуйста  
+- [REST](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Functions/Rest_parameters)  
+- [spread](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Operators/Spread_syntax)  
+- [bind, call, apply](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%B4%D1%80%D0%BE%D0%B1%D0%BD%D0%BE-%D0%BE-%D0%BC%D0%B5%D1%82%D0%BE%D0%B4%D0%B0%D1%85-apply-call-%D0%B8-bind-%D0%BD%D0%B5%D0%BE%D0%B1%D1%85%D0%BE%D0%B4%D0%B8%D0%BC%D1%8B%D1%85-%D0%BA%D0%B0%D0%B6%D0%B4%D0%BE%D0%BC%D1%83-javascript-%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA%D1%83-ddd5f9b06290)  
+- [Шаблонные строки (с ES15 лучше называть шаблонные литералы)](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Template_literals)  
+- [Понятие JavaScript ECMAScript](https://ru.wikipedia.org/wiki/ECMAScript)  
+- [IEEE 754](https://ru.wikipedia.org/wiki/IEEE_754-2008)  
+- [Структуры для хранения данных](https://habr.com/ru/post/497476/)  
 
 ```
     // по предыдущим трём вопросам не забывайте смотреть новенькое, например
@@ -397,21 +408,9 @@ JavaScript
     arr.flat();
 ```
 
-[Замыкания и область видимости](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%BD%D0%B8%D0%BC%D0%B0%D0%B5%D0%BC-%D0%B7%D0%B0%D0%BC%D1%8B%D0%BA%D0%B0%D0%BD%D0%B8%D1%8F-%D0%B2-javascript-%D1%80%D0%B0%D0%B7-%D0%B8-%D0%BD%D0%B0%D0%B2%D1%81%D0%B5%D0%B3%D0%B4%D0%B0-c211805b6898)  
-[cookie](https://learn.javascript.ru/cookie), [localstorage](https://developer.mozilla.org/ru/docs/Web/API/Window/localStorage), [sessionstorage](https://developer.mozilla.org/ru/docs/Web/API/Window/sessionStorage), [indexedDB](https://learn.javascript.ru/indexeddb) и прочее  
-[regexp — основы](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/RegExp)  
-[Рекурсия](https://learn.javascript.ru/recursion)  
-[Деструктуризация](https://learn.javascript.ru/destructuring-assignment)  
-[Объект arguments](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Functions/arguments) (никогда не называйте его массивом, пожалуйста)  
-[rest](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Functions/Rest_parameters)/[spread](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Operators/Spread_syntax)  
-[bind, call, apply](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%B4%D1%80%D0%BE%D0%B1%D0%BD%D0%BE-%D0%BE-%D0%BC%D0%B5%D1%82%D0%BE%D0%B4%D0%B0%D1%85-apply-call-%D0%B8-bind-%D0%BD%D0%B5%D0%BE%D0%B1%D1%85%D0%BE%D0%B4%D0%B8%D0%BC%D1%8B%D1%85-%D0%BA%D0%B0%D0%B6%D0%B4%D0%BE%D0%BC%D1%83-javascript-%D1%80%D0%B0%D0%B7%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA%D1%83-ddd5f9b06290)  
-[Шаблонные строки (с ES15 лучше называть шаблонные литералы)](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Template_literals)  
-[Понятие JavaScript ECMAScript](https://ru.wikipedia.org/wiki/ECMAScript)  
-[IEEE 754](https://ru.wikipedia.org/wiki/IEEE_754-2008)  
-[Структуры для хранения данных](https://habr.com/ru/post/497476/)
-
 ***
 
+Прочее 
 [composer](https://habr.com/ru/post/439200/)  
 [nginx](https://nginx.org/ru/)  
 [apache](https://ru.wikipedia.org/wiki/Apache_HTTP_Server)  
@@ -419,13 +418,8 @@ JavaScript
 
 ***
 
-Тестирование
-
-[Теория видов тестирования](https://habr.com/ru/post/549054/)
-
-***
-
-***
+Тестирование  
+[Теория видов тестирования](https://habr.com/ru/post/549054/)  
 
 #### Грейд 7
 **[⬆ вернуться к началу](#Разделы)**
