@@ -28,8 +28,8 @@
         * [Грейд 14](#Грейд-14) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade14.md)
         * [Грейд 15](#Грейд-15) :arrows_counterclockwise: 8/10
         * [Грейд 16](#Грейд-16) :arrows_counterclockwise: 6/9
- 
- 
+
+
 ## Грейды
 
 ### Грейды 1-5
