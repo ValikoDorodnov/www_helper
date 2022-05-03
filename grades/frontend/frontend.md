@@ -424,72 +424,64 @@ CSS
 #### Грейд 7
 **[⬆ вернуться к началу](#Разделы)**
 
-Теория и общая практика
-
+Теория и общая практика  
 [GraphQL](https://tproger.ru/translations/graphql-beginners-guide/)  
 [Что же такое этот GraphQL?](https://habr.com/ru/post/326986/)
 
 ***
 
-Инструментарий
-
-[webpack: динамический импорт, чанки](https://webpack.js.org/guides/code-splitting/)  
-[eslint](https://frontend-stuff.com/blog/eslint/)  
-[docker](https://aws.amazon.com/ru/docker/)  
-[docker-compose](https://docs.microsoft.com/ru-ru/visualstudio/docker/tutorials/use-docker-compose)  
-[npm scripts](https://docs.npmjs.com/cli/v6/using-npm/scripts)
-
-***
-
-JavaScript
-
-[Прототипы в JS](https://learn.javascript.ru/prototypes)  
-свойства объекта и их конфигурация  
-[Object.freeze](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze), [Object.seal](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Object/seal)  
-[ООП в JS](https://developer.mozilla.org/ru/docs/Web/JavaScript/Introduction_to_Object-Oriented_JavaScript)  
-сравнение прототипов и классов   
-[Синхронное и асинхронное выполнение кода](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%BB%D0%BD%D0%BE%D0%B5-%D0%BF%D0%BE%D0%BD%D0%B8%D0%BC%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE-%D0%B8-%D0%B0%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE-javascript-%D1%81-async-await-ba5f47f4436)  
-[Canvas](https://developer.mozilla.org/ru/docs/Web/API/Canvas_API/Tutorial)  
-[Тегированные строки](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/template_strings)  
-[Паттерн модуль](https://largescalejs.ru/module-pattern/)
+#### Инструментарий
+- [webpack: динамический импорт, чанки](https://webpack.js.org/guides/code-splitting/)  
+- [eslint](https://frontend-stuff.com/blog/eslint/)  
+- [docker](https://aws.amazon.com/ru/docker/)  
+- [docker-compose](https://docs.microsoft.com/ru-ru/visualstudio/docker/tutorials/use-docker-compose)  
+- [npm scripts](https://docs.npmjs.com/cli/v6/using-npm/scripts)
 
 ***
 
-Прочее
+#### JavaScript
+- [Прототипы в JS](https://learn.javascript.ru/prototypes)  
+- свойства объекта и их конфигурация  
+- [Object.freeze](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze)  
+- [Object.seal](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Object/seal)  
+- [ООП в JS](https://developer.mozilla.org/ru/docs/Web/JavaScript/Introduction_to_Object-Oriented_JavaScript)  
+- сравнение прототипов и классов   
+- [Синхронное и асинхронное выполнение кода](https://medium.com/@stasonmars/%D0%BF%D0%BE%D0%BB%D0%BD%D0%BE%D0%B5-%D0%BF%D0%BE%D0%BD%D0%B8%D0%BC%D0%B0%D0%BD%D0%B8%D0%B5-%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE-%D0%B8-%D0%B0%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE-javascript-%D1%81-async-await-ba5f47f4436)  
+- [Canvas](https://developer.mozilla.org/ru/docs/Web/API/Canvas_API/Tutorial)  
+- [Тегированные строки](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/template_strings)  
+- [Паттерн модуль](https://largescalejs.ru/module-pattern/)
 
+***
+
+Прочее  
 [Реляционные и нереляционные БД](https://habr.com/ru/company/ruvds/blog/324936/)  
 [Основы синтаксиса SQL](https://www.w3schools.com/sql/sql_syntax.asp)  
 [SQL: выборка данных](https://ru.hexlet.io/courses/rdb-basics/lessons/sql-dql/theory_unit)
 
-***
-
-***
 
 #### Грейд 8
 **[⬆ вернуться к началу](#Разделы)**
 
-Теория и общая практика
-
+Теория и общая практика  
 [Процесс отрисовки страницы в браузере](https://habr.com/ru/post/224187/)  
 [Event loop (событийный цикл)](https://learn.javascript.ru/event-loop)
 
 ***
 
-JavaScript
-
-[функциональный подход в js](https://github.com/MostlyAdequate/mostly-adequate-guide-ru)  
-[Промисы](https://learn.javascript.ru/promise-basics)  
-[Полифилы](https://developer.mozilla.org/ru/docs/Glossary/Polyfill)  
-[Колбэки](https://learn.javascript.ru/callbacks)  
-[window](https://developer.mozilla.org/ru/docs/Web/API/Window)  
-[document](https://developer.mozilla.org/ru/docs/Web/API/Document)  
-[location](https://developer.mozilla.org/ru/docs/Web/API/Location)  
-[history](https://developer.mozilla.org/ru/docs/Web/API/History_API)  
-[navigator](https://developer.mozilla.org/ru/docs/Web/API/Navigator)  
-[fetch](https://danlevy.net/you-may-not-need-axios/)  
-[каррирование](https://learn.javascript.ru/currying-partials)  
-[lodash](https://lodash.com/)  
-[паттерн декоратор](https://learn.javascript.ru/call-apply-decorators)
+#### JavaScript
+- [функциональный подход в js](https://github.com/MostlyAdequate/mostly-adequate-guide-ru)  
+- [Промисы](https://learn.javascript.ru/promise-basics)  
+- [Полифилы](https://developer.mozilla.org/ru/docs/Glossary/Polyfill)  
+- [Колбэки](https://learn.javascript.ru/callbacks)  
+- [window](https://developer.mozilla.org/ru/docs/Web/API/Window)  
+- [document](https://developer.mozilla.org/ru/docs/Web/API/Document)  
+- [location](https://developer.mozilla.org/ru/docs/Web/API/Location)  
+- [history](https://developer.mozilla.org/ru/docs/Web/API/History_API)  
+- [navigator](https://developer.mozilla.org/ru/docs/Web/API/Navigator)  
+- [fetch](https://danlevy.net/you-may-not-need-axios/)  
+- [каррирование](https://learn.javascript.ru/currying-partials)  
+- [lodash](https://lodash.com/)  
+- [паттерн декоратор](https://learn.javascript.ru/call-apply-decorators)
 
 ***
 
@@ -501,80 +493,69 @@ JavaScript
 Тестирование  
 [unit-тесты на Jest](https://habr.com/ru/post/502302/)
 
-***
-
-***
 
 #### Грейд 9
 **[⬆ вернуться к началу](#Разделы)**
 
-Теория и общая практика
-
+Теория и общая практика  
 [SSR](https://habr.com/ru/post/527310/)
 
 ***
 
-Инструментарий
-
-[Sentry](https://geekbrains.ru/events/761?from=events)
-
-***
-
-JavaScript
-
-[Собственные события](https://itchief.ru/javascript/custom-events)  
-шаблонизаторы  
-[history api](https://developer.mozilla.org/ru/docs/Web/API/History_API)  
-[try catch finally](https://learn.javascript.ru/try-catch)  
-[Основы React](https://learn-reactjs.ru/basics/topics)  
-[Классовые и функциональные компоненты](https://ru.reactjs.org/docs/components-and-props.html)  
-[Fragments](https://ru.reactjs.org/docs/fragments.html), [refs](https://ru.reactjs.org/docs/refs-and-the-dom.html)  
-[VDOM](https://habr.com/ru/company/macloud/blog/558682/)  
-продвинутое знание regexp  
-[import/export](https://learn.javascript.ru/import-export)  
-продвинутые промисы  
-Все паттерны проектирования
+#### Инструментарий  
+- [Sentry](https://geekbrains.ru/events/761?from=events)
 
 ***
 
-***
+#### JavaScript
+- [Собственные события](https://itchief.ru/javascript/custom-events)  
+- шаблонизаторы  
+- [history api](https://developer.mozilla.org/ru/docs/Web/API/History_API)  
+- [try catch finally](https://learn.javascript.ru/try-catch)  
+- [Основы React](https://learn-reactjs.ru/basics/topics)  
+- [Классовые и функциональные компоненты](https://ru.reactjs.org/docs/components-and-props.html)  
+- [Fragments](https://ru.reactjs.org/docs/fragments.html)  
+- [refs](https://ru.reactjs.org/docs/refs-and-the-dom.html)  
+- [VDOM](https://habr.com/ru/company/macloud/blog/558682/)  
+- продвинутое знание regexp  
+- [import/export](https://learn.javascript.ru/import-export)  
+- продвинутые промисы  
+- Все паттерны проектирования
+
 
 #### Грейд 10
 **[⬆ вернуться к началу](#Разделы)**
 
-Теория и общая практика
-
+Теория и общая практика  
 [react native](https://ru.wikipedia.org/wiki/React_Native)  
 [Статические генераторы сайтов](https://bestprogrammer.ru/programmirovanie-i-razrabotka/generatory-staticheskih-sajtov-rukovodstvo-dlya-novichkov)  
 [Electron](https://www.electronjs.org/ru/docs/latest)
 
 ***
 
-Инструментарий
-
-[headless-браузеры](https://habr.com/ru/company/oleg-bunin/blog/421137/)  
-Puppeteer  
-parcel rollup snowpack esbuild
-
-***
-
-JavaScript  
-[commonjs](https://largescalejs.ru/commonjs-modules/), amd umd  
-[observable](https://habr.com/ru/post/568064/)  
-JS/ES/WebAPI/Node.js  
-[Сравнение фреймворков](https://athemes.com/guides/angular-vs-react-vs-vue/)  
-[MVC](https://medium.com/swlh/es6-mvc-javascript-tutorial-build-a-simple-crud-app-c402f09e69c7)  
-[SPA/MPA/PWA/TWA](https://www.azoft.ru/blog/spa-mpa-pwa/)  
-Плюсы-минусы PWA-native  
-[CSS-in-JS](https://ru.reactjs.org/docs/faq-styling.html), styled components  
-[CSS modules](https://habr.com/ru/post/335244/)  
-[Жизненный цикл React-компонента](https://ru.reactjs.org/docs/state-and-lifecycle.html)  
-[Аналоги жизненного цикла на хуках](https://ru.reactjs.org/docs/hooks-faq.html#how-do-lifecycle-methods-correspond-to-hooks)  
-Context
+#### Инструментарий  
+- [headless-браузеры](https://habr.com/ru/company/oleg-bunin/blog/421137/)  
+- Puppeteer  
+- parcel rollup snowpack esbuild
 
 ***
 
-***
+#### JavaScript  
+- [commonjs](https://largescalejs.ru/commonjs-modules/)
+- amd  
+- umd  
+- [observable](https://habr.com/ru/post/568064/)  
+- JS/ES/WebAPI/Node.js  
+- [Сравнение фреймворков](https://athemes.com/guides/angular-vs-react-vs-vue/)  
+- [MVC](https://medium.com/swlh/es6-mvc-javascript-tutorial-build-a-simple-crud-app-c402f09e69c7)  
+- [SPA/MPA/PWA/TWA](https://www.azoft.ru/blog/spa-mpa-pwa/)  
+- Плюсы-минусы PWA-native  
+- [CSS-in-JS](https://ru.reactjs.org/docs/faq-styling.html)
+- styled components  
+- [CSS modules](https://habr.com/ru/post/335244/)  
+- [Жизненный цикл React-компонента](https://ru.reactjs.org/docs/state-and-lifecycle.html)  
+- [Аналоги жизненного цикла на хуках](https://ru.reactjs.org/docs/hooks-faq.html#how-do-lifecycle-methods-correspond-to-hooks)  
+- Context
 
 ### Грейды 11-16
 
