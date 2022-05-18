@@ -1247,11 +1247,12 @@ DDD Services
 [Domain-driven design: рецепт для прагматика](https://www.youtube.com/watch?v=CR9mLGN9jh0)  
 [Еще немного про сервисный слой в PHP](https://habr.com/ru/post/547510/)  
 [Роли службы и фасада схожи](https://overcoder.net/q/128121/%D1%80%D0%BE%D0%BB%D0%B8-%D1%81%D0%BB%D1%83%D0%B6%D0%B1%D1%8B-%D0%B8-%D1%84%D0%B0%D1%81%D0%B0%D0%B4%D0%B0-%D1%81%D1%85%D0%BE%D0%B6%D0%B8)  
+
 DDD Repositories  
 [last-wishes](https://github.com/dddinphp/last-wishes)  
 [ddd](https://github.com/dddinphp/ddd)  
-2й язык: Основы
 
+2й язык: Основы
 ***
 
 Framework  
@@ -1299,16 +1300,20 @@ Misc
 
 Theory  
 Многопоточность  
-[Изучаем многопоточное программирование в Go по картинкам](https://habr.com/ru/post/412715/)  
-[Многопоточность GO](http://golang-book.ru/chapter-10-concurrency.html)  
+
+
 Сравнение языков программирования
 
 ***
 
 Language 2й язык:  
+
 Применение  
+
 Многопоточность  
-[STEPIK](https://stepik.org/lesson/360357/step/1?unit=344766)
+[Параллелизм, многопоточность Go](https://stepik.org/lesson/360357/step/1?unit=344766)
+[Изучаем многопоточное программирование в Go по картинкам](https://habr.com/ru/post/412715/)  
+[Многопоточность Go](http://golang-book.ru/chapter-10-concurrency.html)
 
 ***
 
@@ -1320,6 +1325,7 @@ Framework
 DB  
 Elasticesearch  
 [Основы Elasticsearch](https://habr.com/ru/post/280488/)  
+
 Couchbase  
 [Couchbase в телекоме](https://habr.com/ru/post/436762/)  
 [Обзор Couchbase: умная и эффективная NoSQL база данных](https://oracle-patches.com/db/nosql/3987-obzor-couchbase-umnaya-i-effektivnaya-nosql-baza-dannyh)
