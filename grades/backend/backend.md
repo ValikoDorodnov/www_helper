@@ -26,8 +26,8 @@
        * [Грейд 12](#Грейд-12) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade12.md) [Практика](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/overview.md)
        * [Грейд 13](#Грейд-13) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade13.md)
        * [Грейд 14](#Грейд-14) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade14.md)
-       * [Грейд 15](#Грейд-15) :arrows_counterclockwise: 8/10
-       * [Грейд 16](#Грейд-16) :arrows_counterclockwise: 6/9
+       * [Грейд 15](#Грейд-15) :arrows_counterclockwise: 8/10 [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade15.md)
+       * [Грейд 16](#Грейд-16) :arrows_counterclockwise: 6/9 [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade16.md)
 
 
 ## Грейды
@@ -1299,8 +1299,7 @@ Misc
 **[⬆ вернуться к началу](#Разделы)**
 
 Theory  
-Многопоточность  
-
+Многопоточность
 
 Сравнение языков программирования
 
