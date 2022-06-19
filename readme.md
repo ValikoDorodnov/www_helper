@@ -6,19 +6,13 @@
 - [backend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/backend.md)  
 - [frontend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/frontend/frontend.md)  
 - [devops](https://github.com/ValikoDorodnov/grades/blob/master/grades/devops/devops.md)  
+- [go lang](https://github.com/ValikoDorodnov/grades/blob/master/grades/go_lang/go.md)  
 
 ***
 
 ### Tips and Tricks
 [Yii Active Record](https://github.com/ValikoDorodnov/www_helper/blob/master/tipsAndTricks/activeRecord.md)  
 [Установка локального окружения win10](https://github.com/ValikoDorodnov/www_helper/blob/master/tipsAndTricks/win10_workspace_installation.md)  
-
-### GoLang 
-[Official web page](https://golang.org/)  
-[GoLang developer roadmap](https://github.com/Alikhll/golang-developer-roadmap)  
-[Web go skeleton](https://github.com/windstep/go-web-skeleton)  
-[Go-lang book](http://golang-book.ru/)  
-[Введение в язык Go](https://metanit.com/go/tutorial/1.1.php)  
 
 ### Каналы по IT
 [PHP Digest Cвежие новости, материалы и инструменты – раз в две недели. (Телеграм)](https://t.me/phpdigest)  
