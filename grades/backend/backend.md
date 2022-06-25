@@ -26,7 +26,7 @@
        * [Грейд 12](#Грейд-12) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade12.md) [Практика](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/practice/grade12/overview.md)
        * [Грейд 13](#Грейд-13) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade13.md)
        * [Грейд 14](#Грейд-14) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade14.md)
-       * [Грейд 15](#Грейд-15) :arrows_counterclockwise: 8/10 [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade15.md)
+       * [Грейд 15](#Грейд-15) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade15.md)
        * [Грейд 16](#Грейд-16) :arrows_counterclockwise: 6/9 [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade16.md)
 
 
@@ -1253,10 +1253,13 @@ DDD Repositories
 [ddd](https://github.com/dddinphp/ddd)  
 
 2й язык: Основы
+[Программирование на Golang](https://stepik.org/course/54403/)  
+[Effective Go (RU)](https://github.com/Konstantin8105/Effective_Go_RU)  
 ***
 
 Framework  
 2й язык: Обзор фреймворков
+[Golang Frameworks for the Programmers](https://www.cmarix.com/blog/the-best-golang-frameworks-for-the-programmers-in-2022-2023/)  
 
 ***
 
@@ -1275,6 +1278,7 @@ PostgreSQL Создание процедур и триггеров
 
 Frontend  
 Описание системы сборки по выбору  
+[Пособие по webpack](https://habr.com/ru/post/309306/)  
 [Gulp за 30 минут](https://www.youtube.com/watch?v=qKcO04nJMu4)  
 [Gulp для самых маленьких - подробное руководство](https://www.youtube.com/watch?v=vW51JUVT66w)
 
