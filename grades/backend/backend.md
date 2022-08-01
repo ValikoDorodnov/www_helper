@@ -27,7 +27,7 @@
        * [Грейд 13](#Грейд-13) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade13.md)
        * [Грейд 14](#Грейд-14) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade14.md)
        * [Грейд 15](#Грейд-15) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade15.md)
-       * [Грейд 16](#Грейд-16) :arrows_counterclockwise: 6/9 [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade16.md)
+       * [Грейд 16](#Грейд-16) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade16.md)
 
 
 ## Грейды
@@ -1327,6 +1327,8 @@ Language 2й язык:
 
 Framework  
 2й язык: Описание фреймворка по выбору
+[.NET в целом: обзор от Скотта Хансельмана](https://habr.com/ru/company/jugru/blog/526554/)  
+[Что такое Spring Framework? От внедрения зависимостей до Web MVC](https://habr.com/ru/post/490586/)  
 
 ***
 
