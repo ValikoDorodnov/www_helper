@@ -512,8 +512,7 @@ JavaScript
 [history](https://developer.mozilla.org/ru/docs/Web/API/History_API)  
 [navigator](https://developer.mozilla.org/ru/docs/Web/API/Navigator)  
 [fetch](https://danlevy.net/you-may-not-need-axios/)  
-[каррирование](https://learn.javascript.ru/currying-partials)  
-[lodash](https://lodash.com/)  
+[каррирование](https://learn.javascript.ru/currying-partials)    
 [паттерн декоратор](https://learn.javascript.ru/call-apply-decorators)
 
 ---
@@ -532,12 +531,6 @@ JavaScript
 
 #### Грейд 9
 
-Теория и общая практика
-
-[SSR](https://habr.com/ru/post/527310/)
-
----
-
 Инструментарий
 
 [Sentry](https://geekbrains.ru/events/761?from=events)
@@ -550,14 +543,12 @@ JavaScript
 шаблонизаторы  
 [history api](https://developer.mozilla.org/ru/docs/Web/API/History_API)  
 [try catch finally](https://learn.javascript.ru/try-catch)  
-[Основы React](https://learn-reactjs.ru/basics/topics)  
-[Классовые и функциональные компоненты](https://ru.reactjs.org/docs/components-and-props.html)  
-[Fragments](https://ru.reactjs.org/docs/fragments.html), [refs](https://ru.reactjs.org/docs/refs-and-the-dom.html)  
-[VDOM](https://habr.com/ru/company/macloud/blog/558682/)  
 продвинутое знание regexp  
 [import/export](https://learn.javascript.ru/import-export)  
 продвинутые промисы  
-Все паттерны проектирования
+основы TypeScript  
+базовые типы TS  
+TS: объекты, функции, массивы, кортежи
 
 ---
 
@@ -567,7 +558,7 @@ JavaScript
 
 Теория и общая практика
 
-[react native](https://ru.wikipedia.org/wiki/React_Native)  
+[SSR](https://habr.com/ru/post/527310/)    
 [Статические генераторы сайтов](https://bestprogrammer.ru/programmirovanie-i-razrabotka/generatory-staticheskih-sajtov-rukovodstvo-dlya-novichkov)  
 [Electron](https://www.electronjs.org/ru/docs/latest)
 
@@ -582,18 +573,25 @@ parcel rollup snowpack esbuild
 ---
 
 JavaScript  
+[Основы React](https://learn-reactjs.ru/basics/topics)  
+[Классовые и функциональные компоненты](https://ru.reactjs.org/docs/components-and-props.html)  
+[Fragments](https://ru.reactjs.org/docs/fragments.html), [refs](https://ru.reactjs.org/docs/refs-and-the-dom.html)  
+[VDOM](https://habr.com/ru/company/macloud/blog/558682/)  
+[Жизненный цикл React-компонента](https://ru.reactjs.org/docs/state-and-lifecycle.html)  
+[Аналоги жизненного цикла на хуках](https://ru.reactjs.org/docs/hooks-faq.html#how-do-lifecycle-methods-correspond-to-hooks)
 [commonjs](https://largescalejs.ru/commonjs-modules/), amd umd  
 [observable](https://habr.com/ru/post/568064/)  
 JS/ES/WebAPI/Node.js  
 [Сравнение фреймворков](https://athemes.com/guides/angular-vs-react-vs-vue/)  
-[MVC](https://medium.com/swlh/es6-mvc-javascript-tutorial-build-a-simple-crud-app-c402f09e69c7)  
+[MVC](https://medium.com/swlh/es6-mvc-javascript-tutorial-build-a-simple-crud-app-c402f09e69c7), MVVM  
 [SPA/MPA/PWA/TWA](https://www.azoft.ru/blog/spa-mpa-pwa/)  
 Плюсы-минусы PWA-native  
 [CSS-in-JS](https://ru.reactjs.org/docs/faq-styling.html), styled components  
-[CSS modules](https://habr.com/ru/post/335244/)  
-[Жизненный цикл React-компонента](https://ru.reactjs.org/docs/state-and-lifecycle.html)  
-[Аналоги жизненного цикла на хуках](https://ru.reactjs.org/docs/hooks-faq.html#how-do-lifecycle-methods-correspond-to-hooks)  
-Context
+[CSS modules](https://habr.com/ru/post/335244/)    
+Context  
+TS: интерфейсы алиасы  
+TS: расширенные типы  
+Объединение, пересечение типов
 
 ---
 
@@ -624,14 +622,19 @@ JavaScript
 Понятие ES и ESNext stages proposals  
 Shadow DOM  
 [service-worker](https://habr.com/ru/company/ruvds/blog/349858/)  
-Flux [Redux](https://rajdee.gitbooks.io/redux-in-russian/content/docs/introduction/)  
+Flux [Redux](https://rajdee.gitbooks.io/redux-in-russian/content/docs/introduction/)/mobx/qvell  
 [итераторы](https://learn.javascript.ru/iterable) [генераторы](https://learn.javascript.ru/generators-iterators)  
 все хуки  
 пользовательские хуки  
 redux hooks  
 [Компоненты высшего порядка](https://ru.reactjs.org/docs/higher-order-components.html)  
 [React.Children](https://ru.reactjs.org/docs/react-api.html#reactchildren), [cloneElement](https://ru.reactjs.org/docs/react-api.html#cloneelement)  
-[Portal’s](https://ru.reactjs.org/docs/portals.html)
+[Portal’s](https://ru.reactjs.org/docs/portals.html)  
+observable  
+TS: условные типы пространства имён декларации   
+TS: обобщения  
+TS: защитники типов  
+TS: миксины
 
 ---
 
@@ -655,11 +658,12 @@ JavaScript
 
 веб-воркеры  
 [стратегии кеширования](https://habr.com/ru/company/2gis/blog/345552/)  
+принципы кэширования  
 D3.js  
 [render-props](https://ru.reactjs.org/docs/render-props.html)  
 Оптимизация рендера react-компонентов  
 [Profiler](https://ru.reactjs.org/docs/profiler.html)  
-React-Testing-Library
+React: композиция компонентов
 
 ---
 
@@ -677,8 +681,8 @@ React-Testing-Library
 
 Оптимизация загрузки страницы  
 Core Web Vitals  
-Бинарный поиск  
-Расчет сложности алгоритма (О-большое)
+NodeJS, различия между платформой NodeJS и браузером  
+Chrome api
 
 ---
 
@@ -687,15 +691,9 @@ JavaScript
 написание расширений для браузеров  
 WebGL  
 three.js  
-основы TypeScript  
-базовые типы TS  
-Базовые типы react-компонентов
-
----
-
-Прочее
-
-наличие стажёра
+NodeJS Основные модули  
+NodeJS Генерация событий  
+NodeJS Создание сервера
 
 ---
 
@@ -705,19 +703,28 @@ three.js
 
 Теория и общая практика
 
-метапрограммирование  
+Бинарный поиск  
+Расчет сложности алгоритма (О-большое)  
 Работа памяти, массивы и связанные списки  
-Сортировка выбором, быстрая сортировка
+Сортировка выбором, быстрая сортировка  
+Хэш-таблицы, графы, поиск в ширину  
+алгоритмы сжатия данных  
+алгоритм k-ближайших соседей
 
 ---
 
 JavaScript
 
-TS: объекты функции массивы кортежи  
-TS: интерфейсы алиасы  
 написание и публикация NPM-пакетов  
 ES-декораторы  
-Proxy и Reflect
+Proxy и Reflect  
+webpack плагины (написание собственного плагина)
+
+---
+
+Прочее
+
+наличие стажёра/навыки менторства
 
 ---
 
@@ -725,19 +732,12 @@ Proxy и Reflect
 
 #### Грейд 15
 
-Теория и общая практика
-
-NodeJS, различия между платформой NodeJS и браузером  
-Хэш-таблицы, графы, поиск в ширину
-
----
-
 JavaScript
 
-NodeJS Основные модули  
-NodeJS Генерация событий  
-NodeJS Создание сервера  
-TS: расширенные типы
+WebAssembly  
+Основы next.js  
+Next.js: кеширование, генераия статики   
+Паттерны проектирования (фабрика, фасад, синглтон, модуль, декоратор)
 
 ---
 
@@ -747,14 +747,12 @@ TS: расширенные типы
 
 Теория и общая практика
 
-алгоритмы сжатия данных  
-алгоритм k-ближайших соседей
+Принципы проектирования архитектуры фронтенда  
+Метапрограммирование
 
 ---
 
 JavaScript
 
-TS: условные типы пространства имён декларации  
-WebAssembly  
-TS: обобщения  
-TS: защитники типов
+Паттерны реакт разработки: Dependency Injection, dot notation  
+Все паттерны проектирования
