@@ -1327,8 +1327,8 @@ Language 2й язык:
 
 Framework  
 2й язык: Описание фреймворка по выбору
-[.NET в целом: обзор от Скотта Хансельмана](https://habr.com/ru/company/jugru/blog/526554/)  
-[Что такое Spring Framework? От внедрения зависимостей до Web MVC](https://habr.com/ru/post/490586/)  
+[go db sqlx][https://github.com/jmoiron/sqlx]  
+[go router mux][https://github.com/gorilla/mux]  
 
 ***
 
