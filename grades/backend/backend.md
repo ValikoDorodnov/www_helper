@@ -1327,8 +1327,8 @@ Language 2й язык:
 
 Framework  
 2й язык: Описание фреймворка по выбору
-[go db sqlx][https://github.com/jmoiron/sqlx]  
-[go router mux][https://github.com/gorilla/mux]  
+[go db sqlx](https://github.com/jmoiron/sqlx)  
+[go router mux](https://github.com/gorilla/mux)  
 
 ***
 
