@@ -1286,6 +1286,7 @@ Frontend
 
 Misc  
 Очереди: Apache Kafka и RabbitMQ  
+[Соседняя очередь всегда движется быстрее](https://habr.com/ru/company/oleg-bunin/blog/579354/)  
 [Apache Kafka](https://habr.com/ru/post/354486/)  
 [RabbitMQ tutorial](https://habr.com/ru/post/149694/)
 
