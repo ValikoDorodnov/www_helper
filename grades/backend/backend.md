@@ -28,6 +28,7 @@
        * [Грейд 14](#Грейд-14) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade14.md)
        * [Грейд 15](#Грейд-15) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade15.md)
        * [Грейд 16](#Грейд-16) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade16.md)
+       * [Грейд 17 (extra)](#Грейд-17)
 
 
 ## Грейды
@@ -1320,7 +1321,7 @@ Language 2й язык:
 [Кому и зачем все-таки нужен Go?](https://habr.com/ru/post/274099/)  
 
 Многопоточность  
-[Параллелизм, многопоточность Go](https://stepik.org/lesson/360357/step/1?unit=344766)
+[Параллелизм, многопоточность Go](https://stepik.org/lesson/360357/step/1?unit=344766)  
 [Изучаем многопоточное программирование в Go по картинкам](https://habr.com/ru/post/412715/)  
 [Многопоточность Go](http://golang-book.ru/chapter-10-concurrency.html)
 
@@ -1359,3 +1360,8 @@ Power BI
 - Couchbase: Взаимодействовать с БД запись/чтение данных  
 - Frontend: Использовать в разработке Framework  
 - BI: Реализовать OLAP куб на PostgreSQL - ??? решение о включении задания будет принято позже  
+
+#### Грейд 17
+**[⬆ вернуться к началу](#Разделы)**
+
+Алгоритмы и структуры данных
