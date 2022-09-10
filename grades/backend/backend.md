@@ -28,7 +28,7 @@
        * [Грейд 14](#Грейд-14) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade14.md)
        * [Грейд 15](#Грейд-15) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade15.md)
        * [Грейд 16](#Грейд-16) :white_check_mark: [:mortar_board:](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/shortGrades/grade16.md)
-       * [Грейд 17 (extra)](#Грейд-17)
+       * [Грейд 17 (extra)](#Грейд-17-(extra))
 
 
 ## Грейды
@@ -1361,7 +1361,7 @@ Power BI
 - Frontend: Использовать в разработке Framework  
 - BI: Реализовать OLAP куб на PostgreSQL - ??? решение о включении задания будет принято позже  
 
-#### Грейд 17
+#### Грейд 17 (extra)
 **[⬆ вернуться к началу](#Разделы)**
 
 Алгоритмы и структуры данных
