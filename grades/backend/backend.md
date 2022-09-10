@@ -1337,6 +1337,7 @@ Framework
 DB  
 Elasticesearch  
 [Основы Elasticsearch](https://habr.com/ru/post/280488/)  
+[С чего начинается Elasticsearch](https://habr.com/ru/post/489924/)  
 
 Couchbase  
 [Couchbase в телекоме](https://habr.com/ru/post/436762/)  
