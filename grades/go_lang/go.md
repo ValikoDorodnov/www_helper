@@ -45,6 +45,7 @@
       * [Целочисленные типы](#Целочисленные-типы)
       * [Типы чисел с плавающей точкой](#Типы-чисел-с-плавающей-точкой)
       * [Комплексные типы](#Комплексные-типы)
+      * [Строки](#Строки)
 
 ## Грейды
 
@@ -169,4 +170,63 @@ myVar /= 0 //-Inf (no error)
 x := complex(2.5, 3.1)
 y := complex(10.2, 2)
 fmt.Println(x + y)
+```
+
+#### Строки
+
+- string (rune for char)
+
+```go
+test := "test"
+var test = "test"
+var test string = "test"
+
+```
+
+В строковых литералах могут находиться специальные экранированные символы наподобие \n. Во избежание замены \n новой  
+строкой можно поместить текст в обратные кавычки `` вместо обычных "". Обратные кавычки выводят строку в необработанном виде.  
+
+```go
+fmt.Println("peace be upon you\nupon you be peace")
+fmt.Println(`strings can span multiple lines with the \n escape sequence`)
+
+//peace be upon you
+//upon you be peace
+//strings can span multiple lines with the \n escape sequence
+```
+
+Для представления Юникода в Go используется тип rune, который иначе называется int32.  
+```
+var grade rune = 'A'
+
+fmt.Printf("grade is %d", grade) // 65
+fmt.Printf("grade is %c", grade) // A
+```
+
+```go
+t := "а" //строка с кириллицей
+r := []rune(t) //представление строки в виде рун
+
+for i := 0; i < len(t); i++ { //итерирование по байтам
+	println(string(t[i]))
+}
+//Ð
+//°
+
+for _, char := range r { //итерирование по рунам
+	println(string(char))
+}
+//а
+```
+
+Строки в go неизменяемы
+
+```go
+shalom := "shalom"
+shalom = "salām"
+
+c := shalom[5]
+fmt.Printf("%c\n", c) // Выводит: m
+
+shalom[5] = "d" // !!! Нельзя присвоить shalom[5]
 ```
