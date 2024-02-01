@@ -3,10 +3,10 @@
 ***
 
 # Грейдовые сетки
-- [backend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/backend.md)  
-- [frontend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/frontend/frontend.md)  
-- [devops](https://github.com/ValikoDorodnov/grades/blob/master/grades/devops/devops.md)  
-- [go lang](https://github.com/ValikoDorodnov/grades/blob/master/grades/go_lang/go.md)  
+- [backend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/backend/backend.md)
+- [golang](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/grades.md)
+- [frontend grades](https://github.com/ValikoDorodnov/grades/blob/master/grades/frontend/frontend.md)
+- [devops](https://github.com/ValikoDorodnov/grades/blob/master/grades/devops/devops.md)
 
 ***
 
