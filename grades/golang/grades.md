@@ -186,14 +186,14 @@
 - Сборка golang приложения в Docker контейнер (тип OS, переменные окружения, multi-stage builds, GOMAXPROC)
 - Пакет context
 
-
-## Grade 10
-**[⬆ вернуться к началу](#GoLang)**
-
 ### Practice
 - Собрать приложение в dockerfile (docker compose)
 - Использовать внешние вызовы (database, apis) с пакетом context
 - Найти и исправить утечки памяти по ТЗ
+
+
+## Grade 10
+**[⬆ вернуться к началу](#GoLang)**
 
 ### Theory
 - Observability & Monitoring
