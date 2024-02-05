@@ -165,7 +165,13 @@
 ### Language
 - Конструкция go (горутины)
 - Как именно устроены каналы (buffered/unbuffered, блокировки чтения/записи, доступ к стеку)
-- Примитивы синхронизации (sync, deadlock, race condition, go test -race)
+- Примитивы синхронизации (deadlock, race condition, go test -race)
+  - sync.WaitGroup
+  - sync.Mutex
+  - sync.RWMutex
+  - sync.Map
+  - sync/atomic
+  - sync/errgroup
 - for select, time.NewTicker, semaphore
 
 ### Practice
@@ -183,7 +189,8 @@
 ### Language
 - Утечки памяти
 - Как именно устроена map? (hash table, buckets, эвакуация, коллизии)
-- Сборка golang приложения в Docker контейнер (тип OS, переменные окружения, multi-stage builds, GOMAXPROC)
+- Сборка golang приложения в Docker контейнер (тип OS, переменные окружения, multi-stage builds)
+- GOMAXPROCS
 - Пакет context
 
 ### Practice
