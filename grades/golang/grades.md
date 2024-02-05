@@ -106,6 +106,9 @@
 - go test
 - golangci-lint
 - Подробный разбор slice (len, cap, append, *array)
+  - slice[x:]
+  - slice[:x]
+  - slice[x:x]
 
 ### Practice
 - Создание простого проекта на golang по ТЗ
