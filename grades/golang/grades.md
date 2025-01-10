@@ -1,9 +1,9 @@
 # GoLang
 
-- Ключевые слова var, const, type
-- Типы данных (int, uint, string, rune, float, complex, bool, iota)
-- Type casting (Type assertion, type switch)
-- Shadow return
+- [Ключевые слова var, const, type](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g1.md#grade-1)
+- [Типы данных (int, uint, string, rune, float, complex, bool, iota)](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g1.md#grade-2)
+- [Type casting (Type assertion, type switch)](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g1.md#grade-3)
+- [Shadow return](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g1.md#grade-4)
 
 
 - Конструкции
