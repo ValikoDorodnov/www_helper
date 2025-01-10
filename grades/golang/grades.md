@@ -1,11 +1,12 @@
 # GoLang
 
+1
 - [Ключевые слова var, const, type](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g1.md#1)
 - [Типы данных (int, uint, string, rune, float, complex, bool, iota)](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g1.md#2)
 - [Type casting (Type assertion, type switch)](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g1.md#3)
 - [Shadow return](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g1.md#4)
 
-
+2
 - Конструкции
   - make
   - init()
@@ -16,21 +17,21 @@
 - Labels (break, continue, goto)
 - switch case (fallthrough)
 
-
+3
 - Типы данных (struct, nil, interface{}, error, generic)
 - Тип как func
 - Пакеты и модули (package, import, go mod, go sum)
 - Функции (main, named func, лямбда)
 - Обработка ошибок, errors.Is, errors.As, errors.Wrap
 
-
+4
 - Конструкции &, * (как golang работает с ссылками и указателями)
 - defer
 - panic (recover)
 - strings.Builder (оптимизация работы со строками)
 - Heap, stack
 
-
+5
 - Протокол http (1.0/1.1, 2.0, 3.0)
 - Основные изменения в версиях golang (1.15 -- 1.22)
 - Описание и возможности библиотеки http.net
@@ -38,6 +39,7 @@
 - средства промежуточной обработки запросов Middleware
 - Как в golang можно реализовать наследование, инкапсуляцию, полиморфизм
 
+6
 - Структура проекта (pkg, internal, cmd, api, ...)
 - go test (Mocks, Integration Tests)
 - golangci-lint
@@ -45,7 +47,7 @@
 - Graceful shutdown
 - GOMAXPROCS
 
-
+7
 - Утечки памяти
 - Garbage collector
 - Как именно устроена map? (hash table, buckets, эвакуация, коллизии)
@@ -55,7 +57,7 @@
   - slice[x:x]
 - Пакет context
 
-
+8
 - Конструкция go (горутины)
 - Как именно устроены каналы (buffered/unbuffered, блокировки чтения/записи, доступ к стеку)
 - Примитивы синхронизации (deadlock, race condition, go test -race)
@@ -68,13 +70,13 @@
 - for select, time.NewTicker, semaphore
 - Worker pool
 
-
+9
 - Реализация gRPC, protobuf, WebSocket
 - Кодогенерация
 - Десериализация JSON (marshal, unmarshal)
 - Использование тегов структур
 
-
+10
 - Observability & Monitoring
 - Postmortem
 - Использование CI/CD инструментов
