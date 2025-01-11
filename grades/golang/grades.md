@@ -7,15 +7,15 @@
 - [Shadow return](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g1.md#4)
 
 2
-- Конструкции
+- [Конструкции](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g2.md#1)
   - make
   - init()
   - :=
   - new()
-- Типы данных (array, slice, map)
-- Циклы (forr, fori, break, continue)
-- Labels (break, continue, goto)
-- switch case (fallthrough)
+- [Типы данных (array, slice, map)](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g1.md#2)
+- [Циклы (forr, fori, break, continue)](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g1.md#3)
+- [Labels (break, continue, goto)](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g1.md#3)
+- [switch case (fallthrough)](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g1.md#4)
 
 3
 - Типы данных (struct, nil, interface{}, error, generic)
