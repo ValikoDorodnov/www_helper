@@ -18,11 +18,11 @@
 - [switch case (fallthrough)](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g2.md#4)
 
 3
-- Типы данных (struct, nil, interface{}, error, generic)
-- Тип как func
-- Пакеты и модули (package, import, go mod, go sum)
-- Функции (main, named func, лямбда)
-- Обработка ошибок, errors.Is, errors.As, errors.Wrap
+- [Типы данных (struct, nil, interface{}, error, generic)](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g3.md#1)
+- [Тип как func](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g3.md#2)
+- [Пакеты и модули (package, import, go mod, go sum)](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g3.md#3)
+- [Функции лямбда и closure](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g3.md#4)
+- [Обработка ошибок, errors.Is, errors.As, errors.Wrap](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g3.md#5)
 
 4
 - Конструкции &, * (как golang работает с ссылками и указателями)
