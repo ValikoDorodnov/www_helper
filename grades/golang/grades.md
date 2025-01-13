@@ -25,11 +25,11 @@
 - [Обработка ошибок, errors.Is, errors.As, errors.Wrap](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g3.md#5)
 
 4
-- Конструкции &, * (как golang работает с ссылками и указателями)
-- defer
-- panic (recover)
-- strings.Builder (оптимизация работы со строками)
-- Heap, stack
+- [Конструкции &, * (как golang работает с ссылками и указателями)](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g4.md#1)
+- [defer](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g4.md#2)
+- [panic (recover)](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g4.md#3)
+- [strings.Builder (оптимизация работы со строками)](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g4.md#4)
+- [Heap, stack](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g4.md#5)
 
 5
 - Протокол http (1.0/1.1, 2.0, 3.0)
