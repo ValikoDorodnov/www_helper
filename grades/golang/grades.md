@@ -83,3 +83,20 @@
 - Метрики приложения (на что обращать внимание)
 - Benchmarking
 - Устройство логирования (std_err, std_out...)
+
+11 [11](https://github.com/ValikoDorodnov/www_helper/blob/master/grades/golang/knowledge/g11.md)
+- Асимптотический анализ (O большое)
+- Базовые структуры данных
+ - Массив
+ - Односвязный список / Двусвязный список
+ - Деревья
+ - Хэш таблица
+ - Бинарная куча
+ - Очередь / стек / Двухстороння очередь
+ - Граф
+- Бинарный поиск
+ - First Bad Version
+ - Valid Perfrect Square
+- Два указателя
+ - Remove Duplicates from Sorted Array
+ - Merge Sorted Array
