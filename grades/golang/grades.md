@@ -100,3 +100,6 @@
 - Два указателя
  - Remove Duplicates from Sorted Array
  - Merge Sorted Array
+
+12 
+- Kafka
